@@ -11,8 +11,5 @@ sed -r -i -e "s#=> 389,#=> 389,\n        'domain_base_dn'            => 'cn=kola
 sed -r -i -e "s#'ou=People,.*'#'ou=People,%dc'#g" /etc/roundcubemail/kolab_auth.inc.php
 sed -r -i -e "s#'ou=Groups,.*'#'ou=Groups,%dc'#g" /etc/roundcubemail/kolab_auth.inc.php
  
-#fix a problem with kolab lm, see http://www.intevation.de/pipermail/kolab-devel/2013-June/014492.html
-sed -r -i -e "s/kolab_user_filter = /#kolab_user_filter = /g" /etc/kolab/kolab.conf
-
 patch -p0 -i `pwd`/patchMultiDomainAdminsBug2018.patch  -d /usr/share/kolab-webadmin
 patch -p0 -i `pwd`/mailquotaBug1966.patch  -d /usr/share/kolab-webadmin
