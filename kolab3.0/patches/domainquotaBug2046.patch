@@ -1,0 +1,170 @@
+diff --git a/lib/Auth.php b/lib/Auth.php
+index a2a9907..87396cb 100644
+--- a/lib/Auth.php
++++ b/lib/Auth.php
+@@ -214,6 +214,11 @@ class Auth {
+         return $this->auth_instance()->domain_add($domain, $parent_domain);
+     }
+ 
++    public function domainadmin_get_quota($domainadmin, $excludeuser)
++    {
++        return $this->auth_instance()->domainadmin_get_quota($domainadmin, $excludeuser);
++    }
++
+     public function domain_edit($domain, $attributes, $typeid = null)
+     {
+         return $this->auth_instance()->domain_edit($domain, $attributes, $typeid);
+diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
+index 37fca0e..cebafc8 100644
+--- a/lib/Auth/LDAP.php
++++ b/lib/Auth/LDAP.php
+@@ -281,6 +281,46 @@ class LDAP extends Net_LDAP3 {
+         }
+     }
+ 
++    // returns an array with the domains that this domainadmin has access to
++    private function domainadmin_get_domains($domainadmin)
++    {
++        $filter = "(&(objectclass=domainrelatedobject)(aci=*".$domainadmin."*))";
++        $domains_result = $this->_search($this->conf->get('domain_base_dn'), $filter, array("aci"));
++        if ($domains_result != null && count($domains_result) > 0) {
++            $domains = $domains_result->entries(true);
++            return array_keys($domains);
++        }
++
++        return array();
++    }
++
++    // get the quota that has already been shared among the users of the domains that this domainadmin manages.
++    // excluding the current quota for the specified user, that we want to change the quota for
++    public function domainadmin_get_quota($domainadmin, $excludeuser)
++    {
++        $quota = 0;
++        $domains = $this->domainadmin_get_domains($domainadmin);
++        foreach ($domains as $associateddomain) {
++            $domain = substr($associateddomain, strlen("associateddomain="));
++            $domain = substr($domain, 0, strpos($domain, ','));
++            // get all users that are part of this domain
++            $users_result = $this->_search(
++                               $this->_standard_root_dn($domain),
++                               "objectclass=kolabinetorgperson",
++                               array($this->conf->get("quota_attribute")));
++            if ($users_result != null && count($users_result) > 0) {
++               $users = $users_result->entries(true);
++               foreach ($users as $uid => $user) {
++                   if (strtolower($uid) != strtolower($excludeuser)) {
++                       $quota += $user[$this->conf->get("quota_attribute")];
++                   }
++               }
++            }
++        }
++
++        return $quota;
++    }
++
+     public function domain_edit($domain, $attributes, $typeid = null)
+     {
+         $domain = $this->domain_info($domain, array_keys($attributes));
+diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
+index 02f362a..1b31435 100644
+--- a/lib/api/kolab_api_service_form_value.php
++++ b/lib/api/kolab_api_service_form_value.php
+@@ -225,12 +225,15 @@ class kolab_api_service_form_value extends kolab_api_service
+                 $result[$attr_name] = $this->{$method_name}($attr_value, $postdata);
+             } elseif (array_key_exists($attr_name, $attribs['form_fields']) && !empty($attribs['form_fields'][$attr_name]['validate']) && !$attribs['form_fields'][$attr_name]['validate']) {
+                 $result[$attr_name] = $attr_value;
+-            } else {
++            } else if (empty($attr_value)) {
+                 try {
+                     $result[$attr_name] = $this->{$method_name}($attr_value, $postdata);
+                 } catch (Exception $e) {
+-                    Log::debug("Attribute $attr_name did not validate, but it is not a required attribute. Not saving. (Error was: $e)");
++                    Log::debug("Attribute $attr_name did not validate, but it is not a required attribute. Saving empty value. (Error was: $e)");
++                    $result[$attr_value] = $attr_value;
+                 }
++            } else {
++                $result[$attr_name] = $this->{$method_name}($attr_value, $postdata);
+             }
+ 
+         }
+@@ -1157,6 +1160,15 @@ class kolab_api_service_form_value extends kolab_api_service
+         $conf = Conf::get_instance();
+         $quota_attribute = $conf->get('quota_attribute');
+ 
++        if (empty($postdata[$quota_attribute])) {
++            return $value;
++        }
++
++        if (!is_numeric($postdata[$quota_attribute])) {
++            throw new Exception('Invalid value for mail quota. Please clear or enter a valid integer number!');
++        }
++        $postdata[$quota_attribute] = intval($postdata[$quota_attribute]);
++
+         if ($postdata[$quota_attribute.'-unit'] == 'gb') {
+             $postdata[$quota_attribute] *= 1024*1024;
+             $postdata[$quota_attribute.'-unit'] = 'kb';
+@@ -1167,6 +1179,64 @@ class kolab_api_service_form_value extends kolab_api_service
+             $postdata[$quota_attribute.'-unit'] = 'kb';
+         }
+ 
++        $conf = Conf::get_instance();
++        // check domain admin quota, only for users that are not part of the default domain
++        if (strtolower($postdata['ou']) != strtolower($conf->get('kolab_user_base_dn'))) {
++            $auth = Auth::get_instance();
++            
++            // get domain admin for the current domain, and the mailquota of the domain admin
++            $domaindetails = array_shift(array_values($auth->domain_info($_SESSION['user']->get_domain(), array('domainadmin'))));
++            $domainadmins = $domaindetails['domainadmin'];
++            unset($domainadminquota);
++            foreach ($domaindetails['domainadmin'] as $domainadmin) {
++                // ignore cn=Directory Manager
++                if ($domainadmin != $conf->get('bind_dn')) {
++                    $userinfo = array_shift(array_values($auth->user_info($domainadmin, array($quota_attribute))));
++                    if (isset($userinfo[$quota_attribute])) {
++                        // what about multiple domain admins of one domain?
++                        if (isset($domainadminquota)) {
++                              throw new Exception('error: only one domainadmin can have a quota specified');
++                        }
++                        $domainadminquota = $userinfo[$quota_attribute];
++                        $maindomainadmin = $domainadmin;
++                    }
++                }
++            }
++
++            if (isset($domainadminquota)) {
++                // get all quotas from all users of that domain admin, excluding this user
++                $quota_used = $auth->domainadmin_get_quota($maindomainadmin, 'uid='.$postdata['uid'].','.$postdata['ou']);
++
++                // check if existing quota plus this new quota would still fit the quota of the domain admin
++                if ($quota_used + $postdata[$quota_attribute] > $domainadminquota) {
++                    $available = $domainadminquota - $quota_used;
++                    $domainadminquotaunit = "KB";
++                    if ($domainadminquota > 1024) {
++                        $domainadminquota = $domainadminquota / 1024;
++                        $domainadminquotaunit = "MB";
++                    }
++                    if ($domainadminquota > 1024) {
++                        $domainadminquota = $domainadminquota / 1024;
++                        $domainadminquotaunit = "GB";
++                    }
++                    $availableunit = "KB";
++                    if ($available > 1024) {
++                        $available = $available / 1024;
++                        $availableunit = "MB";
++                    }
++                    if ($available > 1024) {
++                        $available = $available / 1024;
++                        $availableunit = "GB";
++                    }
++
++                    throw new Exception('error: mailquota of the domain admin has been exceeded. <br/>'.
++                         'max available: '.$domainadminquota.' '.$domainadminquotaunit.';<br/> '.
++                         'max available for this user: '.$available.' '.$availableunit);
++                }
++            }
++        }
++
++
+         return $postdata[$quota_attribute];
+     }
+ 

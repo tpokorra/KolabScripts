@@ -6,5 +6,7 @@ sed -r -i -e 's/^pts_module/#pts_module/g' /etc/imapd.conf
 sed -r -i -e 's/^ldap_/#ldap_/g' /etc/imapd.conf
 service cyrus-imapd restart
  
-patch -p0 -i `pwd`/patches/patchMultiDomainAdminsBug2018.patch  -d /usr/share/kolab-webadmin
-patch -p0 -i `pwd`/patches/mailquotaBug1966.patch  -d /usr/share/kolab-webadmin
+patch -p1 -d /usr/share/kolab-webadmin < patches/patchMultiDomainAdminsBug2018.patch
+patch -p1 -d /usr/share/kolab-webadmin < patches/mailquotaBug1966.patch
+patch -p1 -d /usr/share/kolab-webadmin < patches/validationOptionalValuesBug2045.patch
+patch -p1 -d /usr/share/kolab-webadmin < patches/mailquotaBug1966.patch

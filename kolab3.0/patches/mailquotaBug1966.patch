@@ -1,27 +1,38 @@
-diff --git a/lib/api/kolab_api_service_user.php /usr/share/kolab-webadmin/lib/api/kolab_api_service_user.php
-index 9e4cdde..96ef4f7 100644
---- a/lib/api/kolab_api_service_user.php
-+++ /usr/share/kolab-webadmin/lib/api/kolab_api_service_user.php
-@@ -125,6 +125,13 @@ class kolab_api_service_user extends kolab_api_service
-     {
-         //console("\$postdata to user_edit()", $postdata);
+diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
+index ddccbfe..02f362a 100644
+--- a/lib/api/kolab_api_service_form_value.php
++++ b/lib/api/kolab_api_service_form_value.php
+@@ -1152,10 +1152,22 @@ class kolab_api_service_form_value extends kolab_api_service
+         }
+     }
  
-+        if ($postdata['mailquota-unit'] == 'gb') {
-+            $postdata['mailquota'] *= 1024*1024;
-+        }
-+        if ($postdata['mailquota-unit'] == 'mb') {
-+            $postdata['mailquota'] *= 1024;
+-    private function validate_mailquota($value)
++    private function validate_mailquota($value, $postdata)
+     {
+-        //return (int)($value);
+-        return $value;
++        $conf = Conf::get_instance();
++        $quota_attribute = $conf->get('quota_attribute');
++
++        if ($postdata[$quota_attribute.'-unit'] == 'gb') {
++            $postdata[$quota_attribute] *= 1024*1024;
++            $postdata[$quota_attribute.'-unit'] = 'kb';
 +        }
 +
-         $user_attributes = $this->parse_input_attributes('user', $postdata);
-         $user            = $postdata['id'];
++        if ($postdata[$quota_attribute.'-unit'] == 'mb') {
++            $postdata[$quota_attribute] *= 1024;
++            $postdata[$quota_attribute.'-unit'] = 'kb';
++        }
++
++        return $postdata[$quota_attribute];
+     }
  
-diff --git a/lib/client/kolab_client_task_settings.php /usr/share/kolab-webadmin/lib/client/kolab_client_task_settings.php
-index 9e2938d..2ec463d 100644
+     private function validate_mailalternateaddress($value)
+diff --git a/lib/client/kolab_client_task_settings.php b/lib/client/kolab_client_task_settings.php
+index 121b85e..ffe9e09 100644
 --- a/lib/client/kolab_client_task_settings.php
-+++ /usr/share/kolab-webadmin/lib/client/kolab_client_task_settings.php
-@@ -33,7 +33,8 @@ class kolab_client_task_settings extends kolab_client_task
- 
++++ b/lib/client/kolab_client_task_settings.php
+@@ -34,6 +34,7 @@ class kolab_client_task_settings extends kolab_client_task
      protected $form_element_types = array(
          'text', 'select', 'multiselect', 'list', 'list-autocomplete', 'checkbox', 'password', 'ldap_url',
          'list-domainadmins',
@@ -29,12 +40,12 @@ index 9e2938d..2ec463d 100644
      );
  
  
-diff --git a/lib/kolab_client_task.php /usr/share/kolab-webadmin/lib/kolab_client_task.php
-index bcfa292..4e937a5 100644
+diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
+index 2b10e42..6677564 100644
 --- a/lib/kolab_client_task.php
-+++ /usr/share/kolab-webadmin/lib/kolab_client_task.php
++++ b/lib/kolab_client_task.php
 @@ -854,6 +854,10 @@ class kolab_client_task
-             }
+             $result['data-type'] = kolab_form::TYPE_LIST;
              break;
  
 +        case 'text-quota':
@@ -44,11 +55,11 @@ index bcfa292..4e937a5 100644
          default:
              $result['type'] = kolab_form::INPUT_TEXT;
              if (isset($field['maxlength'])) {
-diff --git a/lib/kolab_form.php /usr/share/kolab-webadmin/lib/kolab_form.php
-index 353d993..2fe3e9c 100644
+diff --git a/lib/kolab_form.php b/lib/kolab_form.php
+index d8ddfe6..125dab5 100644
 --- a/lib/kolab_form.php
-+++ /usr/share/kolab-webadmin/lib/kolab_form.php
-@@ -38,7 +38,8 @@ class kolab_form
++++ b/lib/kolab_form.php
+@@ -38,6 +38,7 @@ class kolab_form
      const INPUT_HIDDEN   = 9;
      const INPUT_CUSTOM   = 10;
      const INPUT_CONTENT  = 20;
@@ -56,8 +67,7 @@ index 353d993..2fe3e9c 100644
      const INPUT_DOMAINADMIN = 40;
  
      const TYPE_LIST = 1;
- 
-@@ -277,6 +278,11 @@ class kolab_form
+@@ -278,6 +279,11 @@ class kolab_form
              $content = kolab_html::input($attribs);
              break;
  
@@ -69,10 +79,10 @@ index 353d993..2fe3e9c 100644
          case self::INPUT_CHECKBOX:
              $attribs['type'] = 'checkbox';
              $content = kolab_html::input($attribs);
-diff --git a/lib/kolab_html.php /usr/share/kolab-webadmin/lib/kolab_html.php
+diff --git a/lib/kolab_html.php b/lib/kolab_html.php
 index 33bc705..c0ef529 100644
 --- a/lib/kolab_html.php
-+++ /usr/share/kolab-webadmin/lib/kolab_html.php
++++ b/lib/kolab_html.php
 @@ -154,6 +154,33 @@ class kolab_html
      }
  
