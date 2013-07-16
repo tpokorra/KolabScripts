@@ -1,3 +1,4 @@
+#!/bin/bash
 # this script will remove Kolab, and DELETE all YOUR data!!!
 # it will reinstall Kolab, from the nightly build from Kolab git trunk
 # you can optionally install the patches from TBits, see bottom of script
@@ -55,11 +56,4 @@ yum install kolab
 patch -p0 -i patches/nsRoleDNBug1510.patch
 setup-kolab
 
-if [ "1" -eq "2" ]
-then
-    patch -p1 -i `pwd`/patches/patchMultiDomainAdminsBug2018.patch -d /usr/share/kolab-webadmin
-    patch -p1 -i `pwd`/patches/mailquotaImprovedBug1966.patch -d /usr/share/kolab-webadmin
-    patch -p1 -i `pwd`/patches/validationOptionalValuesBug2045.patch -d /usr/share/kolab-webadmin
-    patch -p1 -i `pwd`/patches/domainquotaBug2046.patch -d /usr/share/kolab-webadmin
-    ./initMultiDomain.sh
-fi
+echo "for the TBits patches for multi domain setup, run ./initMultiDomain.sh"
