@@ -45,6 +45,8 @@ wget http://mirror.kolabsys.com/pub/redhat/kolab-3.0/el6/release/x86_64/kolab-3.
 yum -y localinstall kolab-3*.rpm
 rm -f *.rpm
 
+rm -Rf /etc/yum.repos.d/bintray-tpokorra-kolab.repo
+
 yum clean metadata
 yum install kolab
 setup-kolab
