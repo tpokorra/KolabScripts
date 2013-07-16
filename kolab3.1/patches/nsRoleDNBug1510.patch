@@ -1,0 +1,20 @@
+--- tmp/kolab2.ldif	2013-07-10 12:57:09.716410227 +0200
++++ /usr/share/doc/kolab-schema-3.0/kolab2.ldif	2013-07-10 13:05:18.773409906 +0200
+@@ -335,6 +340,7 @@
+   MAY ( alias $
+         mailHost $
+         kolabHomeServerOnly $
++        nsRoleDN $
+         kolabDelegate $
+         kolabInvitationPolicy $
+         kolabVacationBeginDateTime $
+--- tmp/kolab2.schema	2013-07-11 10:03:46.535035758 +0200
++++ /usr/share/doc/kolab-schema-3.0/kolab2.schema	2013-07-11 10:03:37.874036057 +0200
+@@ -335,6 +335,7 @@
+   SUP top AUXILIARY
+   MAY ( alias $
+         mailHost $
++        nsRoleDN $
+         kolabHomeServerOnly $
+         kolabDelegate $
+         kolabInvitationPolicy $

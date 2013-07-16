@@ -1,0 +1,109 @@
+diff --git a/lib/api/kolab_api_service_user.php /usr/share/kolab-webadmin/lib/api/kolab_api_service_user.php
+index 9e4cdde..96ef4f7 100644
+--- a/lib/api/kolab_api_service_user.php
++++ /usr/share/kolab-webadmin/lib/api/kolab_api_service_user.php
+@@ -125,6 +125,13 @@ class kolab_api_service_user extends kolab_api_service
+     {
+         //console("\$postdata to user_edit()", $postdata);
+ 
++        if ($postdata['mailquota-unit'] == 'gb') {
++            $postdata['mailquota'] *= 1024*1024;
++        }
++        if ($postdata['mailquota-unit'] == 'mb') {
++            $postdata['mailquota'] *= 1024;
++        }
++
+         $user_attributes = $this->parse_input_attributes('user', $postdata);
+         $user            = $postdata['id'];
+ 
+diff --git a/lib/client/kolab_client_task_settings.php /usr/share/kolab-webadmin/lib/client/kolab_client_task_settings.php
+index 9e2938d..2ec463d 100644
+--- a/lib/client/kolab_client_task_settings.php
++++ /usr/share/kolab-webadmin/lib/client/kolab_client_task_settings.php
+@@ -33,7 +33,8 @@ class kolab_client_task_settings extends kolab_client_task
+ 
+     protected $form_element_types = array(
+         'text', 'select', 'multiselect', 'list', 'list-autocomplete', 'checkbox', 'password', 'ldap_url',
+         'list-domainadmins',
++        'text-quota',
+     );
+ 
+ 
+diff --git a/lib/kolab_client_task.php /usr/share/kolab-webadmin/lib/kolab_client_task.php
+index bcfa292..4e937a5 100644
+--- a/lib/kolab_client_task.php
++++ /usr/share/kolab-webadmin/lib/kolab_client_task.php
+@@ -854,6 +854,10 @@ class kolab_client_task
+             }
+             break;
+ 
++        case 'text-quota':
++            $result['type'] = kolab_form::INPUT_TEXTQUOTA;
++            break;
++
+         default:
+             $result['type'] = kolab_form::INPUT_TEXT;
+             if (isset($field['maxlength'])) {
+diff --git a/lib/kolab_form.php /usr/share/kolab-webadmin/lib/kolab_form.php
+index 353d993..2fe3e9c 100644
+--- a/lib/kolab_form.php
++++ /usr/share/kolab-webadmin/lib/kolab_form.php
+@@ -38,7 +38,8 @@ class kolab_form
+     const INPUT_HIDDEN   = 9;
+     const INPUT_CUSTOM   = 10;
+     const INPUT_CONTENT  = 20;
++    const INPUT_TEXTQUOTA = 30;
+     const INPUT_DOMAINADMIN = 40;
+ 
+     const TYPE_LIST = 1;
+ 
+@@ -277,6 +278,11 @@ class kolab_form
+             $content = kolab_html::input($attribs);
+             break;
+ 
++        case self::INPUT_TEXTQUOTA:
++            $attribs['type'] = 'text';
++            $content = kolab_html::inputquota($attribs);
++            break;
++
+         case self::INPUT_CHECKBOX:
+             $attribs['type'] = 'checkbox';
+             $content = kolab_html::input($attribs);
+diff --git a/lib/kolab_html.php /usr/share/kolab-webadmin/lib/kolab_html.php
+index 33bc705..c0ef529 100644
+--- a/lib/kolab_html.php
++++ /usr/share/kolab-webadmin/lib/kolab_html.php
+@@ -154,6 +154,33 @@ class kolab_html
+     }
+ 
+     /**
++     * Input element for mail quota. user can select the unit (GB, MB)
++     *
++     * @param array  $attribs  Element attributes
++     *
++     * @return string HTML output of the input
++     */
++    public static function inputquota($attribs = array())
++    {
++        $elem_attribs = array_merge(self::$input_attribs, self::$input_event_attribs,
++            self::$common_attribs, self::$event_attribs);
++        $selected_option_mb = $selected_option_gb = "";
++        $selected_option_kb = "selected";
++        if ($attribs['value'] >= 1024 && $attribs['value'] % 1024 == 0) {
++            $attribs['value'] /= 1024;
++            $selected_option_kb = "";
++            $selected_option_mb = "selected";
++        }
++        if ($attribs['value'] >= 1024 && $attribs['value'] % 1024 == 0) {
++            $attribs['value'] /= 1024;
++            $selected_option_mb = "";
++            $selected_option_gb = "selected";
++        }
++
++        return sprintf('<input%s /><select name="%s-unit"><option value="kb" %s>KB</option><option value="mb" %s>MB</option><option value="gb" %s>GB</option></select>', self::attrib_string($attribs, $elem_attribs), $attribs['name'], $selected_option_kb, $selected_option_mb, $selected_option_gb);
++    }
++
++    /**
+      * Textarea element.
+      *
+      * @param array $attribs  Element attributes

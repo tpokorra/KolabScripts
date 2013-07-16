@@ -1,0 +1,48 @@
+diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
+index 707fddb..a241dfc 100644
+--- a/lib/api/kolab_api_service_form_value.php
++++ b/lib/api/kolab_api_service_form_value.php
+@@ -1129,10 +1129,22 @@ class kolab_api_service_form_value extends kolab_api_service
+         }
+     }
+ 
+-    private function validate_mailquota($value)
++    private function validate_mailquota($value, $postdata)
+     {
+-        //return (int)($value);
+-        return $value;
++        $conf = Conf::get_instance();
++        $quota_attribute = $conf->get('quota_attribute');
++
++        if ($postdata[$quota_attribute.'-unit'] == 'gb') {
++            $postdata[$quota_attribute] *= 1024*1024;
++            $postdata[$quota_attribute.'-unit'] = 'kb';
++        }
++
++        if ($postdata[$quota_attribute.'-unit'] == 'mb') {
++            $postdata[$quota_attribute] *= 1024;
++            $postdata[$quota_attribute.'-unit'] = 'kb';
++        }
++
++        return $postdata[$quota_attribute];
+     }
+ 
+     private function validate_mailalternateaddress($value)
+diff --git a/lib/api/kolab_api_service_user.php b/lib/api/kolab_api_service_user.php
+index 96ef4f7..9e4cdde 100644
+--- a/lib/api/kolab_api_service_user.php
++++ b/lib/api/kolab_api_service_user.php
+@@ -125,13 +125,6 @@ class kolab_api_service_user extends kolab_api_service
+     {
+         //console("\$postdata to user_edit()", $postdata);
+ 
+-        if ($postdata['mailquota-unit'] == 'gb') {
+-            $postdata['mailquota'] *= 1024*1024;
+-        }
+-        if ($postdata['mailquota-unit'] == 'mb') {
+-            $postdata['mailquota'] *= 1024;
+-        }
+-
+         $user_attributes = $this->parse_input_attributes('user', $postdata);
+         $user            = $postdata['id'];
+

@@ -1,0 +1,707 @@
+diff --git a/lib/Auth/LDAP.php /usr/share/kolab-webadmin/lib/Auth/LDAP.php
+index bcf2176..37fca0e 100644
+--- a/lib/Auth/LDAP.php
++++ /usr/share/kolab-webadmin/lib/Auth/LDAP.php
+@@ -43,7 +43,7 @@ class LDAP extends Net_LDAP3 {
+         // Causes nesting levels to be too deep...?
+         //$this->config_set('config_get_hook', array($this, "_config_get"));
+ 
+-        $this->config_set("debug", true);
++        $this->config_set("debug", false);
+         $this->config_set("log_hook", array($this, "_log"));
+ 
+         //$this->config_set("vlv", false);
+@@ -132,11 +132,30 @@ class LDAP extends Net_LDAP3 {
+         $_SESSION['user']->user_bind_dn = $result;
+         $_SESSION['user']->user_bind_pw = $password;
+ 
++        # if the user does not have access to the default domain, set another domain
++        $domains = $this->list_domains();
++        $domain = "";
++        foreach ($domains['list'] as $key => $value) {
++            $domain = $value['associateddomain'];
++            if (is_array($domain)) {
++               $domain = $domain[0];
++            }
++            
++            if ($domain == $this->domain) {
++                break;
++            }
++        }
++
++        $_SESSION['user']->set_domain($domain);
++
+         return $result;
+     }
+ 
+-    public function domain_add($domain, $parent_domain = false, $prepopulate = true)
++    public function domain_add($domain_attrs, $parent_domain = false, $prepopulate = true)
+     {
++        $domain_name_attribute = $this->conf->get('ldap', 'domain_name_attribute');
++        $domain = $domain_attrs[$domain_name_attribute];
++
+         // Apply some routines for access control to this function here.
+         if (!empty($parent_domain)) {
+             $domain_info = $this->domain_info($parent_domain);
+@@ -144,10 +163,121 @@ class LDAP extends Net_LDAP3 {
+                 $this->_domain_add_new($parent_domain, $prepopulate);
+             }
+ 
+-            return $this->_domain_add_alias($domain, $parent_domain);
++            $add_domain_result = $this->_domain_add_alias($domain, $parent_domain);
+         }
+         else {
+-            return $this->_domain_add_new($domain, $prepopulate);
++            $add_domain_result = $this->_domain_add_new($domain, $prepopulate);
++        }
++
++        if (empty($add_domain_result) || !$add_domain_result) {
++            Log::error("Failed to add domain");
++            return false;
++        }
++
++        if (empty($domain)) {
++            $domain = $parent_domain;
++        }
++
++        $domain = $this->domain_info($domain, array_keys($domain_attrs));
++
++        if (empty($domain)) {
++            return false;
++        }
++
++        $domain_dn = key($domain);
++
++        $this->domain_admin_save($domain, $domain_dn, $domain_attrs["domainadmin"]);
++
++        return true;
++    }
++
++    private function ChangeDomainReadCapability($user, $domain, $action='add')
++    {
++        if (($tmpconn = ldap_connect($this->_ldap_server)) === false) {
++            return false;
++        }
++
++        if (ldap_bind($tmpconn, $_SESSION['user']->user_bind_dn, $_SESSION['user']->user_bind_pw) === false) {
++            ldap_close($tmpconn);
++            return false;
++        }
++
++        $associateddomain_dn="associateddomain=$domain,cn=kolab,cn=config";
++        $info = array();
++        $info["aci"] = array();
++        if (!(($sr = ldap_read($tmpconn, $associateddomain_dn, "(aci=*)", array('aci'))) === false)) {
++            $entry = ldap_get_entries($tmpconn, $sr);
++            if ($entry['count'] > 0) {
++                for ($count = 0; $count < $entry[0]['aci']['count']; $count++) {
++                    if (strpos($entry[0]['aci'][$count], $user) === false) {
++                        $info['aci'][] = $entry[0]['aci'][$count];
++                    }
++                }
++            }
++        }
++
++        if ($action == 'add') {
++            $info["aci"][] = "(targetattr =\"*\")(version 3.0;acl \"$user\";allow (read,search) (userdn=\"ldap:///$user\");)";
++        }
++
++        if (ldap_modify($tmpconn, $associateddomain_dn, $info) === false) {
++            ldap_close($tmpconn);
++            return false;
++        }
++
++        ldap_close($tmpconn);
++        return true;
++    }
++
++    private function domain_admin_save($domain, $domain_dn, $domainadmins) {
++        $currentdomain_dn = $this->_standard_root_dn($domain[$domain_dn]["associateddomain"]);
++        $currentdomain_da_dn = "cn=Directory Administrators,".$currentdomain_dn;
++
++        $domain_admins_result = $this->_search($currentdomain_dn, "cn=Directory Administrators*", array("uniqueMember"));
++        if ($domain_admins_result != null && count($domain_admins_result) > 0) {
++            $domain_admins = $domain_admins_result->entries(true);
++        }
++
++        if (empty($domain_admins[$currentdomain_da_dn]["uniquemember"])) {
++            $domain_admins[$currentdomain_da_dn]["uniquemember"] = Array();
++        }
++
++        if (!is_array($domain_admins[$currentdomain_da_dn]["uniquemember"])) {
++            $domain_admins[$currentdomain_da_dn]["uniquemember"] = 
++              (array)($domain_admins[$currentdomain_da_dn]["uniquemember"]);
++        }
++
++        if (empty($domainadmins)) {
++            $domainadmins = array();
++        }
++
++        if (!in_array('cn=Directory Manager', $domainadmins)) {
++            $domainadmins[] = 'cn=Directory Manager';
++        }
++
++        $info = array();
++        $info["uniquemember"] = array();
++        for ($count = 0; $count < count($domainadmins); $count++) {
++            $info["uniquemember"][] = $domainadmins[$count];
++
++            if (!in_array($domainadmins[$count], $domain_admins[$currentdomain_da_dn]["uniquemember"])) {
++                # add read permission to associateddomain in cn=kolab,cn=config
++                $this->ChangeDomainReadCapability($domainadmins[$count], $domain[$domain_dn]["associateddomain"], 'add');
++            }
++        }
++
++        # check for removed admins: remove also read permission from associateddomain in cn=kolab,cn=config
++        foreach ($domain_admins[$currentdomain_da_dn]["uniquemember"] as $oldadmin) {
++            if (!in_array($oldadmin, $domainadmins)) {
++                # drop read permission to associateddomain in cn=kolab,cn=config
++                $this->ChangeDomainReadCapability($oldadmin, $domain[$domain_dn]["associateddomain"], 'remove');
++            }
++        }
++
++        $result = $this->modify_entry($currentdomain_da_dn, $domain_admins[$currentdomain_da_dn], $info);
++        
++        if (!$result) {
++            return false;
+         }
+     }
+ 
+@@ -161,6 +291,12 @@ class LDAP extends Net_LDAP3 {
+ 
+         $domain_dn = key($domain);
+ 
++        # using isset, because if the array is empty, then we want to drop the domain admins.
++        if (isset($attributes["domainadmin"])) {
++            $this->domain_admin_save($domain, $domain_dn, $attributes["domainadmin"]);
++            unset($attributes["domainadmin"]);
++        }
++
+         // We should start throwing stuff over the fence here.
+         return $this->modify_entry($domain_dn, $domain[$domain_dn], $attributes);
+     }
+@@ -195,6 +331,7 @@ class LDAP extends Net_LDAP3 {
+             $this->_log(LOG_DEBUG, "Auth::LDAP::domain_info() uses _search()");
+             $result = $this->_search($domain_base_dn, $domain_filter, $attributes);
+             $result = $result->entries(true);
++            $domain_dn = key($result);
+         } else {
+             $this->_log(LOG_DEBUG, "Auth::LDAP::domain_info() uses _read()");
+             $result = $this->_read($domain_dn, $attributes);
+@@ -204,6 +341,25 @@ class LDAP extends Net_LDAP3 {
+             return false;
+         }
+ 
++        $currentdomain_dn = $this->_standard_root_dn($result[$domain_dn]["associateddomain"]);
++        $currentdomain_da_dn = "cn=Directory Administrators,".$currentdomain_dn;
++
++        $domain_admins_result = $this->_search($currentdomain_dn, "cn=Directory Administrators*", array("uniqueMember"));
++        if ($domain_admins_result != null && count($domain_admins_result) > 0) {
++            $domain_admins = $domain_admins_result->entries(true);
++        }
++
++        // read domain admins from LDAP, uniqueMembers of Directory Administrators of domain
++        $result[$domain_dn]["domainadmin"] = array();
++        if (is_array($domain_admins[$currentdomain_da_dn]["uniquemember"])) {
++            foreach ($domain_admins[$currentdomain_da_dn]["uniquemember"] as $domainadmin) {
++                $result[$domain_dn]["domainadmin"][] = $domainadmin;
++            }
++        }
++        else {
++            $result[$domain_dn]["domainadmin"][] = $domain_admins[$currentdomain_da_dn]["uniquemember"];
++        }
++
+         $this->_log(LOG_DEBUG, "Auth::LDAP::domain_info() result: " . var_export($result, true));
+ 
+         return $result;
+@@ -249,18 +405,13 @@ class LDAP extends Net_LDAP3 {
+ 
+         $mail_attrs = $this->conf->get_list('mail_attributes', array('mail', 'alias'));
+ 
+-        $search = array(
+-                'params' => array(
+-                        'type' => 'exact'
+-                    ),
+-                'operator' => "OR"
+-            );
++        $search = array('operator' => 'OR');
+ 
+         foreach ($mail_attrs as $num => $attr) {
+             $search['params'][$attr] = array(
+-                        'type' => 'exact',
+-                        'value' => $address,
+-                );
++                'type'  => 'exact',
++                'value' => $address,
++            );
+         }
+ 
+         $result = $this->search_entries($this->config_get('root_dn'), '(objectclass=*)', 'sub', null, $search);
+@@ -971,7 +1122,7 @@ class LDAP extends Net_LDAP3 {
+         if (is_array($domain)) {
+             $_new_attr = array($domain_name_attribute => array_unique(array_merge((array)($domain_entry[$domain_name_attribute]), $domain)));
+         } else {
+-            $_new_attr = array($domain_name_attribute => array($domain_entry[$domain_name_attribute], $domain));
++            $_new_attr = array($domain_name_attribute => array_unique(array_merge((array)($domain_entry[$domain_name_attribute]), array($domain))));
+         }
+ 
+         return $this->modify_entry($domain_dn, $_old_attr, $_new_attr);
+diff --git a/lib/api/kolab_api_service_domain.php /usr/share/kolab-webadmin/lib/api/kolab_api_service_domain.php
+index 2d91358..291c6ab 100644
+--- a/lib/api/kolab_api_service_domain.php
++++ /usr/share/kolab-webadmin/lib/api/kolab_api_service_domain.php
+@@ -93,9 +93,9 @@ class kolab_api_service_domain extends kolab_api_service
+ 
+         if (is_array($postdata[$dna])) {
+             $parent_domain = array_shift($postdata[$dna]);
+-            return $auth->domain_add($postdata[$dna], $parent_domain);
++            return $auth->domain_add($postdata, $parent_domain);
+         } else {
+-            return $auth->domain_add($postdata[$dna]);
++            return $auth->domain_add($postdata);
+         }
+     }
+ 
+diff --git a/lib/api/kolab_api_service_domain_types.php /usr/share/kolab-webadmin/lib/api/kolab_api_service_domain_types.php
+index a84cf82..681b314 100644
+--- a/lib/api/kolab_api_service_domain_types.php
++++ /usr/share/kolab-webadmin/lib/api/kolab_api_service_domain_types.php
+@@ -64,6 +64,10 @@ class kolab_api_service_domain_types extends kolab_api_service
+                         'associateddomain' => array(
+                             'type' => 'list',
+                         ),
++                        'domainadmin' => array(
++                            'type' => 'list-domainadmins',
++                            'optional' => 'true',
++                        ),
+                         'inetdomainbasedn' => array(
+                             'optional' => 'true',
+                         ),
+diff --git a/lib/api/kolab_api_service_form_value.php /usr/share/kolab-webadmin/lib/api/kolab_api_service_form_value.php
+index 7536340..ddccbfe 100644
+--- a/lib/api/kolab_api_service_form_value.php
++++ /usr/share/kolab-webadmin/lib/api/kolab_api_service_form_value.php
+@@ -1017,6 +1017,41 @@ class kolab_api_service_form_value extends kolab_api_service
+         );
+     }
+ 
++    /**
++     * get the users that are domainadmins.
++     * We assume: all users in the main domain (kolab.conf: base_dn), plus the Directory Manager
++     */
++    private function select_options_domainadmin($postdata, $attribs = array())
++    {
++        $conf = Conf::get_instance();
++
++        $base_dn = $conf->get("base_dn");
++        $auth = Auth::get_instance($base_dn);
++
++        $_domainadmins = array();
++
++        $domainadmin = array();
++        $domainadmin[] = $conf->get("bind_dn"); // "cn=Directory Manager";
++        $domainadmin[] = "Directory Manager";
++        $_domainadmins[] = $domainadmin;
++
++        if ($domainadmins = $auth->search($base_dn, '(objectclass=kolabinetorgperson)')) {
++            foreach ($domainadmins->entries(true) as $domainadmin_dn => $domainadmin_attrs) {
++                $domainadmin = array();
++                $domainadmin[] = $domainadmin_dn;
++                $domainadmin[] = $domainadmin_attrs['displayname'];
++                $_domainadmins[] = $domainadmin;
++            }
++
++            sort($_domainadmins);
++        }
++
++        return array(
++            'list'    => $_domainadmins,
++            'default' => strtolower($conf->get("bind_dn")),
++        );
++    }
++
+     private function select_options_preferredlanguage($postdata, $attribs = array())
+     {
+         $options = $this->_select_options_from_db('preferredlanguage');
+diff --git a/lib/client/kolab_client_task_domain.php /usr/share/kolab-webadmin/lib/client/kolab_client_task_domain.php
+index 25dc711..202754d 100644
+--- a/lib/client/kolab_client_task_domain.php
++++ /usr/share/kolab-webadmin/lib/client/kolab_client_task_domain.php
+@@ -224,6 +224,7 @@ class kolab_client_task_domain extends kolab_client_task
+         $sections = array(
+             'system'   => 'domain.system',
+             'other'    => 'domain.other',
++            'admins'    => 'domain.admins',
+         );
+ 
+         // field-to-section map and fields order
+@@ -231,6 +232,7 @@ class kolab_client_task_domain extends kolab_client_task
+             'type_id'           => 'system',
+             'type_id_name'      => 'system',
+             'associateddomain'  => 'system',
++            'domainadmin'       => 'admins',
+         );
+ 
+         //console("domain_form() \$data", $data);
+@@ -286,6 +288,15 @@ class kolab_client_task_domain extends kolab_client_task
+             );
+         }
+ 
++        // load all domain admins, ie. all users from the default domain
++        $param = array();
++        $param['attributes'] = array('domainadmin');
++        $resp = $this->api_post('form_value.select_options', null, $param);
++        $resp = $resp->get('domainadmin');
++
++        $default         = $resp['default'];
++        $data['domainadmin_options'] = $resp['list'];
++
+         // Create form object and populate with fields
+         $form = $this->form_create('domain', $attribs, $sections, $fields, $fields_map, $data, $add_mode);
+ 
+diff --git a/lib/client/kolab_client_task_settings.php /usr/share/kolab-webadmin/lib/client/kolab_client_task_settings.php
+index 849bc90..121b85e 100644
+--- a/lib/client/kolab_client_task_settings.php
++++ /usr/share/kolab-webadmin/lib/client/kolab_client_task_settings.php
+@@ -33,6 +33,7 @@ class kolab_client_task_settings extends kolab_client_task
+ 
+     protected $form_element_types = array(
+         'text', 'select', 'multiselect', 'list', 'list-autocomplete', 'checkbox', 'password', 'ldap_url',
++        'list-domainadmins',
+     );
+ 
+ 
+@@ -648,6 +649,10 @@ class kolab_client_task_settings extends kolab_client_task
+                 if (empty($data['attributes']['form_fields'][$attr])) {
+                     $valtype = 'auto-readonly';
+                 }
++
++                if (empty($type) && !empty($data['attributes']['auto_form_fields'][$attr]['type'])) {
++                    $type = $data['attributes']['auto_form_fields'][$attr]['type'];
++                }
+             }
+ 
+             // set cell content
+diff --git a/lib/ext/Net/LDAP3.php /usr/share/kolab-webadmin/lib/ext/Net/LDAP3.php
+index 76c6702..df44b0f 100644
+--- a/lib/ext/Net/LDAP3.php
++++ /usr/share/kolab-webadmin/lib/ext/Net/LDAP3.php
+@@ -1325,6 +1325,8 @@ class Net_LDAP3
+ 
+         $search = $this->search($base_dn, $filter, $scope, $sort, $search);
+ 
++        $this->additional_filter = null;
++
+         if (!$search) {
+             $this->_debug("Net_LDAP3: Search did not succeed!");
+             return FALSE;
+diff --git a/lib/kolab_api_service.php /usr/share/kolab-webadmin/lib/kolab_api_service.php
+index 4c99d81..33dbe74 100644
+--- a/lib/kolab_api_service.php
++++ /usr/share/kolab-webadmin/lib/kolab_api_service.php
+@@ -92,6 +92,9 @@ abstract class kolab_api_service
+                             'top',
+                             'domainrelatedobject',
+                         ),
++                        'domainadmin' => array(
++                            'type' => 'list'
++                        ),
+                     ),
+                 );
+ 
+diff --git a/lib/kolab_client_task.php /usr/share/kolab-webadmin/lib/kolab_client_task.php
+index 5fe2473..2b10e42 100644
+--- a/lib/kolab_client_task.php
++++ /usr/share/kolab-webadmin/lib/kolab_client_task.php
+@@ -849,6 +849,11 @@ class kolab_client_task
+             }
+             break;
+ 
++        case 'list-domainadmins':
++            $result['type'] = kolab_form::INPUT_DOMAINADMIN;
++            $result['data-type'] = kolab_form::TYPE_LIST;
++            break;
++
+         default:
+             $result['type'] = kolab_form::INPUT_TEXT;
+             if (isset($field['maxlength'])) {
+@@ -1245,6 +1250,12 @@ class kolab_client_task
+                     }
+                 }
+ 
++                // used for selectlist, eg. domainadmins
++                if (!empty($data[$idx."_options"]))
++                {
++                    $assoc_fields[$idx] = !empty($data[$idx."_options"]) ? $data[$idx."_options"] : array();
++                }
++
+                 // @TODO: We assume here that all autocompletion lists are associative
+                 // It's likely that we'll need autocompletion on ordinary lists
+                 if (!empty($field['data-autocomplete'])) {
+@@ -1315,9 +1326,12 @@ class kolab_client_task
+             ));
+         }
+ 
++        $ac_min_len = $this->config_get('autocomplete_min_length', 1, Conf::INT);
++
+         $this->output->set_env('form_id', $attribs['id']);
+         $this->output->set_env('assoc_fields', $assoc_fields);
+         $this->output->set_env('required_fields', $req_fields);
++        $this->output->set_env('autocomplete_min_length', $ac_min_len);
+         $this->output->add_translation('form.required.empty', 'form.maxcount.exceeded',
+             $name . '.add.success', $name . '.edit.success', $name . '.delete.success',
+             'add', 'edit', 'delete');
+diff --git a/lib/kolab_form.php /usr/share/kolab-webadmin/lib/kolab_form.php
+index 353d993..d8ddfe6 100644
+--- a/lib/kolab_form.php
++++ /usr/share/kolab-webadmin/lib/kolab_form.php
+@@ -38,6 +38,7 @@ class kolab_form
+     const INPUT_HIDDEN   = 9;
+     const INPUT_CUSTOM   = 10;
+     const INPUT_CONTENT  = 20;
++    const INPUT_DOMAINADMIN = 40;
+ 
+     const TYPE_LIST = 1;
+ 
+@@ -308,6 +309,11 @@ class kolab_form
+             $content = kolab_html::textarea($attribs, true);
+             break;
+ 
++        case self::INPUT_DOMAINADMIN:
++            $attribs['data-type'] = 'selectlist';
++            $content = kolab_html::textarea($attribs, true);
++            break;
++
+         case self::INPUT_SELECT:
+             if (!empty($attribs['multiple']) && empty($attribs['size'])) {
+                 $attribs['size'] = 5;
+diff --git a/public_html/js/kolab_admin.js /usr/share/kolab-webadmin/public_html/js/kolab_admin.js
+index 3290bf1..5059ce5 100644
+--- a/public_html/js/kolab_admin.js
++++ /usr/share/kolab-webadmin/public_html/js/kolab_admin.js
+@@ -514,11 +514,11 @@ function kolab_admin()
+       case 37:  // left
+       case 39:  // right
+         if (!e.shiftKey)
+-	      return;
++          return;
+     }
+ 
+     // start timer
+-    this.ac_timer = window.setTimeout(function() { kadm.ac_start(props); }, 200);
++    this.ac_timer = window.setTimeout(function() { kadm.ac_start(props); }, 500);
+     this.ac_input = e.target;
+ 
+     return true;
+@@ -565,10 +565,7 @@ function kolab_admin()
+     this.ac_stop();
+ 
+     if (q.length && q.length < min) {
+-      if (!this.ac_info) {
+-        this.ac_info = this.display_message(
+-          this.t('search.acchars').replace('$min', min));
+-      }
++      this.display_message(this.t('search.acchars').replace('$min', min), 'notice', 2000);
+       return;
+     }
+ 
+@@ -698,15 +695,8 @@ function kolab_admin()
+     if (this.ac_data)
+       this.ac_data.abort();
+ 
+-    if (this.ac_info)
+-      this.hide_message(this.ac_info);
+-
+-    if (this.ac_msg)
+-      this.hide_message(this.ac_msg);
+-
+     this.ac_data = null;
+     this.ac_info = null;
+-    this.ac_msg = null;
+   };
+ 
+ 
+@@ -724,6 +714,8 @@ function kolab_admin()
+     // replace some textarea fields with pretty/smart input lists
+     $('textarea[data-type="list"]', form)
+       .each(function() { kadm.form_list_element_wrapper(this); });
++    $('textarea[data-type="selectlist"]', form)
++      .each(function() { kadm.form_list_element_wrapper(this, "select"); });
+     // create smart select fields
+     $('input[data-type="select"]', form)
+       .each(function() { kadm.form_select_element_wrapper(this); });
+@@ -760,6 +752,22 @@ function kolab_admin()
+       data.json[this.name] = value;
+     });
+ 
++    // list of selects
++    $('textarea[data-type="selectlist"]:not(:disabled)', form).each(function() {
++      var i, v, value = [],
++        re = RegExp('^' + RegExp.escape(this.name) + '\[[0-9-]+\]$');
++
++      for (i in data.json) {
++        if (i.match(re)) {
++          if (v = $('select[name="'+i+'"]', form).val())
++            value.push(v);
++          delete data.json[i];
++        }
++      }
++
++      data.json[this.name] = value;
++    });
++
+     // smart selects
+     $('input[data-type="select"]', form).each(function() {
+       delete data.json[this.name];
+@@ -790,8 +798,10 @@ function kolab_admin()
+   };
+ 
+   // Replaces form element with smart list element
+-  this.form_list_element_wrapper = function(form_element)
++  this.form_list_element_wrapper = function(form_element, element_type)
+   {
++    element_type = element_type || "text";
++
+     var i = 0, j = 0, list = [], elem, e = $(form_element),
+       form = form_element.form,
+       disabled = e.attr('disabled'),
+@@ -857,14 +867,24 @@ function kolab_admin()
+ 
+       // add input rows
+       $.each(list, function(i, v) {
+-        var elem = kadm.form_list_element(form, {
+-          value: v,
+-          key: i,
+-          maxlength: maxlength,
+-          autocomplete: autocomplete,
+-          element: e
+-        }, j++);
+-
++        if (element_type == 'text') {
++            var elem = kadm.form_list_element(form, {
++              value: v,
++              key: i,
++              maxlength: maxlength,
++              autocomplete: autocomplete,
++              element: e
++            }, j++);
++        }
++        else if (element_type='select') {
++            var elem = kadm.form_selectlist_element(form, {
++              value: v,
++              key: i,
++              maxlength: maxlength,
++              autocomplete: autocomplete,
++              element: e
++            }, j++);
++        }
+         elem.appendTo(area);
+       });
+     }
+@@ -949,6 +969,90 @@ function kolab_admin()
+     return elem;
+   };
+ 
++  // Creates smart list element
++  this.form_selectlist_element = function(form, data, idx)
++  {
++    var content, elem, input,
++      key = data.key,
++      orig = data.element,
++      ac = data.autocomplete;
++
++    assoc_fields_options = (orig ? orig.attr('name') : data.name); //  + '_options';
++    data.name = (orig ? orig.attr('name') : data.name) + '[' + idx + ']';
++    data.readonly = (ac && idx >= 0);
++
++    // remove internal attributes
++    delete data['element'];
++    delete data['autocomplete'];
++    delete data['key'];
++
++    // build element content
++    content = '<span class="listelement"><span class="actions">'
++      + (!ac ? '<span title="" class="add"></span>' : ac && idx == -1 ? '<span title="" class="search"></span>' : '')
++      + (!ac || idx >= 0 ? '<span title="" class="reset"></span>' : '')
++      + '</span><select>';
++
++    var list = this.env.assoc_fields ? this.env.assoc_fields[assoc_fields_options] : [];
++    $.each(list, function(i, v) {
++        content = content + '<option value="' + v[0] + '">' + v[1] + '</option>';
++    });
++    content = content + '</select></span>';
++
++    elem = $(content);
++    input = $('select', elem);
++
++    // Set INPUT attributes
++    input.attr(data);
++
++    if (data.readonly)
++      input.addClass('readonly');
++    if (ac)
++      input.addClass('autocomplete');
++
++    // attach element creation event
++    if (!ac)
++      $('span[class="add"]', elem).click(function() {
++        var name = data.name.replace(/\[[0-9]+\]$/, ''),
++          span = $(this.parentNode.parentNode),
++          maxcount = $('textarea[name="'+name+'"]').attr('data-maxcount');
++
++        // check element count limit
++        if (maxcount && maxcount <= span.parent().children().length) {
++          alert(kadm.t('form.maxcount.exceeded'));
++          return;
++        }
++
++        var dt = (new Date()).getTime(),
++          elem = kadm.form_selectlist_element(form, {name: name}, dt);
++
++        kadm.ac_stop();
++        span.after(elem);
++        $('select', elem).focus();
++      });
++
++    // attach element deletion event
++    if (!ac || idx >= 0)
++      $('span[class="reset"]', elem).click(function() {
++        var span = $(this.parentNode.parentNode),
++          name = data.name.replace(/\[[0-9]+\]$/, ''),
++          l = $('select[name^="' + name + '"]', form),
++          key = $(this).data('key');
++
++        if (l.length > 1 || $('select[name="' + name + '"]', form).attr('data-autocomplete'))
++          span.remove();
++        else
++          $('select', span).val('').focus();
++
++        // delete key from internal field representation
++        if (key !== undefined && kadm.env.assoc_fields[name])
++          delete kadm.env.assoc_fields[name][key];
++
++        kadm.ac_stop();
++      }).data('key', key);
++
++    return elem;
++  };
++
+   this.form_element_oninsert = function(key, val)
+   {
+     var elem, input = $(this.ac_input).get(0),
+diff --git a/public_html/skins/default/style.css /usr/share/kolab-webadmin/public_html/skins/default/style.css
+index 6b30d90..49d1f1d 100644
+--- a/public_html/skins/default/style.css
++++ /usr/share/kolab-webadmin/public_html/skins/default/style.css
+@@ -630,6 +630,11 @@ span.listelement input:focus {
+   outline: none;
+ }
+ 
++span.listelement select {
++  width: 332px;
++  height: 18px;
++}
++
+ span.listelement span.actions {
+   float: left;
+   padding: 1px 0;
