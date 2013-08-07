@@ -1,5 +1,13 @@
 #!/bin/bash
 
+if [ -z "$1" ]
+then
+   echo "call $0 <ldap password for cn=Directory Manager>"
+   exit 1
+fi
+ 
+DirectoryManagerPwd=$1
+
 #####################################################################################
 #Removing Canonification from Cyrus IMAP
 # TODO: could preserve canonification: http://www.intevation.de/pipermail/kolab-users/2012-August/013747.html
@@ -28,6 +36,18 @@ sed -r -i -e 's#^virtual_alias_maps = .*$#virtual_alias_maps = $alias_maps, ldap
 sed -r -i -e 's#^local_recipient_maps = .*$#local_recipient_maps = ldap:/etc/postfix/ldap/local_recipient_maps.cf, ldap:/etc/postfix/ldap/local_recipient_maps_3.cf#g' /etc/postfix/main.cf
  
 service postfix restart
+
+#####################################################################################
+# withdraw permissions for all users from the default domain, which is used to manage the domain admins
+#####################################################################################
+management_domain=`cat /etc/kolab/kolab.conf | grep primary_domain`
+management_domain=${management_domain:17}
+cat > ./ldapparam.txt <<END
+dn: associateddomain=$management_domain,cn=kolab,cn=config
+changetype: modify
+delete: aci
+END
+ldapmodify -x -h localhost -D "cn=Directory Manager" -w $DirectoryManagerPwd -f ./ldapparam.txt
  
 #####################################################################################
 #kolab_auth conf roundcube; see https://git.kolab.org/roundcubemail-plugins-kolab/commit/?id=1778b5ec70156f064fdda61c817c678001406996

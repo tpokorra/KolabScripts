@@ -1,5 +1,13 @@
 #!/bin/bash
 
+if [ -z "$1" ]
+then
+   echo "call $0 <ldap password for cn=Directory Manager>"
+   exit 1
+fi
+ 
+DirectoryManagerPwd=$1
+
 #####################################################################################
 #Removing Canonification from Cyrus IMAP
 # TODO: could preserve canonification: http://www.intevation.de/pipermail/kolab-users/2012-August/013747.html
@@ -30,9 +38,23 @@ sed -r -i -e 's#^local_recipient_maps = .*$#local_recipient_maps = ldap:/etc/pos
 service postfix restart
 
 #####################################################################################
+# withdraw permissions for all users from the default domain, which is used to manage the domain admins
+#####################################################################################
+management_domain=`cat /etc/kolab/kolab.conf | grep primary_domain`
+management_domain=${management_domain:17}
+cat > ./ldapparam.txt <<END
+dn: associateddomain=$management_domain,cn=kolab,cn=config
+changetype: modify
+delete: aci
+END
+ldapmodify -x -h localhost -D "cn=Directory Manager" -w $DirectoryManagerPwd -f ./ldapparam.txt
+
+#####################################################################################
 # apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=2018
 ##################################################################################### 
 patch -p1 -d /usr/share/kolab-webadmin < patches/patchMultiDomainAdminsBug2018.patch
 patch -p1 -d /usr/share/kolab-webadmin < patches/mailquotaBug1966.patch
 patch -p1 -d /usr/share/kolab-webadmin < patches/validationOptionalValuesBug2045.patch
 patch -p1 -d /usr/share/kolab-webadmin < patches/domainquotaBug2046.patch
+patch /usr/share/roundcubemail/plugins/kolab_auth/kolab_auth.php patches/roundcubeKolabAuthBug1926.patch
+patch /usr/share/kolab-syncroton/lib/plugins/kolab_auth/kolab_auth.php patches/syncrotonKolabAuthBug1926.patch

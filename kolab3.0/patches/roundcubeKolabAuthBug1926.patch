@@ -1,0 +1,41 @@
+--- kolab_auth.php.orig	2013-03-26 15:36:56.388999054 +0100
++++ kolab_auth.php	2013-03-26 16:03:38.886999756 +0100
+@@ -32,6 +32,7 @@
+ {
+     static $ldap;
+     private $data = array();
++    static $base_dn="";
+ 
+     public function init()
+     {
+@@ -274,6 +275,9 @@
+         $pass    = $args['pass'];
+         $loginas = trim(rcube_utils::get_input_value('_loginas', rcube_utils::INPUT_POST));
+ 
++        $domain=substr($user,strpos($user, '@') + 1);
++        self::$base_dn="dc=".implode(",dc=",explode(".", $domain));
++
+         if (empty($user) || empty($pass)) {
+             $args['abort'] = true;
+             return $args;
+@@ -458,6 +462,10 @@
+      */
+     public static function ldap()
+     {
++	if (self::$base_dn == "") {
++		return null;
++	}
++
+         if (self::$ldap) {
+             return self::$ldap;
+         }
+@@ -485,6 +493,9 @@
+             return null;
+         }
+ 
++        $addressbook['base_dn'] = "ou=People,".self::$base_dn;
++        $addressbook['groups']['base_dn'] = "ou=Groups,".self::$base_dn;
++
+         self::$ldap = new kolab_auth_ldap_backend(
+             $addressbook,
+             $rcmail->config->get('ldap_debug'),
