@@ -35,4 +35,4 @@ service postfix restart
 patch -p1 -d /usr/share/kolab-webadmin < patches/patchMultiDomainAdminsBug2018.patch
 patch -p1 -d /usr/share/kolab-webadmin < patches/mailquotaBug1966.patch
 patch -p1 -d /usr/share/kolab-webadmin < patches/validationOptionalValuesBug2045.patch
-patch -p1 -d /usr/share/kolab-webadmin < patches/mailquotaBug1966.patch
+patch -p1 -d /usr/share/kolab-webadmin < patches/domainquotaBug2046.patch

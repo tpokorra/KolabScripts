@@ -66,28 +66,10 @@ index 37fca0e..cebafc8 100644
      {
          $domain = $this->domain_info($domain, array_keys($attributes));
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
-index 02f362a..1b31435 100644
+index 0d2df8f..1b31435 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -225,12 +225,15 @@ class kolab_api_service_form_value extends kolab_api_service
-                 $result[$attr_name] = $this->{$method_name}($attr_value, $postdata);
-             } elseif (array_key_exists($attr_name, $attribs['form_fields']) && !empty($attribs['form_fields'][$attr_name]['validate']) && !$attribs['form_fields'][$attr_name]['validate']) {
-                 $result[$attr_name] = $attr_value;
--            } else {
-+            } else if (empty($attr_value)) {
-                 try {
-                     $result[$attr_name] = $this->{$method_name}($attr_value, $postdata);
-                 } catch (Exception $e) {
--                    Log::debug("Attribute $attr_name did not validate, but it is not a required attribute. Not saving. (Error was: $e)");
-+                    Log::debug("Attribute $attr_name did not validate, but it is not a required attribute. Saving empty value. (Error was: $e)");
-+                    $result[$attr_value] = $attr_value;
-                 }
-+            } else {
-+                $result[$attr_name] = $this->{$method_name}($attr_value, $postdata);
-             }
- 
-         }
-@@ -1157,6 +1160,15 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1160,6 +1160,15 @@ class kolab_api_service_form_value extends kolab_api_service
          $conf = Conf::get_instance();
          $quota_attribute = $conf->get('quota_attribute');
  
@@ -103,7 +85,7 @@ index 02f362a..1b31435 100644
          if ($postdata[$quota_attribute.'-unit'] == 'gb') {
              $postdata[$quota_attribute] *= 1024*1024;
              $postdata[$quota_attribute.'-unit'] = 'kb';
-@@ -1167,6 +1179,64 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1170,6 +1179,64 @@ class kolab_api_service_form_value extends kolab_api_service
              $postdata[$quota_attribute.'-unit'] = 'kb';
          }
  
