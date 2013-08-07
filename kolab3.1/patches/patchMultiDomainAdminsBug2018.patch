@@ -212,10 +212,10 @@ index 397ca1b..1807545 100644
                              'optional' => 'true',
                          ),
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
-index d781358..9914721 100644
+index 344a9e7..c286ed5 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1051,6 +1051,41 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1074,6 +1074,41 @@ class kolab_api_service_form_value extends kolab_api_service
          );
      }
  
@@ -306,7 +306,7 @@ index 2ec463d..999ce3b 100644
  
  
 diff --git a/lib/kolab_api_service.php b/lib/kolab_api_service.php
-index fa93110..40d269c 100644
+index 4d2f9ef..891aaa7 100644
 --- a/lib/kolab_api_service.php
 +++ b/lib/kolab_api_service.php
 @@ -96,6 +96,9 @@ abstract class kolab_api_service
@@ -373,7 +373,7 @@ index 2fe3e9c..125dab5 100644
              if (!empty($attribs['multiple']) && empty($attribs['size'])) {
                  $attribs['size'] = 5;
 diff --git a/public_html/js/kolab_admin.js b/public_html/js/kolab_admin.js
-index b5bc376..bda9dd5 100644
+index c2ee52c..d573a04 100644
 --- a/public_html/js/kolab_admin.js
 +++ b/public_html/js/kolab_admin.js
 @@ -715,6 +715,8 @@ function kolab_admin()
@@ -408,7 +408,7 @@ index b5bc376..bda9dd5 100644
      // smart selects
      $('input[data-type="select"]', form).each(function() {
        delete data.json[this.name];
-@@ -781,8 +799,10 @@ function kolab_admin()
+@@ -789,8 +807,10 @@ function kolab_admin()
    };
  
    // Replaces form element with smart list element
@@ -420,7 +420,7 @@ index b5bc376..bda9dd5 100644
      var i = 0, j = 0, list = [], elem, e = $(form_element),
        form = form_element.form,
        disabled = e.attr('disabled'),
-@@ -848,14 +868,24 @@ function kolab_admin()
+@@ -856,14 +876,24 @@ function kolab_admin()
  
        // add input rows
        $.each(list, function(i, v) {
@@ -453,7 +453,7 @@ index b5bc376..bda9dd5 100644
          elem.appendTo(area);
        });
      }
-@@ -940,6 +970,90 @@ function kolab_admin()
+@@ -948,6 +978,90 @@ function kolab_admin()
      return elem;
    };
  
