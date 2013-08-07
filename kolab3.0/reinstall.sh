@@ -51,6 +51,7 @@ yum clean metadata
 yum install kolab
 
 patch -p0 -i patches/nsRoleDNBug1510.patch
+patch /usr/share/doc/kolab-webadmin-3.0.4/kolab_wap-3.0.sql patches/mailquotaBug1966_sql.patch
 setup-kolab
 
 echo "for the TBits patches for multi domain setup, run ./initMultiDomain.sh"
