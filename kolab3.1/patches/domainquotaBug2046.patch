@@ -78,7 +78,7 @@ index 21fd59b..d89dd80 100644
      {
          // convert MB/GB into KB
          if (preg_match('/^([0-9]+)\s*(KB|MB|GB)$/i', $value, $m)) {
-@@ -1223,7 +1223,74 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1223,7 +1223,75 @@ class kolab_api_service_form_value extends kolab_api_service
              }
          }
  
@@ -94,6 +94,7 @@ index 21fd59b..d89dd80 100644
 +        $value = (int) $value;
 +
 +        $conf = Conf::get_instance();
++        $quota_attribute = $conf->get('quota_attribute');
 +        // check domain admin quota, only for users that are not part of the default domain
 +        if (strtolower($postdata['ou']) != strtolower($conf->get('kolab_user_base_dn'))) {
 +            $auth = Auth::get_instance();

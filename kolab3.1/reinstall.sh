@@ -3,6 +3,14 @@
 # it will reinstall Kolab, from the nightly build from Kolab git trunk
 # you can optionally install the patches from TBits, see bottom of script
 
+#check that dirsrv will have write permissions to /dev/shm
+if [[ $(( `stat --format=%a /dev/shm` % 10 & 2 )) -eq 0 ]]
+then
+	# it seems that group also need write access, not only other; therefore a+w
+	echo "please run: chmod a+w /dev/shm"
+	exit 1
+fi
+
 service kolabd stop
 service kolab-saslauthd stop
 service cyrus-imapd stop

@@ -48,6 +48,7 @@ changetype: modify
 delete: aci
 END
 ldapmodify -x -h localhost -D "cn=Directory Manager" -w $DirectoryManagerPwd -f ./ldapparam.txt
+rm -f ldapparam.txt
  
 #####################################################################################
 #kolab_auth conf roundcube; see https://git.kolab.org/roundcubemail-plugins-kolab/commit/?id=1778b5ec70156f064fdda61c817c678001406996
@@ -57,15 +58,21 @@ sed -r -i -e "s#'ou=People,.*'#'ou=People,%dc'#g" /etc/roundcubemail/kolab_auth.
 sed -r -i -e "s#'ou=Groups,.*'#'ou=Groups,%dc'#g" /etc/roundcubemail/kolab_auth.inc.php
  
 #####################################################################################
-#fix a problem with kolab lm, see http://www.intevation.de/pipermail/kolab-devel/2013-June/014492.html
+#fix a problem with kolab lm, see http://lists.kolab.org/pipermail/devel/2013-June/014435.html
 #####################################################################################
 sed -r -i -e "s/kolab_user_filter = /#kolab_user_filter = /g" /etc/kolab/kolab.conf
+
+#####################################################################################
+#set primary_mail value in ldap section, so that new users in a different domain will have a proper primary email address, even without changing kolab.conf for each domain
+#####################################################################################
+sed -r -i -e "s/\[ldap\]/[ldap]\nprimary_mail = %(givenname)s.%(surname)s@%(domain)s/g" /etc/kolab/kolab.conf
 
 #####################################################################################
 # apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=2018
 #####################################################################################
 patch -p1 -i `pwd`/patches/patchMultiDomainAdminsBug2018.patch -d /usr/share/kolab-webadmin
-patch -p1 -i `pwd`/patches/mailquotaImprovedBug1966.patch -d /usr/share/kolab-webadmin
 patch -p1 -i `pwd`/patches/validationOptionalValuesBug2045.patch -d /usr/share/kolab-webadmin
 patch -p1 -i `pwd`/patches/domainquotaBug2046.patch -d /usr/share/kolab-webadmin
+patch -p1 -i `pwd`/patches/primaryMailBug1925.patch -d /usr/share/kolab-webadmin
+patch -p1 -i `pwd`/patches/deleteDomainWithUsersBug1869.patch -d /usr/share/kolab-webadmin
 

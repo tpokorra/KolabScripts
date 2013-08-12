@@ -258,10 +258,10 @@ index 344a9e7..c286ed5 100644
      {
          $options = $this->_select_options_from_db('preferredlanguage');
 diff --git a/lib/client/kolab_client_task_domain.php b/lib/client/kolab_client_task_domain.php
-index e50ba3c..09c2b8a 100644
+index dce73f9..598b14f 100644
 --- a/lib/client/kolab_client_task_domain.php
 +++ b/lib/client/kolab_client_task_domain.php
-@@ -232,6 +232,7 @@ class kolab_client_task_domain extends kolab_client_task
+@@ -115,6 +115,7 @@ class kolab_client_task_domain extends kolab_client_task
          $sections = array(
              'system'   => 'domain.system',
              'other'    => 'domain.other',
@@ -269,7 +269,7 @@ index e50ba3c..09c2b8a 100644
          );
  
          // field-to-section map and fields order
-@@ -239,6 +240,7 @@ class kolab_client_task_domain extends kolab_client_task
+@@ -122,6 +123,7 @@ class kolab_client_task_domain extends kolab_client_task
              'type_id'           => 'system',
              'type_id_name'      => 'system',
              'associateddomain'  => 'system',
@@ -277,7 +277,7 @@ index e50ba3c..09c2b8a 100644
          );
  
          //console("domain_form() \$data", $data);
-@@ -294,6 +296,15 @@ class kolab_client_task_domain extends kolab_client_task
+@@ -177,6 +179,15 @@ class kolab_client_task_domain extends kolab_client_task
              );
          }
  
@@ -320,10 +320,10 @@ index 4d2f9ef..891aaa7 100644
                      'fields' => array(
                          'objectclass' => array(
 diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
-index 3f50b9d..a6aa031 100644
+index 3936dac..ff22d45 100644
 --- a/lib/kolab_client_task.php
 +++ b/lib/kolab_client_task.php
-@@ -866,6 +866,11 @@ class kolab_client_task
+@@ -875,6 +875,11 @@ class kolab_client_task
              $result['type'] = kolab_form::INPUT_TEXTQUOTA;
              break;
  
@@ -335,7 +335,7 @@ index 3f50b9d..a6aa031 100644
          default:
              $result['type'] = kolab_form::INPUT_TEXT;
              if (isset($field['maxlength'])) {
-@@ -1262,6 +1267,12 @@ class kolab_client_task
+@@ -1271,6 +1276,12 @@ class kolab_client_task
                      }
                  }
  
