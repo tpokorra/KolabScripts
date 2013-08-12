@@ -10,7 +10,7 @@ DirectoryManagerPwd=$1
 
 #####################################################################################
 #Removing Canonification from Cyrus IMAP
-# TODO: could preserve canonification: http://www.intevation.de/pipermail/kolab-users/2012-August/013747.html
+# TODO: could preserve canonification: http://lists.kolab.org/pipermail/users/2012-August/013711.html
 #####################################################################################
 sed -r -i -e 's/^auth_mech/#auth_mech/g' /etc/imapd.conf
 sed -r -i -e 's/^pts_module/#pts_module/g' /etc/imapd.conf
@@ -20,7 +20,7 @@ service cyrus-imapd restart
 #####################################################################################
 #Update Postfix LDAP Lookup Tables
 # support subdomains too, search_base = dc=%3,dc=%2,dc=%1
-# see http://www.intevation.de/pipermail/kolab-users/2013-January/014270.html
+# see https://lists.kolab.org/pipermail/users/2013-January/014233.html
 #####################################################################################
 rm -f /etc/postfix/ldap/*_3.cf
 for f in `find /etc/postfix/ldap/ -type f -name "*.cf" ! -name "mydestination.cf"`;
