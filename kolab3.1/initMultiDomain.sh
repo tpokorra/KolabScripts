@@ -63,6 +63,11 @@ sed -r -i -e "s#'ou=Groups,.*'#'ou=Groups,%dc'#g" /etc/roundcubemail/kolab_auth.
 sed -r -i -e "s/kolab_user_filter = /#kolab_user_filter = /g" /etc/kolab/kolab.conf
 
 #####################################################################################
+#fix a problem with roundcube config files, see https://issues.kolab.org/show_bug.cgi?id=2107
+#####################################################################################
+rm -f /usr/share/roundcubemail/config/config.inc.php
+
+#####################################################################################
 #set primary_mail value in ldap section, so that new users in a different domain will have a proper primary email address, even without changing kolab.conf for each domain
 #####################################################################################
 sed -r -i -e "s/\[ldap\]/[ldap]\nprimary_mail = %(givenname)s.%(surname)s@%(domain)s/g" /etc/kolab/kolab.conf
