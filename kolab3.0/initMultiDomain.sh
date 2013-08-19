@@ -48,6 +48,7 @@ changetype: modify
 delete: aci
 END
 ldapmodify -x -h localhost -D "cn=Directory Manager" -w $DirectoryManagerPwd -f ./ldapparam.txt
+rm -f ldapparam.txt
 
 #####################################################################################
 # install our modified version of the message_label plugin to support virtual folders aka imap flags
