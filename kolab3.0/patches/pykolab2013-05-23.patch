@@ -1,0 +1,122 @@
+diff -uNr /tmp/orig/pykolab/auth/__init__.py /usr/lib/python2.6/site-packages/pykolab/auth/__init__.py
+--- /tmp/orig/pykolab/auth/__init__.py	2013-05-29 16:20:24.061847516 +0200
++++ /usr/lib/python2.6/site-packages/pykolab/auth/__init__.py	2013-05-29 16:29:48.049848648 +0200
+@@ -37,15 +37,10 @@
+         """
+             Initialize the authentication class.
+         """
+-        pykolab.base.Base.__init__(self)
++        pykolab.base.Base.__init__(self, domain=domain)
+ 
+         self._auth = None
+ 
+-        if not domain == None:
+-            self.domain = domain
+-        else:
+-            self.domain = conf.get('kolab', 'primary_domain')
+-
+     def authenticate(self, login):
+         """
+             Verify login credentials supplied in login against the appropriate
+@@ -97,8 +92,12 @@
+             return
+ 
+         if domain == None:
+-            section = 'kolab'
+-            domain = conf.get('kolab', 'primary_domain')
++            if not self.domain == None:
++                section = self.domain
++                domain = self.domain
++            else:
++                section = 'kolab'
++                domain = conf.get('kolab', 'primary_domain')
+         else:
+             self.list_domains()
+             section = domain
+@@ -239,8 +238,8 @@
+ 
+         return domains
+ 
+-    def synchronize(self):
+-        self._auth.synchronize()
++    def synchronize(self, mode=0):
++        self._auth.synchronize(mode=mode)
+ 
+     def domain_default_quota(self, domain):
+         return self._auth._domain_default_quota(domain)
+diff -uNr /tmp/orig/pykolab/auth/ldap/__init__.py /usr/lib/python2.6/site-packages/pykolab/auth/ldap/__init__.py
+--- /tmp/orig/pykolab/auth/ldap/__init__.py	2013-05-29 16:20:24.061847516 +0200
++++ /usr/lib/python2.6/site-packages/pykolab/auth/ldap/__init__.py	2013-05-29 16:28:11.728847691 +0200
+@@ -848,7 +848,7 @@
+             except:
+                 log.error(_("Could not update dn %r") % (dn))
+ 
+-    def synchronize(self):
++    def synchronize(self, mode=0):
+         """
+             Synchronize with LDAP
+         """
+@@ -861,8 +861,23 @@
+ 
+         log.debug(_("Using filter %r") % (_filter), level=8)
+ 
++        if not mode == 0:
++            override_search = mode
++        else:
++            override_search = False
++
++        config_base_dn = self.config_get('base_dn')
++        ldap_base_dn = self._kolab_domain_root_dn(self.domain)
++
++        if not ldap_base_dn == None and not ldap_base_dn == config_base_dn:
++            base_dn = ldap_base_dn
++        else:
++            base_dn = config_base_dn
++
++        log.debug(_("Synchronization is searching against base DN: %s") % (base_dn), level=8)
++
+         self._search(
+-                self.config_get('base_dn'),
++                base_dn,
+                 filterstr=_filter,
+                 attrlist=[
+                         '*',
+@@ -870,6 +885,7 @@
+                         conf.get('cyrus-sasl', 'result_attribute'),
+                         'modifytimestamp'
+                     ],
++                override_search=override_search,
+                 callback=self._synchronize_callback,
+             )
+ 
+diff -uNr /tmp/orig/pykolab/base.py /usr/lib/python2.6/site-packages/pykolab/base.py
+--- /tmp/orig/pykolab/base.py	2013-05-29 16:20:24.066847632 +0200
++++ /usr/lib/python2.6/site-packages/pykolab/base.py	2013-05-29 16:20:56.215847818 +0200
+@@ -26,7 +26,10 @@
+         Abstraction class for functions commonly shared between auth, imap, etc.
+     """
+     def __init__(self, *args, **kw):
+-        self.domain = conf.get('kolab', 'primary_domain')
++        if kw.has_key('domain') and not kw['domain'] == None:
++            self.domain = kw['domain']
++        else:
++            self.domain = conf.get('kolab', 'primary_domain')
+ 
+         # Placeholder primary_domain => [secondary_domains]. Should be updated
+         # on auth backend _connect().
+diff -uNr /tmp/orig/pykolab/cli/cmd_sync.py /usr/lib/python2.6/site-packages/pykolab/cli/cmd_sync.py
+--- /tmp/orig/pykolab/cli/cmd_sync.py	2013-05-29 16:20:24.059847464 +0200
++++ /usr/lib/python2.6/site-packages/pykolab/cli/cmd_sync.py	2013-05-29 16:58:38.846847376 +0200
+@@ -49,9 +49,10 @@
+ 
+     for primary_domain,secondary_domains in domains:
+         log.debug(_("Running for domain %s") % (primary_domain), level=8)
++        auth = Auth(primary_domain)
+         auth.connect(primary_domain)
+         start_time = time.time()
+-        auth.synchronize()
++        auth.synchronize(mode='_paged_search')
+         end_time = time.time()
+ 
+         log.info(_("Synchronizing users for %s took %d seconds")
+

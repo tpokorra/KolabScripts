@@ -50,11 +50,42 @@ END
 ldapmodify -x -h localhost -D "cn=Directory Manager" -w $DirectoryManagerPwd -f ./ldapparam.txt
 
 #####################################################################################
+# install our modified version of the message_label plugin to support virtual folders aka imap flags
+# see  https://github.com/tpokorra/message_label/tree/message_label_tbits
+#####################################################################################
+wget https://github.com/tpokorra/message_label/archive/message_label_tbits.zip -O message_label.zip
+unzip message_label.zip
+rm message_label.zip
+mv message_label-message_label_tbits /usr/share/roundcubemail/plugins/message_label
+sed -r -i -e "s#'redundant_attachments',#'redundant_attachments',\n            'message_label',#g" /etc/roundcubemail/main.inc.php
+
+#####################################################################################
+# apply a patch to roundcube plugin managesieve, to support the labels set with message_label plugin.
+# see https://github.com/tpokorra/roundcubemail/commits/manage_sieve_using_message_label_flags
+#####################################################################################
+patch -p3 -i `pwd`/patches/managesieveWithMessagelabel.patch -d /usr/share/roundcubemail
+
+#####################################################################################
+# Make sure that in a multi-domain environment, we get the base dn for additional domain name spaces right.
+# see https://git.kolab.org/pykolab/commit/?id=c915487867d227617f8ae7d996af51e5470ff54e
+#####################################################################################
+patch -p0 -i patches/pykolab2013-05-23.patch
+
+#####################################################################################
+# kolab list-mailbox-metadata does not work for folders with space in name
+# patch for cyruslib: see https://git.kolab.org/pykolab/commit/?id=f9c50355bd0be03b80d952325b4fa4d740ad4c19
+#####################################################################################
+patch -p0 -i patches/cyruslib2013-05-22.patch
+
+#####################################################################################
 # apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=2018
 ##################################################################################### 
 patch -p1 -d /usr/share/kolab-webadmin < patches/patchMultiDomainAdminsBug2018.patch
 patch -p1 -d /usr/share/kolab-webadmin < patches/mailquotaBug1966.patch
 patch -p1 -d /usr/share/kolab-webadmin < patches/validationOptionalValuesBug2045.patch
 patch -p1 -d /usr/share/kolab-webadmin < patches/domainquotaBug2046.patch
+patch -p1 -d /usr/share/kolab-webadmin < patches/primaryMailBug1925.patch
+patch -p1 -d /usr/share/kolab-webadmin < patches/deleteDomainWithUsersBug1869.patch
+patch -p0 -i patches/domainSelectorBug2005.patch
 patch /usr/share/roundcubemail/plugins/kolab_auth/kolab_auth.php patches/roundcubeKolabAuthBug1926.patch
 patch /usr/share/kolab-syncroton/lib/plugins/kolab_auth/kolab_auth.php patches/syncrotonKolabAuthBug1926.patch
