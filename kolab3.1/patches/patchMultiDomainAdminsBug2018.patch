@@ -1,8 +1,8 @@
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index ebafe1b..e2bbfe7 100644
+index 989d58a..9f972bb 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -145,6 +145,22 @@ class LDAP extends Net_LDAP3 {
+@@ -151,6 +151,22 @@ class LDAP extends Net_LDAP3 {
          $_SESSION['user']->user_bind_dn = $result;
          $_SESSION['user']->user_bind_pw = $password;
  
@@ -25,7 +25,7 @@ index ebafe1b..e2bbfe7 100644
          return $result;
      }
  
-@@ -174,6 +190,9 @@ class LDAP extends Net_LDAP3 {
+@@ -180,6 +196,9 @@ class LDAP extends Net_LDAP3 {
              array_unshift($attributes[$domain_name_attribute], $domain);
          }
  
@@ -35,7 +35,7 @@ index ebafe1b..e2bbfe7 100644
          $dn = $domain_name_attribute . '=' . $domain . ',' . $domain_base_dn;
  
          $result = $this->add_entry($dn, $attributes);
-@@ -458,9 +477,109 @@ class LDAP extends Net_LDAP3 {
+@@ -464,9 +483,109 @@ class LDAP extends Net_LDAP3 {
  
          $this->add_entry($dn, $attrs);
  
@@ -49,9 +49,9 @@ index ebafe1b..e2bbfe7 100644
 +
 +        $this->domain_admin_save($domain, $domain_dn, $attributes_domainadmin);
 +
-         return true;
-     }
- 
++        return true;
++    }
++
 +    private function ChangeDomainReadCapability($user, $domain, $action='add')
 +    {
 +        if (($tmpconn = ldap_connect($this->_ldap_server)) === false) {
@@ -87,9 +87,9 @@ index ebafe1b..e2bbfe7 100644
 +        }
 +
 +        ldap_close($tmpconn);
-+        return true;
-+    }
-+
+         return true;
+     }
+ 
 +    private function domain_admin_save($domain, $domain_dn, $domainadmins) {
 +        $currentdomain_dn = $this->_standard_root_dn($domain[$domain_dn]["associateddomain"]);
 +        $currentdomain_da_dn = "cn=Directory Administrators,".$currentdomain_dn;
@@ -145,7 +145,7 @@ index ebafe1b..e2bbfe7 100644
      public function domain_edit($domain, $attributes, $typeid = null)
      {
          $domain = $this->domain_info($domain, array_keys($attributes));
-@@ -471,6 +590,16 @@ class LDAP extends Net_LDAP3 {
+@@ -477,6 +596,16 @@ class LDAP extends Net_LDAP3 {
  
          $domain_dn = key($domain);
  
@@ -162,15 +162,16 @@ index ebafe1b..e2bbfe7 100644
          // We should start throwing stuff over the fence here.
          return $this->modify_entry($domain_dn, $domain[$domain_dn], $attributes);
      }
-@@ -510,6 +639,7 @@ class LDAP extends Net_LDAP3 {
-             $this->_log(LOG_DEBUG, "Auth::LDAP::domain_info() uses _search()");
-             $result = $this->_search($domain_base_dn, $domain_filter, $attributes);
-             $result = $result->entries(true);
+@@ -517,6 +646,8 @@ class LDAP extends Net_LDAP3 {
+             if ($result = $this->_search($domain_base_dn, $domain_filter, $attributes)) {
+                 $result = $result->entries(true);
+             }
++
 +            $domain_dn = key($result);
          }
          else {
              $this->_log(LOG_DEBUG, "Auth::LDAP::domain_info() uses _read()");
-@@ -520,6 +650,25 @@ class LDAP extends Net_LDAP3 {
+@@ -527,6 +658,25 @@ class LDAP extends Net_LDAP3 {
              return false;
          }
  
@@ -212,7 +213,7 @@ index 397ca1b..1807545 100644
                              'optional' => 'true',
                          ),
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
-index 344a9e7..c286ed5 100644
+index 1b66760..b84683e 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
 @@ -1074,6 +1074,41 @@ class kolab_api_service_form_value extends kolab_api_service

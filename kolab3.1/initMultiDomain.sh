@@ -72,8 +72,9 @@ sed -r -i -e "s/\[ldap\]/[ldap]\nprimary_mail = %(givenname)s.%(surname)s@%(doma
 # see  https://github.com/tpokorra/message_label/tree/message_label_tbits
 #####################################################################################
 wget https://github.com/tpokorra/message_label/archive/message_label_tbits.zip -O message_label.zip
+yum -y install unzip
 unzip message_label.zip
-rm message_label.zip
+rm -f message_label.zip
 mv message_label-message_label_tbits /usr/share/roundcubemail/plugins/message_label
 sed -r -i -e "s#'redundant_attachments',#'redundant_attachments',\n            'message_label',#g" /etc/roundcubemail/config.inc.php
 
