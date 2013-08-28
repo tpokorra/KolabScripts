@@ -77,6 +77,8 @@ unzip message_label.zip
 rm -f message_label.zip
 mv message_label-message_label_tbits /usr/share/roundcubemail/plugins/message_label
 sed -r -i -e "s#'redundant_attachments',#'redundant_attachments',\n            'message_label',#g" /etc/roundcubemail/config.inc.php
+# probably a dirty hack: we need to force fetching the headers, so that the labels are always displayed
+sed -i -e 's#function fetch_headers($folder, $msgs, $sort = true, $force = false)#function fetch_headers($folder, $msgs, $sort = true, $forcedummy = false, $force = true)#g' /usr/share/roundcubemail/program/lib/Roundcube/rcube_imap.php
 
 #####################################################################################
 # apply a patch to roundcube plugin managesieve, to support the labels set with message_label plugin.
