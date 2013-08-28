@@ -1,6 +1,8 @@
---- /tmp/kolab-webadmin/public_html/js/kolab_admin.js	2013-04-16 15:50:26.898544067 +0200
-+++ /usr/share/kolab-webadmin/public_html/js/kolab_admin.js	2013-07-02 09:49:36.906113977 +0200
-@@ -1056,9 +1056,18 @@
+diff --git a/public_html/js/kolab_admin.js b/public_html/js/kolab_admin.js
+index 5059ce5..db84744 100644
+--- a/public_html/js/kolab_admin.js
++++ b/public_html/js/kolab_admin.js
+@@ -1160,9 +1160,18 @@ function kolab_admin()
            else {
              var focused = selected[e.which == 40 ? 'next' : 'prev']();
  
@@ -19,4 +21,4 @@
 +
              if (!focused.length)
                focused = options[e.which == 40 ? 'first' : 'last']();
-
+ 

@@ -89,6 +89,6 @@ patch -p1 -d /usr/share/kolab-webadmin < patches/validationOptionalValuesBug2045
 patch -p1 -d /usr/share/kolab-webadmin < patches/domainquotaBug2046.patch
 patch -p1 -d /usr/share/kolab-webadmin < patches/primaryMailBug1925.patch
 patch -p1 -d /usr/share/kolab-webadmin < patches/deleteDomainWithUsersBug1869.patch
-patch -p0 -i patches/domainSelectorBug2005.patch
+patch -p1 -d /usr/share/kolab-webadmin < patches/domainSelectorBug2005.patch
 patch /usr/share/roundcubemail/plugins/kolab_auth/kolab_auth.php patches/roundcubeKolabAuthBug1926.patch
 patch /usr/share/kolab-syncroton/lib/plugins/kolab_auth/kolab_auth.php patches/syncrotonKolabAuthBug1926.patch
