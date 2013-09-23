@@ -63,9 +63,9 @@ sed -r -i -e "s#'ou=Groups,.*'#'ou=Groups,%dc'#g" /etc/roundcubemail/kolab_auth.
 sed -r -i -e "s/kolab_user_filter = /#kolab_user_filter = /g" /etc/kolab/kolab.conf
 
 #####################################################################################
-#set primary_mail value in ldap section, so that new users in a different domain will have a proper primary email address, even without changing kolab.conf for each domain
+#set primary_mail value in kolab section, so that new users in a different domain will have a proper primary email address, even without changing kolab.conf for each domain
 #####################################################################################
-sed -r -i -e "s/\[ldap\]/[ldap]\nprimary_mail = %(givenname)s.%(surname)s@%(domain)s/g" /etc/kolab/kolab.conf
+sed -r -i -e "s/\[kolab\]/[kolab]\nprimary_mail = %(givenname)s.%(surname)s@%(domain)s/g" /etc/kolab/kolab.conf
 
 #####################################################################################
 # install our modified version of the message_label plugin to support virtual folders aka imap flags
@@ -90,8 +90,6 @@ patch -p1 -i `pwd`/patches/managesieveWithMessagelabel.patch -d /usr/share/round
 # apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=2018
 #####################################################################################
 patch -p1 -i `pwd`/patches/patchMultiDomainAdminsBug2018.patch -d /usr/share/kolab-webadmin
-patch -p1 -i `pwd`/patches/validationOptionalValuesBug2045.patch -d /usr/share/kolab-webadmin
 patch -p1 -i `pwd`/patches/domainquotaBug2046.patch -d /usr/share/kolab-webadmin
-patch -p1 -i `pwd`/patches/primaryMailBug1925.patch -d /usr/share/kolab-webadmin
 patch -p1 -i `pwd`/patches/deleteDomainWithUsersBug1869.patch -d /usr/share/kolab-webadmin
 

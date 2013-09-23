@@ -61,7 +61,6 @@ wget https://bintray.com/tpokorra/kolab/rpm -O /etc/yum.repos.d/bintray-tpokorra
 yum clean metadata
 yum install kolab
 
-patch -p0 -i patches/nsRoleDNBug1510.patch
 setup-kolab
 
 echo "for the TBits patches for multi domain setup, run ./initMultiDomain.sh"
