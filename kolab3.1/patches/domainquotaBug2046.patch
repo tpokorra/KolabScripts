@@ -15,7 +15,7 @@ index 0c5ef5b..f253185 100644
      {
          return $this->auth_instance()->domain_edit($domain, $attributes, $typeid);
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index e2bbfe7..3a646e3 100644
+index 8db50e3..b2e40f5 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
 @@ -580,6 +580,46 @@ class LDAP extends Net_LDAP3 {
@@ -66,19 +66,10 @@ index e2bbfe7..3a646e3 100644
      {
          $domain = $this->domain_info($domain, array_keys($attributes));
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
-index 21fd59b..d89dd80 100644
+index 46bb86b..7725da1 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1212,7 +1212,7 @@ class kolab_api_service_form_value extends kolab_api_service
-         }
-     }
- 
--    private function validate_mailquota($value)
-+    private function validate_mailquota($value, $postdata)
-     {
-         // convert MB/GB into KB
-         if (preg_match('/^([0-9]+)\s*(KB|MB|GB)$/i', $value, $m)) {
-@@ -1223,7 +1223,75 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1224,7 +1224,75 @@ class kolab_api_service_form_value extends kolab_api_service
              }
          }
  
@@ -154,4 +145,4 @@ index 21fd59b..d89dd80 100644
 +        return $value;
      }
  
-     private function validate_mailalternateaddress($value)
+     private function validate_mailalternateaddress($value, $postdata = array(), $validation_type = null)

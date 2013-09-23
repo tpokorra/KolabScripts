@@ -1,8 +1,8 @@
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index 989d58a..9f972bb 100644
+index 0ef1f26..8db50e3 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -151,6 +151,22 @@ class LDAP extends Net_LDAP3 {
+@@ -146,6 +146,22 @@ class LDAP extends Net_LDAP3 {
          $_SESSION['user']->user_bind_dn = $result;
          $_SESSION['user']->user_bind_pw = $password;
  
@@ -25,7 +25,7 @@ index 989d58a..9f972bb 100644
          return $result;
      }
  
-@@ -180,6 +196,9 @@ class LDAP extends Net_LDAP3 {
+@@ -175,6 +191,9 @@ class LDAP extends Net_LDAP3 {
              array_unshift($attributes[$domain_name_attribute], $domain);
          }
  
@@ -35,7 +35,7 @@ index 989d58a..9f972bb 100644
          $dn = $domain_name_attribute . '=' . $domain . ',' . $domain_base_dn;
  
          $result = $this->add_entry($dn, $attributes);
-@@ -464,9 +483,109 @@ class LDAP extends Net_LDAP3 {
+@@ -458,9 +477,109 @@ class LDAP extends Net_LDAP3 {
  
          $this->add_entry($dn, $attrs);
  
@@ -145,7 +145,7 @@ index 989d58a..9f972bb 100644
      public function domain_edit($domain, $attributes, $typeid = null)
      {
          $domain = $this->domain_info($domain, array_keys($attributes));
-@@ -477,6 +596,16 @@ class LDAP extends Net_LDAP3 {
+@@ -471,6 +590,16 @@ class LDAP extends Net_LDAP3 {
  
          $domain_dn = key($domain);
  
@@ -162,7 +162,7 @@ index 989d58a..9f972bb 100644
          // We should start throwing stuff over the fence here.
          return $this->modify_entry($domain_dn, $domain[$domain_dn], $attributes);
      }
-@@ -517,6 +646,8 @@ class LDAP extends Net_LDAP3 {
+@@ -511,6 +640,8 @@ class LDAP extends Net_LDAP3 {
              if ($result = $this->_search($domain_base_dn, $domain_filter, $attributes)) {
                  $result = $result->entries(true);
              }
@@ -171,7 +171,7 @@ index 989d58a..9f972bb 100644
          }
          else {
              $this->_log(LOG_DEBUG, "Auth::LDAP::domain_info() uses _read()");
-@@ -527,6 +658,25 @@ class LDAP extends Net_LDAP3 {
+@@ -521,6 +652,25 @@ class LDAP extends Net_LDAP3 {
              return false;
          }
  
@@ -198,25 +198,25 @@ index 989d58a..9f972bb 100644
  
          return $result;
 diff --git a/lib/api/kolab_api_service_domain_types.php b/lib/api/kolab_api_service_domain_types.php
-index 397ca1b..1807545 100644
+index 6829047..5334112 100644
 --- a/lib/api/kolab_api_service_domain_types.php
 +++ b/lib/api/kolab_api_service_domain_types.php
-@@ -64,6 +64,10 @@ class kolab_api_service_domain_types extends kolab_api_service
-                         'associateddomain' => array(
-                             'type' => 'list',
-                         ),
-+                        'domainadmin' => array(
-+                            'type' => 'list-domainadmins',
-+                            'optional' => 'true',
-+                        ),
-                         'inetdomainbasedn' => array(
-                             'optional' => 'true',
-                         ),
+@@ -34,6 +34,10 @@ class kolab_api_service_domain_types extends kolab_api_service
+             'associateddomain' => array(
+                 'type' => 'list'
+             ),
++            'domainadmin' => array(
++                'type' => 'list-domainadmins',
++                'optional' => 'true',
++            ),
+             'inetdomainbasedn' => array(
+                 'optional' => true,
+             ),
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
-index 1b66760..b84683e 100644
+index 12af63c..46bb86b 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1074,6 +1074,41 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1072,6 +1072,41 @@ class kolab_api_service_form_value extends kolab_api_service
          );
      }
  
@@ -259,7 +259,7 @@ index 1b66760..b84683e 100644
      {
          $options = $this->_select_options_from_db('preferredlanguage');
 diff --git a/lib/client/kolab_client_task_domain.php b/lib/client/kolab_client_task_domain.php
-index dce73f9..598b14f 100644
+index 4a1190a..25d601a 100644
 --- a/lib/client/kolab_client_task_domain.php
 +++ b/lib/client/kolab_client_task_domain.php
 @@ -115,6 +115,7 @@ class kolab_client_task_domain extends kolab_client_task
@@ -295,7 +295,7 @@ index dce73f9..598b14f 100644
          $form = $this->form_create('domain', $attribs, $sections, $fields, $fields_map, $data, $add_mode);
  
 diff --git a/lib/client/kolab_client_task_settings.php b/lib/client/kolab_client_task_settings.php
-index 2ec463d..999ce3b 100644
+index 019b417..ed5f701 100644
 --- a/lib/client/kolab_client_task_settings.php
 +++ b/lib/client/kolab_client_task_settings.php
 @@ -34,6 +34,7 @@ class kolab_client_task_settings extends kolab_client_task
@@ -306,25 +306,11 @@ index 2ec463d..999ce3b 100644
      );
  
  
-diff --git a/lib/kolab_api_service.php b/lib/kolab_api_service.php
-index 4d2f9ef..891aaa7 100644
---- a/lib/kolab_api_service.php
-+++ b/lib/kolab_api_service.php
-@@ -96,6 +96,9 @@ abstract class kolab_api_service
-                         'inetdomainstatus' => array(
-                             'optional' => true,
-                         ),
-+                        'domainadmin' => array(
-+                            'type' => 'list'
-+                        ),
-                     ),
-                     'fields' => array(
-                         'objectclass' => array(
 diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
-index 3936dac..ff22d45 100644
+index 6e3eaa0..5320805 100644
 --- a/lib/kolab_client_task.php
 +++ b/lib/kolab_client_task.php
-@@ -875,6 +875,11 @@ class kolab_client_task
+@@ -873,6 +873,11 @@ class kolab_client_task
              $result['type'] = kolab_form::INPUT_TEXTQUOTA;
              break;
  
@@ -336,7 +322,7 @@ index 3936dac..ff22d45 100644
          default:
              $result['type'] = kolab_form::INPUT_TEXT;
              if (isset($field['maxlength'])) {
-@@ -1271,6 +1276,12 @@ class kolab_client_task
+@@ -1269,6 +1274,12 @@ class kolab_client_task
                      }
                  }
  
@@ -374,7 +360,7 @@ index 2fe3e9c..125dab5 100644
              if (!empty($attribs['multiple']) && empty($attribs['size'])) {
                  $attribs['size'] = 5;
 diff --git a/public_html/js/kolab_admin.js b/public_html/js/kolab_admin.js
-index c2ee52c..d573a04 100644
+index 983ae8c..35af798 100644
 --- a/public_html/js/kolab_admin.js
 +++ b/public_html/js/kolab_admin.js
 @@ -715,6 +715,8 @@ function kolab_admin()
