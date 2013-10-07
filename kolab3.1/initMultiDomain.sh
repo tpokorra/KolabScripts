@@ -67,6 +67,8 @@ sed -r -i -e "s/kolab_user_filter = /#kolab_user_filter = /g" /etc/kolab/kolab.c
 #####################################################################################
 sed -r -i -e "s/\[kolab\]/[kolab]\nprimary_mail = %(givenname)s.%(surname)s@%(domain)s/g" /etc/kolab/kolab.conf
 
+if [ 1 = 0 ]
+then
 #####################################################################################
 # install our modified version of the message_label plugin to support virtual folders aka imap flags
 # see  https://github.com/tpokorra/message_label/tree/message_label_tbits
@@ -85,6 +87,19 @@ sed -i -e 's#function fetch_headers($folder, $msgs, $sort = true, $force = false
 # see https://github.com/tpokorra/roundcubemail/commits/manage_sieve_using_message_label_flags
 #####################################################################################
 patch -p1 -i `pwd`/patches/managesieveWithMessagelabel.patch -d /usr/share/roundcubemail
+fi
+
+#####################################################################################
+# install the advanced_search plugin
+# see https://github.com/GMS-SA/roundcube-advanced-search
+#####################################################################################
+wget https://github.com/GMS-SA/roundcube-advanced-search/archive/stable.zip -O advanced_search.zip
+unzip advanced_search.zip
+rm -f advanced_search.zip
+mv roundcube-advanced-search-stable /usr/share/roundcubemail/plugins/advanced_search
+mv /usr/share/roundcubemail/plugins/advanced_search/config-default.inc.php /usr/share/roundcubemail/plugins/advanced_search/config.inc.php
+sed -r -i -e "s#messagemenu#toolbar#g" /usr/share/roundcubemail/plugins/advanced_search/config.inc.php
+sed -r -i -e "s#'redundant_attachments',#'redundant_attachments',\n            'advanced_search',#g" /etc/roundcubemail/config.inc.php
 
 #####################################################################################
 # apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=2018
