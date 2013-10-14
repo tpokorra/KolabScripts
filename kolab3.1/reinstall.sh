@@ -59,7 +59,7 @@ rm -Rf /etc/yum.repos.d/bintray-tpokorra-kolab.repo
 wget https://bintray.com/tpokorra/kolab/rpm -O /etc/yum.repos.d/bintray-tpokorra-kolab.repo --no-check-certificate
 
 yum clean metadata
-yum install kolab
+yum install kolab patch unzip
 
 setup-kolab
 
