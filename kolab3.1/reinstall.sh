@@ -56,7 +56,7 @@ rm -f kolab-3*.rpm
 rm -f epel*rpm
 
 rm -Rf /etc/yum.repos.d/bintray-tpokorra-kolab.repo
-wget https://bintray.com/tpokorra/kolab/rpm -O /etc/yum.repos.d/bintray-tpokorra-kolab.repo --no-check-certificate
+wget http://obs.kolabsys.com:82/home:/tpokorra:/branches:/Kolab:/Development/CentOS_6/home:tpokorra:branches:Kolab:Development.repo -O /etc/yum.repos.d/obs-tpokorra-nightly-kolab.repo --no-check-certificate
 
 yum clean metadata
 yum install kolab patch unzip
