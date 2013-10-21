@@ -45,18 +45,17 @@ rm -Rf \
 
 /etc/init.d/rsyslog restart
 
-rm -f kolab-3*.rpm
 rm -f epel*rpm
 wget http://ftp.uni-kl.de/pub/linux/fedora-epel/6/i386/epel-release-6-8.noarch.rpm
 yum -y localinstall --nogpgcheck epel-release-6-8.noarch.rpm
-wget http://mirror.kolabsys.com/pub/redhat/kolab-3.1/el6/development/x86_64/kolab-3.1-community-release-6-2.el6.kolab_3.1.noarch.rpm
-wget http://mirror.kolabsys.com/pub/redhat/kolab-3.1/el6/development/x86_64/kolab-3.1-community-release-development-6-2.el6.kolab_3.1.noarch.rpm
-yum -y localinstall kolab-3*.rpm
-rm -f kolab-3*.rpm
 rm -f epel*rpm
 
-rm -Rf /etc/yum.repos.d/bintray-tpokorra-kolab.repo
-wget http://obs.kolabsys.com:82/home:/tpokorra:/branches:/Kolab:/Development/CentOS_6/home:tpokorra:branches:Kolab:Development.repo -O /etc/yum.repos.d/obs-tpokorra-nightly-kolab.repo --no-check-certificate
+cd /etc/yum.repos.d
+rm -Rf bintray-tpokorra-kolab.repo
+wget http://obs.kolabsys.com:82/home:/tpokorra:/branches:/Kolab:/Development/CentOS_6/home:tpokorra:branches:Kolab:Development.repo -O obs-tpokorra-nightly-kolab.repo
+wget http://obs.kolabsys.com:82/Kolab:/3.1/CentOS_6/Kolab:3.1.repo -O kolab-3.1.repo
+wget http://obs.kolabsys.com:82/Kolab:/3.1:/Updates/CentOS_6/Kolab:3.1:Updates.repo -O kolab-3.1-updates.repo
+cd -
 
 yum clean metadata
 yum install kolab patch unzip
