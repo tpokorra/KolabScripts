@@ -305,6 +305,18 @@ index 019b417..ed5f701 100644
 +        'list-domainadmins',
      );
  
+diff --git a/lib/kolab_api_service.php b/lib/kolab_api_service.php
+index fa5bd8e..e6125b4 100644
+--- a/lib/kolab_api_service.php
++++ b/lib/kolab_api_service.php
+@@ -81,6 +81,7 @@ abstract class kolab_api_service
+         if (empty($object_types[$type_id])) {
+             if ($object_name == 'domain') {
+                 $result = kolab_api_service_domain_types::$DEFAULT_TYPE_ATTRS;
++                $result['form_fields']['domainadmin']['type'] = 'list';
+                 $result['form_fields']['aci'] = array(
+                     'type' => 'list',
+                     'optional' => true,
  
 diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
 index 6e3eaa0..5320805 100644
