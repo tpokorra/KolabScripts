@@ -1,5 +1,5 @@
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index 0ef1f26..8db50e3 100644
+index 4872521..da93bfc 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
 @@ -146,6 +146,22 @@ class LDAP extends Net_LDAP3 {
@@ -213,10 +213,10 @@ index 6829047..5334112 100644
                  'optional' => true,
              ),
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
-index 12af63c..46bb86b 100644
+index d96a9b1..7f2232a 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1072,6 +1072,41 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1068,6 +1068,41 @@ class kolab_api_service_form_value extends kolab_api_service
          );
      }
  
@@ -295,7 +295,7 @@ index 4a1190a..25d601a 100644
          $form = $this->form_create('domain', $attribs, $sections, $fields, $fields_map, $data, $add_mode);
  
 diff --git a/lib/client/kolab_client_task_settings.php b/lib/client/kolab_client_task_settings.php
-index 019b417..ed5f701 100644
+index 5faf53a..a1dedc5 100644
 --- a/lib/client/kolab_client_task_settings.php
 +++ b/lib/client/kolab_client_task_settings.php
 @@ -34,6 +34,7 @@ class kolab_client_task_settings extends kolab_client_task
@@ -304,7 +304,7 @@ index 019b417..ed5f701 100644
          'text-quota',
 +        'list-domainadmins',
      );
-
+ 
  
 diff --git a/lib/kolab_api_service.php b/lib/kolab_api_service.php
 index fa5bd8e..e6125b4 100644
@@ -318,13 +318,12 @@ index fa5bd8e..e6125b4 100644
                  $result['form_fields']['aci'] = array(
                      'type' => 'list',
                      'optional' => true,
- 
 diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
-index 6e3eaa0..5320805 100644
+index 07864ff..07ad14b 100644
 --- a/lib/kolab_client_task.php
 +++ b/lib/kolab_client_task.php
-@@ -873,6 +873,11 @@ class kolab_client_task
-             $result['type'] = kolab_form::INPUT_TEXTQUOTA;
+@@ -879,6 +879,11 @@ class kolab_client_task
+             $result['default'] = $field['default'];
              break;
  
 +        case 'list-domainadmins':
@@ -334,9 +333,9 @@ index 6e3eaa0..5320805 100644
 +
          default:
              $result['type'] = kolab_form::INPUT_TEXT;
-             if (isset($field['maxlength'])) {
-@@ -1269,6 +1274,12 @@ class kolab_client_task
-                     }
+ 
+@@ -1283,6 +1288,12 @@ class kolab_client_task
+                     unset($field['default']);
                  }
  
 +                // used for selectlist, eg. domainadmins
@@ -373,7 +372,7 @@ index 2fe3e9c..125dab5 100644
              if (!empty($attribs['multiple']) && empty($attribs['size'])) {
                  $attribs['size'] = 5;
 diff --git a/public_html/js/kolab_admin.js b/public_html/js/kolab_admin.js
-index 983ae8c..35af798 100644
+index 9eda881..c978ca9 100644
 --- a/public_html/js/kolab_admin.js
 +++ b/public_html/js/kolab_admin.js
 @@ -715,6 +715,8 @@ function kolab_admin()
