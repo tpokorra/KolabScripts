@@ -304,6 +304,7 @@ index 019b417..ed5f701 100644
          'text-quota',
 +        'list-domainadmins',
      );
+
  
 diff --git a/lib/kolab_api_service.php b/lib/kolab_api_service.php
 index fa5bd8e..e6125b4 100644
