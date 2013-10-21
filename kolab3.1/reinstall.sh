@@ -51,7 +51,6 @@ yum -y localinstall --nogpgcheck epel-release-6-8.noarch.rpm
 rm -f epel*rpm
 
 cd /etc/yum.repos.d
-rm -Rf bintray-tpokorra-kolab.repo
 wget http://obs.kolabsys.com:82/home:/tpokorra:/branches:/Kolab:/Development/CentOS_6/home:tpokorra:branches:Kolab:Development.repo -O obs-tpokorra-nightly-kolab.repo
 wget http://obs.kolabsys.com:82/Kolab:/3.1/CentOS_6/Kolab:3.1.repo -O kolab-3.1.repo
 wget http://obs.kolabsys.com:82/Kolab:/3.1:/Updates/CentOS_6/Kolab:3.1:Updates.repo -O kolab-3.1-updates.repo
