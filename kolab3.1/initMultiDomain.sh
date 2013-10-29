@@ -101,10 +101,3 @@ mv /usr/share/roundcubemail/plugins/advanced_search/config-default.inc.php /usr/
 sed -r -i -e "s#messagemenu#toolbar#g" /usr/share/roundcubemail/plugins/advanced_search/config.inc.php
 sed -r -i -e "s#'redundant_attachments',#'redundant_attachments',\n            'advanced_search',#g" /etc/roundcubemail/config.inc.php
 
-#####################################################################################
-# apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=2018
-#####################################################################################
-patch -p1 -i `pwd`/patches/patchMultiDomainAdminsBug2018.patch -d /usr/share/kolab-webadmin
-patch -p1 -i `pwd`/patches/domainquotaBug2046.patch -d /usr/share/kolab-webadmin
-patch -p1 -i `pwd`/patches/deleteDomainWithUsersBug1869.patch -d /usr/share/kolab-webadmin
-
