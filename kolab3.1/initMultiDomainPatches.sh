@@ -6,4 +6,5 @@
 patch -p1 -i `pwd`/patches/patchMultiDomainAdminsBug2018.patch -d /usr/share/kolab-webadmin
 patch -p1 -i `pwd`/patches/domainquotaBug2046.patch -d /usr/share/kolab-webadmin
 patch -p1 -i `pwd`/patches/deleteDomainWithUsersBug1869.patch -d /usr/share/kolab-webadmin
+patch -p0 -i `pwd`/patches/checkboxLDAPBug2452.patch
 patch -p0 -i `pwd`/patches/patchDomainAdminAccountLimitations.patch
