@@ -69,17 +69,6 @@
  (2, 'posix', 'POSIX User', 'A POSIX user (with a home directory and shell access)', '{"auto_form_fields":{"cn":{"data":["givenname","sn"]},"displayname":{"data":["givenname","sn"]},"gidnumber":[],"homedirectory":{"data":["givenname","preferredlanguage","sn"]},"uid":{"data":["givenname","preferredlanguage","sn"]},"uidnumber":[],"userpassword":{"optional":true}},"form_fields":{"givenname":[],"initials":{"optional":true},"preferredlanguage":{"type":"select","values":["en_US","de_DE","de_CH","en_GB","fi_FI","fr_FR","hu_HU"]},"loginshell":{"type":"select","values":["/bin/bash","/usr/bin/git-shell","/sbin/nologin"]},"ou":{"type":"select"},"sn":[],"title":{"optional":true},"userpassword":{"optional":true}},"fields":{"objectclass":["top","inetorgperson","organizationalperson","person","posixaccount"]}}', NULL),
  (3, 'kolab_posix', 'Mail-enabled POSIX User', 'A mail-enabled POSIX User', '{"auto_form_fields":{"alias":{"type":"list","data":["givenname","preferredlanguage","sn"]},"cn":{"data":["givenname","preferredlanguage","sn"]},"displayname":{"data":["givenname","preferredlanguage","sn"]},"gidnumber":[],"homedirectory":{"data":["givenname","preferredlanguage","sn"]},"mail":{"data":["givenname","preferredlanguage","sn"]},"mailhost":{"optional":true},"uid":{"data":["givenname","preferredlanguage","sn"]},"uidnumber":[],"userpassword":{"optional":true}},"form_fields":{"alias":{"optional":true},"givenname":[],"initials":{"optional":true},"kolabdelegate":{"type":"list","autocomplete":true,"optional":true},"kolabinvitationpolicy":{"type":"select","values":["","ACT_MANUAL","ACT_REJECT"],"optional":true},"kolaballowsmtprecipient":{"type":"list","optional":true},"kolaballowsmtpsender":{"type":"list","optional":true},"l":{"optional":true},"loginshell":{"type":"select","values":["/bin/bash","/usr/bin/git-shell","/sbin/nologin"]},"mailalternateaddress":{"type":"list","optional":true},"mailquota":{"type":"text-quota","optional":true},"mobile":{"optional":true},"nsroledn":{"type":"list","autocomplete":true,"optional":true},"o":{"optional":true},"ou":{"type":"select"},"pager":{"optional":true},"postalcode":{"optional":true},"preferredlanguage":{"type":"select"},"sn":[],"street":{"optional":true},"telephonenumber":{"optional":true},"title":{"optional":true},"userpassword":{"optional":true}},"fields":{"objectclass":["top","inetorgperson","kolabinetorgperson","mailrecipient","organizationalperson","person","posixaccount"]}}', NULL);
  
---- /usr/share/kolab-webadmin/lib/client/kolab_client_task_user.php	2013-10-29 09:34:28.000000000 +0100
-+++ kolab_client_task_user.php	2013-10-29 16:44:26.446292521 +0100
-@@ -143,6 +143,8 @@
-             'kolabhomeserver'           => 'config',
-             'mailhost'                  => 'config',
-             'mailquota'                 => 'config',
-+            'tbitskolabmaxaccounts'     => 'config',
-+            'tbitskolaballowgroupware'  => 'config',
-             'cyrususerquota'            => 'config',
-             'kolabfreebusyfuture'       => 'config',
-             'kolabinvitationpolicy'     => 'config',
 --- /usr/share/kolab-webadmin/lib/locale/en_US.php	2013-10-30 09:58:06.720681295 +0100
 +++ en_US.php	2013-10-30 09:59:29.293681295 +0100
 @@ -314,6 +314,8 @@
@@ -206,3 +195,35 @@
          $user_attributes = $this->parse_input_attributes('user', $postdata);
  
          //console("user_add()", $user_attributes);
+--- /usr/share/kolab-webadmin/lib/client/kolab_client_task_user.php	2013-10-29 15:41:59.000000000 +0100
++++ kolab_client_task_user.php	2013-10-30 17:22:55.426681295 +0100
+@@ -143,6 +143,8 @@
+             'kolabhomeserver'           => 'config',
+             'mailhost'                  => 'config',
+             'mailquota'                 => 'config',
++            'tbitskolabmaxaccounts'     => 'config',
++            'tbitskolaballowgroupware'  => 'config',
+             'cyrususerquota'            => 'config',
+             'kolabfreebusyfuture'       => 'config',
+             'kolabinvitationpolicy'     => 'config',
+@@ -184,11 +186,20 @@
+             $accttypes[$idx] = array('value' => $idx, 'content' => $elem['name']);
+         }
+ 
++        // defaulting to Kolab user
++        $defaultUserType = 1;
++        $conf = Conf::get_instance();
++        if ($conf->get('primary_domain') == $_SESSION['user']['domain']) {
++            // in the management domain, default to DomainAdmin user
++            $defaultUserType = 4;
++        }
++
+         // Add user type id selector
+         $fields['type_id'] = array(
+             'section'  => 'personal',
+             'type'     => kolab_form::INPUT_SELECT,
+             'options'  => $accttypes,
++            'value'  => $defaultUserType,
+             'onchange' => "kadm.user_save(true, 'personal')",
+         );
+ 
