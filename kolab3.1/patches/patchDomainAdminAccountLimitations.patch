@@ -102,3 +102,107 @@
  $LANG['user.telephonenumber'] = 'Telefonnummer';
  $LANG['user.title'] = 'Jobbezeichnung';
  $LANG['user.type_id'] = 'Kontotyp';
+--- /usr/share/kolab-webadmin/lib/Auth.php	2013-10-30 14:33:21.234681295 +0100
++++ Auth.php	2013-10-30 14:32:43.523681295 +0100
+@@ -219,6 +219,11 @@
+         return $this->auth_instance()->domainadmin_get_quota($domainadmin, $excludeuser);
+     }
+ 
++    public function domainadmin_get_number_of_accounts($domainadmin)
++    {
++        return $this->auth_instance()->domainadmin_get_number_of_accounts($domainadmin);
++    }
++
+     public function domain_edit($domain, $attributes, $typeid = null)
+     {
+         return $this->auth_instance()->domain_edit($domain, $attributes, $typeid);
+--- /usr/share/kolab-webadmin/lib/Auth/LDAP.php	2013-10-30 14:33:21.241681295 +0100
++++ LDAP.php	2013-10-30 14:32:34.179681295 +0100
+@@ -620,6 +620,28 @@
+         return $quota;
+     }
+ 
++    // get the number of accounts that this domainadmin manages.
++    public function domainadmin_get_number_of_accounts($domainadmin)
++    {
++        $numberOfAccounts = 0;
++        $domains = $this->domainadmin_get_domains($domainadmin);
++        foreach ($domains as $associateddomain) {
++            $domain = substr($associateddomain, strlen("associateddomain="));
++            $domain = substr($domain, 0, strpos($domain, ','));
++            // get all users that are part of this domain
++            $users_result = $this->_search(
++                               $this->_standard_root_dn($domain),
++                               "objectclass=kolabinetorgperson",
++                               array($this->conf->get("quota_attribute")));
++            if ($users_result != null && count($users_result) > 0) {
++               $users = $users_result->entries(true);
++               $numberOfAccounts += count($users);
++            }
++        }
++
++        return $numberOfAccounts;
++    }
++
+     public function domain_edit($domain, $attributes, $typeid = null)
+     {
+         $domain = $this->domain_info($domain, array_keys($attributes));
+--- /usr/share/kolab-webadmin/lib/api/kolab_api_service_user.php	2013-10-29 15:41:59.000000000 +0100
++++ kolab_api_service_user.php	2013-10-30 14:36:28.810681295 +0100
+@@ -70,6 +70,46 @@
+     }
+ 
+     /**
++     * check if the domain admin is allowed to add another account.
++     * using tbitsKolabMaxAccounts from LDAP
++     *
++     * @throws an exception if maximum number of accounts has been reached
++     */
++    private function validate_user_add()
++    {
++        $auth = Auth::get_instance();
++        $conf = Conf::get_instance();
++
++        // get domain admin for the current domain, and the mailquota of the domain admin
++        $domaindetails = array_shift(array_values($auth->domain_info($_SESSION['user']->get_domain(), array('domainadmin'))));
++        $domainadmins = $domaindetails['domainadmin'];
++        unset($domainadminmaxaccounts);
++        foreach ($domaindetails['domainadmin'] as $domainadmin) {
++            // ignore cn=Directory Manager
++            if ($domainadmin != $conf->get('bind_dn')) {
++                $userinfo = array_shift(array_values($auth->user_info($domainadmin, array($quota_attribute))));
++                if (isset($userinfo['tbitskolabmaxaccounts'])) {
++                    // what about multiple domain admins of one domain?
++                    if (isset($domainadminmaxaccounts)) {
++                          throw new Exception('error: only one domainadmin can have a maximum account number specified');
++                    }
++                    $domainadminmaxaccounts = $userinfo['tbitskolabmaxaccounts'];
++                    $maindomainadmin = $domainadmin;
++                }
++            }
++        }
++
++        if (isset($domainadminmaxaccounts)) {
++            $numberOfAccounts = $auth->domainadmin_get_number_of_accounts($maindomainadmin);
++            if ($numberOfAccounts >= $domainadminmaxaccounts) {
++                  throw new Exception('error: Cannot create another account.<br/>'.
++                      'maximum accounts booked: '.$domainadminmaxaccounts.'<br/>'.
++                      'Please order more accounts!');
++            }
++        }
++    }
++
++    /**
+      * Create user.
+      *
+      * @param array $get   GET parameters
+@@ -81,6 +121,9 @@
+     {
+         //console("user_add()", $postdata);
+ 
++        // check if the domainadmin is allowed to add more accounts
++        $this->validate_user_add();
++
+         $user_attributes = $this->parse_input_attributes('user', $postdata);
+ 
+         //console("user_add()", $user_attributes);
