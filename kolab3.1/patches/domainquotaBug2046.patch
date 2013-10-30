@@ -73,7 +73,7 @@ index 46bb86b..7725da1 100644
              }
          }
  
--        return (int) $value;
+-        return (string) intval($value);
 +        if (empty($value)) {
 +            return $value;
 +        }
@@ -82,7 +82,7 @@ index 46bb86b..7725da1 100644
 +            throw new Exception('Invalid value for mail quota. Please clear or enter a valid integer number!');
 +        }
 +
-+        $value = (int) $value;
++        $value = intval($value);
 +
 +        $conf = Conf::get_instance();
 +        $quota_attribute = $conf->get('quota_attribute');
@@ -142,7 +142,7 @@ index 46bb86b..7725da1 100644
 +            }
 +        }
 +
-+        return $value;
++        return (string) intval($value);
      }
  
      private function validate_mailalternateaddress($value, $postdata = array(), $validation_type = null)
