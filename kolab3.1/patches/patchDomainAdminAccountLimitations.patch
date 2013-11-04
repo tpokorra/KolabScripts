@@ -6,7 +6,7 @@
  $LANG['user.system'] = 'System';
 +$LANG['domain.admins'] = 'Domain Administrators';
 +$LANG['domain.domainadmin'] = 'Administrators for this domain';
-+$LANG['user.domainadmin'] = 'Domain Administrator Settings';
++$LANG['user.domainadmin'] = 'Domain Administrator';
 +$LANG['user.tbitskolaballowgroupware'] = 'Allow Groupware features for accounts';
 +$LANG['user.tbitskolabmaxaccounts'] = 'Maximum number of accounts';
 +$LANG['user.tbitskolaboverallquota'] = 'Overall Quota assigned';
@@ -22,7 +22,7 @@
  $LANG['user.system'] = 'System';
 +$LANG['domain.admins'] = 'Domain Administratoren';
 +$LANG['domain.domainadmin'] = 'Administratoren für diese Domain';
-+$LANG['user.domainadmin'] = 'Domain Administrator Einstellungen';
++$LANG['user.domainadmin'] = 'Domain Administrator';
 +$LANG['user.tbitskolaballowgroupware'] = 'Erlaube Groupware Funktionen für Benutzer';
 +$LANG['user.tbitskolabmaxaccounts'] = 'Maximale Anzahl von Benutzerkonten';
 +$LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
