@@ -1,15 +1,5 @@
 #!/bin/bash
 
-if [ -z "$1" ]
-then
-   echo "call $0 <ldap password for cn=Directory Manager>"
-   exit 1
-fi
- 
-DirectoryManagerPwd=$1
-
-yum -y install wget patch
-
 #####################################################################################
 #Removing Canonification from Cyrus IMAP
 # TODO: could preserve canonification: http://lists.kolab.org/pipermail/users/2012-August/013711.html
@@ -69,10 +59,37 @@ sed -r -i -e "s/kolab_user_filter = /#kolab_user_filter = /g" /etc/kolab/kolab.c
 sed -r -i -e "s/\[kolab\]/[kolab]\nprimary_mail = %(givenname)s.%(surname)s@%(domain)s/g" /etc/kolab/kolab.conf
 
 #####################################################################################
-#set the domain for management of the domain admins 
+#set the domain for management of the domain admins, and add new user_type domainadmin
 #####################################################################################
 sed -r -i -e "s/\[kolab\]/[kolab]\ndomainadmins_management_domain = _domainadmins.org/g" /etc/kolab/kolab.conf
+sed -r -i -e "s/\[kolab\]/[kolab]\ndomainadmin_quota_attribute = tbitskolaboverallquota/g" /etc/kolab/kolab.conf
 sed -r -i -e 's/config_set\("debug", true\)/config_set("debug", false)/g' /usr/share/kolab-webadmin/lib/Auth/LDAP.php
-php initDomainAdminManagementDomain.php $DirectoryManagerPwd
+php initDomainAdminManagementDomain.php
 #sed -r -i -e 's/config_set\("debug", false\)/config_set("debug", true)/g' /usr/share/kolab-webadmin/lib/Auth/LDAP.php
+
+#####################################################################################
+# apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=2018
+#####################################################################################
+yum -y install wget patch
+
+if [ ! -d patches ]
+then
+  mkdir -p patches
+  echo Downloading patch patchMultiDomainAdminsBug2018.patch...
+  wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/patchMultiDomainAdminsBug2018.patch -O patches/patchMultiDomainAdminsBug2018.patch
+  echo Downloading patch domainquotaBug2046.patch...
+  wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/domainquotaBug2046.patch -O patches/domainquotaBug2046.patch
+  echo Downloading patch  deleteDomainWithUsersBug1869.patch
+  wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/deleteDomainWithUsersBug1869.patch -O patches/deleteDomainWithUsersBug1869.patch
+  echo Downloading patch checkboxLDAPBug2452.patch
+  wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/checkboxLDAPBug2452.patch -O patches/checkboxLDAPBug2452.patch
+  echo Downloading patch patchDomainAdminAccountLimitations.patch
+  wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/patchDomainAdminAccountLimitations.patch -O patches/patchDomainAdminAccountLimitations.patch
+fi
+
+patch -p1 -i `pwd`/patches/patchMultiDomainAdminsBug2018.patch -d /usr/share/kolab-webadmin
+patch -p1 -i `pwd`/patches/domainquotaBug2046.patch -d /usr/share/kolab-webadmin
+patch -p1 -i `pwd`/patches/deleteDomainWithUsersBug1869.patch -d /usr/share/kolab-webadmin
+patch -p0 -i `pwd`/patches/checkboxLDAPBug2452.patch
+patch -p0 -i `pwd`/patches/patchDomainAdminAccountLimitations.patch
 

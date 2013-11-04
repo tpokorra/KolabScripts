@@ -69,7 +69,7 @@ diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_servic
 index 46bb86b..7725da1 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1224,7 +1224,75 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1224,7 +1224,78 @@ class kolab_api_service_form_value extends kolab_api_service
              }
          }
  
@@ -85,7 +85,10 @@ index 46bb86b..7725da1 100644
 +        $value = intval($value);
 +
 +        $conf = Conf::get_instance();
-+        $quota_attribute = $conf->get('quota_attribute');
++        $quota_attribute = $conf->get('domainadmin_quota_attribute');
++        if ($quota_attribute == null || strlen($quota_attribute) == 0) {
++          $quota_attribute = $conf->get('quota_attribute');
++        }
 +        // check domain admin quota, only for users that are not part of the default domain
 +        if (strtolower($postdata['ou']) != strtolower($conf->get('kolab_user_base_dn'))) {
 +            $auth = Auth::get_instance();

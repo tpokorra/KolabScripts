@@ -1,93 +1,32 @@
---- /usr/share/doc/kolab-schema-3.0/kolab2.ldif	2012-06-21 15:03:09.000000000 +0200
-+++ kolab2.ldif	2013-10-29 13:59:42.756292521 +0100
-@@ -281,6 +281,22 @@
-   SUBSTR caseIgnoreIA5SubstringsMatch
-   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
- ##########################
-+# TBits kolab attributes #
-+##########################
-+# tbitsKolabMaxAccounts defines how many user accounts a domainadmin is allowed to create
-+attributeTypes: (1.3.6.1.4.1.12345.1
-+  NAME 'tbitsKolabMaxAccounts'
-+  DESC 'Maximum number of accounts available to the domain admin'
-+  EQUALITY integerMatch
-+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
-+  SINGLE-VALUE)
-+# tbitsKolabAllowGroupware defines if the domainadmin has permissions to assign the role withgroupware to his user accounts
-+attributeTypes: (1.3.6.1.4.1.12345.2
-+  DESC 'The domain admin is allowed to assign the role withgroupware to his user accounts'
-+  NAME 'tbitsKolabAllowGroupware'
-+  EQUALITY booleanMatch
-+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 )
-+##########################
- # kolabfilter attributes #
- ##########################
- # enable trustable From:
-@@ -347,7 +363,9 @@
-         kolabForwardUCE $
-         kolabAllowSMTPRecipient $
-         kolabAllowSMTPSender $
--        kolabDeleteflag ) )
-+        kolabDeleteflag $
-+        tbitsKolabMaxAccounts $
-+        tbitsKolabAllowGroupware ) )
- # kolab groupOfNames with extra kolabDeleteflag and the required
- # attribute mail.
- # The mail attribute for kolab objects of the type kolabGroupOfNames
---- /usr/share/doc/kolab-schema-3.0/kolab2.schema	2012-06-21 15:03:09.000000000 +0200
-+++ kolab2.schema	2013-10-28 09:12:41.210550142 +0100
-@@ -282,6 +282,22 @@
-   SUBSTR caseIgnoreIA5SubstringsMatch
-   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
- ##########################
-+# TBits kolab attributes #
-+##########################
-+# tbitsKolabMaxAccounts defines how many user accounts a domainadmin is allowed to create
-+attributetype (1.3.6.1.4.1.12345.1
-+  NAME 'tbitsKolabMaxAccounts'
-+  DESC 'Maximum number of accounts available to the domain admin'
-+  EQUALITY integerMatch
-+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
-+  SINGLE-VALUE)
-+# tbitsKolabAllowGroupware defines if the domainadmin has permissions to assign the role withgroupware to his user accounts
-+attributetype (1.3.6.1.4.1.12345.2
-+  DESC 'The domain admin is allowed to assign the role withgroupware to his user accounts'
-+  NAME 'tbitsKolabAllowGroupware'
-+  EQUALITY booleanMatch
-+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 )
-+##########################
- # kolabfilter attributes #
- ##########################
- # enable trustable From:
---- /usr/share/doc/kolab-webadmin-3.1.1/kolab_wap-3.1.sql	2013-10-29 09:34:28.000000000 +0100
-+++ kolab_wap-3.1.sql	2013-10-29 16:37:14.141292521 +0100
-@@ -164,6 +164,7 @@
- 
- INSERT INTO `user_types` (`id`, `key`, `name`, `description`, `attributes`, `used_for`) VALUES
- (1, 'kolab', 'Kolab User', 'A Kolab User', '{"auto_form_fields":{"alias":{"type":"list","data":["givenname","preferredlanguage","sn"]},"cn":{"data":["givenname","sn"]},"displayname":{"data":["givenname","sn"]},"mail":{"data":["givenname","preferredlanguage","sn"]},"mailhost":{"optional":true},"uid":{"data":["givenname","preferredlanguage","sn"]},"userpassword":{"optional":true}},"form_fields":{"alias":{"optional":true},"givenname":[],"initials":{"optional":true},"kolabdelegate":{"type":"list","autocomplete":true,"optional":true},"kolabinvitationpolicy":{"type":"select","values":["","ACT_MANUAL","ACT_REJECT"],"optional":true},"kolaballowsmtprecipient":{"type":"list","optional":true},"kolaballowsmtpsender":{"type":"list","optional":true},"l":{"optional":true},"mailalternateaddress":{"type":"list","optional":true},"mailquota":{"type":"text-quota","optional":true},"mobile":{"optional":true},"nsroledn":{"type":"list","autocomplete":true,"optional":true},"o":{"optional":true},"ou":{"type":"select"},"pager":{"optional":true},"postalcode":{"optional":true},"preferredlanguage":{"type":"select"},"sn":[],"street":{"optional":true},"telephonenumber":{"optional":true},"title":{"optional":true},"userpassword":{"optional":true}},"fields":{"objectclass":["top","inetorgperson","kolabinetorgperson","mailrecipient","organizationalperson","person"]}}', NULL),
-+(4, 'domainadmin', 'DomainAdmin', 'A Kolab Domain Administrator', '{"auto_form_fields":{"alias":{"type":"list","data":["givenname","preferredlanguage","sn"]},"cn":{"data":["givenname","sn"]},"displayname":{"data":["givenname","sn"]},"mail":{"data":["givenname","preferredlanguage","sn"]},"mailhost":{"optional":true},"uid":{"data":["givenname","preferredlanguage","sn"]},"userpassword":{"optional":true}},"form_fields":{"alias":{"optional":true},"givenname":[],"initials":{"optional":true},"kolabdelegate":{"type":"list","autocomplete":true,"optional":true},"kolabinvitationpolicy":{"type":"select","values":["","ACT_MANUAL","ACT_REJECT"],"optional":true},"kolaballowsmtprecipient":{"type":"list","optional":true},"kolaballowsmtpsender":{"type":"list","optional":true},"l":{"optional":true},"mailalternateaddress":{"type":"list","optional":true},"mailquota":{"type":"text-quota","optional":true},"mobile":{"optional":true},"nsroledn":{"type":"list","autocomplete":true,"optional":true},"o":{"optional":true},"ou":{"type":"select"},"pager":{"optional":true},"postalcode":{"optional":true},"preferredlanguage":{"type":"select"},"sn":[],"street":{"optional":true},"telephonenumber":{"optional":true},"title":{"optional":true},"userpassword":{"optional":true},"tbitskolabmaxaccounts":{"type":"text","optional":true},"tbitskolaballowgroupware":{"type":"checkbox","optional":true}},"fields":{"objectclass":["top","inetorgperson","kolabinetorgperson","mailrecipient","organizationalperson","person"]}}', NULL),
- (2, 'posix', 'POSIX User', 'A POSIX user (with a home directory and shell access)', '{"auto_form_fields":{"cn":{"data":["givenname","sn"]},"displayname":{"data":["givenname","sn"]},"gidnumber":[],"homedirectory":{"data":["givenname","preferredlanguage","sn"]},"uid":{"data":["givenname","preferredlanguage","sn"]},"uidnumber":[],"userpassword":{"optional":true}},"form_fields":{"givenname":[],"initials":{"optional":true},"preferredlanguage":{"type":"select","values":["en_US","de_DE","de_CH","en_GB","fi_FI","fr_FR","hu_HU"]},"loginshell":{"type":"select","values":["/bin/bash","/usr/bin/git-shell","/sbin/nologin"]},"ou":{"type":"select"},"sn":[],"title":{"optional":true},"userpassword":{"optional":true}},"fields":{"objectclass":["top","inetorgperson","organizationalperson","person","posixaccount"]}}', NULL),
- (3, 'kolab_posix', 'Mail-enabled POSIX User', 'A mail-enabled POSIX User', '{"auto_form_fields":{"alias":{"type":"list","data":["givenname","preferredlanguage","sn"]},"cn":{"data":["givenname","preferredlanguage","sn"]},"displayname":{"data":["givenname","preferredlanguage","sn"]},"gidnumber":[],"homedirectory":{"data":["givenname","preferredlanguage","sn"]},"mail":{"data":["givenname","preferredlanguage","sn"]},"mailhost":{"optional":true},"uid":{"data":["givenname","preferredlanguage","sn"]},"uidnumber":[],"userpassword":{"optional":true}},"form_fields":{"alias":{"optional":true},"givenname":[],"initials":{"optional":true},"kolabdelegate":{"type":"list","autocomplete":true,"optional":true},"kolabinvitationpolicy":{"type":"select","values":["","ACT_MANUAL","ACT_REJECT"],"optional":true},"kolaballowsmtprecipient":{"type":"list","optional":true},"kolaballowsmtpsender":{"type":"list","optional":true},"l":{"optional":true},"loginshell":{"type":"select","values":["/bin/bash","/usr/bin/git-shell","/sbin/nologin"]},"mailalternateaddress":{"type":"list","optional":true},"mailquota":{"type":"text-quota","optional":true},"mobile":{"optional":true},"nsroledn":{"type":"list","autocomplete":true,"optional":true},"o":{"optional":true},"ou":{"type":"select"},"pager":{"optional":true},"postalcode":{"optional":true},"preferredlanguage":{"type":"select"},"sn":[],"street":{"optional":true},"telephonenumber":{"optional":true},"title":{"optional":true},"userpassword":{"optional":true}},"fields":{"objectclass":["top","inetorgperson","kolabinetorgperson","mailrecipient","organizationalperson","person","posixaccount"]}}', NULL);
- 
 --- /usr/share/kolab-webadmin/lib/locale/en_US.php	2013-10-30 09:58:06.720681295 +0100
 +++ en_US.php	2013-10-30 09:59:29.293681295 +0100
-@@ -314,6 +314,8 @@
+@@ -314,6 +314,13 @@
  $LANG['user.sn'] = 'Surname';
  $LANG['user.street'] = 'Street';
  $LANG['user.system'] = 'System';
++$LANG['domain.admins'] = 'Domain Administrators';
++$LANG['domain.domainadmin'] = 'Administrators for this domain';
++$LANG['user.domainadmin'] = 'Domain Administrator Settings';
 +$LANG['user.tbitskolaballowgroupware'] = 'Allow Groupware features for accounts';
 +$LANG['user.tbitskolabmaxaccounts'] = 'Maximum number of accounts';
++$LANG['user.tbitskolaboverallquota'] = 'Overall Quota assigned';
++$LANG['user.tbitskolabdefaultquota'] = 'Default Quota for user accounts';
  $LANG['user.telephonenumber'] = 'Phone Number';
  $LANG['user.title'] = 'Job Title';
  $LANG['user.type_id'] = 'Account type';
 --- /usr/share/kolab-webadmin/lib/locale/de_DE.php	2013-10-29 15:41:59.000000000 +0100
 +++ de_DE.php	2013-10-30 09:59:11.277681295 +0100
-@@ -237,6 +237,8 @@
+@@ -237,6 +237,13 @@
  $LANG['user.sn'] = 'Nachname';
  $LANG['user.street'] = 'Straße';
  $LANG['user.system'] = 'System';
++$LANG['domain.admins'] = 'Domain Administratoren';
++$LANG['domain.domainadmin'] = 'Administratoren für diese Domain';
++$LANG['user.domainadmin'] = 'Domain Administrator Einstellungen';
 +$LANG['user.tbitskolaballowgroupware'] = 'Erlaube Groupware Funktionen für Benutzer';
 +$LANG['user.tbitskolabmaxaccounts'] = 'Maximale Anzahl von Benutzerkonten';
++$LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
++$LANG['user.tbitskolabdefaultquota'] = 'Voreinstellung Quota für Benutzerkonten';
  $LANG['user.telephonenumber'] = 'Telefonnummer';
  $LANG['user.title'] = 'Jobbezeichnung';
  $LANG['user.type_id'] = 'Kontotyp';

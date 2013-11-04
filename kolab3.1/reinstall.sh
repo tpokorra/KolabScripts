@@ -61,6 +61,6 @@ yum clean metadata
 yum install kolab patch unzip
 
 echo "for the TBits patches for multi domain setup, please run "
-echo "   ./initMultiDomainPatches.sh"
+echo "   ./initTBitsLDAPAttributes.sh"
 echo "   setup-kolab"
-echo "   ./initMultiDomain.sh <ldap password>"
+echo "   ./initMultiDomain.sh"
