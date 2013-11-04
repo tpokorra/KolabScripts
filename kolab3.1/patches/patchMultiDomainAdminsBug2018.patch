@@ -222,14 +222,14 @@ index d96a9b1..7f2232a 100644
  
 +    /**
 +     * get the users that are domainadmins.
-+     * We assume: all users in the main domain (kolab.conf: base_dn), plus the Directory Manager
++     * We assume: all users in the domainadmin management domain (kolab.conf: domainadmins_management_domain), plus the Directory Manager
 +     */
 +    private function select_options_domainadmin($postdata, $attribs = array())
 +    {
 +        $conf = Conf::get_instance();
 +
-+        $base_dn = $conf->get("base_dn");
-+        $auth = Auth::get_instance($base_dn);
++        $domainadmin_dn = "dc=" . implode(',dc=', explode('.', $conf->get("domainadmins_management_domain")));
++        $auth = Auth::get_instance($domainadmin_dn);
 +
 +        $_domainadmins = array();
 +
@@ -238,7 +238,7 @@ index d96a9b1..7f2232a 100644
 +        $domainadmin[] = "Directory Manager";
 +        $_domainadmins[] = $domainadmin;
 +
-+        if ($domainadmins = $auth->search($base_dn, '(objectclass=kolabinetorgperson)')) {
++        if ($domainadmins = $auth->search($domainadmin_dn, '(objectclass=kolabinetorgperson)')) {
 +            foreach ($domainadmins->entries(true) as $domainadmin_dn => $domainadmin_attrs) {
 +                $domainadmin = array();
 +                $domainadmin[] = $domainadmin_dn;

@@ -195,35 +195,44 @@
          $user_attributes = $this->parse_input_attributes('user', $postdata);
  
          //console("user_add()", $user_attributes);
+--- /usr/share/kolab-webadmin/lib/kolab_client_task.php	2013-11-04 15:10:09.448051309 +0100
++++ tmp/kolab_client_task.php	2013-11-04 15:11:18.937051309 +0100
+@@ -985,6 +985,17 @@
+         if (!empty($data['type_id'])) {
+             $type = $data['type_id'];
+         }
++        else if ($name == "user") {
++            // set the default user type
++            $defaultUserType = 1;
++            $conf = Conf::get_instance();
++            if ($conf->get('domainadmins_management_domain') == $_SESSION['user']['domain']) {
++                // in the management domain, default to DomainAdmin user
++                $defaultUserType = 4;
++            }
++
++            $data['type_id'] = $type = $defaultUserType;
++        }
+         else {
+             $data['type_id'] = $type = key($types);
+         }
 --- /usr/share/kolab-webadmin/lib/client/kolab_client_task_user.php	2013-10-29 15:41:59.000000000 +0100
-+++ kolab_client_task_user.php	2013-10-30 17:22:55.426681295 +0100
-@@ -143,6 +143,8 @@
++++ tmp/kolab_client_task_user.php	2013-11-04 15:12:29.600051309 +0100
+@@ -88,6 +88,7 @@
+             'contact_info'  => 'user.contact_info',
+             'system'        => 'user.system',
+             'config'        => 'user.config',
++            'domainadmin'   => 'user.domainadmin',
+             'asterisk'      => 'user.asterisk',
+             'other'         => 'user.other',
+         );
+@@ -143,6 +144,10 @@
              'kolabhomeserver'           => 'config',
              'mailhost'                  => 'config',
              'mailquota'                 => 'config',
-+            'tbitskolabmaxaccounts'     => 'config',
-+            'tbitskolaballowgroupware'  => 'config',
++            'tbitskolabmaxaccounts'     => 'domainadmin',
++            'tbitskolaballowgroupware'  => 'domainadmin',
++            'tbitskolaboverallquota'    => 'domainadmin',
++            'tbitskolabdefaultquota'    => 'domainadmin',
              'cyrususerquota'            => 'config',
              'kolabfreebusyfuture'       => 'config',
              'kolabinvitationpolicy'     => 'config',
-@@ -184,11 +186,20 @@
-             $accttypes[$idx] = array('value' => $idx, 'content' => $elem['name']);
-         }
- 
-+        // defaulting to Kolab user
-+        $defaultUserType = 1;
-+        $conf = Conf::get_instance();
-+        if ($conf->get('primary_domain') == $_SESSION['user']['domain']) {
-+            // in the management domain, default to DomainAdmin user
-+            $defaultUserType = 4;
-+        }
-+
-         // Add user type id selector
-         $fields['type_id'] = array(
-             'section'  => 'personal',
-             'type'     => kolab_form::INPUT_SELECT,
-             'options'  => $accttypes,
-+            'value'  => $defaultUserType,
-             'onchange' => "kadm.user_save(true, 'personal')",
-         );
- 

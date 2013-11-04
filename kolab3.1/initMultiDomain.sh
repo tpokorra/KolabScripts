@@ -44,19 +44,6 @@ sed -r -i -e 's#^local_recipient_maps = .*$#local_recipient_maps = ldap:/etc/pos
 service postfix restart
 
 #####################################################################################
-# withdraw permissions for all users from the default domain, which is used to manage the domain admins
-#####################################################################################
-management_domain=`cat /etc/kolab/kolab.conf | grep primary_domain`
-management_domain=${management_domain:17}
-cat > ./ldapparam.txt <<END
-dn: associateddomain=$management_domain,cn=kolab,cn=config
-changetype: modify
-delete: aci
-END
-ldapmodify -x -h localhost -D "cn=Directory Manager" -w $DirectoryManagerPwd -f ./ldapparam.txt
-rm -f ldapparam.txt
- 
-#####################################################################################
 #kolab_auth conf roundcube; see https://git.kolab.org/roundcubemail-plugins-kolab/commit/?id=1778b5ec70156f064fdda61c817c678001406996
 #####################################################################################
 cp -r /etc/roundcubemail/kolab_auth.inc.php /etc/roundcubemail/kolab_auth.inc.php.beforeMultiDomain
@@ -67,7 +54,7 @@ sed -r -i -e "s#'ou=Groups,.*'#'ou=Groups,%dc'#g" /etc/roundcubemail/kolab_auth.
 #####################################################################################
 # Fix Global Address Book in Multi Domain environment
 ####################################################################################
-cp -r /etc/roundcube/config.inc.php /etc/roundcubd/config.inc.php.beforeMultiDomain
+cp -r /etc/roundcubemail/config.inc.php /etc/roundcubemail/config.inc.php.beforeMultiDomain
 sed -r -i -e "s#'ou=People,.*'#'ou=People,%dc'#g" /etc/roundcubemail/config.inc.php
 sed -r -i -e "s#'ou=Groups,.*'#'ou=Groups,%dc'#g" /etc/roundcubemail/config.inc.php
  
@@ -80,3 +67,12 @@ sed -r -i -e "s/kolab_user_filter = /#kolab_user_filter = /g" /etc/kolab/kolab.c
 #set primary_mail value in kolab section, so that new users in a different domain will have a proper primary email address, even without changing kolab.conf for each domain
 #####################################################################################
 sed -r -i -e "s/\[kolab\]/[kolab]\nprimary_mail = %(givenname)s.%(surname)s@%(domain)s/g" /etc/kolab/kolab.conf
+
+#####################################################################################
+#set the domain for management of the domain admins 
+#####################################################################################
+sed -r -i -e "s/\[kolab\]/[kolab]\ndomainadmins_management_domain = _domainadmins.org/g" /etc/kolab/kolab.conf
+sed -r -i -e 's/config_set\("debug", true\)/config_set("debug", false)/g' /usr/share/kolab-webadmin/lib/Auth/LDAP.php
+php initDomainAdminManagementDomain.php $DirectoryManagerPwd
+#sed -r -i -e 's/config_set\("debug", false\)/config_set("debug", true)/g' /usr/share/kolab-webadmin/lib/Auth/LDAP.php
+
