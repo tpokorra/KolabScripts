@@ -1,0 +1,40 @@
+#!/bin/bash
+
+yum -y install wget patch unzip
+
+#####################################################################################
+# install our modified version of the message_label plugin to support virtual folders aka imap flags
+# see  https://github.com/tpokorra/message_label/tree/message_label_tbits
+#####################################################################################
+wget https://github.com/tpokorra/message_label/archive/message_label_tbits.zip -O message_label.zip
+unzip message_label.zip
+rm -f message_label.zip
+mv message_label-message_label_tbits /usr/share/roundcubemail/plugins/message_label
+cp -f /etc/roundcubemail/config.inc.php /etc/roundcubemail/config.inc.php.beforeMultiDomain
+sed -r -i -e "s#'redundant_attachments',#'redundant_attachments',\n            'message_label',#g" /etc/roundcubemail/config.inc.php
+# probably a dirty hack: we need to force fetching the headers, so that the labels are always displayed
+cp -f /usr/share/roundcubemail/program/lib/Roundcube/rcube_imap.php /usr/share/roundcubemail/program/lib/Roundcube/rcube_imap.php.beforeMultiDOmain
+sed -i -e 's#function fetch_headers($folder, $msgs, $sort = true, $force = false)#function fetch_headers($folder, $msgs, $sort = true, $forcedummy = false, $force = true)#g' /usr/share/roundcubemail/program/lib/Roundcube/rcube_imap.php
+
+#####################################################################################
+# apply a patch to roundcube plugin managesieve, to support the labels set with message_label plugin.
+# see https://github.com/tpokorra/roundcubemail/commits/manage_sieve_using_message_label_flags
+#####################################################################################
+mkdir -p patches
+echo Downloading patch managesieveWithMessagelabel.patch...
+wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/managesieveWithMessagelabel.patch
+mv managesieveWithMessagelabel.patch patches/
+patch -p1 -i `pwd`/patches/managesieveWithMessagelabel.patch -d /usr/share/roundcubemail
+
+#####################################################################################
+# install the advanced_search plugin
+# see https://github.com/GMS-SA/roundcube-advanced-search
+#####################################################################################
+wget https://github.com/GMS-SA/roundcube-advanced-search/archive/stable.zip -O advanced_search.zip
+unzip advanced_search.zip
+rm -f advanced_search.zip
+mv roundcube-advanced-search-stable /usr/share/roundcubemail/plugins/advanced_search
+mv /usr/share/roundcubemail/plugins/advanced_search/config-default.inc.php /usr/share/roundcubemail/plugins/advanced_search/config.inc.php
+sed -r -i -e "s#messagemenu#toolbar#g" /usr/share/roundcubemail/plugins/advanced_search/config.inc.php
+sed -r -i -e "s#'redundant_attachments',#'redundant_attachments',\n            'advanced_search',#g" /etc/roundcubemail/config.inc.php
+
