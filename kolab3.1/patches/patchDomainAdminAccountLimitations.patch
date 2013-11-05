@@ -185,6 +185,18 @@
              'cyrususerquota'            => 'config',
              'kolabfreebusyfuture'       => 'config',
              'kolabinvitationpolicy'     => 'config',
+@@ -172,6 +177,11 @@
+             'astvoicemailpassword'      => 'asterisk',
+         );
+
++        // when editing a user, make sure the correct type id is chosen (domain admin vs kolab user)
++       if (!empty($data['id']) && (empty($data['type_id']) || ($data['type_id'] == 4 && empty($data['tbitskolaballowgroupware'])))) {
++            $data['type_id'] = 1;
++        }
++
+         // Prepare fields
+         list($fields, $types, $type) = $this->form_prepare('user', $data, array('userpassword2'));
+
 --- /usr/share/kolab-webadmin/lib/api/kolab_api_service_form_value.php	2013-11-05 12:06:31.403742545 +0100
 +++ tmp/kolab_api_service_form_value.php	2013-11-05 12:07:50.641742545 +0100
 @@ -1216,6 +1216,29 @@
@@ -280,3 +292,4 @@
 +        return false;
 +    }
  }
+ 
