@@ -559,3 +559,26 @@ index 6647caa..b439cca 100644
  span.listelement span.actions {
    float: left;
    padding: 1px 0;
+--- a/lib/locale/en_US.php      2013-10-30 09:58:06.720681295 +0100
++++ b/lib/locale/en_US.php   2013-10-30 09:59:29.293681295 +0100
+@@ -314,6 +314,8 @@
+ $LANG['user.sn'] = 'Surname';
+ $LANG['user.street'] = 'Street';
+ $LANG['user.system'] = 'System';
++$LANG['domain.admins'] = 'Domain Administrators';
++$LANG['domain.domainadmin'] = 'Administrators for this domain';
+ $LANG['user.telephonenumber'] = 'Phone Number';
+ $LANG['user.title'] = 'Job Title';
+ $LANG['user.type_id'] = 'Account type';
+--- a/lib/locale/de_DE.php      2013-10-29 15:41:59.000000000 +0100
++++ b/lib/locale/de_DE.php   2013-10-30 09:59:11.277681295 +0100
+@@ -237,6 +237,8 @@
+ $LANG['user.sn'] = 'Nachname';
+ $LANG['user.street'] = 'Straße';
+ $LANG['user.system'] = 'System';
++$LANG['domain.admins'] = 'Domain Administratoren';
++$LANG['domain.domainadmin'] = 'Administratoren für diese Domain';
+ $LANG['user.telephonenumber'] = 'Telefonnummer';
+ $LANG['user.title'] = 'Jobbezeichnung';
+ $LANG['user.type_id'] = 'Kontotyp';
+

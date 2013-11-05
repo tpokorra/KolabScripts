@@ -1,11 +1,11 @@
 --- /usr/share/kolab-webadmin/lib/locale/en_US.php	2013-10-30 09:58:06.720681295 +0100
 +++ en_US.php	2013-10-30 09:59:29.293681295 +0100
-@@ -314,6 +314,13 @@
+@@ -314,8 +314,13 @@
  $LANG['user.sn'] = 'Surname';
  $LANG['user.street'] = 'Street';
  $LANG['user.system'] = 'System';
-+$LANG['domain.admins'] = 'Domain Administrators';
-+$LANG['domain.domainadmin'] = 'Administrators for this domain';
+ $LANG['domain.admins'] = 'Domain Administrators';
+ $LANG['domain.domainadmin'] = 'Administrators for this domain';
 +$LANG['user.domainadmin'] = 'Domain Administrator';
 +$LANG['user.tbitskolaballowgroupware'] = 'Allow Groupware features for accounts';
 +$LANG['user.tbitskolabmaxaccounts'] = 'Maximum number of accounts';
@@ -16,12 +16,12 @@
  $LANG['user.type_id'] = 'Account type';
 --- /usr/share/kolab-webadmin/lib/locale/de_DE.php	2013-10-29 15:41:59.000000000 +0100
 +++ de_DE.php	2013-10-30 09:59:11.277681295 +0100
-@@ -237,6 +237,13 @@
+@@ -237,8 +237,13 @@
  $LANG['user.sn'] = 'Nachname';
  $LANG['user.street'] = 'Straße';
  $LANG['user.system'] = 'System';
-+$LANG['domain.admins'] = 'Domain Administratoren';
-+$LANG['domain.domainadmin'] = 'Administratoren für diese Domain';
+ $LANG['domain.admins'] = 'Domain Administratoren';
+ $LANG['domain.domainadmin'] = 'Administratoren für diese Domain';
 +$LANG['user.domainadmin'] = 'Domain Administrator';
 +$LANG['user.tbitskolaballowgroupware'] = 'Erlaube Groupware Funktionen für Benutzer';
 +$LANG['user.tbitskolabmaxaccounts'] = 'Maximale Anzahl von Benutzerkonten';
@@ -175,3 +175,35 @@
              'cyrususerquota'            => 'config',
              'kolabfreebusyfuture'       => 'config',
              'kolabinvitationpolicy'     => 'config',
+--- /usr/share/kolab-webadmin/lib/api/kolab_api_service_form_value.php	2013-11-05 12:06:31.403742545 +0100
++++ tmp/kolab_api_service_form_value.php	2013-11-05 12:07:50.641742545 +0100
+@@ -1216,6 +1216,29 @@
+         return 'OK';
+     }
+ 
++    private function validate_quota($value, $postdata = array(), $validation_type = null)
++    {
++        // convert MB/GB into KB
++        if (preg_match('/^([0-9]+)\s*(KB|MB|GB)$/i', $value, $m)) {
++            switch (strtoupper($m[2])) {
++            case 'KB': $value = $m[1]; break;
++            case 'MB': $value = $m[1] * 1024; break;
++            case 'GB': $value = $m[1] * 1024 * 1024; break;
++            }
++        }
++        return (string) intval($value);
++    }
++
++    private function validate_tbitskolaboverallquota($value, $postdata = array(), $validation_type = null)
++    {
++        return $this->validate_quota($value, $postdata, $validation_type);
++    }
++
++    private function validate_tbitskolabdefaultquota($value, $postdata = array(), $validation_type = null)
++    {
++        return $this->validate_quota($value, $postdata, $validation_type);
++    }
++
+     private function validate_mailquota($value, $postdata = array(), $validation_type = null)
+     {
+         // convert MB/GB into KB

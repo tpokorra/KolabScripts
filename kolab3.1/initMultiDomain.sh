@@ -72,23 +72,16 @@ then
   wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/domainquotaBug2046.patch -O patches/domainquotaBug2046.patch
   echo Downloading patch  deleteDomainWithUsersBug1869.patch
   wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/deleteDomainWithUsersBug1869.patch -O patches/deleteDomainWithUsersBug1869.patch
-  echo Downloading patch checkboxLDAPBug2452.patch
-  wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/checkboxLDAPBug2452.patch -O patches/checkboxLDAPBug2452.patch
-  echo Downloading patch patchDomainAdminAccountLimitations.patch
-  wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/patchDomainAdminAccountLimitations.patch -O patches/patchDomainAdminAccountLimitations.patch
 fi
 
 patch -p1 -i `pwd`/patches/patchMultiDomainAdminsBug2018.patch -d /usr/share/kolab-webadmin
 patch -p1 -i `pwd`/patches/domainquotaBug2046.patch -d /usr/share/kolab-webadmin
 patch -p1 -i `pwd`/patches/deleteDomainWithUsersBug1869.patch -d /usr/share/kolab-webadmin
-patch -p0 -i `pwd`/patches/checkboxLDAPBug2452.patch
-patch -p0 -i `pwd`/patches/patchDomainAdminAccountLimitations.patch
 
 #####################################################################################
-#set the domain for management of the domain admins, and add new user_type domainadmin
+#set the domain for management of the domain admins
 #####################################################################################
 sed -r -i -e "s/\[kolab\]/[kolab]\ndomainadmins_management_domain = administrators.org/g" /etc/kolab/kolab.conf
-sed -r -i -e "s/\[kolab\]/[kolab]\ndomainadmin_quota_attribute = tbitskolaboverallquota/g" /etc/kolab/kolab.conf
 sed -r -i -e 's/config_set\("debug", true\)/config_set("debug", false)/g' /usr/share/kolab-webadmin/lib/Auth/LDAP.php
 php initDomainAdminManagementDomain.php
 #sed -r -i -e 's/config_set\("debug", false\)/config_set("debug", true)/g' /usr/share/kolab-webadmin/lib/Auth/LDAP.php
