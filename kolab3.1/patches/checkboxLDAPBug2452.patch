@@ -1,0 +1,24 @@
+--- /usr/share/kolab-webadmin/public_html/js/kolab_admin.js	2013-10-30 11:04:25.534681295 +0100
++++ kolab_admin.js	2013-10-30 10:37:18.428681295 +0100
+@@ -787,6 +787,11 @@
+       delete data.json[this.name + '-unit'];
+     });
+ 
++    // checkbox inputs
++    $('input[type="checkbox"]', form).each(function() {
++      data.json[this.name] = this.checked?'TRUE':'FALSE';
++    });
++    
+     return data;
+   };
+ 
+--- /usr/share/kolab-webadmin/lib/kolab_client_task.php	2013-10-30 11:04:25.533681295 +0100
++++ kolab_client_task.php	2013-10-30 11:07:40.713681295 +0100
+@@ -864,6 +864,7 @@
+ 
+         case 'checkbox':
+             $result['type'] = kolab_form::INPUT_CHECKBOX;
++            $result['checked'] = $data[$field['name']] == "TRUE";
+             break;
+ 
+         case 'password':

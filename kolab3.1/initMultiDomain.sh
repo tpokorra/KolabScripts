@@ -1,15 +1,5 @@
 #!/bin/bash
 
-if [ -z "$1" ]
-then
-   echo "call $0 <ldap password for cn=Directory Manager>"
-   exit 1
-fi
- 
-DirectoryManagerPwd=$1
-
-yum -y install wget patch
-
 #####################################################################################
 #Removing Canonification from Cyrus IMAP
 # TODO: could preserve canonification: http://lists.kolab.org/pipermail/users/2012-August/013711.html
@@ -44,19 +34,6 @@ sed -r -i -e 's#^local_recipient_maps = .*$#local_recipient_maps = ldap:/etc/pos
 service postfix restart
 
 #####################################################################################
-# withdraw permissions for all users from the default domain, which is used to manage the domain admins
-#####################################################################################
-management_domain=`cat /etc/kolab/kolab.conf | grep primary_domain`
-management_domain=${management_domain:17}
-cat > ./ldapparam.txt <<END
-dn: associateddomain=$management_domain,cn=kolab,cn=config
-changetype: modify
-delete: aci
-END
-ldapmodify -x -h localhost -D "cn=Directory Manager" -w $DirectoryManagerPwd -f ./ldapparam.txt
-rm -f ldapparam.txt
- 
-#####################################################################################
 #kolab_auth conf roundcube; see https://git.kolab.org/roundcubemail-plugins-kolab/commit/?id=1778b5ec70156f064fdda61c817c678001406996
 #####################################################################################
 cp -r /etc/roundcubemail/kolab_auth.inc.php /etc/roundcubemail/kolab_auth.inc.php.beforeMultiDomain
@@ -82,19 +59,15 @@ sed -r -i -e "s/kolab_user_filter = /#kolab_user_filter = /g" /etc/kolab/kolab.c
 sed -r -i -e "s/\[kolab\]/[kolab]\nprimary_mail = %(givenname)s.%(surname)s@%(domain)s/g" /etc/kolab/kolab.conf
 
 #####################################################################################
-# apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=2018
+# apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=1869
 #####################################################################################
+yum -y install wget patch
+
 if [ ! -d patches ]
 then
   mkdir -p patches
-  echo Downloading patch patchMultiDomainAdminsBug2018.patch...
-  wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/patchMultiDomainAdminsBug2018.patch -O patches/patchMultiDomainAdminsBug2018.patch
-  echo Downloading patch domainquotaBug2046.patch...
-  wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/domainquotaBug2046.patch -O patches/domainquotaBug2046.patch
   echo Downloading patch  deleteDomainWithUsersBug1869.patch
   wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/deleteDomainWithUsersBug1869.patch -O patches/deleteDomainWithUsersBug1869.patch
 fi
 
-patch -p1 -i `pwd`/patches/patchMultiDomainAdminsBug2018.patch -d /usr/share/kolab-webadmin
-patch -p1 -i `pwd`/patches/domainquotaBug2046.patch -d /usr/share/kolab-webadmin
 patch -p1 -i `pwd`/patches/deleteDomainWithUsersBug1869.patch -d /usr/share/kolab-webadmin

@@ -51,6 +51,7 @@ yum -y localinstall --nogpgcheck epel-release-6-8.noarch.rpm
 rm -f epel*rpm
 
 cd /etc/yum.repos.d
+rm -Rf obs-tpokorra-nightly-kolab.repo
 wget http://obs.kolabsys.com:82/home:/tpokorra:/branches:/Kolab:/Development/CentOS_6/home:tpokorra:branches:Kolab:Development.repo -O obs-tpokorra-nightly-kolab.repo
 wget http://obs.kolabsys.com:82/Kolab:/3.1/CentOS_6/Kolab:3.1.repo -O kolab-3.1.repo
 wget http://obs.kolabsys.com:82/Kolab:/3.1:/Updates/CentOS_6/Kolab:3.1:Updates.repo -O kolab-3.1-updates.repo
@@ -59,6 +60,10 @@ cd -
 yum clean metadata
 yum install kolab patch unzip
 
-setup-kolab
+echo "for the TBits patches for multi domain setup, please run "
+echo "   ./initTBitsLDAPAttributes.sh"
+echo "   setup-kolab"
+echo "   ./initRoundcubePlugins.sh"
+echo "   ./initMultiDomain.sh"
+echo "   ./initTBitsISP.sh"
 
-echo "for the TBits patches for multi domain setup, run ./initMultiDomain.sh"

@@ -1,0 +1,295 @@
+--- /usr/share/kolab-webadmin/lib/locale/en_US.php	2013-10-30 09:58:06.720681295 +0100
++++ en_US.php	2013-10-30 09:59:29.293681295 +0100
+@@ -314,8 +314,13 @@
+ $LANG['user.sn'] = 'Surname';
+ $LANG['user.street'] = 'Street';
+ $LANG['user.system'] = 'System';
+ $LANG['domain.admins'] = 'Domain Administrators';
+ $LANG['domain.domainadmin'] = 'Administrators for this domain';
++$LANG['user.domainadmin'] = 'Domain Administrator';
++$LANG['user.tbitskolaballowgroupware'] = 'Allow Groupware features for accounts';
++$LANG['user.tbitskolabmaxaccounts'] = 'Maximum number of accounts';
++$LANG['user.tbitskolaboverallquota'] = 'Overall Quota assigned';
++$LANG['user.tbitskolabdefaultquota'] = 'Default Quota for user accounts';
+ $LANG['user.telephonenumber'] = 'Phone Number';
+ $LANG['user.title'] = 'Job Title';
+ $LANG['user.type_id'] = 'Account type';
+--- /usr/share/kolab-webadmin/lib/locale/de_DE.php	2013-10-29 15:41:59.000000000 +0100
++++ de_DE.php	2013-10-30 09:59:11.277681295 +0100
+@@ -237,8 +237,13 @@
+ $LANG['user.sn'] = 'Nachname';
+ $LANG['user.street'] = 'Straße';
+ $LANG['user.system'] = 'System';
+ $LANG['domain.admins'] = 'Domain Administratoren';
+ $LANG['domain.domainadmin'] = 'Administratoren für diese Domain';
++$LANG['user.domainadmin'] = 'Domain Administrator';
++$LANG['user.tbitskolaballowgroupware'] = 'Erlaube Groupware Funktionen für Benutzer';
++$LANG['user.tbitskolabmaxaccounts'] = 'Maximale Anzahl von Benutzerkonten';
++$LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
++$LANG['user.tbitskolabdefaultquota'] = 'Voreinstellung Quota für Benutzerkonten';
+ $LANG['user.telephonenumber'] = 'Telefonnummer';
+ $LANG['user.title'] = 'Jobbezeichnung';
+ $LANG['user.type_id'] = 'Kontotyp';
+--- /usr/share/kolab-webadmin/lib/Auth.php	2013-10-30 14:33:21.234681295 +0100
++++ Auth.php	2013-10-30 14:32:43.523681295 +0100
+@@ -219,6 +219,11 @@
+         return $this->auth_instance()->domainadmin_get_quota($domainadmin, $excludeuser);
+     }
+ 
++    public function domainadmin_get_number_of_accounts($domainadmin)
++    {
++        return $this->auth_instance()->domainadmin_get_number_of_accounts($domainadmin);
++    }
++
+     public function domain_edit($domain, $attributes, $typeid = null)
+     {
+         return $this->auth_instance()->domain_edit($domain, $attributes, $typeid);
+--- /usr/share/kolab-webadmin/lib/Auth/LDAP.php	2013-10-30 14:33:21.241681295 +0100
++++ LDAP.php	2013-10-30 14:32:34.179681295 +0100
+@@ -620,6 +620,28 @@
+         return $quota;
+     }
+ 
++    // get the number of accounts that this domainadmin manages.
++    public function domainadmin_get_number_of_accounts($domainadmin)
++    {
++        $numberOfAccounts = 0;
++        $domains = $this->domainadmin_get_domains($domainadmin);
++        foreach ($domains as $associateddomain) {
++            $domain = substr($associateddomain, strlen("associateddomain="));
++            $domain = substr($domain, 0, strpos($domain, ','));
++            // get all users that are part of this domain
++            $users_result = $this->_search(
++                               $this->_standard_root_dn($domain),
++                               "objectclass=kolabinetorgperson",
++                               array($this->conf->get("quota_attribute")));
++            if ($users_result != null && count($users_result) > 0) {
++               $users = $users_result->entries(true);
++               $numberOfAccounts += count($users);
++            }
++        }
++
++        return $numberOfAccounts;
++    }
++
+     public function domain_edit($domain, $attributes, $typeid = null)
+     {
+         $domain = $this->domain_info($domain, array_keys($attributes));
+--- /usr/share/kolab-webadmin/lib/api/kolab_api_service_user.php	2013-10-29 15:41:59.000000000 +0100
++++ kolab_api_service_user.php	2013-10-30 14:36:28.810681295 +0100
+@@ -70,6 +70,46 @@
+     }
+ 
+     /**
++     * check if the domain admin is allowed to add another account.
++     * using tbitsKolabMaxAccounts from LDAP
++     *
++     * @throws an exception if maximum number of accounts has been reached
++     */
++    private function validate_user_add()
++    {
++        $auth = Auth::get_instance();
++        $conf = Conf::get_instance();
++
++        // get domain admin for the current domain, and the mailquota of the domain admin
++        $domaindetails = array_shift(array_values($auth->domain_info($_SESSION['user']->get_domain(), array('domainadmin'))));
++        $domainadmins = $domaindetails['domainadmin'];
++        unset($domainadminmaxaccounts);
++        foreach ($domaindetails['domainadmin'] as $domainadmin) {
++            // ignore cn=Directory Manager
++            if ($domainadmin != $conf->get('bind_dn')) {
++                $userinfo = array_shift(array_values($auth->user_info($domainadmin, array($quota_attribute))));
++                if (isset($userinfo['tbitskolabmaxaccounts'])) {
++                    // what about multiple domain admins of one domain?
++                    if (isset($domainadminmaxaccounts)) {
++                          throw new Exception('error: only one domainadmin can have a maximum account number specified');
++                    }
++                    $domainadminmaxaccounts = $userinfo['tbitskolabmaxaccounts'];
++                    $maindomainadmin = $domainadmin;
++                }
++            }
++        }
++
++        if (isset($domainadminmaxaccounts)) {
++            $numberOfAccounts = $auth->domainadmin_get_number_of_accounts($maindomainadmin);
++            if ($numberOfAccounts >= $domainadminmaxaccounts) {
++                  throw new Exception('error: Cannot create another account.<br/>'.
++                      'maximum accounts booked: '.$domainadminmaxaccounts.'<br/>'.
++                      'Please order more accounts!');
++            }
++        }
++    }
++
++    /**
+      * Create user.
+      *
+      * @param array $get   GET parameters
+@@ -81,6 +121,9 @@
+     {
+         //console("user_add()", $postdata);
+ 
++        // check if the domainadmin is allowed to add more accounts
++        $this->validate_user_add();
++
+         $user_attributes = $this->parse_input_attributes('user', $postdata);
+ 
+         //console("user_add()", $user_attributes);
+--- /usr/share/kolab-webadmin/lib/kolab_client_task.php	2013-11-04 15:10:09.448051309 +0100
++++ tmp/kolab_client_task.php	2013-11-04 15:11:18.937051309 +0100
+@@ -985,6 +985,27 @@
+         if (!empty($data['type_id'])) {
+             $type = $data['type_id'];
+         }
++        else if ($name == "user") {
++            // set the default user type
++            $defaultUserType = 1;
++            $conf = Conf::get_instance();
++            if ($conf->get('domainadmins_management_domain') == $_SESSION['user']['domain']) {
++                // in the management domain, default to DomainAdmin user
++                $defaultUserType = 4;
++            } else {
++                // get the default mailquota of the domain admin
++                $result = $this->api_get('domain.defaultquota', array('id' => $_SESSION['user']['domain']));
++                $domaininfo = $result->get();
++
++                $defaultdomainquota = $domaininfo['defaultquota'];
++                if (isset($defaultdomainquota)) {
++                    // set the default mail quota
++                    $data['mailquota'] = $defaultdomainquota;
++                }
++            }
++
++            $data['type_id'] = $type = $defaultUserType;
++        }
+         else {
+             $data['type_id'] = $type = key($types);
+         }
+--- /usr/share/kolab-webadmin/lib/client/kolab_client_task_user.php	2013-10-29 15:41:59.000000000 +0100
++++ tmp/kolab_client_task_user.php	2013-11-04 15:12:29.600051309 +0100
+@@ -88,6 +88,7 @@
+             'contact_info'  => 'user.contact_info',
+             'system'        => 'user.system',
+             'config'        => 'user.config',
++            'domainadmin'   => 'user.domainadmin',
+             'asterisk'      => 'user.asterisk',
+             'other'         => 'user.other',
+         );
+@@ -143,6 +144,10 @@
+             'kolabhomeserver'           => 'config',
+             'mailhost'                  => 'config',
+             'mailquota'                 => 'config',
++            'tbitskolabmaxaccounts'     => 'domainadmin',
++            'tbitskolaballowgroupware'  => 'domainadmin',
++            'tbitskolaboverallquota'    => 'domainadmin',
++            'tbitskolabdefaultquota'    => 'domainadmin',
+             'cyrususerquota'            => 'config',
+             'kolabfreebusyfuture'       => 'config',
+             'kolabinvitationpolicy'     => 'config',
+@@ -172,6 +177,11 @@
+             'astvoicemailpassword'      => 'asterisk',
+         );
+
++        // when editing a user, make sure the correct type id is chosen (domain admin vs kolab user)
++       if (!empty($data['id']) && (empty($data['type_id']) || ($data['type_id'] == 4 && empty($data['tbitskolaballowgroupware'])))) {
++            $data['type_id'] = 1;
++        }
++
+         // Prepare fields
+         list($fields, $types, $type) = $this->form_prepare('user', $data, array('userpassword2'));
+
+--- /usr/share/kolab-webadmin/lib/api/kolab_api_service_form_value.php	2013-11-05 12:06:31.403742545 +0100
++++ tmp/kolab_api_service_form_value.php	2013-11-05 12:07:50.641742545 +0100
+@@ -1216,6 +1216,29 @@
+         return 'OK';
+     }
+ 
++    private function validate_quota($value, $postdata = array(), $validation_type = null)
++    {
++        // convert MB/GB into KB
++        if (preg_match('/^([0-9]+)\s*(KB|MB|GB)$/i', $value, $m)) {
++            switch (strtoupper($m[2])) {
++            case 'KB': $value = $m[1]; break;
++            case 'MB': $value = $m[1] * 1024; break;
++            case 'GB': $value = $m[1] * 1024 * 1024; break;
++            }
++        }
++        return (string) intval($value);
++    }
++
++    private function validate_tbitskolaboverallquota($value, $postdata = array(), $validation_type = null)
++    {
++        return $this->validate_quota($value, $postdata, $validation_type);
++    }
++
++    private function validate_tbitskolabdefaultquota($value, $postdata = array(), $validation_type = null)
++    {
++        return $this->validate_quota($value, $postdata, $validation_type);
++    }
++
+     private function validate_mailquota($value, $postdata = array(), $validation_type = null)
+     {
+         // convert MB/GB into KB
+--- /usr/share/kolab-webadmin/lib/api/kolab_api_service_domain.php	2013-10-29 15:41:59.000000000 +0100
++++ kolab_api_service_domain.php	2013-11-05 16:36:30.135742545 +0100
+@@ -235,4 +235,60 @@
+ 
+         return false;
+     }
++
++    /**
++     * get the default quota for a domain, specified in the TBits ISP LDAP attribute of the domain admin
++     *
++     * @param array $get   GET parameters
++     * @param array $post  POST parameters
++     *
++     * @return array|bool default quota, False on error
++     */
++    public function domain_defaultquota($getdata, $postdata)
++    {
++        Log::trace("domain.defaultquota(\$getdata = '" . var_export($getdata, TRUE) . "', \$postdata = '" . var_export($postdata, TRUE) . "')");
++
++        if (empty($getdata['id'])) {
++            Log::error("domain.defaultquota called without a Domain ID");
++            return false;
++        }
++
++        $auth   = Auth::get_instance();
++        $conf = Conf::get_instance();
++        $result = $auth->domain_info($getdata['id']);
++
++        // normalize result
++        $result = $this->parse_result_attributes('domain', $result);
++
++        if (empty($result['id'])) {
++            $result['id'] = $getdata['id'];
++        }
++
++        if ($result) {
++
++            // get domain admin for the current domain, and the default mailquota of the domain admin
++            unset($defaultdomainquota);
++            foreach ($result['domainadmin'] as $domainadmin) {
++                // ignore cn=Directory Manager
++                if ($domainadmin != $conf->get('bind_dn')) {
++                    $userinfo = array_shift(array_values($auth->user_info($domainadmin, array($quota_attribute))));
++                    if (isset($userinfo['tbitskolabdefaultquota'])) {
++                        // what about multiple domain admins of one domain?
++                        if (isset($defaultdomainquota)) {
++                              throw new Exception('error: only one domainadmin can have a default mailquota specified');
++                        }
++                        $defaultdomainquota = $userinfo['tbitskolabdefaultquota'];
++                    }
++                }
++            }
++
++            if (isset($defaultdomainquota)) {
++                $result['defaultquota'] = $defaultdomainquota;
++            }
++
++            return $result;
++        }
++        
++        return false;
++    }
+ }
+ 
