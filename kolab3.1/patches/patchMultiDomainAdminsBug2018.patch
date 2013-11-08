@@ -1,5 +1,5 @@
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index 4872521..da93bfc 100644
+index 0ef1f26..8db50e3 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
 @@ -146,6 +146,22 @@ class LDAP extends Net_LDAP3 {
@@ -213,10 +213,10 @@ index 6829047..5334112 100644
                  'optional' => true,
              ),
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
-index d96a9b1..7f2232a 100644
+index 1b66760..36d1e4d 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1068,6 +1068,41 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1074,6 +1074,41 @@ class kolab_api_service_form_value extends kolab_api_service
          );
      }
  
@@ -295,7 +295,7 @@ index 4a1190a..25d601a 100644
          $form = $this->form_create('domain', $attribs, $sections, $fields, $fields_map, $data, $add_mode);
  
 diff --git a/lib/client/kolab_client_task_settings.php b/lib/client/kolab_client_task_settings.php
-index 5faf53a..a1dedc5 100644
+index 2ec463d..999ce3b 100644
 --- a/lib/client/kolab_client_task_settings.php
 +++ b/lib/client/kolab_client_task_settings.php
 @@ -34,6 +34,7 @@ class kolab_client_task_settings extends kolab_client_task
@@ -307,7 +307,7 @@ index 5faf53a..a1dedc5 100644
  
  
 diff --git a/lib/kolab_api_service.php b/lib/kolab_api_service.php
-index fa5bd8e..e6125b4 100644
+index a154f7d..13365e9 100644
 --- a/lib/kolab_api_service.php
 +++ b/lib/kolab_api_service.php
 @@ -81,6 +81,7 @@ abstract class kolab_api_service
@@ -319,11 +319,11 @@ index fa5bd8e..e6125b4 100644
                      'type' => 'list',
                      'optional' => true,
 diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
-index 07864ff..07ad14b 100644
+index 6e3eaa0..5320805 100644
 --- a/lib/kolab_client_task.php
 +++ b/lib/kolab_client_task.php
-@@ -879,6 +879,11 @@ class kolab_client_task
-             $result['default'] = $field['default'];
+@@ -873,6 +873,11 @@ class kolab_client_task
+             $result['type'] = kolab_form::INPUT_TEXTQUOTA;
              break;
  
 +        case 'list-domainadmins':
@@ -333,9 +333,9 @@ index 07864ff..07ad14b 100644
 +
          default:
              $result['type'] = kolab_form::INPUT_TEXT;
- 
-@@ -1283,6 +1288,12 @@ class kolab_client_task
-                     unset($field['default']);
+             if (isset($field['maxlength'])) {
+@@ -1269,6 +1274,12 @@ class kolab_client_task
+                     }
                  }
  
 +                // used for selectlist, eg. domainadmins
@@ -371,8 +371,34 @@ index 2fe3e9c..125dab5 100644
          case self::INPUT_SELECT:
              if (!empty($attribs['multiple']) && empty($attribs['size'])) {
                  $attribs['size'] = 5;
+diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
+index 917c965..b03be19 100644
+--- a/lib/locale/de_DE.php
++++ b/lib/locale/de_DE.php
+@@ -275,6 +275,8 @@ $LANG['user.room'] = 'Raumnummer';
+ $LANG['user.sn'] = 'Nachname';
+ $LANG['user.street'] = 'Straße';
+ $LANG['user.system'] = 'System';
++$LANG['domain.admins'] = 'Domain Administratoren';
++$LANG['domain.domainadmin'] = 'Administratoren für diese Domain';
+ $LANG['user.telephonenumber'] = 'Telefonnummer';
+ $LANG['user.title'] = 'Job Title';
+ $LANG['user.type_id'] = 'Account type';
+diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
+index f10451a..9d89fa8 100644
+--- a/lib/locale/en_US.php
++++ b/lib/locale/en_US.php
+@@ -298,6 +298,8 @@ $LANG['user.room'] = 'Room number';
+ $LANG['user.sn'] = 'Surname';
+ $LANG['user.street'] = 'Street';
+ $LANG['user.system'] = 'System';
++$LANG['domain.admins'] = 'Domain Administrators';
++$LANG['domain.domainadmin'] = 'Administrators for this domain';
+ $LANG['user.telephonenumber'] = 'Phone Number';
+ $LANG['user.title'] = 'Job Title';
+ $LANG['user.type_id'] = 'Account type';
 diff --git a/public_html/js/kolab_admin.js b/public_html/js/kolab_admin.js
-index 9eda881..c978ca9 100644
+index 2433c10..d7e4089 100644
 --- a/public_html/js/kolab_admin.js
 +++ b/public_html/js/kolab_admin.js
 @@ -715,6 +715,8 @@ function kolab_admin()
@@ -559,26 +585,3 @@ index 6647caa..b439cca 100644
  span.listelement span.actions {
    float: left;
    padding: 1px 0;
---- a/lib/locale/en_US.php      2013-10-30 09:58:06.720681295 +0100
-+++ b/lib/locale/en_US.php   2013-10-30 09:59:29.293681295 +0100
-@@ -314,6 +314,8 @@
- $LANG['user.sn'] = 'Surname';
- $LANG['user.street'] = 'Street';
- $LANG['user.system'] = 'System';
-+$LANG['domain.admins'] = 'Domain Administrators';
-+$LANG['domain.domainadmin'] = 'Administrators for this domain';
- $LANG['user.telephonenumber'] = 'Phone Number';
- $LANG['user.title'] = 'Job Title';
- $LANG['user.type_id'] = 'Account type';
---- a/lib/locale/de_DE.php      2013-10-29 15:41:59.000000000 +0100
-+++ b/lib/locale/de_DE.php   2013-10-30 09:59:11.277681295 +0100
-@@ -237,6 +237,8 @@
- $LANG['user.sn'] = 'Nachname';
- $LANG['user.street'] = 'Straße';
- $LANG['user.system'] = 'System';
-+$LANG['domain.admins'] = 'Domain Administratoren';
-+$LANG['domain.domainadmin'] = 'Administratoren für diese Domain';
- $LANG['user.telephonenumber'] = 'Telefonnummer';
- $LANG['user.title'] = 'Jobbezeichnung';
- $LANG['user.type_id'] = 'Kontotyp';
-

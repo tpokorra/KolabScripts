@@ -1,6 +1,20 @@
---- /usr/share/kolab-webadmin/public_html/js/kolab_admin.js	2013-10-30 11:04:25.534681295 +0100
-+++ kolab_admin.js	2013-10-30 10:37:18.428681295 +0100
-@@ -787,6 +787,11 @@
+diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
+index 5320805..604a52c 100644
+--- a/lib/kolab_client_task.php
++++ b/lib/kolab_client_task.php
+@@ -859,6 +859,7 @@ class kolab_client_task
+ 
+         case 'checkbox':
+             $result['type'] = kolab_form::INPUT_CHECKBOX;
++            $result['checked'] = $data[$field['name']] == "TRUE";
+             break;
+ 
+         case 'password':
+diff --git a/public_html/js/kolab_admin.js b/public_html/js/kolab_admin.js
+index d7e4089..ab62c39 100644
+--- a/public_html/js/kolab_admin.js
++++ b/public_html/js/kolab_admin.js
+@@ -787,6 +787,11 @@ function kolab_admin()
        delete data.json[this.name + '-unit'];
      });
  
@@ -12,13 +26,3 @@
      return data;
    };
  
---- /usr/share/kolab-webadmin/lib/kolab_client_task.php	2013-10-30 11:04:25.533681295 +0100
-+++ kolab_client_task.php	2013-10-30 11:07:40.713681295 +0100
-@@ -864,6 +864,7 @@
- 
-         case 'checkbox':
-             $result['type'] = kolab_form::INPUT_CHECKBOX;
-+            $result['checked'] = $data[$field['name']] == "TRUE";
-             break;
- 
-         case 'password':

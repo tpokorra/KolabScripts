@@ -7,6 +7,7 @@ yum -y install wget patch
 
 if [ ! -d patches ]
 then
+  mkdir -p patches
   echo Downloading patch patchMultiDomainAdminsBug2018.patch...
   wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/patchMultiDomainAdminsBug2018.patch -O patches/patchMultiDomainAdminsBug2018.patch
   echo Downloading patch domainquotaBug2046.patch...

@@ -66,14 +66,14 @@ index 8db50e3..b2e40f5 100644
      {
          $domain = $this->domain_info($domain, array_keys($attributes));
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
-index 46bb86b..7725da1 100644
+index 36d1e4d..1904217 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1224,7 +1224,78 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1220,7 +1220,78 @@ class kolab_api_service_form_value extends kolab_api_service
              }
          }
  
--        return (string) intval($value);
+-        return (int) $value;
 +        if (empty($value)) {
 +            return $value;
 +        }
@@ -148,4 +148,4 @@ index 46bb86b..7725da1 100644
 +        return (string) intval($value);
      }
  
-     private function validate_mailalternateaddress($value, $postdata = array(), $validation_type = null)
+     private function validate_mailalternateaddress($value)
