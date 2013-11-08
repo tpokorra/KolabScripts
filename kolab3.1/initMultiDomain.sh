@@ -1,5 +1,7 @@
 #!/bin/bash
 
+yum -y install wget patch
+
 #####################################################################################
 #Removing Canonification from Cyrus IMAP
 # TODO: could preserve canonification: http://lists.kolab.org/pipermail/users/2012-August/013711.html
@@ -70,9 +72,19 @@ sed -r -i -e "s#\[ldap\]#[ldap]\nmodifytimestamp_format = %%Y%%m%%d%%H%%M%%SZ#g"
 sed -r -i -e "s/\[cyrus-imap\]/[imap]\nvirtual_domains = userid\n[cyrus-imap]/g" /etc/kolab/kolab.conf
 
 #####################################################################################
+#define the names of mail folders that should be created for a new account
+#####################################################################################
+if [ ! -f AutoCreateFolders.tpl ]
+then
+  echo Downloading file AutoCreateFolders.tpl
+  wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/AutoCreateFolders.tpl -O AutoCreateFolders.tpl
+fi
+LineNumberKolab=`cat /etc/kolab/kolab.conf | grep -n "\[kolab\]" |cut -f1 -d:`
+sed -i "$((LineNumberKolab + 1))r AutoCreateFolders.tpl" /etc/kolab/kolab.conf
+
+#####################################################################################
 # apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=1869
 #####################################################################################
-yum -y install wget patch
 
 if [ ! -d patches ]
 then
@@ -81,7 +93,10 @@ then
   wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/deleteDomainWithUsersBug1869.patch -O patches/deleteDomainWithUsersBug1869.patch
   echo Downloading patch  sleepTimeBetweenDomainOperationsBug2491.patch
   wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/sleepTimeBetweenDomainOperationsBug2491.patch -O patches/sleepTimeBetweenDomainOperationsBug2491.patch
+  echo Downloading patch  autocreatefoldersBug2492.patch
+  wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/sleepTimeBetweenDomainOperationsBug2491.patch -O patches/autocreatefoldersBug2492.patch
 fi
 
 patch -p1 -i `pwd`/patches/deleteDomainWithUsersBug1869.patch -d /usr/share/kolab-webadmin
 patch -p1 -i `pwd`/patches/sleepTimeBetweenDomainOperationsBug2491.patch -d /usr/lib/python2.6/site-packages
+patch -p1 -i `pwd`/patches/autocreatefoldersBug2492.patch -d /usr/lib/python2.6/site-packages

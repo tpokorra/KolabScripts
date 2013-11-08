@@ -1,0 +1,20 @@
+diff --git a/pykolab/imap/__init__.py b/pykolab/imap/__init__.py
+index 52dfdc1..ba6d465 100644
+--- a/pykolab/imap/__init__.py
++++ b/pykolab/imap/__init__.py
+@@ -426,9 +426,13 @@ class IMAP(object):
+         self.create_folder(folder_name, server)
+ 
+         if not self.domain == None:
+-            if conf.has_option(self.domain, "autocreate_folders"):
++            section_autocreate_folders = self.domain
++            if not conf.has_option(section_autocreate_folders, "autocreate_folders"):
++                section_autocreate_folders = "kolab"
++
++            if conf.has_option(section_autocreate_folders, "autocreate_folders"):
+                     _additional_folders = conf.get_raw(
+-                            self.domain,
++                            section_autocreate_folders,
+                             "autocreate_folders"
+                         )
+
