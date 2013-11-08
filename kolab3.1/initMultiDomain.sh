@@ -59,6 +59,17 @@ sed -r -i -e "s/kolab_user_filter = /#kolab_user_filter = /g" /etc/kolab/kolab.c
 sed -r -i -e "s/\[kolab\]/[kolab]\nprimary_mail = %(givenname)s.%(surname)s@%(domain)s/g" /etc/kolab/kolab.conf
 
 #####################################################################################
+#reduce the sleep time between adding domains, see https://issues.kolab.org/show_bug.cgi?id=2491
+#####################################################################################
+sed -r -i -e "s/\[kolab\]/[kolab]\nsleep_between_domain_operations_in_seconds = 10/g" /etc/kolab/kolab.conf
+
+#####################################################################################
+#avoid a couple of warnings by setting default values
+#####################################################################################
+sed -r -i -e "s#\[ldap\]#[ldap]\nmodifytimestamp_format = %%Y%%m%%d%%H%%M%%SZ#g" /etc/kolab/kolab.conf
+sed -r -i -e "s/\[cyrus-imap\]/[imap]\nvirtual_domains = userid\n[cyrus-imap]/g" /etc/kolab/kolab.conf
+
+#####################################################################################
 # apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=1869
 #####################################################################################
 yum -y install wget patch
@@ -68,6 +79,9 @@ then
   mkdir -p patches
   echo Downloading patch  deleteDomainWithUsersBug1869.patch
   wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/deleteDomainWithUsersBug1869.patch -O patches/deleteDomainWithUsersBug1869.patch
+  echo Downloading patch  sleepTimeBetweenDomainOperationsBug2491.patch
+  wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/sleepTimeBetweenDomainOperationsBug2491.patch -O patches/sleepTimeBetweenDomainOperationsBug2491.patch
 fi
 
 patch -p1 -i `pwd`/patches/deleteDomainWithUsersBug1869.patch -d /usr/share/kolab-webadmin
+patch -p1 -i `pwd`/patches/sleepTimeBetweenDomainOperationsBug2491.patch -d /usr/lib/python2.6/site-packages

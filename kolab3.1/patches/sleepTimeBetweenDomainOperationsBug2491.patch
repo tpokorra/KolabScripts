@@ -1,0 +1,27 @@
+diff --git a/kolabd/__init__.py b/kolabd/__init__.py
+index 34e54e7..0c8ee82 100644
+--- a/kolabd/__init__.py
++++ b/kolabd/__init__.py
+@@ -254,7 +254,8 @@ class KolabDaemon(object):
+                     added_domains.append(domain)
+ 
+             if len(removed_domains) == 0 and len(added_domains) == 0:
+-                time.sleep(600)
++                sleep_between_domain_operations_in_seconds = float(conf.get('kolab', 'sleep_between_domain_operations_in_seconds'))
++                time.sleep(sleep_between_domain_operations_in_seconds)
+ 
+             log.debug(
+                     _("added domains: %r, removed domains: %r") % (
+diff --git a/pykolab/conf/defaults.py b/pykolab/conf/defaults.py
+index f85b594..d809224 100644
+--- a/pykolab/conf/defaults.py
++++ b/pykolab/conf/defaults.py
+@@ -33,5 +33,8 @@ class Defaults(object):
+         self.mail_attributes = ['mail', 'alias']
+         self.mailserver_attribute = 'mailhost'
+ 
++        # when you add several domains within a short time, you should reduce this value to 10 seconds
++        self.kolab_sleep_between_domain_operations_in_seconds = 600
++
+         self.kolab_default_locale = 'en_US'
+         self.ldap_unique_attribute = 'nsuniqueid'
