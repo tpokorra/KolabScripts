@@ -5,7 +5,10 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import subprocess
 
-class PythonOrgSearch(unittest.TestCase):
+# assumes password for cn=Directory Manager is test
+# will create a new user, and try to login is that user and change the initials
+# will check kolab lm if the calendar folder has been created for the user
+class KolabWAPCreateUserAndEditSelf(unittest.TestCase):
 
     def setUp(self):
         self.driver = webdriver.Firefox()
