@@ -10,15 +10,12 @@
 if [ ! -d patches ]
 then
   mkdir -p patches
-  echo Downloading patch  patchFixLDAPAci-01.patch
-  wget https://raw.github.com/dhoffend/kolab3_tbits_scripts/master/kolab3.1/patches/patchFixLDAPAci-01.patch -O patches/patchFixLDAPAci-01.patch
+  echo Downloading patch  patchFixLDAPAci-01-2514.patch
+  wget https://raw.github.com/dhoffend/kolab3_tbits_scripts/master/kolab3.1/patches/patchFixLDAPAci-01-2514.patch -O patches/patchFixLDAPAci-01-2514.patch
   echo Downloading patch  patchFixLDAPAci-02-2514.patch
   wget https://raw.github.com/dhoffend/kolab3_tbits_scripts/master/kolab3.1/patches/patchFixLDAPAci-02-2514.patch -O patches/patchFixLDAPAci-02-2514.patch
-  echo Downloading patch  patchFixLDAPAci-03-2514.patch
-  wget https://raw.github.com/dhoffend/kolab3_tbits_scripts/master/kolab3.1/patches/patchFixLDAPAci-03-2514.patch -O patches/patchFixLDAPAci-03-2514.patch
 
 fi
 
-patch -p1 -i `pwd`/patches/patchFixLDAPAci-01.patch -d /usr/lib/python2.6/site-packages
-patch -p1 -i `pwd`/patches/patchFixLDAPAci-02-2514.patch -d /usr/lib/python2.6/site-packages
-patch -p1 -i `pwd`/patches/patchFixLDAPAci-03-2514.patch -d /usr/share/kolab-webadmin
+patch -p1 -i `pwd`/patches/patchFixLDAPAci-01-2514.patch -d /usr/lib/python2.6/site-packages
+patch -p1 -i `pwd`/patches/patchFixLDAPAci-02-2514.patch -d /usr/share/kolab-webadmin
