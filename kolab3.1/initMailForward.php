@@ -62,9 +62,10 @@ $newType = array(
         'data' => array (
           0 => 'givenname',
           1 => 'sn',
-        ),
-      ),
-    ),
+        )
+      )
+    )
+  )
 );
 
 $service_type = new kolab_api_service_type();
