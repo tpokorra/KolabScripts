@@ -53,6 +53,11 @@ autocreate_folders = {
         '/shared/vendor/kolab/folder-type': "task",
         },
         },
+        'Files': {
+        'annotations': {
+        '/private/vendor/kolab/folder-type': "file.default",
+        },
+        },
         'Trash': {
         'annotations': {
         '/private/vendor/kolab/folder-type': "mail.wastebasket",

@@ -62,8 +62,10 @@ yum install kolab patch unzip
 
 echo "for the TBits patches for multi domain setup, please run "
 echo "   ./initTBitsLDAPAttributes.sh"
+echo "   ./initFixLDAPAci.sh"
 echo "   setup-kolab"
 echo "   ./initRoundcubePlugins.sh"
 echo "   ./initMultiDomain.sh"
+echo "   ./initMailForward.sh"
 echo "   ./initTBitsISP.sh"
 
