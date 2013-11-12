@@ -1,0 +1,106 @@
+import unittest
+import time
+import datetime
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+
+# useful functions for testing kolab-webadmin
+class KolabWAPTestHelpers(unittest.TestCase):
+
+    def __init__(self, driver):
+        self.driver = driver
+
+    # login any user to the kolab webadmin 
+    def login_kolab_wap(self, url, username, password):
+        driver = self.driver
+        driver.get(url)
+
+        # login the Directory Manager
+        elem = driver.find_element_by_id("login_name")
+        elem.send_keys(username)
+        elem = driver.find_element_by_id("login_pass")
+        elem.send_keys(password)
+        elem.send_keys(Keys.RETURN)
+
+        # verify success of login
+        elem = driver.find_element_by_class_name("login")
+        print "User is logged in: " + elem.text
+
+        return True
+
+    # logout the current user
+    def logout_kolab_wap(self):
+        self.driver.find_element_by_class_name("logout").click()
+        print "User has logged out"
+
+    # create a new domain and select it
+    def create_domain(self):
+
+        driver = self.driver
+
+        # create new domain
+        elem = driver.find_element_by_xpath("//div[@class=\"domain\"]")
+        elem.click()
+        time.sleep(2)
+        elem = driver.find_element_by_name("associateddomain[0]")
+        domainname = "domain" + datetime.datetime.now().strftime("%Y%m%d%H%M%S") + ".de"
+        elem.send_keys(domainname)
+        elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
+        elem.click()
+        time.sleep(2)
+        elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
+        self.assertEquals("Domain created successfully.", elem.text, "domain was not created successfully, message: " + elem.text)
+        
+        # reload so that the domain dropdown is updated, and switch to new domain at the same time
+        print "redirecting to " + driver.current_url + "domain=" + domainname
+        driver.get(driver.current_url + "domain=" + domainname)
+        
+        elem = driver.find_element_by_id("selectlabel_domain")
+        self.assertEquals(domainname, elem.text, "selected domain: expected " + domainname + " but was " + elem.text)
+
+        print "Domain " + domainname + " has been created and selected"
+
+        return domainname
+
+    # create new user account in currently selected domain
+    def create_user(self):
+        driver = self.driver
+
+        elem = driver.find_element_by_xpath("//div[@class=\"user\"]")
+        self.assertEquals("Users", elem.text, "expected users but was: " + elem.text)
+        elem.click()
+        time.sleep(2)
+        elem = driver.find_element_by_xpath("//span[@class=\"formtitle\"]")
+        self.assertEquals("Add User", elem.text, "form should have title Add User, but was: " + elem.text)
+        elem = driver.find_element_by_name("givenname")
+        username = "test" + datetime.datetime.now().strftime("%Y%m%d%H%M%S");
+        elem.send_keys(username)
+        elem = driver.find_element_by_name("sn");
+        elem.send_keys(username)
+        # store the email address for later login
+        elem = driver.find_element_by_link_text("Contact Information")
+        elem.click()
+        elem = driver.find_element_by_name("mail")
+        emailLogin = elem.get_attribute('value')
+        elem = driver.find_element_by_link_text("System")
+        elem.click()
+        elem = driver.find_element_by_name("userpassword")
+        elem.clear()
+        password = "test"
+        elem.send_keys(password)
+        elem = driver.find_element_by_name("userpassword2")
+        elem.clear()
+        elem.send_keys(password)
+        elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
+        elem.click()
+
+        print "User " + username + " has been created. Login with " + emailLogin + " and password " + password
+
+        return username, emailLogin, password
+
+    def log_current_page(self):
+        fo = open("/tmp/output.html", "wb")
+        fo.write(self.driver.page_source.encode('utf-8'))
+        fo.close()
+        print
+        print "self.driver.page_source has been written to /tmp/output.html"
