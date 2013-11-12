@@ -230,33 +230,56 @@ index 40c2fcc..40547a5 100644
              'cyrususerquota'            => 'config',
              'kolabfreebusyfuture'       => 'config',
              'kolabinvitationpolicy'     => 'config',
-@@ -172,6 +177,11 @@ class kolab_client_task_user extends kolab_client_task
-             'astvoicemailpassword'      => 'asterisk',
-         );
+
+diff --git a/lib/kolab_api_service.php b/lib/kolab_api_service.php
+index 83fdd5b..b8d9410 100644
+--- a/lib/kolab_api_service.php
++++ b/lib/kolab_api_service.php
+@@ -122,6 +122,10 @@ abstract class kolab_api_service
+             return key($object_types);
+         }
  
-+        // when editing a user, make sure the correct type id is chosen (domain admin vs kolab user)
-+       if (!empty($data['id']) && (empty($data['type_id']) || ($data['type_id'] == 4 && empty($data['tbitskolaballowgroupware'])))) {
-+            $data['type_id'] = 1;
-+        }
++        # sort object types by the key: Kolab user should win over Domain Admin, because it comes first
++        # there are only additional fields, so a kolab user would be displayed as admin, when sorting by type name
++        ksort($object_types);
 +
-         // Prepare fields
-         list($fields, $types, $type) = $this->form_prepare('user', $data, array('userpassword2'));
+         $object_class = array_map('strtolower', $object_class);
+         $object_keys  = array_keys($attributes);
+         $keys_count   = count($object_keys);
+
+diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
+index ff7757d..1a91f4e 100644
+--- a/lib/kolab_client_task.php
++++ b/lib/kolab_client_task.php
+@@ -51,6 +51,12 @@ class kolab_client_task
+     protected $list_attribs = array();
+     protected $list_module;
  
++    define(OBJECT_TYPE_ID_KOLABUSER,   1);
++    define(OBJECT_TYPE_ID_POSIXUSER,   2);
++    define(OBJECT_TYPE_ID_KOLABPOSIX,  3);
++    define(OBJECT_TYPE_ID_FORWARDONLY, 4);
++    define(OBJECT_TYPE_ID_DOMAINADMIN, 5);
++
+     protected $search_attribs = array(
+         'name'  => array('cn', 'displayname'),
+         'email' => array('mail', 'alias', 'mailalternateaddress'),
+
 diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
 index 604a52c..5dd4c4e 100644
 --- a/lib/kolab_client_task.php
 +++ b/lib/kolab_client_task.php
-@@ -974,6 +974,27 @@ class kolab_client_task
+@@ -980,6 +980,27 @@ class kolab_client_task
          if (!empty($data['type_id'])) {
              $type = $data['type_id'];
          }
 +        else if ($name == "user") {
 +            // set the default user type
-+            $defaultUserType = 1;
++            $defaultUserType = OBJECT_TYPE_ID_KOLABUSER;
 +            $conf = Conf::get_instance();
 +            if ($conf->get('domainadmins_management_domain') == $_SESSION['user']['domain']) {
 +                // in the management domain, default to DomainAdmin user
-+                $defaultUserType = 4;
++                $defaultUserType = OBJECT_TYPE_ID_DOMAINADMIN;
 +            } else {
 +                // get the default mailquota of the domain admin
 +                $result = $this->api_get('domain.defaultquota', array('id' => $_SESSION['user']['domain']));
