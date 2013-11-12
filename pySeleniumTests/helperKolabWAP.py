@@ -21,9 +21,10 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem = driver.find_element_by_id("login_pass")
         elem.send_keys(password)
         elem.send_keys(Keys.RETURN)
+        time.sleep(2)
 
         # verify success of login
-        elem = driver.find_element_by_class_name("login")
+        elem = driver.find_element_by_xpath("//span[@class='login']")
         print "User is logged in: " + elem.text
 
         return True
@@ -52,18 +53,25 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.assertEquals("Domain created successfully.", elem.text, "domain was not created successfully, message: " + elem.text)
         
         # reload so that the domain dropdown is updated, and switch to new domain at the same time
-        print "redirecting to " + driver.current_url + "domain=" + domainname
-        driver.get(driver.current_url + "domain=" + domainname)
-        
-        elem = driver.find_element_by_id("selectlabel_domain")
-        self.assertEquals(domainname, elem.text, "selected domain: expected " + domainname + " but was " + elem.text)
-
-        print "Domain " + domainname + " has been created and selected"
+        self.select_domain(domainname)
 
         return domainname
 
+    def select_domain(self, domainname):
+        driver = self.driver
+        driver.get(driver.current_url + "domain=" + domainname)
+        elem = driver.find_element_by_id("selectlabel_domain")
+        self.assertEquals(domainname, elem.text, "selected domain: expected " + domainname + " but was " + elem.text)
+
+        print "Domain " + domainname + " has been selected"
+
     # create new user account in currently selected domain
-    def create_user(self):
+    def create_user(self,
+                    prefix = "user",
+                    overall_quota = None,
+                    default_quota = None,
+                    max_accounts = None,
+                    allow_groupware = None):
         driver = self.driver
 
         elem = driver.find_element_by_xpath("//div[@class=\"user\"]")
@@ -73,15 +81,41 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem = driver.find_element_by_xpath("//span[@class=\"formtitle\"]")
         self.assertEquals("Add User", elem.text, "form should have title Add User, but was: " + elem.text)
         elem = driver.find_element_by_name("givenname")
-        username = "test" + datetime.datetime.now().strftime("%Y%m%d%H%M%S");
+        username = prefix + datetime.datetime.now().strftime("%Y%m%d%H%M%S");
         elem.send_keys(username)
         elem = driver.find_element_by_name("sn");
         elem.send_keys(username)
+
+        elem = driver.find_element_by_xpath("//select[@name='type_id']/option[@selected='selected']")
+        if overall_quota is not None or default_quota is not None or max_accounts is not None or allow_groupware is not None:
+            # check if the user type is actually a domain admin
+            self.assertEquals("Domain Administrator", elem.text, "Default user type should be Domain Administrator, but was " + elem.text)
+            elem = driver.find_element_by_link_text("Domain Administrator")
+            elem.click()
+            if overall_quota is not None:
+                elem = driver.find_element_by_name("tbitskolaboverallquota")
+                elem.send_keys(overall_quota[:-2])
+                driver.find_element_by_xpath("//select[@name='tbitskolaboverallquota-unit']/option[@value='" + overall_quota[-2:] + "']").click()
+            if default_quota is not None:
+                elem = driver.find_element_by_name("tbitskolabdefaultquota")
+                elem.send_keys(default_quota[:-2])
+                driver.find_element_by_xpath("//select[@name='tbitskolabdefaultquota-unit']/option[@value='" + default_quota[-2:] + "']").click()
+            if max_accounts is not None:
+                elem = driver.find_element_by_name("tbitskolabmaxaccounts")
+                elem.send_keys(max_accounts)
+            if allow_groupware is not None:
+                elem = driver.find_element_by_name("tbitskolaballowgroupware")
+                elem.click()
+        else:
+            # check if the user type is a normal kolab user
+            self.assertEquals("Kolab User", elem.text, "Default user type should be Kolab User, but was " + elem.text)
+
         # store the email address for later login
         elem = driver.find_element_by_link_text("Contact Information")
         elem.click()
         elem = driver.find_element_by_name("mail")
         emailLogin = elem.get_attribute('value')
+        
         elem = driver.find_element_by_link_text("System")
         elem.click()
         elem = driver.find_element_by_name("userpassword")
@@ -91,6 +125,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem = driver.find_element_by_name("userpassword2")
         elem.clear()
         elem.send_keys(password)
+
         elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
         elem.click()
 
