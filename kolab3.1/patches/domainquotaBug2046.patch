@@ -73,7 +73,7 @@ index 36d1e4d..1904217 100644
              }
          }
  
--        return (int) $value;
+-        return (string) intval($value);
 +        if (empty($value)) {
 +            return $value;
 +        }
