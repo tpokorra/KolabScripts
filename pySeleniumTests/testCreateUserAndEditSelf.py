@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import unittest
 import time
 import datetime
@@ -35,6 +37,8 @@ class KolabWAPCreateUserAndEditSelf(unittest.TestCase):
         time.sleep(3)
         elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
         self.assertEquals("User updated successfully.", elem.text, "User was not saved successfully, message: " + elem.text)
+        
+        print "User has updated his own data successfully"
 
 
     def test_edit_user_himself(self):
