@@ -29,7 +29,8 @@ $newType['key'] = 'domainadmin';
 $newType['name'] = 'Domain Administrator';
 $newType['description'] = 'A Kolab Domain Administrator';
 unset($newType['attributes']['form_fields']['mailquota']);
-unset($newType['attributes']['form_fields']['mailhost']);
+# mailhost cannot be removed, it will be added somehow anyway, but then the score in kolab_api_service.php:object_type_id() will fail for domain admins without any quotas and maxnumber
+#    unset($newType['attributes']['form_fields']['mailhost']);
 unset($newType['attributes']['form_fields']['mailalternateaddress']);
 unset($newType['attributes']['form_fields']['alias']);
 unset($newType['attributes']['form_fields']['kolabdelegate']);
