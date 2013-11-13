@@ -21,15 +21,6 @@ class KolabWAPCreateUserAndEditSelf(unittest.TestCase):
         elem = driver.find_element_by_xpath("//div[@class=\"settings\"]")
         elem.click()
         time.sleep(1)
-        #elem = driver.find_element_by_id("searchinput")
-        #elem.send_keys(username)
-        #elem.send_keys(Keys.RETURN)
-        #elem = driver.find_element_by_xpath("//tbody/tr/td[@class=\"name\"]")
-        #print elem.text
-        #print elem.get_attribute("onclick")
-        #elem.click()
-        #time.sleep(10)
-        #print driver.page_source
         elem = driver.find_element_by_name("initials")
         elem.send_keys("T")
         elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")

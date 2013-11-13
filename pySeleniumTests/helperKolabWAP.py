@@ -86,10 +86,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem = driver.find_element_by_name("sn");
         elem.send_keys(username)
 
-        elem = driver.find_element_by_xpath("//select[@name='type_id']/option[@selected='selected']")
         if overall_quota is not None or default_quota is not None or max_accounts is not None or allow_groupware is not None:
-            # check if the user type is actually a domain admin
-            self.assertEquals("Domain Administrator", elem.text, "Default user type should be Domain Administrator, but was " + elem.text)
             elem = driver.find_element_by_link_text("Domain Administrator")
             elem.click()
             if overall_quota is not None:
@@ -106,9 +103,6 @@ class KolabWAPTestHelpers(unittest.TestCase):
             if allow_groupware is not None:
                 elem = driver.find_element_by_name("tbitskolaballowgroupware")
                 elem.click()
-        else:
-            # check if the user type is a normal kolab user
-            self.assertEquals("Kolab User", elem.text, "Default user type should be Kolab User, but was " + elem.text)
 
         # store the email address for later login
         elem = driver.find_element_by_link_text("Contact Information")
