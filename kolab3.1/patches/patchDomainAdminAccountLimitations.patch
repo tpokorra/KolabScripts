@@ -248,38 +248,45 @@ index 83fdd5b..b8d9410 100644
          $keys_count   = count($object_keys);
 
 diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
-index ff7757d..1a91f4e 100644
+index ff7757d..3d1b75c 100644
 --- a/lib/kolab_client_task.php
 +++ b/lib/kolab_client_task.php
-@@ -51,6 +51,12 @@ class kolab_client_task
-     protected $list_attribs = array();
-     protected $list_module;
+@@ -645,6 +645,24 @@ class kolab_client_task
+     }
  
-+    define(OBJECT_TYPE_ID_KOLABUSER,   1);
-+    define(OBJECT_TYPE_ID_POSIXUSER,   2);
-+    define(OBJECT_TYPE_ID_KOLABPOSIX,  3);
-+    define(OBJECT_TYPE_ID_FORWARDONLY, 4);
-+    define(OBJECT_TYPE_ID_DOMAINADMIN, 5);
+     /**
++     * Returns the id of the type that is identified by the key
++     *
++     * @param string $types array of types for the current object class
++     * @param string $key identifies the type that we want the id for
++     *
++     * @return string the id for the type that we are looking for
++     */
++    protected function get_object_type_id_by_key($types, $key)
++    {
++       foreach ($types as $id => $data) {
++           if ($data['key'] == $key) {
++              return $id;
++           }
++       }
++       return -1;
++    }
 +
-     protected $search_attribs = array(
-         'name'  => array('cn', 'displayname'),
-         'email' => array('mail', 'alias', 'mailalternateaddress'),
-
-diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
-index 604a52c..5dd4c4e 100644
---- a/lib/kolab_client_task.php
-+++ b/lib/kolab_client_task.php
-@@ -980,6 +980,27 @@ class kolab_client_task
++    /**
+      * Returns user name.
+      *
+      * @param string $dn User DN attribute value
+@@ -979,6 +997,27 @@ class kolab_client_task
          if (!empty($data['type_id'])) {
              $type = $data['type_id'];
          }
 +        else if ($name == "user") {
 +            // set the default user type
-+            $defaultUserType = OBJECT_TYPE_ID_KOLABUSER;
++            $defaultUserType = $this->get_object_type_id_by_key($types, "kolab");
 +            $conf = Conf::get_instance();
 +            if ($conf->get('domainadmins_management_domain') == $_SESSION['user']['domain']) {
 +                // in the management domain, default to DomainAdmin user
-+                $defaultUserType = OBJECT_TYPE_ID_DOMAINADMIN;
++                $defaultUserType = $this->get_object_type_id_by_key($types, "domainadmin");
 +            } else {
 +                // get the default mailquota of the domain admin
 +                $result = $this->api_get('domain.defaultquota', array('id' => $_SESSION['user']['domain']));
