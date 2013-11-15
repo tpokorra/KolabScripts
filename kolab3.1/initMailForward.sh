@@ -22,8 +22,3 @@ service postfix restart
 #####################################################################################
 sed -r -i -e 's/config_set\("debug", true\)/config_set("debug", false)/g' /usr/share/kolab-webadmin/lib/Auth/LDAP.php
 
-#####################################################################################
-# create new forward user type
-#####################################################################################
-php initMailForward.php
-
