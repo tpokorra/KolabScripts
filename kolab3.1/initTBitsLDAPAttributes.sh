@@ -1,10 +1,5 @@
 #!/bin/bash
 
-#####################################################################################
-# patch the LDAP schema for TBits extensions for ISP support (domain admin overall quota, maxAccounts, etc)
-#####################################################################################
-yum -y install wget patch
-
 if [ ! -d patches ]
 then
   mkdir -p patches

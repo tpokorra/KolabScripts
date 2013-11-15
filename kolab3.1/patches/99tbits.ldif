@@ -7,34 +7,34 @@ dn: cn=schema
 # TBits kolab attributes #
 ##########################
 # tbitsKolabMaxAccounts defines how many user accounts a domainadmin is allowed to create
-attributeTypes: (1.3.6.1.4.1.12345.1.1
+attributeTypes: (2.25.270637687019478811349087770667234728572.1.1
   NAME 'tbitsKolabMaxAccounts'
   DESC 'Maximum number of accounts available to the domain admin'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE)
 # tbitsKolabAllowGroupware defines if the domainadmin has permissions to assign the role withgroupware to his user accounts
-attributeTypes: (1.3.6.1.4.1.12345.1.2
+attributeTypes: (2.25.270637687019478811349087770667234728572.1.2
   DESC 'The domain admin is allowed to assign the role withgroupware to his user accounts'
   NAME 'tbitsKolabAllowGroupware'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 )
 # tbitskolaboverallquota defines the overall quota that is available to the domain admin for all his domains
-attributeTypes: (1.3.6.1.4.1.12345.1.3
+attributeTypes: (2.25.270637687019478811349087770667234728572.1.3
   NAME 'tbitsKolabOverallQuota'
   DESC 'Overall Quota available to the domain admin'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE)
 # tbitskolabdefaultquota defines the default quota that new users will get when this domainadmin creates new accounts
-attributeTypes: (1.3.6.1.4.1.12345.1.4
+attributeTypes: (2.25.270637687019478811349087770667234728572.1.4
   NAME 'tbitsKolabDefaultQuota'
   DESC 'default quota for new users created by this domain admin'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE)
 # tbitskolablastlogin defines the timestamp when this user last authenticated to the server
-attributeTypes: (1.3.6.1.4.1.12345.1.5
+attributeTypes: (2.25.270637687019478811349087770667234728572.1.5
   NAME 'tbitsKolabLastLogin'
   DESC 'last time the user got authenticated'
   EQUALITY integerMatch
@@ -46,7 +46,7 @@ attributeTypes: (1.3.6.1.4.1.12345.1.5
 # Please note that userPassword is a may
 # attribute in the schema but is mandatory for
 # Kolab
-objectClasses: ( 1.3.6.1.4.1.12345.2.1
+objectClasses: (2.25.270637687019478811349087770667234728572.2.1
   NAME 'tbitsKolabDomainAdmin'
   DESC 'TBits Kolab Domain Admin Person'
   SUP top AUXILIARY
@@ -55,4 +55,14 @@ objectClasses: ( 1.3.6.1.4.1.12345.2.1
         tbitsKolabOverallQuota $
         tbitsKolabMaxAccounts $
         tbitsKolabAllowGroupware ) )
-
+# tbits domain entry
+# domain limitations should be stored on domain objects 
+# instead of user objects
+objectClasses: (2.25.270637687019478811349087770667234728572.2.2
+  NAME 'tbitsKolabDomain'
+  DESC 'TBits Kolab Domain Object'
+  SUP top AUXILIARY
+  MAY ( tbitsKolabDefaultQuota $
+        tbitsKolabOverallQuota $
+        tbitsKolabMaxAccounts $
+        tbitsKolabAllowGroupware ) )
