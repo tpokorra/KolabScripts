@@ -66,6 +66,5 @@ echo "   setup-kolab"
 echo "   ./initRoundcubePlugins.sh"
 echo "   ./initMultiDomain.sh"
 echo "   ./initMailForward.sh"
-echo "   ./initTBitsLDAPAttributes.sh"
 echo "   ./initTBitsISP.sh"
 

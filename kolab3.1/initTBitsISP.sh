@@ -16,6 +16,8 @@ then
   wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/checkboxLDAPBug2452.patch -O patches/checkboxLDAPBug2452.patch
   echo Downloading patch patchDomainAdminAccountLimitations.patch
   wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/patchDomainAdminAccountLimitations.patch -O patches/patchDomainAdminAccountLimitations.patch
+  echo Downloading patch patchTBitsLDAPAttributes.patch...
+  wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/99tbits.ldif -O patches/99tbits.ldif
 fi
 
 patch -p1 -i `pwd`/patches/patchMultiDomainAdminsBug2018.patch -d /usr/share/kolab-webadmin
@@ -32,6 +34,18 @@ sed -r -i -e "s/\[kolab\]/[kolab]\ndomainadmin_quota_attribute = tbitskolabovera
 #disable LDAP debugging
 #####################################################################################
 sed -r -i -e 's/config_set\("debug", true\)/config_set("debug", false)/g' /usr/share/kolab-webadmin/lib/Auth/LDAP.php
+
+
+#####################################################################################
+#extend the LDAP schema for TBits ISP patches
+#####################################################################################
+for d in /etc/dirsrv/slapd*
+do
+  cp patches/99tbits.ldif $d/schema/
+done
+
+service dirsrv restart
+
 
 #####################################################################################
 #create new user_type domainadmin
