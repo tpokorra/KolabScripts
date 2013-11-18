@@ -16,12 +16,13 @@ from helperKolabWAP import KolabWAPTestHelpers
 class KolabWAPDomainAdmin(unittest.TestCase):
 
     def setUp(self):
-        self.driver = webdriver.Firefox()
+        self.kolabWAPhelper = KolabWAPTestHelpers()
+        self.driver = self.kolabWAPhelper.init_driver()
 
     # test if correct user type is used in a normal domain
     def test_default_user_type_in_normal_domain(self):
-        kolabWAPhelper = KolabWAPTestHelpers(self.driver)
-        self.kolabWAPhelper = kolabWAPhelper
+        kolabWAPhelper = self.kolabWAPhelper
+        kolabWAPhelper.log("Running test: test_default_user_type_in_normal_domain")
         
         # login Directory Manager
         kolabWAPhelper.login_kolab_wap("http://localhost/kolab-webadmin", "cn=Directory Manager", "test")
@@ -33,11 +34,13 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         elem = self.driver.find_element_by_id("searchinput")
         elem.send_keys(username)
         elem.send_keys(Keys.RETURN)
-        time.sleep(0.5)
+        kolabWAPhelper.wait_loading()
+
         elem = self.driver.find_element_by_xpath("//table[@id='userlist']/tbody/tr/td")
         self.assertEquals(username + ", " + username, elem.text, "Expected to select user " + username + " but was " + elem.text)
         elem.click()
-        time.sleep(0.5)
+        
+        kolabWAPhelper.wait_loading()
         
         # check if the user type is actually a normal kolab user
         elem = self.driver.find_element_by_xpath("//form[@id='user-form']/fieldset/table/tbody/tr/td[@class='value']")
@@ -47,9 +50,9 @@ class KolabWAPDomainAdmin(unittest.TestCase):
 
     # test if correct user type is used when not many attributes are set which are specific for domain admins
     def test_domain_admin_user_type(self):
-        kolabWAPhelper = KolabWAPTestHelpers(self.driver)
-        self.kolabWAPhelper = kolabWAPhelper
-        
+        kolabWAPhelper = self.kolabWAPhelper
+        kolabWAPhelper.log("Running test: test_domain_admin_user_type")
+
         # login Directory Manager
         kolabWAPhelper.login_kolab_wap("http://localhost/kolab-webadmin", "cn=Directory Manager", "test")
 
@@ -62,12 +65,13 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         elem = self.driver.find_element_by_id("searchinput")
         elem.send_keys(username)
         elem.send_keys(Keys.RETURN)
-        time.sleep(0.5)
+        kolabWAPhelper.wait_loading()
 
         elem = self.driver.find_element_by_xpath("//tbody/tr/td[@class=\"name\"]")
         self.assertEquals(username + ", " + username, elem.text, "Expected to select user " + username + " but was " + elem.text)
         elem.click()
-        time.sleep(0.5)
+        
+        kolabWAPhelper.wait_loading()
         
         # check if the user type is actually a domain admin
         elem = self.driver.find_element_by_xpath("//form[@id='user-form']/fieldset/table/tbody/tr/td[@class='value']")
@@ -76,8 +80,8 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         kolabWAPhelper.logout_kolab_wap()
 
     def test_domain_admin(self):
-        kolabWAPhelper = KolabWAPTestHelpers(self.driver)
-        self.kolabWAPhelper = kolabWAPhelper
+        kolabWAPhelper = self.kolabWAPhelper
+        kolabWAPhelper.log("Running test: test_domain_admin")
         
         # login Directory Manager
         kolabWAPhelper.login_kolab_wap("http://localhost/kolab-webadmin", "cn=Directory Manager", "test")

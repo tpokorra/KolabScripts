@@ -16,7 +16,8 @@ from helperKolabWAP import KolabWAPTestHelpers
 class KolabAutoCreateFolders(unittest.TestCase):
 
     def setUp(self):
-        self.driver = webdriver.Firefox()
+        self.kolabWAPhelper = KolabWAPTestHelpers()
+        self.driver = self.kolabWAPhelper.init_driver()
 
     def helper_modify_autocreate_folders(self):
         # read kolab.conf
@@ -38,13 +39,14 @@ class KolabAutoCreateFolders(unittest.TestCase):
         fo.write(content)
         fo.close()
         
-        print "kolab.conf has been changed, autocreate_folders now contains " + newContactsFolderName
+        self.kolabWAPhelper.log("kolab.conf has been changed, autocreate_folders now contains " + newContactsFolderName)
         
         return newContactsFolderName
 
     def test_modified_foldername_in_new_domain(self):
-        kolabWAPhelper = KolabWAPTestHelpers(self.driver)
-        self.kolabWAPhelper = kolabWAPhelper
+
+        kolabWAPhelper = self.kolabWAPhelper
+        kolabWAPhelper.log ("Running test: test_modified_foldername_in_new_domain")
         
         # login
         kolabWAPhelper.login_kolab_wap("http://localhost/kolab-webadmin", "cn=Directory Manager", "test")

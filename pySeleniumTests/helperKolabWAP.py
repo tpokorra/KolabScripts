@@ -7,8 +7,25 @@ from selenium.webdriver.common.keys import Keys
 # useful functions for testing kolab-webadmin
 class KolabWAPTestHelpers(unittest.TestCase):
 
-    def __init__(self, driver):
-        self.driver = driver
+    def __init__(self):
+        return
+
+    def init_driver(self):
+        webdriver.DesiredCapabilities.PHANTOMJS['phantomjs.page.customHeaders.Accept-Language'] = 'en-US'
+        self.driver = webdriver.PhantomJS('phantomjs')
+        
+        #self.driver = webdriver.Firefox()
+
+        return self.driver
+
+    def log(self, message):
+        print datetime.datetime.now().strftime("%H:%M:%S") + " " + message
+
+    def wait_loading(self):
+        time.sleep(0.5)
+        while self.driver.page_source.find('div id="loading"') != -1 and self.driver.page_source.find('id="message"') == -1:
+            self.log("loading")
+            time.sleep(0.5)
 
     # login any user to the kolab webadmin 
     def login_kolab_wap(self, url, username, password):
@@ -20,19 +37,19 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem.send_keys(username)
         elem = driver.find_element_by_id("login_pass")
         elem.send_keys(password)
-        elem.send_keys(Keys.RETURN)
-        time.sleep(2)
+        driver.find_element_by_id("login_submit").click()
+        self.wait_loading()
 
         # verify success of login
-        elem = driver.find_element_by_xpath("//span[@class='login']")
-        print "User is logged in: " + elem.text
+        elem = driver.find_element_by_class_name("login")
+        self.log( "User is logged in: " + elem.text)
 
         return True
 
     # logout the current user
     def logout_kolab_wap(self):
         self.driver.find_element_by_class_name("logout").click()
-        print "User has logged out"
+        self.log("User has logged out")
 
     # create a new domain and select it
     def create_domain(self, domainadmin = None):
@@ -49,7 +66,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         else:
             elem = driver.find_element_by_link_text("Domains")
             elem.click()
-        time.sleep(2)
+        self.wait_loading()
 
         elem = driver.find_element_by_name("associateddomain[0]")
         domainname = "domain" + datetime.datetime.now().strftime("%Y%m%d%H%M%S") + ".de"
@@ -62,11 +79,11 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
         elem.click()
-        time.sleep(2)
+        self.wait_loading()
         elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
         self.assertEquals("Domain created successfully.", elem.text, "domain was not created successfully, message: " + elem.text)
         
-        print "Domain " + domainname + " has been created"
+        self.log("Domain " + domainname + " has been created")
         
         # reload so that the domain dropdown is updated, and switch to new domain at the same time
         self.select_domain(domainname)
@@ -80,7 +97,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem = driver.find_element_by_id("selectlabel_domain")
         self.assertEquals(domainname, elem.text, "selected domain: expected " + domainname + " but was " + elem.text)
 
-        print "Domain " + domainname + " has been selected"
+        self.log("Domain " + domainname + " has been selected")
 
     # create new user account in currently selected domain
     def create_user(self,
@@ -96,14 +113,14 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         elem = driver.find_element_by_link_text("Users")
         elem.click()
-        time.sleep(2)
+        self.wait_loading()
         elem = driver.find_element_by_link_text("Add User")
         elem.click()
-        time.sleep(2)
+        self.wait_loading()
         elem = driver.find_element_by_xpath("//span[@class=\"formtitle\"]")
         self.assertEquals("Add User", elem.text, "form should have title Add User, but was: " + elem.text)
         elem = driver.find_element_by_name("givenname")
-        username = prefix + datetime.datetime.now().strftime("%Y%m%d%H%M%S");
+        username = prefix + datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         elem.send_keys(username)
         elem = driver.find_element_by_name("sn");
         elem.send_keys(username)
@@ -162,7 +179,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
         elem.click()
 
-        time.sleep(2)
+        self.wait_loading()
         elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
         if expected_message_contains is not None:
             self.assertNotEquals(-1, elem.text.find(expected_message_contains), "User should not have been created, message should contain: " + expected_message_contains + " but was: " + elem.text)
@@ -170,13 +187,14 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         self.assertEquals("User created successfully.", elem.text, "User was not saved successfully, message: " + elem.text)
 
-        print "User " + username + " has been created. Login with " + emailLogin + " and password " + password
+        self.log("User " + username + " has been created. Login with " + emailLogin + " and password " + password)
 
         return username, emailLogin, password
 
     def log_current_page(self):
-        fo = open("/tmp/output.html", "wb")
+        filename = "/tmp/output" + datetime.datetime.now().strftime("%Y%m%d%H%M%S") + ".html"
+        fo = open(filename, "wb")
         fo.write(self.driver.page_source.encode('utf-8'))
         fo.close()
-        print
-        print "self.driver.page_source has been written to /tmp/output.html"
+        self.log("self.driver.page_source has been written to " + filename)
+        print 

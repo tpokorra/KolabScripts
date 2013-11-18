@@ -13,28 +13,29 @@ from helperKolabWAP import KolabWAPTestHelpers
 class KolabWAPCreateUserAndEditSelf(unittest.TestCase):
 
     def setUp(self):
-        self.driver = webdriver.Firefox()
+        self.kolabWAPhelper = KolabWAPTestHelpers()
+        self.driver = self.kolabWAPhelper.init_driver()
 
     # edit yourself; testing bug https://issues.kolab.org/show_bug.cgi?id=2414
     def helper_user_edits_himself(self):
         driver = self.driver
         elem = driver.find_element_by_xpath("//div[@class=\"settings\"]")
         elem.click()
-        time.sleep(1)
+        self.kolabWAPhelper.wait_loading()
         elem = driver.find_element_by_name("initials")
         elem.send_keys("T")
         elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
         elem.click()
-        time.sleep(3)
+        self.kolabWAPhelper.wait_loading()
         elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
         self.assertEquals("User updated successfully.", elem.text, "User was not saved successfully, message: " + elem.text)
         
-        print "User has updated his own data successfully"
+        self.kolabWAPhelper.log("User has updated his own data successfully")
 
 
     def test_edit_user_himself(self):
-        kolabWAPhelper = KolabWAPTestHelpers(self.driver)
-        self.kolabWAPhelper = kolabWAPhelper
+        kolabWAPhelper = self.kolabWAPhelper
+        kolabWAPhelper.log("Running test: test_edit_user_himself")
         
         # login Directory Manager
         kolabWAPhelper.login_kolab_wap("http://localhost/kolab-webadmin", "cn=Directory Manager", "test")
