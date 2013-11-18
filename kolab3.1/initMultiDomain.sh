@@ -109,12 +109,12 @@ patch -p1 -i `pwd`/patches/deleteDomainWithUsersBug1869.patch -d /usr/share/kola
 
 # different pathes in debian and centOS
 # centOS
-if [ -d /usr/lib/python2.7/dist-packages]; then
-  patch -p1 -i `pwd`/patches/sleepTimeBetweenDomainOperationsBug2491.patch -d /usr/lib/python2.7/dist-packages
-  patch -p1 -i `pwd`/patches/autocreatefoldersBug2492.patch -d /usr/lib/python2.7/dist-packages
+if [ -d /usr/lib/python2.7/dist-packages ]; then
+  patch -p1 -i `pwd`/patches/sleepTimeBetweenDomainOperationsBug2491.patch -d /usr/lib/python2.7/dist-packages;
+  patch -p1 -i `pwd`/patches/autocreatefoldersBug2492.patch -d /usr/lib/python2.7/dist-packages;
 fi
 # Debian
-if [ -d /usr/lib/python2.6/site-packages]; then
-  patch -p1 -i `pwd`/patches/sleepTimeBetweenDomainOperationsBug2491.patch -d /usr/lib/python2.6/site-packages
-  patch -p1 -i `pwd`/patches/autocreatefoldersBug2492.patch -d /usr/lib/python2.6/site-packages
+if [ -d /usr/lib/python2.6/site-packages ]; then
+  patch -p1 -i `pwd`/patches/sleepTimeBetweenDomainOperationsBug2491.patch -d /usr/lib/python2.6/site-packages;
+  patch -p1 -i `pwd`/patches/autocreatefoldersBug2492.patch -d /usr/lib/python2.6/site-packages;
 fi
