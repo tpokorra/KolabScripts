@@ -47,6 +47,8 @@ class KolabWAPCreateUserAndEditSelf(unittest.TestCase):
         kolabWAPhelper.login_kolab_wap("http://localhost/kolab-webadmin", emailLogin, password)
 
         self.helper_user_edits_himself()
+        
+        kolabWAPhelper.logout_kolab_wap()
 
     def tearDown(self):
         

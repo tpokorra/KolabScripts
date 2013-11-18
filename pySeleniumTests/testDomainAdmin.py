@@ -91,9 +91,23 @@ class KolabWAPDomainAdmin(unittest.TestCase):
             max_accounts = 3,
             allow_groupware = True)
 
-        # TODO create domain, with domain admin
-        # TODO select domain
-        # TODO create user accounts
+        # create domains, with domain admin
+        domainname = kolabWAPhelper.create_domain(username)
+        domainname2 = kolabWAPhelper.create_domain(username)
+        
+        # create user accounts
+        kolabWAPhelper.select_domain(domainname)
+        # test if default quota is set properly for a new user
+        kolabWAPhelper.create_user(default_quota_verify = "100mb")
+        kolabWAPhelper.create_user()
+        kolabWAPhelper.select_domain(domainname2)
+        # should fail, exceeding the overall quota of the domain admin
+        kolabWAPhelper.create_user(mail_quota = "900mb", expected_message_contains = "mailquota of the domain admin has been exceeded")
+        kolabWAPhelper.create_user()
+        # should fail, only 3 accounts allowed
+        kolabWAPhelper.create_user(expected_message_contains = "Cannot create another account")
+        
+        
         
         kolabWAPhelper.logout_kolab_wap()
 

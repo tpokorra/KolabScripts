@@ -35,22 +35,38 @@ class KolabWAPTestHelpers(unittest.TestCase):
         print "User has logged out"
 
     # create a new domain and select it
-    def create_domain(self):
+    def create_domain(self, domainadmin = None):
 
         driver = self.driver
 
-        # create new domain
-        elem = driver.find_element_by_xpath("//div[@class=\"domain\"]")
-        elem.click()
+        while driver.page_source.find("id=\"message\"") != -1:
+            # wait until message from previous action is gone
+            time.sleep(0.5)
+
+        if driver.page_source.find(">Add Domain<") != -1:
+            elem = driver.find_element_by_link_text("Add Domain")
+            elem.click()
+        else:
+            elem = driver.find_element_by_link_text("Domains")
+            elem.click()
         time.sleep(2)
+
         elem = driver.find_element_by_name("associateddomain[0]")
         domainname = "domain" + datetime.datetime.now().strftime("%Y%m%d%H%M%S") + ".de"
         elem.send_keys(domainname)
+
+        if domainadmin is not None:
+            elem = driver.find_element_by_link_text("Domain Administrators")
+            elem.click()
+            driver.find_element_by_xpath("//select[@name='domainadmin[0]']/option[text()='" + domainadmin + ", " + domainadmin + "']").click()
+
         elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
         elem.click()
         time.sleep(2)
         elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
         self.assertEquals("Domain created successfully.", elem.text, "domain was not created successfully, message: " + elem.text)
+        
+        print "Domain " + domainname + " has been created"
         
         # reload so that the domain dropdown is updated, and switch to new domain at the same time
         self.select_domain(domainname)
@@ -59,7 +75,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
     def select_domain(self, domainname):
         driver = self.driver
-        driver.get(driver.current_url + "domain=" + domainname)
+        url = driver.current_url[:driver.current_url.find("?")]
+        driver.get(url + "?domain=" + domainname)
         elem = driver.find_element_by_id("selectlabel_domain")
         self.assertEquals(domainname, elem.text, "selected domain: expected " + domainname + " but was " + elem.text)
 
@@ -71,11 +88,16 @@ class KolabWAPTestHelpers(unittest.TestCase):
                     overall_quota = None,
                     default_quota = None,
                     max_accounts = None,
-                    allow_groupware = None):
+                    allow_groupware = None,
+                    default_quota_verify = None,
+                    mail_quota = None,
+                    expected_message_contains = None):
         driver = self.driver
 
-        elem = driver.find_element_by_xpath("//div[@class=\"user\"]")
-        self.assertEquals("Users", elem.text, "expected users but was: " + elem.text)
+        elem = driver.find_element_by_link_text("Users")
+        elem.click()
+        time.sleep(2)
+        elem = driver.find_element_by_link_text("Add User")
         elem.click()
         time.sleep(2)
         elem = driver.find_element_by_xpath("//span[@class=\"formtitle\"]")
@@ -104,6 +126,23 @@ class KolabWAPTestHelpers(unittest.TestCase):
                 elem = driver.find_element_by_name("tbitskolaballowgroupware")
                 elem.click()
 
+        if mail_quota is not None or default_quota_verify is not None:
+            elem = driver.find_element_by_link_text("Configuration")
+            elem.click()
+            if default_quota_verify is not None:
+                elem = driver.find_element_by_name("mailquota")
+                self.assertEquals(default_quota_verify[:-2], 
+                        elem.get_attribute('value'), 
+                        "default quota should be " + default_quota_verify + " but was " + elem.get_attribute('value'))
+                elem = driver.find_element_by_xpath("//select[@name='mailquota-unit']/option[@selected='selected']")
+                self.assertEquals(default_quota_verify[-2:], 
+                        elem.get_attribute('value'), 
+                        "default quota should be " + default_quota_verify + " but was " + elem.get_attribute('value'))
+            if mail_quota is not None:
+                elem = driver.find_element_by_name("mailquota")
+                elem.send_keys(mail_quota[:-2])
+                driver.find_element_by_xpath("//select[@name='mailquota-unit']/option[@value='" + mail_quota[-2:] + "']").click()
+
         # store the email address for later login
         elem = driver.find_element_by_link_text("Contact Information")
         elem.click()
@@ -122,6 +161,14 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
         elem.click()
+
+        time.sleep(2)
+        elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
+        if expected_message_contains is not None:
+            self.assertNotEquals(-1, elem.text.find(expected_message_contains), "User should not have been created, message should contain: " + expected_message_contains + " but was: " + elem.text)
+            return None
+
+        self.assertEquals("User created successfully.", elem.text, "User was not saved successfully, message: " + elem.text)
 
         print "User " + username + " has been created. Login with " + emailLogin + " and password " + password
 
