@@ -28,6 +28,7 @@ $newType['type'] = 'user';
 $newType['key'] = 'domainadmin';
 $newType['name'] = 'Domain Administrator';
 $newType['description'] = 'A Kolab Domain Administrator';
+$newType['attributes']['fields']['objectclass'][] = 'tbitskolabdomainadmin';
 unset($newType['attributes']['auto_form_fields']['alias']);
 unset($newType['attributes']['auto_form_fields']['mailhost']);
 unset($newType['attributes']['form_fields']['mailquota']);

@@ -1,5 +1,5 @@
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index 0ef1f26..8db50e3 100644
+index edd7283..9e5d19b 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
 @@ -146,6 +146,22 @@ class LDAP extends Net_LDAP3 {
@@ -213,10 +213,10 @@ index 6829047..5334112 100644
                  'optional' => true,
              ),
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
-index 1b66760..36d1e4d 100644
+index 1bed5f0..570ba05 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1074,6 +1074,41 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1047,6 +1047,41 @@ class kolab_api_service_form_value extends kolab_api_service
          );
      }
  
@@ -295,7 +295,7 @@ index 4a1190a..25d601a 100644
          $form = $this->form_create('domain', $attribs, $sections, $fields, $fields_map, $data, $add_mode);
  
 diff --git a/lib/client/kolab_client_task_settings.php b/lib/client/kolab_client_task_settings.php
-index 2ec463d..999ce3b 100644
+index f1e37ac..7a7c481 100644
 --- a/lib/client/kolab_client_task_settings.php
 +++ b/lib/client/kolab_client_task_settings.php
 @@ -34,6 +34,7 @@ class kolab_client_task_settings extends kolab_client_task
@@ -307,7 +307,7 @@ index 2ec463d..999ce3b 100644
  
  
 diff --git a/lib/kolab_api_service.php b/lib/kolab_api_service.php
-index a154f7d..13365e9 100644
+index 276e679..8a64f3c 100644
 --- a/lib/kolab_api_service.php
 +++ b/lib/kolab_api_service.php
 @@ -81,6 +81,7 @@ abstract class kolab_api_service
@@ -319,11 +319,11 @@ index a154f7d..13365e9 100644
                      'type' => 'list',
                      'optional' => true,
 diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
-index 6e3eaa0..5320805 100644
+index 2aedb27..8ba911b 100644
 --- a/lib/kolab_client_task.php
 +++ b/lib/kolab_client_task.php
-@@ -873,6 +873,11 @@ class kolab_client_task
-             $result['type'] = kolab_form::INPUT_TEXTQUOTA;
+@@ -879,6 +879,11 @@ class kolab_client_task
+             $result['default'] = $field['default'];
              break;
  
 +        case 'list-domainadmins':
@@ -333,9 +333,9 @@ index 6e3eaa0..5320805 100644
 +
          default:
              $result['type'] = kolab_form::INPUT_TEXT;
-             if (isset($field['maxlength'])) {
-@@ -1269,6 +1274,12 @@ class kolab_client_task
-                     }
+ 
+@@ -1283,6 +1288,12 @@ class kolab_client_task
+                     unset($field['default']);
                  }
  
 +                // used for selectlist, eg. domainadmins
@@ -372,23 +372,23 @@ index 2fe3e9c..125dab5 100644
              if (!empty($attribs['multiple']) && empty($attribs['size'])) {
                  $attribs['size'] = 5;
 diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
-index 917c965..b03be19 100644
+index b88e520..a728827 100644
 --- a/lib/locale/de_DE.php
 +++ b/lib/locale/de_DE.php
-@@ -275,6 +275,8 @@ $LANG['user.room'] = 'Raumnummer';
+@@ -237,6 +237,8 @@ $LANG['user.room'] = 'Raumnummer';
  $LANG['user.sn'] = 'Nachname';
  $LANG['user.street'] = 'Straße';
  $LANG['user.system'] = 'System';
 +$LANG['domain.admins'] = 'Domain Administratoren';
 +$LANG['domain.domainadmin'] = 'Administratoren für diese Domain';
  $LANG['user.telephonenumber'] = 'Telefonnummer';
- $LANG['user.title'] = 'Job Title';
- $LANG['user.type_id'] = 'Account type';
+ $LANG['user.title'] = 'Jobbezeichnung';
+ $LANG['user.type_id'] = 'Kontotyp';
 diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
-index f10451a..9d89fa8 100644
+index b9e2d6a..abe885c 100644
 --- a/lib/locale/en_US.php
 +++ b/lib/locale/en_US.php
-@@ -298,6 +298,8 @@ $LANG['user.room'] = 'Room number';
+@@ -307,6 +307,8 @@ $LANG['user.room'] = 'Room number';
  $LANG['user.sn'] = 'Surname';
  $LANG['user.street'] = 'Street';
  $LANG['user.system'] = 'System';
@@ -398,7 +398,7 @@ index f10451a..9d89fa8 100644
  $LANG['user.title'] = 'Job Title';
  $LANG['user.type_id'] = 'Account type';
 diff --git a/public_html/js/kolab_admin.js b/public_html/js/kolab_admin.js
-index 2433c10..d7e4089 100644
+index af2463f..c0a9093 100644
 --- a/public_html/js/kolab_admin.js
 +++ b/public_html/js/kolab_admin.js
 @@ -715,6 +715,8 @@ function kolab_admin()
@@ -433,7 +433,7 @@ index 2433c10..d7e4089 100644
      // smart selects
      $('input[data-type="select"]', form).each(function() {
        delete data.json[this.name];
-@@ -789,8 +807,10 @@ function kolab_admin()
+@@ -794,8 +812,10 @@ function kolab_admin()
    };
  
    // Replaces form element with smart list element
@@ -445,7 +445,7 @@ index 2433c10..d7e4089 100644
      var i = 0, j = 0, list = [], elem, e = $(form_element),
        form = form_element.form,
        disabled = e.attr('disabled'),
-@@ -856,14 +876,24 @@ function kolab_admin()
+@@ -861,14 +881,24 @@ function kolab_admin()
  
        // add input rows
        $.each(list, function(i, v) {
@@ -478,7 +478,7 @@ index 2433c10..d7e4089 100644
          elem.appendTo(area);
        });
      }
-@@ -948,6 +978,90 @@ function kolab_admin()
+@@ -953,6 +983,90 @@ function kolab_admin()
      return elem;
    };
  

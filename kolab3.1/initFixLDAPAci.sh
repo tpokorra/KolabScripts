@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Install Patch and wget if not installed
+yum -y install wget patch
+
 #####################################################################################
 # apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=1869
 #####################################################################################

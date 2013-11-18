@@ -22,20 +22,3 @@ service postfix restart
 #####################################################################################
 sed -r -i -e 's/config_set\("debug", true\)/config_set("debug", false)/g' /usr/share/kolab-webadmin/lib/Auth/LDAP.php
 
-#####################################################################################
-# create new forward user type
-#####################################################################################
-php initMailForward.php
-
-#####################################################################################
-# apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=1869
-#####################################################################################
-
-if [ ! -d patches ]
-then
-  mkdir -p patches
-  echo Downloading patch  patchListField2466.patch
-  wget https://raw.github.com/dhoffend/kolab3_tbits_scripts/master/kolab3.1/patches/patchListField2466.patch -O patches/patchListField2466.patch
-fi
-
-patch -p1 -i `pwd`/patches/patchListField2466.patch -d /usr/share/kolab-webadmin

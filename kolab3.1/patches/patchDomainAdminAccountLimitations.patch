@@ -15,7 +15,7 @@ index f253185..cf79182 100644
      {
          return $this->auth_instance()->domain_edit($domain, $attributes, $typeid);
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index b2e40f5..caf728f 100644
+index db020bd..4b8c854 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
 @@ -620,6 +620,28 @@ class LDAP extends Net_LDAP3 {
@@ -113,11 +113,11 @@ index 4d5fcaa..92aaf4a 100644
 +    }
  }
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
-index 1904217..d9c3c43 100644
+index 82bde53..4d2a8cc 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1209,6 +1209,29 @@ class kolab_api_service_form_value extends kolab_api_service
-         }
+@@ -1219,6 +1219,29 @@ class kolab_api_service_form_value extends kolab_api_service
+         return 'OK';
      }
  
 +    private function validate_quota($value, $postdata = array(), $validation_type = null)
@@ -142,8 +142,8 @@ index 1904217..d9c3c43 100644
 +    {
 +        return $this->validate_quota($value, $postdata, $validation_type);
 +    }
-+
-     private function validate_mailquota($value)
++ 
+     private function validate_mailquota($value, $postdata = array(), $validation_type = null)
      {
          // convert MB/GB into KB
 diff --git a/lib/api/kolab_api_service_user.php b/lib/api/kolab_api_service_user.php
@@ -208,7 +208,7 @@ index 7b6bd0e..593351f 100644
  
          //console("user_add()", $user_attributes);
 diff --git a/lib/client/kolab_client_task_user.php b/lib/client/kolab_client_task_user.php
-index 40c2fcc..40547a5 100644
+index 40c2fcc..0100a83 100644
 --- a/lib/client/kolab_client_task_user.php
 +++ b/lib/client/kolab_client_task_user.php
 @@ -88,6 +88,7 @@ class kolab_client_task_user extends kolab_client_task
@@ -230,12 +230,11 @@ index 40c2fcc..40547a5 100644
              'cyrususerquota'            => 'config',
              'kolabfreebusyfuture'       => 'config',
              'kolabinvitationpolicy'     => 'config',
-
 diff --git a/lib/kolab_api_service.php b/lib/kolab_api_service.php
-index 83fdd5b..b8d9410 100644
+index 8a64f3c..b4d4252 100644
 --- a/lib/kolab_api_service.php
 +++ b/lib/kolab_api_service.php
-@@ -122,6 +122,10 @@ abstract class kolab_api_service
+@@ -123,6 +123,10 @@ abstract class kolab_api_service
              return key($object_types);
          }
  
@@ -246,9 +245,8 @@ index 83fdd5b..b8d9410 100644
          $object_class = array_map('strtolower', $object_class);
          $object_keys  = array_keys($attributes);
          $keys_count   = count($object_keys);
-
 diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
-index ff7757d..3d1b75c 100644
+index 8ba911b..cded524 100644
 --- a/lib/kolab_client_task.php
 +++ b/lib/kolab_client_task.php
 @@ -645,6 +645,24 @@ class kolab_client_task
@@ -276,7 +274,7 @@ index ff7757d..3d1b75c 100644
       * Returns user name.
       *
       * @param string $dn User DN attribute value
-@@ -979,6 +997,27 @@ class kolab_client_task
+@@ -984,6 +1002,27 @@ class kolab_client_task
          if (!empty($data['type_id'])) {
              $type = $data['type_id'];
          }
@@ -305,10 +303,10 @@ index ff7757d..3d1b75c 100644
              $data['type_id'] = $type = key($types);
          }
 diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
-index b03be19..e0fb0e7 100644
+index a728827..48e5d6a 100644
 --- a/lib/locale/de_DE.php
 +++ b/lib/locale/de_DE.php
-@@ -277,6 +277,11 @@ $LANG['user.street'] = 'Straße';
+@@ -239,6 +239,11 @@ $LANG['user.street'] = 'Straße';
  $LANG['user.system'] = 'System';
  $LANG['domain.admins'] = 'Domain Administratoren';
  $LANG['domain.domainadmin'] = 'Administratoren für diese Domain';
@@ -318,13 +316,13 @@ index b03be19..e0fb0e7 100644
 +$LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
 +$LANG['user.tbitskolabdefaultquota'] = 'Voreinstellung Quota für Benutzerkonten';
  $LANG['user.telephonenumber'] = 'Telefonnummer';
- $LANG['user.title'] = 'Job Title';
- $LANG['user.type_id'] = 'Account type';
+ $LANG['user.title'] = 'Jobbezeichnung';
+ $LANG['user.type_id'] = 'Kontotyp';
 diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
-index 9d89fa8..da95ba2 100644
+index abe885c..48b237e 100644
 --- a/lib/locale/en_US.php
 +++ b/lib/locale/en_US.php
-@@ -300,6 +300,11 @@ $LANG['user.street'] = 'Street';
+@@ -309,6 +309,11 @@ $LANG['user.street'] = 'Street';
  $LANG['user.system'] = 'System';
  $LANG['domain.admins'] = 'Domain Administrators';
  $LANG['domain.domainadmin'] = 'Administrators for this domain';

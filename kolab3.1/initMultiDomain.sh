@@ -95,11 +95,8 @@ then
   wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/sleepTimeBetweenDomainOperationsBug2491.patch -O patches/sleepTimeBetweenDomainOperationsBug2491.patch
   echo Downloading patch  autocreatefoldersBug2492.patch
   wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/autocreatefoldersBug2492.patch -O patches/autocreatefoldersBug2492.patch
-  echo Downloading patch  backportMailquotaBug2414.patch
-  wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/backportMailquotaBug2414.patch -O patches/backportMailquotaBug2414.patch
 fi
 
 patch -p1 -i `pwd`/patches/deleteDomainWithUsersBug1869.patch -d /usr/share/kolab-webadmin
 patch -p1 -i `pwd`/patches/sleepTimeBetweenDomainOperationsBug2491.patch -d /usr/lib/python2.6/site-packages
 patch -p1 -i `pwd`/patches/autocreatefoldersBug2492.patch -d /usr/lib/python2.6/site-packages
-patch -p1 -i `pwd`/patches/backportMailquotaBug2414.patch -d /usr/share/kolab-webadmin
