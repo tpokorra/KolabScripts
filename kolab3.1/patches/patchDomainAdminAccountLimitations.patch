@@ -47,6 +47,29 @@ index db020bd..4b8c854 100644
      public function domain_edit($domain, $attributes, $typeid = null)
      {
          $domain = $this->domain_info($domain, array_keys($attributes));
+--- a/lib/Auth/LDAP.php
++++ b/lib/Auth/LDAP.php
+@@ -484,6 +484,20 @@
+ 
+         $this->add_entry($dn, $attrs);
+ 
++        $dn = 'cn=enable-groupware-features,' . $inetdomainbasedn;
++        $attrs = array(
++            'objectclass' => array(
++                'top',
++                'ldapsubentry',
++                'nsroledefinition',
++                'nssimpleroledefinition',
++                'nsmanagedroledefinition',
++            ),
++            'cn' => 'enable-groupware-features'
++        );
++
++        $this->add_entry($dn, $attrs);
++
+         $domain = $this->domain_info($domain, array_keys($attributes));
+ 
+         if (empty($domain)) {
 diff --git a/lib/api/kolab_api_service_domain.php b/lib/api/kolab_api_service_domain.php
 index 4d5fcaa..92aaf4a 100644
 --- a/lib/api/kolab_api_service_domain.php
@@ -116,10 +139,42 @@ diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_servic
 index 82bde53..4d2a8cc 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1219,6 +1219,29 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1219,6 +1219,61 @@ class kolab_api_service_form_value extends kolab_api_service
          return 'OK';
      }
- 
+
++    private function validate_nsroledn($value, $postdata = array(), $validation_type = null)
++    {
++        foreach ($value as $element) {
++            if (strpos($element, "cn=enable-groupware-features") !== false) {
++                $conf = Conf::get_instance();
++                $auth = Auth::get_instance();
++
++                // get domain admin for the current domain, and the value of the flag tbitskolaballowgroupware
++                $domaindetails = array_shift(array_values($auth->domain_info($_SESSION['user']->get_domain(), array('domainadmin'))));
++                $domainadmins = $domaindetails['domainadmin'];
++                unset($tbitskolaballowgroupware);
++                foreach ($domaindetails['domainadmin'] as $domainadmin) {
++                    // ignore cn=Directory Manager
++                    if ($domainadmin != $conf->get('bind_dn')) {
++                        $userinfo = array_shift(array_values($auth->user_info($domainadmin, array("tbitskolaballowgroupware"))));
++                        if (isset($userinfo["tbitskolaballowgroupware"])) {
++                            // what about multiple domain admins of one domain?
++                            if (isset($tbitskolaballowgroupware) && $tbitskolaballowgroupware != $userinfo["tbitskolaballowgroupware"]) {
++                                  throw new Exception('error: domainadmins have contradicting settings for tbitskolaballowgroupware');
++                            }
++                            $tbitskolaballowgroupware = $userinfo["tbitskolaballowgroupware"];
++                        }
++                    }
++                }
++
++                if (isset($tbitskolaballowgroupware) && $tbitskolaballowgroupware == "FALSE") {
++                    throw new Exception('error: the domain admin does not have permissions to enable groupware features!');
++                }
++            }
++        }
++    }
++ 
 +    private function validate_quota($value, $postdata = array(), $validation_type = null)
 +    {
 +        // convert MB/GB into KB
