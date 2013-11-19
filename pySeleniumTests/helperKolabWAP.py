@@ -21,8 +21,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
     def log(self, message):
         print datetime.datetime.now().strftime("%H:%M:%S") + " " + message
 
-    def wait_loading(self):
-        time.sleep(0.5)
+    def wait_loading(self, initialwait=0.5):
+        time.sleep(initialwait)
         while self.driver.page_source.find('div id="loading"') != -1 and self.driver.page_source.find('id="message"') == -1:
             self.log("loading")
             time.sleep(0.5)
@@ -55,17 +55,10 @@ class KolabWAPTestHelpers(unittest.TestCase):
     def create_domain(self, domainadmin = None):
 
         driver = self.driver
+        driver.get(driver.current_url)
 
-        while driver.page_source.find("id=\"message\"") != -1:
-            # wait until message from previous action is gone
-            time.sleep(0.5)
-
-        if driver.page_source.find(">Add Domain<") != -1:
-            elem = driver.find_element_by_link_text("Add Domain")
-            elem.click()
-        else:
-            elem = driver.find_element_by_link_text("Domains")
-            elem.click()
+        elem = driver.find_element_by_link_text("Domains")
+        elem.click()
         self.wait_loading()
 
         elem = driver.find_element_by_name("associateddomain[0]")
@@ -110,11 +103,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
                     mail_quota = None,
                     expected_message_contains = None):
         driver = self.driver
-
+        driver.get(driver.current_url)
         elem = driver.find_element_by_link_text("Users")
-        elem.click()
-        self.wait_loading()
-        elem = driver.find_element_by_link_text("Add User")
         elem.click()
         self.wait_loading()
         elem = driver.find_element_by_xpath("//span[@class=\"formtitle\"]")
@@ -183,7 +173,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
         if expected_message_contains is not None:
             self.assertNotEquals(-1, elem.text.find(expected_message_contains), "User should not have been created, message should contain: " + expected_message_contains + " but was: " + elem.text)
-            return None
+            return
 
         self.assertEquals("User created successfully.", elem.text, "User was not saved successfully, message: " + elem.text)
 

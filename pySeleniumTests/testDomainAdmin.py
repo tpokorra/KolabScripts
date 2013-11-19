@@ -33,8 +33,8 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         # now edit the user
         elem = self.driver.find_element_by_id("searchinput")
         elem.send_keys(username)
-        elem.send_keys(Keys.RETURN)
-        kolabWAPhelper.wait_loading()
+        elem.send_keys(Keys.ENTER)
+        kolabWAPhelper.wait_loading(initialwait = 2)
 
         elem = self.driver.find_element_by_xpath("//table[@id='userlist']/tbody/tr/td")
         self.assertEquals(username + ", " + username, elem.text, "Expected to select user " + username + " but was " + elem.text)
@@ -64,8 +64,8 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         # now edit the user
         elem = self.driver.find_element_by_id("searchinput")
         elem.send_keys(username)
-        elem.send_keys(Keys.RETURN)
-        kolabWAPhelper.wait_loading()
+        elem.send_keys(Keys.ENTER)
+        kolabWAPhelper.wait_loading(initialwait = 2)
 
         elem = self.driver.find_element_by_xpath("//tbody/tr/td[@class=\"name\"]")
         self.assertEquals(username + ", " + username, elem.text, "Expected to select user " + username + " but was " + elem.text)
