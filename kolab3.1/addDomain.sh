@@ -14,7 +14,7 @@ base_dn = $DC
 primary_mail = %(givenname)s.%(surname)s@%(domain)s
 " >> /etc/kolab/kolab.conf
 
-# different service-names on centOs (httpd) and debian (apache2)
+# different service-names on CentOS (httpd) and Debian (apache2)
 if which /etc/init.d/apache2; then 
   /etc/init.d/apache2 reload; 
 else

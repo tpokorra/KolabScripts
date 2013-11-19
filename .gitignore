@@ -1,1 +1,2 @@
 *.pyc
+pySeleniumTests/ghostdriver.log

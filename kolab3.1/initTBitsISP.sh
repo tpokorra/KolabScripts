@@ -1,10 +1,18 @@
 #!/bin/bash
 
+if ( which yum ); then
+  yum -y install wget patch
+else
+  if (which apt-get); then
+    apt-get -y install wget patch;
+  else echo "Neither yum nor apt-get available. On which platform are you?";
+  exit 0
+  fi
+fi
+
 #####################################################################################
 # apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=2018
 #####################################################################################
-yum -y install wget patch
-
 if [ ! -d patches ]
 then
   mkdir -p patches
