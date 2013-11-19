@@ -82,5 +82,5 @@ Pin-Priority: 501
 FINISH
 
 apt-get update
-apt-get install kolab
+aptitude install kolab
 

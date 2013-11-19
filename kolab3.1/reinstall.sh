@@ -10,7 +10,7 @@ else
   if [ -f /etc/lsb-release ]
   then
     . /etc/lsb-release
-    if [ $DISTRIB_ID == "Ubuntu" && $DISTRIB_CODENAME="precise" ]
+    if [ $DISTRIB_ID == "Ubuntu" -a $DISTRIB_CODENAME="precise" ]
     then
       ./reinstallDebianUbuntu.sh Ubuntu_12.04
     fi
