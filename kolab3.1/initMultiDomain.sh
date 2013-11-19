@@ -1,6 +1,14 @@
 #!/bin/bash
 
-yum -y install wget patch
+if ( which yum ); then
+  yum -y install wget patch
+else
+  if (which apt-get); then
+    apt-get -y install wget patch;
+  else echo "Neigher yum nor apt-get available. On which platform are you?";
+  exit 0
+  fi
+fi
 
 #####################################################################################
 #Removing Canonification from Cyrus IMAP
@@ -98,5 +106,15 @@ then
 fi
 
 patch -p1 -i `pwd`/patches/deleteDomainWithUsersBug1869.patch -d /usr/share/kolab-webadmin
-patch -p1 -i `pwd`/patches/sleepTimeBetweenDomainOperationsBug2491.patch -d /usr/lib/python2.6/site-packages
-patch -p1 -i `pwd`/patches/autocreatefoldersBug2492.patch -d /usr/lib/python2.6/site-packages
+
+# different pathes in debian and centOS
+# centOS
+if [ -d /usr/lib/python2.7/dist-packages ]; then
+  patch -p1 -i `pwd`/patches/sleepTimeBetweenDomainOperationsBug2491.patch -d /usr/lib/python2.7/dist-packages;
+  patch -p1 -i `pwd`/patches/autocreatefoldersBug2492.patch -d /usr/lib/python2.7/dist-packages;
+fi
+# Debian
+if [ -d /usr/lib/python2.6/site-packages ]; then
+  patch -p1 -i `pwd`/patches/sleepTimeBetweenDomainOperationsBug2491.patch -d /usr/lib/python2.6/site-packages;
+  patch -p1 -i `pwd`/patches/autocreatefoldersBug2492.patch -d /usr/lib/python2.6/site-packages;
+fi
