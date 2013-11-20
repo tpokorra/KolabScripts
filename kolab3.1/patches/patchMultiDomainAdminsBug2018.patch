@@ -372,31 +372,35 @@ index 2fe3e9c..125dab5 100644
              if (!empty($attribs['multiple']) && empty($attribs['size'])) {
                  $attribs['size'] = 5;
 diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
-index b88e520..a728827 100644
+index b88e520..4583781 100644
 --- a/lib/locale/de_DE.php
 +++ b/lib/locale/de_DE.php
-@@ -237,6 +237,8 @@ $LANG['user.room'] = 'Raumnummer';
- $LANG['user.sn'] = 'Nachname';
- $LANG['user.street'] = 'Straße';
- $LANG['user.system'] = 'System';
+@@ -31,8 +31,10 @@ $LANG['delete'] = 'Löschen';
+ $LANG['deleting'] = 'Daten löschen…';
+ $LANG['domain.add'] = 'Domäne hinzufügen';
+ $LANG['domain.add.success'] = 'Domäne erfolgreich hinzugefügt.';
 +$LANG['domain.admins'] = 'Domain Administratoren';
+ $LANG['domain.associateddomain'] = 'Domänenname(n)';
+ $LANG['domain.delete.success'] = 'Domäne erfolgreich gelöscht.';
 +$LANG['domain.domainadmin'] = 'Administratoren für diese Domain';
- $LANG['user.telephonenumber'] = 'Telefonnummer';
- $LANG['user.title'] = 'Jobbezeichnung';
- $LANG['user.type_id'] = 'Kontotyp';
+ $LANG['domain.edit'] = 'Domäne bearbeiten';
+ $LANG['domain.edit.success'] = 'Domäne erfolgreich aktualisiert.';
+ $LANG['domain.inetdomainbasedn'] = 'Benutzerdefinierte(s) Root DN(s)';
 diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
-index b9e2d6a..abe885c 100644
+index b9e2d6a..57db78b 100644
 --- a/lib/locale/en_US.php
 +++ b/lib/locale/en_US.php
-@@ -307,6 +307,8 @@ $LANG['user.room'] = 'Room number';
- $LANG['user.sn'] = 'Surname';
- $LANG['user.street'] = 'Street';
- $LANG['user.system'] = 'System';
+@@ -47,8 +47,10 @@ $LANG['deleting'] = 'Deleting data...';
+ 
+ $LANG['domain.add'] = 'Add Domain';
+ $LANG['domain.add.success'] = 'Domain created successfully.';
 +$LANG['domain.admins'] = 'Domain Administrators';
+ $LANG['domain.associateddomain'] = 'Domain name(s)';
+ $LANG['domain.delete.success'] = 'Domain deleted successfully.';
 +$LANG['domain.domainadmin'] = 'Administrators for this domain';
- $LANG['user.telephonenumber'] = 'Phone Number';
- $LANG['user.title'] = 'Job Title';
- $LANG['user.type_id'] = 'Account type';
+ $LANG['domain.edit'] = 'Edit domain';
+ $LANG['domain.edit.success'] = 'Domain updated successfully.';
+ $LANG['domain.inetdomainbasedn'] = 'Custom Root DN(s)';
 diff --git a/public_html/js/kolab_admin.js b/public_html/js/kolab_admin.js
 index af2463f..c0a9093 100644
 --- a/public_html/js/kolab_admin.js
