@@ -306,8 +306,31 @@ index f1e37ac..7a7c481 100644
      );
  
  
+diff --git a/lib/client/kolab_client_task_user.php b/lib/client/kolab_client_task_user.php
+index 40c2fcc..0100a83 100644
+--- a/lib/client/kolab_client_task_user.php
++++ b/lib/client/kolab_client_task_user.php
+@@ -88,6 +88,7 @@ class kolab_client_task_user extends kolab_client_task
+             'contact_info'  => 'user.contact_info',
+             'system'        => 'user.system',
+             'config'        => 'user.config',
++            'domainadmin'   => 'user.domainadmin',
+             'asterisk'      => 'user.asterisk',
+             'other'         => 'user.other',
+         );
+@@ -143,6 +144,10 @@ class kolab_client_task_user extends kolab_client_task
+             'kolabhomeserver'           => 'config',
+             'mailhost'                  => 'config',
+             'mailquota'                 => 'config',
++            'tbitskolabmaxaccounts'     => 'domainadmin',
++            'tbitskolaballowgroupware'  => 'domainadmin',
++            'tbitskolaboverallquota'    => 'domainadmin',
++            'tbitskolabdefaultquota'    => 'domainadmin',
+             'cyrususerquota'            => 'config',
+             'kolabfreebusyfuture'       => 'config',
+             'kolabinvitationpolicy'     => 'config',
 diff --git a/lib/kolab_api_service.php b/lib/kolab_api_service.php
-index 276e679..8a64f3c 100644
+index 276e679..b4d4252 100644
 --- a/lib/kolab_api_service.php
 +++ b/lib/kolab_api_service.php
 @@ -81,6 +81,7 @@ abstract class kolab_api_service
@@ -318,11 +341,47 @@ index 276e679..8a64f3c 100644
                  $result['form_fields']['aci'] = array(
                      'type' => 'list',
                      'optional' => true,
+@@ -122,6 +123,10 @@ abstract class kolab_api_service
+             return key($object_types);
+         }
+ 
++        # sort object types by the key: Kolab user should win over Domain Admin, because it comes first
++        # there are only additional fields, so a kolab user would be displayed as admin, when sorting by type name
++        ksort($object_types);
++
+         $object_class = array_map('strtolower', $object_class);
+         $object_keys  = array_keys($attributes);
+         $keys_count   = count($object_keys);
 diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
-index 2aedb27..8ba911b 100644
+index 2aedb27..cded524 100644
 --- a/lib/kolab_client_task.php
 +++ b/lib/kolab_client_task.php
-@@ -879,6 +879,11 @@ class kolab_client_task
+@@ -645,6 +645,24 @@ class kolab_client_task
+     }
+ 
+     /**
++     * Returns the id of the type that is identified by the key
++     *
++     * @param string $types array of types for the current object class
++     * @param string $key identifies the type that we want the id for
++     *
++     * @return string the id for the type that we are looking for
++     */
++    protected function get_object_type_id_by_key($types, $key)
++    {
++       foreach ($types as $id => $data) {
++           if ($data['key'] == $key) {
++              return $id;
++           }
++       }
++       return -1;
++    }
++
++    /**
+      * Returns user name.
+      *
+      * @param string $dn User DN attribute value
+@@ -879,6 +897,11 @@ class kolab_client_task
              $result['default'] = $field['default'];
              break;
  
@@ -334,7 +393,35 @@ index 2aedb27..8ba911b 100644
          default:
              $result['type'] = kolab_form::INPUT_TEXT;
  
-@@ -1283,6 +1288,12 @@ class kolab_client_task
+@@ -979,6 +1002,27 @@ class kolab_client_task
+         if (!empty($data['type_id'])) {
+             $type = $data['type_id'];
+         }
++        else if ($name == "user") {
++            // set the default user type
++            $defaultUserType = $this->get_object_type_id_by_key($types, "kolab");
++            $conf = Conf::get_instance();
++            if ($conf->get('domainadmins_management_domain') == $_SESSION['user']['domain']) {
++                // in the management domain, default to DomainAdmin user
++                $defaultUserType = $this->get_object_type_id_by_key($types, "domainadmin");
++            } else {
++                // get the default mailquota of the domain admin
++                $result = $this->api_get('domain.defaultquota', array('id' => $_SESSION['user']['domain']));
++                $domaininfo = $result->get();
++
++                $defaultdomainquota = $domaininfo['defaultquota'];
++                if (isset($defaultdomainquota)) {
++                    // set the default mail quota
++                    $data['mailquota'] = $defaultdomainquota;
++                }
++            }
++
++            $data['type_id'] = $type = $defaultUserType;
++        }
+         else {
+             $data['type_id'] = $type = key($types);
+         }
+@@ -1283,6 +1327,12 @@ class kolab_client_task
                      unset($field['default']);
                  }
  
@@ -372,7 +459,7 @@ index 2fe3e9c..125dab5 100644
              if (!empty($attribs['multiple']) && empty($attribs['size'])) {
                  $attribs['size'] = 5;
 diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
-index b88e520..4583781 100644
+index b88e520..607f36a 100644
 --- a/lib/locale/de_DE.php
 +++ b/lib/locale/de_DE.php
 @@ -31,8 +31,10 @@ $LANG['delete'] = 'Löschen';
@@ -386,8 +473,27 @@ index b88e520..4583781 100644
  $LANG['domain.edit'] = 'Domäne bearbeiten';
  $LANG['domain.edit.success'] = 'Domäne erfolgreich aktualisiert.';
  $LANG['domain.inetdomainbasedn'] = 'Benutzerdefinierte(s) Root DN(s)';
+@@ -192,6 +194,7 @@ $LANG['user.country'] = 'Land';
+ $LANG['user.country.desc'] = '2 Buchstaben Ländercode aus ISO 3166-1';
+ $LANG['user.delete.success'] = 'Benutzer erfolgreich gelöscht.';
+ $LANG['user.displayname'] = 'Anzeigename';
++$LANG['user.domainadmin'] = 'Domain Administrator';
+ $LANG['user.edit.success'] = 'Benutzer erfolgreich bearbeitet.';
+ $LANG['user.fax'] = 'Faxnummer';
+ $LANG['user.fbinterval'] = 'Frei-Beschäftigt Intervall';
+@@ -238,6 +241,10 @@ $LANG['user.sn'] = 'Nachname';
+ $LANG['user.street'] = 'Straße';
+ $LANG['user.system'] = 'System';
+ $LANG['user.telephonenumber'] = 'Telefonnummer';
++$LANG['user.tbitskolaballowgroupware'] = 'Erlaube Groupware Funktionen für Benutzer';
++$LANG['user.tbitskolabmaxaccounts'] = 'Maximale Anzahl von Benutzerkonten';
++$LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
++$LANG['user.tbitskolabdefaultquota'] = 'Voreinstellung Quota für Benutzerkonten';
+ $LANG['user.title'] = 'Jobbezeichnung';
+ $LANG['user.type_id'] = 'Kontotyp';
+ $LANG['user.uid'] = 'Eindeutige Identität (UID)';
 diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
-index b9e2d6a..57db78b 100644
+index b9e2d6a..aebb903 100644
 --- a/lib/locale/en_US.php
 +++ b/lib/locale/en_US.php
 @@ -47,8 +47,10 @@ $LANG['deleting'] = 'Deleting data...';
@@ -401,6 +507,25 @@ index b9e2d6a..57db78b 100644
  $LANG['domain.edit'] = 'Edit domain';
  $LANG['domain.edit.success'] = 'Domain updated successfully.';
  $LANG['domain.inetdomainbasedn'] = 'Custom Root DN(s)';
+@@ -261,6 +263,7 @@ $LANG['user.country'] = 'Country';
+ $LANG['user.country.desc'] = '2 letter code from ISO 3166-1';
+ $LANG['user.delete.success'] = 'User deleted successfully.';
+ $LANG['user.displayname'] = 'Display name';
++$LANG['user.domainadmin'] = 'Domain Administrator';
+ $LANG['user.edit.success'] = 'User updated successfully.';
+ $LANG['user.fax'] = 'Fax number';
+ $LANG['user.fbinterval'] = 'Free-Busy interval';
+@@ -308,6 +311,10 @@ $LANG['user.sn'] = 'Surname';
+ $LANG['user.street'] = 'Street';
+ $LANG['user.system'] = 'System';
+ $LANG['user.telephonenumber'] = 'Phone Number';
++$LANG['user.tbitskolaballowgroupware'] = 'Allow Groupware features for accounts';
++$LANG['user.tbitskolabmaxaccounts'] = 'Maximum number of accounts';
++$LANG['user.tbitskolaboverallquota'] = 'Overall Quota assigned';
++$LANG['user.tbitskolabdefaultquota'] = 'Default Quota for user accounts';
+ $LANG['user.title'] = 'Job Title';
+ $LANG['user.type_id'] = 'Account type';
+ $LANG['user.uid'] = 'Unique identity (UID)';
 diff --git a/public_html/js/kolab_admin.js b/public_html/js/kolab_admin.js
 index af2463f..c0a9093 100644
 --- a/public_html/js/kolab_admin.js
