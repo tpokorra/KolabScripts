@@ -1,0 +1,72 @@
+--- a/lib/Auth/LDAP.php
++++ b/lib/Auth/LDAP.php
+@@ -484,6 +484,20 @@
+ 
+         $this->add_entry($dn, $attrs);
+ 
++        $dn = 'cn=enable-groupware-features,' . $inetdomainbasedn;
++        $attrs = array(
++            'objectclass' => array(
++                'top',
++                'ldapsubentry',
++                'nsroledefinition',
++                'nssimpleroledefinition',
++                'nsmanagedroledefinition',
++            ),
++            'cn' => 'enable-groupware-features'
++        );
++
++        $this->add_entry($dn, $attrs);
++
+         $domain = $this->domain_info($domain, array_keys($attributes));
+ 
+         if (empty($domain)) {
+diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
+index 82bde53..4d2a8cc 100644
+--- a/lib/api/kolab_api_service_form_value.php
+++ b/lib/api/kolab_api_service_form_value.php
+@@ -1306,6 +1306,22 @@
+         return $this->validate_quota($value, $postdata, $validation_type);
+     }
+ 
++    private function validate_nsroledn($value, $postdata = array(), $validation_type = null)
++    {
++        foreach ($value as $element) {
++            if (strpos($element, "cn=enable-groupware-features") !== false) {
++                $auth = Auth::get_instance();
++
++                // get domain admin for the current domain, and the value of the flag tbitskolaballowgroupware
++                $tbitskolaballowgroupware = $auth->domainadmin_get_configuration($_SESSION['user']->get_domain(), 'tbitskolaballowgroupware');
++
++                if (isset($tbitskolaballowgroupware) && $tbitskolaballowgroupware == "FALSE") {
++                    throw new Exception('error: the domain admin does not have permissions to enable groupware features!');
++                }
++            }
++        }
++    }
++
+     private function validate_mailalternateaddress($value, $postdata = array(), $validation_type = null)
+     {
+         $conf = Conf::get_instance();
+diff --git a/lib/client/kolab_client_task_user.php b/lib/client/kolab_client_task_user.php
+--- a/lib/client/kolab_client_task_user.php
++++ b/lib/client/kolab_client_task_user.php
+@@ -223,6 +223,18 @@
+ 
+             // Page title
+             $title = $this->translate('user.add');
++
++            // enable groupware features if domainadmin has permissions for it
++            $result = $this->api_get('domain.domainadmin_info', array('variablename' => 'tbitskolaballowgroupware'));
++            $info   = $result->get();
++            if (isset($info['tbitskolaballowgroupware']) && $info['tbitskolaballowgroupware'] == 'TRUE') {
++                $data['nsroledn'] = array('enable-groupware-features');
++            }
++
++            // by default, enable groupware features for new domain admins
++            if ($data['type_id'] == $this->get_object_type_id_by_key($types, 'domainadmin') ) { 
++                $data['tbitskolaballowgroupware'] = "TRUE";
++            }
+         }
+         // Edit mode
+         else {

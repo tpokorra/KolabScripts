@@ -100,6 +100,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
                     max_accounts = None,
                     allow_groupware = None,
                     default_quota_verify = None,
+                    default_role_verify = None,
                     mail_quota = None,
                     expected_message_contains = None):
         driver = self.driver
@@ -150,6 +151,26 @@ class KolabWAPTestHelpers(unittest.TestCase):
                 elem.clear()
                 elem.send_keys(mail_quota[:-2])
                 driver.find_element_by_xpath("//select[@name='mailquota-unit']/option[@value='" + mail_quota[-2:] + "']").click()
+
+        if default_role_verify is not None:
+            elem = driver.find_element_by_link_text("System")
+            elem.click()
+            if default_role_verify == '':
+                if self.driver.page_source.find("nsroledn[0]") != -1:
+                    elem = driver.find_element_by_name("nsroledn[0]")
+                    self.assertEquals(default_role_verify,
+                        elem.get_attribute('value'), 
+                        "default role should be empty but was " + elem.get_attribute('value'))
+            else:
+                if self.driver.page_source.find("nsroledn[0]") == -1:
+                    self.assertEquals(default_role_verify,
+                        '',
+                        "default role should be " + default_role_verify + " but was empty")
+                elem = driver.find_element_by_name("nsroledn[0]")
+                self.assertEquals(default_role_verify,
+                        elem.get_attribute('value'), 
+                        "default role should be " + default_role_verify + " but was " + elem.get_attribute('value'))
+            
 
         # store the email address for later login
         elem = driver.find_element_by_link_text("Contact Information")

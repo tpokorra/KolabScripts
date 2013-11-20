@@ -19,7 +19,10 @@ echo "applying domainquotaBug2046.patch"
 patch -p1 -i `pwd`/patches/domainquotaBug2046.patch -d /usr/share/kolab-webadmin
 echo "applying domainAdminDefaultQuota.patch"
 patch -p1 -i `pwd`/patches/domainAdminDefaultQuota.patch -d /usr/share/kolab-webadmin
-#patch -p1 -i `pwd`/patches/patchDomainAdminAccountLimitations.patch -d /usr/share/kolab-webadmin
+echo "applying domainAdminMaxAccounts.patch"
+patch -p1 -i `pwd`/patches/domainAdminMaxAccounts.patch -d /usr/share/kolab-webadmin
+echo "applying domainAdminEnableGroupware.patch"
+patch -p1 -i `pwd`/patches/domainAdminEnableGroupware.patch -d /usr/share/kolab-webadmin
 
 #####################################################################################
 #using specific ldap attribute for the domainadmin overall quota
