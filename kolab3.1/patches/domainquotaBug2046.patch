@@ -1,43 +1,30 @@
 diff --git a/lib/Auth.php b/lib/Auth.php
-index 0c5ef5b..f253185 100644
+index 8572cd5..b25d1d7 100644
 --- a/lib/Auth.php
 +++ b/lib/Auth.php
-@@ -214,6 +214,11 @@ class Auth {
-         return $this->auth_instance()->domain_add($domain, $domain_attrs);
+@@ -239,6 +239,11 @@ class Auth {
+         return $this->auth_instance()->domainadmin_get_configuration($domain, $variablename);
      }
  
-+    public function domainadmin_get_quota($domainadmin, $excludeuser)
++    public function domainadmin_get_user_quota($domainadmin, $excludeuser)
 +    {
-+        return $this->auth_instance()->domainadmin_get_quota($domainadmin, $excludeuser);
++        return $this->auth_instance()->domainadmin_get_user_quota($domainadmin, $excludeuser);
 +    }
 +
-     public function domain_edit($domain, $attributes, $typeid = null)
+     public function find_recipient($address)
      {
-         return $this->auth_instance()->domain_edit($domain, $attributes, $typeid);
+         return $this->auth_instance()->find_recipient($address);
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index 9e5d19b..db020bd 100644
+index de077bb..b86c42a 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -580,6 +580,46 @@ class LDAP extends Net_LDAP3 {
-         }
+@@ -619,6 +619,33 @@ class LDAP extends Net_LDAP3 {
+         return $resultvalue;
      }
  
-+    // returns an array with the domains that this domainadmin has access to
-+    private function domainadmin_get_domains($domainadmin)
-+    {
-+        $filter = "(&(objectclass=domainrelatedobject)(aci=*".$domainadmin."*))";
-+        $domains_result = $this->_search($this->conf->get('domain_base_dn'), $filter, array("aci"));
-+        if ($domains_result != null && count($domains_result) > 0) {
-+            $domains = $domains_result->entries(true);
-+            return array_keys($domains);
-+        }
-+
-+        return array();
-+    }
-+
 +    // get the quota that has already been shared among the users of the domains that this domainadmin manages.
 +    // excluding the current quota for the specified user, that we want to change the quota for
-+    public function domainadmin_get_quota($domainadmin, $excludeuser)
++    public function domainadmin_get_user_quota($domainadmin, $excludeuser)
 +    {
 +        $quota = 0;
 +        $domains = $this->domainadmin_get_domains($domainadmin);
@@ -66,13 +53,16 @@ index 9e5d19b..db020bd 100644
      {
          $domain = $this->domain_info($domain, array_keys($attributes));
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
-index 570ba05..82bde53 100644
+index 3215762..ce45264 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1230,6 +1230,77 @@ class kolab_api_service_form_value extends kolab_api_service
-             }
-         }
+@@ -1234,7 +1234,64 @@ class kolab_api_service_form_value extends kolab_api_service
  
+     private function validate_mailquota($value, $postdata = array(), $validation_type = null)
+     {
+-        return $this->validate_quota($value, $postdata, $validation_type);
++        $value = $this->validate_quota($value, $postdata, $validation_type);
++
 +        if (empty($value)) {
 +            return $value;
 +        }
@@ -92,28 +82,12 @@ index 570ba05..82bde53 100644
 +        if (strtolower($postdata['ou']) != strtolower($conf->get('kolab_user_base_dn'))) {
 +            $auth = Auth::get_instance();
 +            
-+            // get domain admin for the current domain, and the mailquota of the domain admin
-+            $domaindetails = array_shift(array_values($auth->domain_info($_SESSION['user']->get_domain(), array('domainadmin'))));
-+            $domainadmins = $domaindetails['domainadmin'];
-+            unset($domainadminquota);
-+            foreach ($domaindetails['domainadmin'] as $domainadmin) {
-+                // ignore cn=Directory Manager
-+                if ($domainadmin != $conf->get('bind_dn')) {
-+                    $userinfo = array_shift(array_values($auth->user_info($domainadmin, array($quota_attribute))));
-+                    if (isset($userinfo[$quota_attribute])) {
-+                        // what about multiple domain admins of one domain?
-+                        if (isset($domainadminquota)) {
-+                              throw new Exception('error: only one domainadmin can have a quota specified');
-+                        }
-+                        $domainadminquota = $userinfo[$quota_attribute];
-+                        $maindomainadmin = $domainadmin;
-+                    }
-+                }
-+            }
++            // get the mailquota of the domain admin for the current domain
++            $domainadminquota = $auth->domainadmin_get_configuration($_SESSION['user']->get_domain(), $quota_attribute);
 +
 +            if (isset($domainadminquota)) {
 +                // get all quotas from all users of that domain admin, excluding this user
-+                $quota_used = $auth->domainadmin_get_quota($maindomainadmin, 'uid='.$postdata['uid'].','.$postdata['ou']);
++                $quota_used = $auth->domainadmin_get_user_quota($maindomainadmin, 'uid='.$postdata['uid'].','.$postdata['ou']);
 +
 +                // check if existing quota plus this new quota would still fit the quota of the domain admin
 +                if ($quota_used + $value > $domainadminquota) {
@@ -144,6 +118,7 @@ index 570ba05..82bde53 100644
 +            }
 +        }
 +
-         return (string) intval($value);
++        return (string) intval($value);
      }
  
+     private function validate_tbitskolaboverallquota($value, $postdata = array(), $validation_type = null)

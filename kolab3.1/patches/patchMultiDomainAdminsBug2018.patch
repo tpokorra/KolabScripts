@@ -15,7 +15,7 @@ index 0c5ef5b..8572cd5 100644
      {
          return $this->auth_instance()->find_recipient($address);
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index edd7283..3937582 100644
+index edd7283..de077bb 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
 @@ -146,6 +146,22 @@ class LDAP extends Net_LDAP3 {
@@ -51,7 +51,7 @@ index edd7283..3937582 100644
          $dn = $domain_name_attribute . '=' . $domain . ',' . $domain_base_dn;
  
          $result = $this->add_entry($dn, $attributes);
-@@ -458,9 +477,135 @@ class LDAP extends Net_LDAP3 {
+@@ -458,9 +477,148 @@ class LDAP extends Net_LDAP3 {
  
          $this->add_entry($dn, $attrs);
  
@@ -65,9 +65,9 @@ index edd7283..3937582 100644
 +
 +        $this->domain_admin_save($domain, $domain_dn, $attributes_domainadmin);
 +
-         return true;
-     }
- 
++        return true;
++    }
++
 +    private function ChangeDomainReadCapability($user, $domain, $action='add')
 +    {
 +        if (($tmpconn = ldap_connect($this->_ldap_server)) === false) {
@@ -103,9 +103,9 @@ index edd7283..3937582 100644
 +        }
 +
 +        ldap_close($tmpconn);
-+        return true;
-+    }
-+
+         return true;
+     }
+ 
 +    private function domain_admin_save($domain, $domain_dn, $domainadmins) {
 +        $currentdomain_dn = $this->_standard_root_dn($domain[$domain_dn]["associateddomain"]);
 +        $currentdomain_da_dn = "cn=Directory Administrators,".$currentdomain_dn;
@@ -158,6 +158,19 @@ index edd7283..3937582 100644
 +        }
 +    }
 +
++    // returns an array with the domains that this domainadmin has access to
++    private function domainadmin_get_domains($domainadmin)
++    {
++        $filter = "(&(objectclass=domainrelatedobject)(aci=*".$domainadmin."*))";
++        $domains_result = $this->_search($this->conf->get('domain_base_dn'), $filter, array("aci"));
++        if ($domains_result != null && count($domains_result) > 0) {
++            $domains = $domains_result->entries(true);
++            return array_keys($domains);
++        }
++
++        return array();
++    }
++
 +    // get the value of the specified configuration variable, for the domain admin of the currently selected domain
 +    public function domainadmin_get_configuration($current_domain, $config_flag)
 +    {
@@ -187,7 +200,7 @@ index edd7283..3937582 100644
      public function domain_edit($domain, $attributes, $typeid = null)
      {
          $domain = $this->domain_info($domain, array_keys($attributes));
-@@ -471,6 +616,16 @@ class LDAP extends Net_LDAP3 {
+@@ -471,6 +629,16 @@ class LDAP extends Net_LDAP3 {
  
          $domain_dn = key($domain);
  
@@ -204,7 +217,7 @@ index edd7283..3937582 100644
          // We should start throwing stuff over the fence here.
          return $this->modify_entry($domain_dn, $domain[$domain_dn], $attributes);
      }
-@@ -511,6 +666,8 @@ class LDAP extends Net_LDAP3 {
+@@ -511,6 +679,8 @@ class LDAP extends Net_LDAP3 {
              if ($result = $this->_search($domain_base_dn, $domain_filter, $attributes)) {
                  $result = $result->entries(true);
              }
@@ -213,7 +226,7 @@ index edd7283..3937582 100644
          }
          else {
              $this->_log(LOG_DEBUG, "Auth::LDAP::domain_info() uses _read()");
-@@ -521,6 +678,25 @@ class LDAP extends Net_LDAP3 {
+@@ -521,6 +691,25 @@ class LDAP extends Net_LDAP3 {
              return false;
          }
  
@@ -293,7 +306,7 @@ index 6829047..5334112 100644
                  'optional' => true,
              ),
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
-index 1bed5f0..570ba05 100644
+index 1bed5f0..3215762 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
 @@ -1047,6 +1047,41 @@ class kolab_api_service_form_value extends kolab_api_service
@@ -338,6 +351,41 @@ index 1bed5f0..570ba05 100644
      private function select_options_preferredlanguage($postdata, $attribs = array())
      {
          $options = $this->_select_options_from_db('preferredlanguage');
+@@ -1184,7 +1219,7 @@ class kolab_api_service_form_value extends kolab_api_service
+         return 'OK';
+     }
+ 
+-    private function validate_mailquota($value, $postdata = array(), $validation_type = null)
++    private function validate_quota($value, $postdata = array(), $validation_type = null)
+     {
+         // convert MB/GB into KB
+         if (preg_match('/^([0-9]+)\s*(KB|MB|GB)$/i', $value, $m)) {
+@@ -1194,10 +1229,24 @@ class kolab_api_service_form_value extends kolab_api_service
+             case 'GB': $value = $m[1] * 1024 * 1024; break;
+             }
+         }
+-
+         return (string) intval($value);
+     }
+ 
++    private function validate_mailquota($value, $postdata = array(), $validation_type = null)
++    {
++        return $this->validate_quota($value, $postdata, $validation_type);
++    }
++
++    private function validate_tbitskolaboverallquota($value, $postdata = array(), $validation_type = null)
++    {
++        return $this->validate_quota($value, $postdata, $validation_type);
++    }
++
++    private function validate_tbitskolabdefaultquota($value, $postdata = array(), $validation_type = null)
++    {
++        return $this->validate_quota($value, $postdata, $validation_type);
++    }
++
+     private function validate_mailalternateaddress($value, $postdata = array(), $validation_type = null)
+     {
+         $conf = Conf::get_instance();
 diff --git a/lib/client/kolab_client_task_domain.php b/lib/client/kolab_client_task_domain.php
 index 4a1190a..25d601a 100644
 --- a/lib/client/kolab_client_task_domain.php
