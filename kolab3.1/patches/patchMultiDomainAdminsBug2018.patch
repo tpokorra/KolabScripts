@@ -226,11 +226,16 @@ index edd7283..de077bb 100644
          }
          else {
              $this->_log(LOG_DEBUG, "Auth::LDAP::domain_info() uses _read()");
-@@ -521,6 +691,25 @@ class LDAP extends Net_LDAP3 {
+@@ -521,6 +691,30 @@ class LDAP extends Net_LDAP3 {
              return false;
          }
  
-+        $currentdomain_dn = $this->_standard_root_dn($result[$domain_dn]["associateddomain"]);
++        if (isset($result[$domain_dn]["associateddomain"])) {
++            $currentdomain_dn = $this->_standard_root_dn($result[$domain_dn]["associateddomain"]);
++        } else {
++            $currentdomain_dn = $domain_dn;
++        }
++
 +        $currentdomain_da_dn = "cn=Directory Administrators,".$currentdomain_dn;
 +
 +        $domain_admins_result = $this->_search($currentdomain_dn, "cn=Directory Administrators*", array("uniqueMember"));
@@ -521,7 +526,7 @@ index 2aedb27..cded524 100644
          default:
              $result['type'] = kolab_form::INPUT_TEXT;
  
-@@ -979,6 +1002,27 @@ class kolab_client_task
+@@ -979,6 +1002,17 @@ class kolab_client_task
          if (!empty($data['type_id'])) {
              $type = $data['type_id'];
          }
@@ -532,16 +537,6 @@ index 2aedb27..cded524 100644
 +            if ($conf->get('domainadmins_management_domain') == $_SESSION['user']['domain']) {
 +                // in the management domain, default to DomainAdmin user
 +                $defaultUserType = $this->get_object_type_id_by_key($types, "domainadmin");
-+            } else {
-+                // get the default mailquota of the domain admin
-+                $result = $this->api_get('domain.defaultquota', array('id' => $_SESSION['user']['domain']));
-+                $domaininfo = $result->get();
-+
-+                $defaultdomainquota = $domaininfo['defaultquota'];
-+                if (isset($defaultdomainquota)) {
-+                    // set the default mail quota
-+                    $data['mailquota'] = $defaultdomainquota;
-+                }
 +            }
 +
 +            $data['type_id'] = $type = $defaultUserType;

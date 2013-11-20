@@ -1,18 +1,15 @@
 #!/usr/bin/env python
 
 import unittest
-import time
-import datetime
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from helperKolabWAP import KolabWAPTestHelpers
 
 # assumes password for cn=Directory Manager is test.
 # assumes that the initTBitsISP.sh script has been run.
-# will create a domain admin user, with a overall quota (type domainadmin)
+# will create a domain admin user in the domain administrators.org (type domainadmin)
 # will create a new domain, and assign that domain admin user as domain administrator
 # will create users inside that new domain (type normal kolab user)
-# will check that the domain quota is observed
 class KolabWAPDomainAdmin(unittest.TestCase):
 
     def setUp(self):
@@ -77,42 +74,6 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         elem = self.driver.find_element_by_xpath("//form[@id='user-form']/fieldset/table/tbody/tr/td[@class='value']")
         self.assertEquals("Domain Administrator", elem.text, "user type should be Domain Administrator, but was " + elem.text)
 
-        kolabWAPhelper.logout_kolab_wap()
-
-    def test_domain_admin(self):
-        kolabWAPhelper = self.kolabWAPhelper
-        kolabWAPhelper.log("Running test: test_domain_admin")
-        
-        # login Directory Manager
-        kolabWAPhelper.login_kolab_wap("http://localhost/kolab-webadmin", "cn=Directory Manager", "test")
-
-        kolabWAPhelper.select_domain("administrators.org")
-
-        username, emailLogin, password = kolabWAPhelper.create_user(
-            prefix = "admin",
-            overall_quota = "1gb",
-            default_quota = "100mb",
-            max_accounts = 3,
-            allow_groupware = True)
-
-        # create domains, with domain admin
-        domainname = kolabWAPhelper.create_domain(username)
-        domainname2 = kolabWAPhelper.create_domain(username)
-        
-        # create user accounts
-        kolabWAPhelper.select_domain(domainname)
-        # test if default quota is set properly for a new user
-        kolabWAPhelper.create_user(default_quota_verify = "100mb")
-        kolabWAPhelper.create_user()
-        kolabWAPhelper.select_domain(domainname2)
-        # should fail, exceeding the overall quota of the domain admin
-        kolabWAPhelper.create_user(mail_quota = "900mb", expected_message_contains = "mailquota of the domain admin has been exceeded")
-        kolabWAPhelper.create_user()
-        # should fail, only 3 accounts allowed
-        kolabWAPhelper.create_user(expected_message_contains = "Cannot create another account")
-        
-        
-        
         kolabWAPhelper.logout_kolab_wap()
 
     def tearDown(self):
