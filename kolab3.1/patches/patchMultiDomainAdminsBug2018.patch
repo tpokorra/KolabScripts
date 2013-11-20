@@ -1,5 +1,21 @@
+diff --git a/lib/Auth.php b/lib/Auth.php
+index 0c5ef5b..8572cd5 100644
+--- a/lib/Auth.php
++++ b/lib/Auth.php
+@@ -234,6 +234,11 @@ class Auth {
+         return $this->auth_instance()->domain_info($domaindata);
+     }
+ 
++    public function domainadmin_get_configuration($domain, $variablename)
++    {
++        return $this->auth_instance()->domainadmin_get_configuration($domain, $variablename);
++    }
++
+     public function find_recipient($address)
+     {
+         return $this->auth_instance()->find_recipient($address);
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index edd7283..9e5d19b 100644
+index edd7283..3937582 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
 @@ -146,6 +146,22 @@ class LDAP extends Net_LDAP3 {
@@ -35,7 +51,7 @@ index edd7283..9e5d19b 100644
          $dn = $domain_name_attribute . '=' . $domain . ',' . $domain_base_dn;
  
          $result = $this->add_entry($dn, $attributes);
-@@ -458,9 +477,109 @@ class LDAP extends Net_LDAP3 {
+@@ -458,9 +477,135 @@ class LDAP extends Net_LDAP3 {
  
          $this->add_entry($dn, $attrs);
  
@@ -49,9 +65,9 @@ index edd7283..9e5d19b 100644
 +
 +        $this->domain_admin_save($domain, $domain_dn, $attributes_domainadmin);
 +
-+        return true;
-+    }
-+
+         return true;
+     }
+ 
 +    private function ChangeDomainReadCapability($user, $domain, $action='add')
 +    {
 +        if (($tmpconn = ldap_connect($this->_ldap_server)) === false) {
@@ -87,9 +103,9 @@ index edd7283..9e5d19b 100644
 +        }
 +
 +        ldap_close($tmpconn);
-         return true;
-     }
- 
++        return true;
++    }
++
 +    private function domain_admin_save($domain, $domain_dn, $domainadmins) {
 +        $currentdomain_dn = $this->_standard_root_dn($domain[$domain_dn]["associateddomain"]);
 +        $currentdomain_da_dn = "cn=Directory Administrators,".$currentdomain_dn;
@@ -142,10 +158,36 @@ index edd7283..9e5d19b 100644
 +        }
 +    }
 +
++    // get the value of the specified configuration variable, for the domain admin of the currently selected domain
++    public function domainadmin_get_configuration($current_domain, $config_flag)
++    {
++        $current_domain = $this->_standard_root_dn($current_domain);
++        $domaindetails = array_shift(array_values($this->domain_info($current_domain, array('domainadmin'))));
++        $domainadmins = $domaindetails['domainadmin'];
++
++        unset($resultvalue);
++        foreach ($domaindetails['domainadmin'] as $domainadmin) {
++            // ignore cn=Directory Manager
++            if ($domainadmin != $this->conf->get('bind_dn')) {
++                $userinfo = array_shift(array_values($this->user_info($domainadmin, array($config_flag))));
++                if (isset($userinfo[$config_flag])) {
++                    // what about multiple domain admins of one domain?
++                    if (isset($resultvalue) && $resultvalue != $userinfo[$config_flag]) {
++                        throw new Exception('error: domainadmins have contradicting settings for '.$config_flag);
++                    }
++
++                    $resultvalue = $userinfo[$config_flag];
++                }
++            }
++        }
++
++        return $resultvalue;
++    }
++
      public function domain_edit($domain, $attributes, $typeid = null)
      {
          $domain = $this->domain_info($domain, array_keys($attributes));
-@@ -471,6 +590,16 @@ class LDAP extends Net_LDAP3 {
+@@ -471,6 +616,16 @@ class LDAP extends Net_LDAP3 {
  
          $domain_dn = key($domain);
  
@@ -162,7 +204,7 @@ index edd7283..9e5d19b 100644
          // We should start throwing stuff over the fence here.
          return $this->modify_entry($domain_dn, $domain[$domain_dn], $attributes);
      }
-@@ -511,6 +640,8 @@ class LDAP extends Net_LDAP3 {
+@@ -511,6 +666,8 @@ class LDAP extends Net_LDAP3 {
              if ($result = $this->_search($domain_base_dn, $domain_filter, $attributes)) {
                  $result = $result->entries(true);
              }
@@ -171,7 +213,7 @@ index edd7283..9e5d19b 100644
          }
          else {
              $this->_log(LOG_DEBUG, "Auth::LDAP::domain_info() uses _read()");
-@@ -521,6 +652,25 @@ class LDAP extends Net_LDAP3 {
+@@ -521,6 +678,25 @@ class LDAP extends Net_LDAP3 {
              return false;
          }
  
@@ -197,6 +239,44 @@ index edd7283..9e5d19b 100644
          $this->_log(LOG_DEBUG, "Auth::LDAP::domain_info() result: " . var_export($result, true));
  
          return $result;
+diff --git a/lib/api/kolab_api_service_domain.php b/lib/api/kolab_api_service_domain.php
+index 4d5fcaa..5694883 100644
+--- a/lib/api/kolab_api_service_domain.php
++++ b/lib/api/kolab_api_service_domain.php
+@@ -235,4 +235,33 @@ class kolab_api_service_domain extends kolab_api_service
+ 
+         return false;
+     }
++
++    /**
++     * get some variables, specified in the TBits ISP LDAP attribute of the domain admin
++     *
++     * @param array $get   GET parameters
++     * @param array $post  POST parameters
++     *
++     * @return array|bool the value, False on error
++     */
++    public function domainadmin_info($getdata, $postdata)
++    {
++        Log::trace("domain.domainadmin_info(\$getdata = '" . var_export($getdata, TRUE) . "', \$postdata = '" . var_export($postdata, TRUE) . "')");
++
++        if (empty($getdata['variablename'])) {
++            Log::error("domain.domainadmin_info called without a variable name");
++            return false;
++        }
++        $variablename = $getdata['variablename'];
++
++        $resultValue = Auth::get_instance()->domainadmin_get_configuration($_SESSION['user']->get_domain(), $variablename);
++
++        $returnValue = array();
++        
++        if (isset($resultValue)) {
++            $returnValue[$variablename] = $resultValue;
++        }
++
++        return $returnValue;
++    }
+ }
 diff --git a/lib/api/kolab_api_service_domain_types.php b/lib/api/kolab_api_service_domain_types.php
 index 6829047..5334112 100644
 --- a/lib/api/kolab_api_service_domain_types.php
