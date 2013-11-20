@@ -51,7 +51,7 @@ index edd7283..de077bb 100644
          $dn = $domain_name_attribute . '=' . $domain . ',' . $domain_base_dn;
  
          $result = $this->add_entry($dn, $attributes);
-@@ -458,9 +477,148 @@ class LDAP extends Net_LDAP3 {
+@@ -458,9 +477,152 @@ class LDAP extends Net_LDAP3 {
  
          $this->add_entry($dn, $attrs);
  
@@ -188,13 +188,17 @@ index edd7283..de077bb 100644
 +                    if (isset($resultvalue) && $resultvalue != $userinfo[$config_flag]) {
 +                        throw new Exception('error: domainadmins have contradicting settings for '.$config_flag);
 +                    }
-+
++                    $maindomainadmin = $domainadmin;
 +                    $resultvalue = $userinfo[$config_flag];
 +                }
 +            }
 +        }
 +
-+        return $resultvalue;
++        if (!isset($resultvalue)) {
++            return $resultvalue;
++        }
++
++        return array('domainadmin' => $maindomainadmin, $config_flag => $resultvalue);
 +    }
 +
      public function domain_edit($domain, $attributes, $typeid = null)
@@ -261,7 +265,7 @@ diff --git a/lib/api/kolab_api_service_domain.php b/lib/api/kolab_api_service_do
 index 4d5fcaa..5694883 100644
 --- a/lib/api/kolab_api_service_domain.php
 +++ b/lib/api/kolab_api_service_domain.php
-@@ -235,4 +235,33 @@ class kolab_api_service_domain extends kolab_api_service
+@@ -235,4 +235,25 @@ class kolab_api_service_domain extends kolab_api_service
  
          return false;
      }
@@ -284,15 +288,7 @@ index 4d5fcaa..5694883 100644
 +        }
 +        $variablename = $getdata['variablename'];
 +
-+        $resultValue = Auth::get_instance()->domainadmin_get_configuration($_SESSION['user']->get_domain(), $variablename);
-+
-+        $returnValue = array();
-+        
-+        if (isset($resultValue)) {
-+            $returnValue[$variablename] = $resultValue;
-+        }
-+
-+        return $returnValue;
++        return Auth::get_instance()->domainadmin_get_configuration($_SESSION['user']->get_domain(), $variablename);
 +    }
  }
 diff --git a/lib/api/kolab_api_service_domain_types.php b/lib/api/kolab_api_service_domain_types.php

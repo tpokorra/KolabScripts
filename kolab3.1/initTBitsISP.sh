@@ -13,8 +13,11 @@ fi
 #####################################################################################
 # apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=2018
 #####################################################################################
+echo "applying patchMultiDomainAdminsBug2018.patch"
 patch -p1 -i `pwd`/patches/patchMultiDomainAdminsBug2018.patch -d /usr/share/kolab-webadmin
+echo "applying domainquotaBug2046.patch"
 patch -p1 -i `pwd`/patches/domainquotaBug2046.patch -d /usr/share/kolab-webadmin
+echo "applying domainAdminDefaultQuota.patch"
 patch -p1 -i `pwd`/patches/domainAdminDefaultQuota.patch -d /usr/share/kolab-webadmin
 #patch -p1 -i `pwd`/patches/patchDomainAdminAccountLimitations.patch -d /usr/share/kolab-webadmin
 

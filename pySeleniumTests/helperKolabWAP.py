@@ -147,6 +147,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
                         "default quota should be " + default_quota_verify + " but was " + elem.get_attribute('value'))
             if mail_quota is not None:
                 elem = driver.find_element_by_name("mailquota")
+                elem.clear()
                 elem.send_keys(mail_quota[:-2])
                 driver.find_element_by_xpath("//select[@name='mailquota-unit']/option[@value='" + mail_quota[-2:] + "']").click()
 
