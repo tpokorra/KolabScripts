@@ -51,7 +51,7 @@ index 82bde53..4d2a8cc 100644
 diff --git a/lib/client/kolab_client_task_user.php b/lib/client/kolab_client_task_user.php
 --- a/lib/client/kolab_client_task_user.php
 +++ b/lib/client/kolab_client_task_user.php
-@@ -223,6 +223,18 @@
+@@ -223,6 +223,19 @@
  
              // Page title
              $title = $this->translate('user.add');
@@ -60,7 +60,8 @@ diff --git a/lib/client/kolab_client_task_user.php b/lib/client/kolab_client_tas
 +            $result = $this->api_get('domain.domainadmin_info', array('variablename' => 'tbitskolaballowgroupware'));
 +            $info   = $result->get();
 +            if (isset($info['tbitskolaballowgroupware']) && $info['tbitskolaballowgroupware'] == 'TRUE') {
-+                $data['nsroledn'] = array('enable-groupware-features');
++                $domain = 'dc='.implode(explode('.', $this->domain ? $this->domain : $_SESSION['user']['domain']), ',dc=');
++                $data['nsroledn'] = array('cn=enable-groupware-features,'.$domain => 'enable-groupware-features');
 +            }
 +
 +            // by default, enable groupware features for new domain admins
