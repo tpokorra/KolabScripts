@@ -17,8 +17,3 @@ sed -i -e 's#ldap:/etc/postfix/ldap/virtual_alias_maps_3.cf#ldap:/etc/postfix/ld
 
 service postfix restart
 
-#####################################################################################
-#disable LDAP debugging
-#####################################################################################
-sed -r -i -e 's/config_set\("debug", true\)/config_set("debug", false)/g' /usr/share/kolab-webadmin/lib/Auth/LDAP.php
-
