@@ -23,7 +23,6 @@ else
 fi
 
 echo "for the TBits patches for multi domain setup, please run "
-echo "   ./initFixLDAPAci.sh"
 echo "   setup-kolab"
 echo "   ./initRoundcubePlugins.sh"
 echo "   ./initMultiDomain.sh"
