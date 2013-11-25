@@ -49,8 +49,9 @@ service dirsrv restart
 
 #####################################################################################
 #create new user_type domainadmin
+#add tbitsKolabUser objectclass to Kolab user, for last login time
 #####################################################################################
-php initDomainAdminType.php
+php initTBitsUserTypes.php
 
 #####################################################################################
 #set the domain for management of the domain admins

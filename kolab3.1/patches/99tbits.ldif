@@ -43,26 +43,18 @@ attributeTypes: (2.25.270637687019478811349087770667234728572.1.5
 # tbits domain admin account
 # we use an auxiliary in order to ease integration
 # with existing inetOrgPerson objects
-# Please note that userPassword is a may
-# attribute in the schema but is mandatory for
-# Kolab
 objectClasses: (2.25.270637687019478811349087770667234728572.2.1
   NAME 'tbitsKolabDomainAdmin'
   DESC 'TBits Kolab Domain Admin Person'
-  SUP top AUXILIARY
-  MAY ( tbitsKolabLastLogin $
-        tbitsKolabDefaultQuota $
-        tbitsKolabOverallQuota $
-        tbitsKolabMaxAccounts $
-        tbitsKolabAllowGroupware ) )
-# tbits domain entry
-# domain limitations should be stored on domain objects 
-# instead of user objects
-objectClasses: (2.25.270637687019478811349087770667234728572.2.2
-  NAME 'tbitsKolabDomain'
-  DESC 'TBits Kolab Domain Object'
   SUP top AUXILIARY
   MAY ( tbitsKolabDefaultQuota $
         tbitsKolabOverallQuota $
         tbitsKolabMaxAccounts $
         tbitsKolabAllowGroupware ) )
+# tbits user account
+# we want to know when the user logged in successfully the last time 
+objectClasses: (2.25.270637687019478811349087770667234728572.2.2
+  NAME 'tbitsKolabUser'
+  DESC 'TBits Kolab User Object'
+  SUP top AUXILIARY
+  MAY ( tbitsKolabLastLogin ) )

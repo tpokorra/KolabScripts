@@ -23,7 +23,18 @@ if ($list['list'][1]['key'] != 'kolab') {
    die();
 }
 
-$newType = $list['list'][1];
+$kolabUserType = $list['list'][1];
+$kolabUserType['id'] = 1;
+$kolabUserType['type'] = 'user';
+$kolabUserType['attributes']['fields']['objectclass'][] = 'tbitskolabuser';
+$service_type = new kolab_api_service_type(null);
+if (false === $service_type->type_edit(null, $kolabUserType)) {
+    echo "failure: was not able to save user type kolab\n";
+    die();
+}
+
+$newType = $kolabUserType;
+unset($newType['id']);
 $newType['type'] = 'user';
 $newType['key'] = 'domainadmin';
 $newType['name'] = 'Domain Administrator';
@@ -42,7 +53,6 @@ $newType['attributes']['form_fields']['tbitskolaballowgroupware'] = array('type'
 $newType['attributes']['form_fields']['tbitskolaboverallquota'] = array('type' => 'text-quota', 'optional' => 1);
 $newType['attributes']['form_fields']['tbitskolabdefaultquota'] = array('type' => 'text-quota', 'optional' => 1);
 
-$service_type = new kolab_api_service_type();
 if (false === $service_type->type_add(null, $newType)) {
     echo "failure: was not able to add new user type domainadmin\n";
     die();
