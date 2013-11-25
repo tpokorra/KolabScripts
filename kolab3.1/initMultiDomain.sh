@@ -80,17 +80,6 @@ sed -r -i -e "s#\[ldap\]#[ldap]\nmodifytimestamp_format = %%Y%%m%%d%%H%%M%%SZ#g"
 sed -r -i -e "s/\[cyrus-imap\]/[imap]\nvirtual_domains = userid\n[cyrus-imap]/g" /etc/kolab/kolab.conf
 
 #####################################################################################
-#define the names of mail folders that should be created for a new account
-#####################################################################################
-if [ ! -f AutoCreateFolders.tpl ]
-then
-  echo Downloading file AutoCreateFolders.tpl
-  wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/AutoCreateFolders.tpl -O AutoCreateFolders.tpl
-fi
-LineNumberKolab=`cat /etc/kolab/kolab.conf | grep -n "\[kolab\]" |cut -f1 -d:`
-sed -i "$((LineNumberKolab + 1))r AutoCreateFolders.tpl" /etc/kolab/kolab.conf
-
-#####################################################################################
 # apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=1869
 #####################################################################################
 
