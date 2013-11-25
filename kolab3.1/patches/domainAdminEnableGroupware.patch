@@ -1,5 +1,5 @@
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index a56c21f..28d86c4 100644
+index 5abc887..3fce9b3 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
 @@ -485,6 +485,20 @@ class LDAP extends Net_LDAP3 {
@@ -24,10 +24,10 @@ index a56c21f..28d86c4 100644
  
          if (empty($domain)) {
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
-index f980f81..12fc6c6 100644
+index c3d2972..af30497 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1247,6 +1247,22 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1306,6 +1306,22 @@ class kolab_api_service_form_value extends kolab_api_service
          return $this->validate_quota($value, $postdata, $validation_type);
      }
  

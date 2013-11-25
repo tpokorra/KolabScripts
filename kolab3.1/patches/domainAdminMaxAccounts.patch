@@ -1,5 +1,5 @@
 diff --git a/lib/Auth.php b/lib/Auth.php
-index 6833aa7..8113b39 100644
+index 9272a73..295eccc 100644
 --- a/lib/Auth.php
 +++ b/lib/Auth.php
 @@ -214,6 +214,11 @@ class Auth {
@@ -15,11 +15,11 @@ index 6833aa7..8113b39 100644
      {
          return $this->auth_instance()->domain_edit($domain, $attributes, $typeid);
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index c71b7a5..a56c21f 100644
+index a9a2930..5abc887 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -631,6 +631,28 @@ class LDAP extends Net_LDAP3 {
-         return array('domainadmin' => $maindomainadmin, $config_flag => $resultvalue);
+@@ -658,6 +658,28 @@ class LDAP extends Net_LDAP3 {
+         return $quota;
      }
  
 +    // get the number of accounts that this domainadmin manages.
