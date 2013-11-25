@@ -48,6 +48,7 @@ rm -Rf \
     /usr/share/dirsrv \
     /usr/share/389-* \
     /var/cache/dirsrv \
+    /var/cache/kolab-webadmin \
     /var/log/kolab* \
     /var/log/dirsrv \
     /var/log/roundcube \
@@ -56,6 +57,7 @@ rm -Rf \
     /var/lib/imap \
     /var/lib/kolab \
     /var/lib/mysql \
+    /tmp/*-Net_LDAP2_Schema.cache \
     /var/spool/imap \
     /var/spool/postfix
 

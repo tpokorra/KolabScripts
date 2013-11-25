@@ -38,8 +38,9 @@ yum -y remove 389\* cyrus-imapd\* postfix\* mysql-server\* roundcube\* pykolab\*
 echo "deleting files..."
 rm -Rf \
     /etc/dirsrv \
-    /etc/kolab/kolab.conf \
+    /etc/kolab \
     /etc/postfix \
+    /etc/roundcubemail \
     /usr/lib64/dirsrv \
     /usr/share/kolab-webadmin \
     /usr/share/roundcubemail \
@@ -47,6 +48,8 @@ rm -Rf \
     /usr/share/kolab \
     /usr/share/dirsrv \
     /var/cache/dirsrv \
+    /var/cache/kolab-webadmin \
+    /var/lock/dirsrv \
     /var/log/kolab* \
     /var/log/dirsrv \
     /var/log/roundcube \
@@ -55,6 +58,7 @@ rm -Rf \
     /var/lib/imap \
     /var/lib/kolab \
     /var/lib/mysql \
+    /tmp/*-Net_LDAP2_Schema.cache \
     /var/spool/imap \
     /var/spool/postfix
 
