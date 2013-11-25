@@ -1,9 +1,9 @@
 diff --git a/lib/Auth.php b/lib/Auth.php
-index f253185..cf79182 100644
+index 6833aa7..8113b39 100644
 --- a/lib/Auth.php
 +++ b/lib/Auth.php
-@@ -219,6 +219,11 @@ class Auth {
-         return $this->auth_instance()->domainadmin_get_quota($domainadmin, $excludeuser);
+@@ -214,6 +214,11 @@ class Auth {
+         return $this->auth_instance()->domain_add($domain, $domain_attrs);
      }
  
 +    public function domainadmin_get_number_of_accounts($domainadmin)
@@ -15,11 +15,11 @@ index f253185..cf79182 100644
      {
          return $this->auth_instance()->domain_edit($domain, $attributes, $typeid);
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index db020bd..4b8c854 100644
+index c71b7a5..a56c21f 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -620,6 +620,28 @@ class LDAP extends Net_LDAP3 {
-         return $quota;
+@@ -631,6 +631,28 @@ class LDAP extends Net_LDAP3 {
+         return array('domainadmin' => $maindomainadmin, $config_flag => $resultvalue);
      }
  
 +    // get the number of accounts that this domainadmin manages.

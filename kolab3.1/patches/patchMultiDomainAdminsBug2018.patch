@@ -1,5 +1,5 @@
 diff --git a/lib/Auth.php b/lib/Auth.php
-index 0c5ef5b..8572cd5 100644
+index 40f3049..6833aa7 100644
 --- a/lib/Auth.php
 +++ b/lib/Auth.php
 @@ -234,6 +234,11 @@ class Auth {
@@ -15,7 +15,7 @@ index 0c5ef5b..8572cd5 100644
      {
          return $this->auth_instance()->find_recipient($address);
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index edd7283..de077bb 100644
+index 481deb9..c71b7a5 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
 @@ -146,6 +146,22 @@ class LDAP extends Net_LDAP3 {
@@ -51,7 +51,7 @@ index edd7283..de077bb 100644
          $dn = $domain_name_attribute . '=' . $domain . ',' . $domain_base_dn;
  
          $result = $this->add_entry($dn, $attributes);
-@@ -458,9 +477,152 @@ class LDAP extends Net_LDAP3 {
+@@ -466,9 +485,152 @@ class LDAP extends Net_LDAP3 {
  
          $this->add_entry($dn, $attrs);
  
@@ -204,7 +204,7 @@ index edd7283..de077bb 100644
      public function domain_edit($domain, $attributes, $typeid = null)
      {
          $domain = $this->domain_info($domain, array_keys($attributes));
-@@ -471,6 +629,16 @@ class LDAP extends Net_LDAP3 {
+@@ -479,6 +641,16 @@ class LDAP extends Net_LDAP3 {
  
          $domain_dn = key($domain);
  
@@ -221,7 +221,7 @@ index edd7283..de077bb 100644
          // We should start throwing stuff over the fence here.
          return $this->modify_entry($domain_dn, $domain[$domain_dn], $attributes);
      }
-@@ -511,6 +679,8 @@ class LDAP extends Net_LDAP3 {
+@@ -582,6 +754,8 @@ class LDAP extends Net_LDAP3 {
              if ($result = $this->_search($domain_base_dn, $domain_filter, $attributes)) {
                  $result = $result->entries(true);
              }
@@ -230,7 +230,7 @@ index edd7283..de077bb 100644
          }
          else {
              $this->_log(LOG_DEBUG, "Auth::LDAP::domain_info() uses _read()");
-@@ -521,6 +691,30 @@ class LDAP extends Net_LDAP3 {
+@@ -592,6 +766,30 @@ class LDAP extends Net_LDAP3 {
              return false;
          }
  
@@ -262,7 +262,7 @@ index edd7283..de077bb 100644
  
          return $result;
 diff --git a/lib/api/kolab_api_service_domain.php b/lib/api/kolab_api_service_domain.php
-index 4d5fcaa..5694883 100644
+index 4d5fcaa..da50b97 100644
 --- a/lib/api/kolab_api_service_domain.php
 +++ b/lib/api/kolab_api_service_domain.php
 @@ -235,4 +235,25 @@ class kolab_api_service_domain extends kolab_api_service
@@ -307,7 +307,7 @@ index 6829047..5334112 100644
                  'optional' => true,
              ),
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
-index 1bed5f0..3215762 100644
+index 3ea1670..f980f81 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
 @@ -1047,6 +1047,41 @@ class kolab_api_service_form_value extends kolab_api_service
@@ -459,18 +459,18 @@ index 40c2fcc..0100a83 100644
              'kolabfreebusyfuture'       => 'config',
              'kolabinvitationpolicy'     => 'config',
 diff --git a/lib/kolab_api_service.php b/lib/kolab_api_service.php
-index 276e679..b4d4252 100644
+index 1972cb0..4fef41b 100644
 --- a/lib/kolab_api_service.php
 +++ b/lib/kolab_api_service.php
-@@ -81,6 +81,7 @@ abstract class kolab_api_service
-         if (empty($object_types[$type_id])) {
-             if ($object_name == 'domain') {
-                 $result = kolab_api_service_domain_types::$DEFAULT_TYPE_ATTRS;
-+                $result['form_fields']['domainadmin']['type'] = 'list';
-                 $result['form_fields']['aci'] = array(
-                     'type' => 'list',
-                     'optional' => true,
-@@ -122,6 +123,10 @@ abstract class kolab_api_service
+@@ -75,6 +75,7 @@ abstract class kolab_api_service
+                     'attributes' => kolab_api_service_domain_types::$DEFAULT_TYPE_ATTRS,
+                 ),
+             );
++            $object_types['1']['attributes']['form_fields']['domainadmin']['type'] = 'list';
+             $object_types['1']['attributes']['form_fields']['aci'] = array(
+                 'type'     => 'list',
+                 'optional' => true,
+@@ -125,6 +126,10 @@ abstract class kolab_api_service
              return key($object_types);
          }
  
@@ -482,7 +482,7 @@ index 276e679..b4d4252 100644
          $object_keys  = array_keys($attributes);
          $keys_count   = count($object_keys);
 diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
-index 2aedb27..cded524 100644
+index c845126..7d96232 100644
 --- a/lib/kolab_client_task.php
 +++ b/lib/kolab_client_task.php
 @@ -645,6 +645,24 @@ class kolab_client_task
@@ -540,7 +540,7 @@ index 2aedb27..cded524 100644
          else {
              $data['type_id'] = $type = key($types);
          }
-@@ -1283,6 +1327,12 @@ class kolab_client_task
+@@ -1283,6 +1317,12 @@ class kolab_client_task
                      unset($field['default']);
                  }
  
@@ -612,29 +612,30 @@ index b88e520..607f36a 100644
  $LANG['user.type_id'] = 'Kontotyp';
  $LANG['user.uid'] = 'Eindeutige Identität (UID)';
 diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
-index b9e2d6a..aebb903 100644
+index bc42754..339cbc7 100644
 --- a/lib/locale/en_US.php
 +++ b/lib/locale/en_US.php
-@@ -47,8 +47,10 @@ $LANG['deleting'] = 'Deleting data...';
+@@ -47,9 +47,11 @@ $LANG['deleting'] = 'Deleting data...';
  
  $LANG['domain.add'] = 'Add Domain';
  $LANG['domain.add.success'] = 'Domain created successfully.';
 +$LANG['domain.admins'] = 'Domain Administrators';
  $LANG['domain.associateddomain'] = 'Domain name(s)';
+ $LANG['domain.delete.confirm'] = 'Are you sure, you want to delete this domain?';
  $LANG['domain.delete.success'] = 'Domain deleted successfully.';
 +$LANG['domain.domainadmin'] = 'Administrators for this domain';
  $LANG['domain.edit'] = 'Edit domain';
  $LANG['domain.edit.success'] = 'Domain updated successfully.';
  $LANG['domain.inetdomainbasedn'] = 'Custom Root DN(s)';
-@@ -261,6 +263,7 @@ $LANG['user.country'] = 'Country';
- $LANG['user.country.desc'] = '2 letter code from ISO 3166-1';
+@@ -268,6 +270,7 @@ $LANG['user.country.desc'] = '2 letter code from ISO 3166-1';
+ $LANG['user.delete.confirm'] = 'Are you sure, you want to delete this user?';
  $LANG['user.delete.success'] = 'User deleted successfully.';
  $LANG['user.displayname'] = 'Display name';
 +$LANG['user.domainadmin'] = 'Domain Administrator';
  $LANG['user.edit.success'] = 'User updated successfully.';
  $LANG['user.fax'] = 'Fax number';
  $LANG['user.fbinterval'] = 'Free-Busy interval';
-@@ -308,6 +311,10 @@ $LANG['user.sn'] = 'Surname';
+@@ -315,6 +318,10 @@ $LANG['user.sn'] = 'Surname';
  $LANG['user.street'] = 'Street';
  $LANG['user.system'] = 'System';
  $LANG['user.telephonenumber'] = 'Phone Number';
@@ -646,7 +647,7 @@ index b9e2d6a..aebb903 100644
  $LANG['user.type_id'] = 'Account type';
  $LANG['user.uid'] = 'Unique identity (UID)';
 diff --git a/public_html/js/kolab_admin.js b/public_html/js/kolab_admin.js
-index af2463f..c0a9093 100644
+index 4df6339..49a01a9 100644
 --- a/public_html/js/kolab_admin.js
 +++ b/public_html/js/kolab_admin.js
 @@ -715,6 +715,8 @@ function kolab_admin()
