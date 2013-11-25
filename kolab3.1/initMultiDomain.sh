@@ -101,8 +101,6 @@ then
   wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/deleteDomainWithUsersBug1869.patch -O patches/deleteDomainWithUsersBug1869.patch
   echo Downloading patch  sleepTimeBetweenDomainOperationsBug2491.patch
   wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/sleepTimeBetweenDomainOperationsBug2491.patch -O patches/sleepTimeBetweenDomainOperationsBug2491.patch
-  echo Downloading patch  autocreatefoldersBug2492.patch
-  wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/autocreatefoldersBug2492.patch -O patches/autocreatefoldersBug2492.patch
 fi
 
 # different paths in debian and centOS
@@ -115,5 +113,4 @@ fi
 
 patch -p1 -i `pwd`/patches/deleteDomainWithUsersBug1869.patch -d /usr/share/kolab-webadmin
 patch -p1 -i `pwd`/patches/sleepTimeBetweenDomainOperationsBug2491.patch -d $pythonDistPackages
-patch -p1 -i `pwd`/patches/autocreatefoldersBug2492.patch -d $pythonDistPackages
 

@@ -1,5 +1,5 @@
 diff --git a/kolabd/__init__.py b/kolabd/__init__.py
-index 34e54e7..0c8ee82 100644
+index 34e54e7..52ae9ad 100644
 --- a/kolabd/__init__.py
 +++ b/kolabd/__init__.py
 @@ -254,7 +254,8 @@ class KolabDaemon(object):
@@ -13,7 +13,7 @@ index 34e54e7..0c8ee82 100644
              log.debug(
                      _("added domains: %r, removed domains: %r") % (
 diff --git a/pykolab/conf/defaults.py b/pykolab/conf/defaults.py
-index f85b594..d809224 100644
+index f85b594..13e25c2 100644
 --- a/pykolab/conf/defaults.py
 +++ b/pykolab/conf/defaults.py
 @@ -33,5 +33,8 @@ class Defaults(object):
@@ -25,3 +25,4 @@ index f85b594..d809224 100644
 +
          self.kolab_default_locale = 'en_US'
          self.ldap_unique_attribute = 'nsuniqueid'
+\ No newline at end of file

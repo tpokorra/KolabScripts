@@ -1,8 +1,8 @@
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index 3a646e3..2dc0ce5 100644
+index bf02ba1..481deb9 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -476,11 +475,74 @@ class LDAP extends Net_LDAP3 {
+@@ -483,11 +483,74 @@ class LDAP extends Net_LDAP3 {
          return $this->modify_entry($domain_dn, $domain[$domain_dn], $attributes);
      }
  
@@ -43,8 +43,7 @@ index 3a646e3..2dc0ce5 100644
 +
 +        $domain_name = $domainObj[key($domainObj)]["associateddomain"];
 +        $inetdomainbasedn = $this->_standard_root_dn($domain_name);
- 
--        return $this->entry_delete($domain, array(), $base_dn);
++
 +        # delete role kolab-admin
 +        if ($this->delete_entry("cn=kolab-admin,".$inetdomainbasedn) === false) {
 +            $this->_log(LOG_DEBUG, "Auth::LDAP::domain_delete() problem deleting cn=kolab-admin,".$inetdomainbasedn);
@@ -60,7 +59,8 @@ index 3a646e3..2dc0ce5 100644
 +            $this->_log(LOG_DEBUG, "Auth::LDAP::domain_delete() problem deleting ".$domain);
 +            return false;
 +        }
-+
+ 
+-        return $this->entry_delete($domain, array(), $base_dn);
 +        $dn = "cn=" . str_replace('.', '_', $domain_name) . ",cn=ldbm database,cn=plugins,cn=config";
 +        if ($this->delete_recursive($dn) === false) {
 +            $this->_log(LOG_DEBUG, "Auth::LDAP::domain_delete() problem deleting $dn");
