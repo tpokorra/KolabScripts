@@ -14,3 +14,38 @@ index f597dfd..af6c477 100644
                      auth_cache.set_entry(_filter, entry_dn)
                  except Exception, errmsg:
 
+diff --git a/pykolab/auth/ldap/auth_cache.py b/pykolab/auth/ldap/auth_cache.py
+index ba14262..1a11c7b 100644
+--- a/pykolab/auth/ldap/auth_cache.py
++++ b/pykolab/auth/ldap/auth_cache.py
+@@ -53,6 +53,7 @@ log = pykolab.getLogger('pykolab.auth_cache')
+ metadata = MetaData()
+ 
+ db = None
++last_purge = None
+ 
+ ##
+ ## Classes
+@@ -115,15 +116,20 @@ def set_entry(key, value):
+         db.commit()
+ 
+ def purge_entries(db):
+-    db.query(Entry).filter(Entry.last_change <= (datetime.datetime.now() - datetime.timedelta(1))).delete()
++    global last_purge
++    last_purge = datetime.datetime.now()
++    db.query(Entry).filter(Entry.last_change <= (datetime.datetime.now() - datetime.timedelta(hours=1))).delete()
+ 
+ def init_db():
+     """
+         Returns a SQLAlchemy Session() instance.
+     """
+     global db
++    global last_purge
+ 
+     if not db == None:
++        if last_purge <= (datetime.datetime.now() - datetime.timedelta(hours=1)):
++            purge_entries(db)
+         return db
+ 
+     db_uri = conf.get('ldap', 'auth_cache_uri')
+
