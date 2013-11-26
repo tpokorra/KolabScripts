@@ -27,6 +27,7 @@ $kolabUserType = $list['list'][1];
 $kolabUserType['id'] = 1;
 $kolabUserType['type'] = 'user';
 $kolabUserType['attributes']['fields']['objectclass'][] = 'tbitskolabuser';
+$kolabUserType['attributes']['form_fields']['tbitskolablastlogin'] = array('type' => 'text-unixtimestamp', 'optional' => 1);
 $service_type = new kolab_api_service_type(null);
 if (false === $service_type->type_edit(null, $kolabUserType)) {
     echo "failure: was not able to save user type kolab\n";
