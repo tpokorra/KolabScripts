@@ -23,7 +23,9 @@ else
 fi
 
 echo "for the TBits patches for multi domain setup, please run "
+echo "   ./initSetupKolabPatches.sh"
 echo "   setup-kolab"
+echo "    or unattended: setup-kolab --yes --quiet --timezone=Europe/Berlin"
 echo "   ./initRoundcubePlugins.sh"
 echo "   ./initMultiDomain.sh"
 echo "   ./initMailForward.sh"

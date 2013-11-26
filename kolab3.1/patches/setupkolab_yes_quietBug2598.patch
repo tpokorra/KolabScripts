@@ -1,0 +1,54 @@
+diff --git a/pykolab/utils.py b/pykolab/utils.py
+index 5cba8f9..de44001 100644
+--- a/pykolab/utils.py
++++ b/pykolab/utils.py
+@@ -29,6 +29,7 @@ from pykolab import constants
+ from pykolab.translate import _
+ 
+ log = pykolab.getLogger('pykolab.utils')
++conf = pykolab.getConf()
+ 
+ def ask_question(question, default="", password=False, confirm=False):
+     """
+@@ -41,6 +42,10 @@ def ask_question(question, default="", password=False, confirm=False):
+ 
+         Usage: pykolab.utils.ask_question("What is the server?", default="localhost")
+     """
++    
++    if not default == "" and not default == None and conf.cli_keywords.quiet:
++        return default
++
+     if password:
+         if default == "" or default == None:
+             answer = getpass.getpass("%s: " % (question))
+@@ -91,6 +96,10 @@ def ask_confirmation(question, default="y", all_inclusive_no=True):
+         and a "yes" or "no" parsing that can either require an explicit, full
+         "yes" or "no", or take the default or any YyNn answer.
+     """
++
++    if conf.cli_keywords.answer_yes:
++        return default
++
+     default_answer = None
+ 
+     if default in [ "y", "Y" ]:
+@@ -128,6 +137,8 @@ def ask_confirmation(question, default="y", all_inclusive_no=True):
+                 return True
+ 
+ def ask_menu(question, options={}, default=''):
++    if not default == '' and conf.cli_keywords.quiet:
++        return default
+     if not default == '':
+         print question + " [" + default + "]:"
+     else:
+@@ -258,6 +269,9 @@ def generate_password():
+ def multiline_message(message):
+     _msg = ""
+ 
++    if conf.cli_keywords.quiet:
++        return ""
++
+     column_width = 80
+ 
+     # First, replace all occurences of "\n"
+
