@@ -26,6 +26,7 @@ echo "for the TBits patches for multi domain setup, please run "
 echo "   ./initSetupKolabPatches.sh"
 echo "   setup-kolab"
 echo "    or unattended: setup-kolab --yes --quiet --timezone=Europe/Berlin"
+echo '    echo "Password for cn=Directory Manager is: " `cat /etc/kolab/kolab.conf | grep "^bind_pw" | cut -d " " -f 3`'
 echo "   ./initRoundcubePlugins.sh"
 echo "   ./initMultiDomain.sh"
 echo "   ./initMailForward.sh"
