@@ -83,6 +83,12 @@ wget $obs/Kolab:/3.1/$OBS_repo_OS/Kolab:3.1.repo -O kolab-3.1.repo
 wget $obs/Kolab:/3.1:/Updates/$OBS_repo_OS/Kolab:3.1:Updates.repo -O kolab-3.1-updates.repo
 cd -
 
+# add priority = 0 to kolab repo files
+for f in /etc/yum.repos.d/kolab-3*.repo
+do
+    sed -i "s#enabled=1#enabled=1\npriority=0#g" $f
+done
+
 yum clean metadata
 yum install kolab patch unzip
 
