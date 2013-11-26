@@ -13,6 +13,14 @@ fi
 #####################################################################################
 # apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=2018
 #####################################################################################
+# different paths in debian and centOS
+# centOS
+pythonDistPackages=/usr/lib/python2.7/dist-packages
+if [ ! -d $pythonDistPackages ]; then
+  # Debian
+  pythonDistPackages=/usr/lib/python2.6/site-packages
+fi
+
 echo "applying patchMultiDomainAdminsBug2018.patch"
 patch -p1 -i `pwd`/patches/patchMultiDomainAdminsBug2018.patch -d /usr/share/kolab-webadmin
 echo "applying domainquotaBug2046.patch"
@@ -23,6 +31,10 @@ echo "applying domainAdminMaxAccounts.patch"
 patch -p1 -i `pwd`/patches/domainAdminMaxAccounts.patch -d /usr/share/kolab-webadmin
 echo "applying domainAdminEnableGroupware.patch"
 patch -p1 -i `pwd`/patches/domainAdminEnableGroupware.patch -d /usr/share/kolab-webadmin
+echo "applying lastLoginTBitsAttribute patch"
+patch -p1 -i `pwd`/patches/lastLoginTBitsAttribute-wap.patch -d /usr/share/kolab-webadmin
+patch -p1 -i `pwd`/patches/lastLoginTBitsAttribute-pykolab.patch -d $pythonDistPackages
+
 
 #####################################################################################
 #using specific ldap attribute for the domainadmin overall quota

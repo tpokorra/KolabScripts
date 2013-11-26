@@ -1,0 +1,16 @@
+diff --git a/pykolab/auth/ldap/__init__.py b/pykolab/auth/ldap/__init__.py
+index f597dfd..af6c477 100644
+--- a/pykolab/auth/ldap/__init__.py
++++ b/pykolab/auth/ldap/__init__.py
+@@ -220,6 +220,10 @@ class LDAP(pykolab.base.Base):
+                 # to True!!
+                 self.ldap.simple_bind_s(entry_dn, login[1])
+                 retval = True
++
++                # store current unix time in last login
++                self.set_entry_attribute(entry_dn, "tbitsKolabLastLogin", ("%s" % int(time.time())))
++
+                 try:
+                     auth_cache.set_entry(_filter, entry_dn)
+                 except Exception, errmsg:
+

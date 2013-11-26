@@ -1,0 +1,16 @@
+diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
+index bf02ba1..ccd0a87 100644
+--- a/lib/Auth/LDAP.php
++++ b/lib/Auth/LDAP.php
+@@ -373,6 +373,10 @@ class LDAP extends Net_LDAP3 {
+              $self_attrs = array_merge($self_attrs, array('kolabDelegate', 'kolabInvitationPolicy', 'kolabAllowSMTPSender'));
+         }
+ 
++        if (in_array('tbitsKolabUser', $this->classes_allowed())) {
++            $self_attrs = array_merge($self_attrs, array('tbitsKolabLastLogin'));
++        }
++
+         $attrs = array(
+             // @TODO: Probably just use ldap_explode_dn()
+             'dc' => substr($dn, (strpos($dn, '=')+1), ((strpos($dn, ',')-strpos($dn, '='))-1)),
+
