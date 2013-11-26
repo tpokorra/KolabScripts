@@ -69,11 +69,18 @@ wget http://ftp.uni-kl.de/pub/linux/fedora-epel/6/i386/epel-release-6-8.noarch.r
 yum -y localinstall --nogpgcheck epel-release-6-8.noarch.rpm
 rm -f epel*rpm
 
+# could use environment variable obs=http://my.proxy.org/obs.kolabsys.com 
+# see http://kolab.org/blog/timotheus-pokorra/2013/11/26/downloading-obs-repo-php-proxy-file
+if [[ "$obs" = "" ]]
+then
+  export obs=http://obs.kolabsys.com:82
+fi
+
 cd /etc/yum.repos.d
 rm -Rf obs-tpokorra-nightly-kolab.repo
-#wget http://obs.kolabsys.com:82/home:/tpokorra:/branches:/Kolab:/Development/$OBS_repo_OS/home:tpokorra:branches:Kolab:Development.repo -O obs-tpokorra-nightly-kolab.repo
-wget http://obs.kolabsys.com:82/Kolab:/3.1/$OBS_repo_OS/Kolab:3.1.repo -O kolab-3.1.repo
-wget http://obs.kolabsys.com:82/Kolab:/3.1:/Updates/$OBS_repo_OS/Kolab:3.1:Updates.repo -O kolab-3.1-updates.repo
+#wget $obs/home:/tpokorra:/branches:/Kolab:/Development/$OBS_repo_OS/home:tpokorra:branches:Kolab:Development.repo -O obs-tpokorra-nightly-kolab.repo
+wget $obs/Kolab:/3.1/$OBS_repo_OS/Kolab:3.1.repo -O kolab-3.1.repo
+wget $obs/Kolab:/3.1:/Updates/$OBS_repo_OS/Kolab:3.1:Updates.repo -O kolab-3.1-updates.repo
 cd -
 
 yum clean metadata

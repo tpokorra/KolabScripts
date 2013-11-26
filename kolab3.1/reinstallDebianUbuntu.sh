@@ -61,20 +61,27 @@ rm -Rf \
     /var/spool/imap \
     /var/spool/postfix
 
+# could use environment variable obs=http://my.proxy.org/obs.kolabsys.com
+# see http://kolab.org/blog/timotheus-pokorra/2013/11/26/downloading-obs-repo-php-proxy-file
+if [[ "$obs" = "" ]]
+then
+  export obs=http://obs.kolabsys.com:82
+fi
+
 cat > /etc/apt/sources.list.d/kolab.list <<FINISH
-deb http://obs.kolabsys.com:82/Kolab:/3.1/$OBS_repo_OS/ ./
-deb http://obs.kolabsys.com:82/Kolab:/3.1:/Updates/$OBS_repo_OS/ ./
-#deb http://obs.kolabsys.com:82/Kolab:/Development/$OBS_repo_OS/ ./
-#deb http://obs.kolabsys.com:82/home:/tpokorra:/branches:/Kolab:/Development/$OBS_repo_OS/ ./
+deb $obs/Kolab:/3.1/$OBS_repo_OS/ ./
+deb $obs/Kolab:/3.1:/Updates/$OBS_repo_OS/ ./
+#deb $obs/Kolab:/Development/$OBS_repo_OS/ ./
+#deb $obs/home:/tpokorra:/branches:/Kolab:/Development/$OBS_repo_OS/ ./
 FINISH
 
-wget http://obs.kolabsys.com:82/Kolab:/3.1/$OBS_repo_OS/Release.key
+wget $obs/Kolab:/3.1/$OBS_repo_OS/Release.key
 apt-key add Release.key; rm -rf Release.key
-wget http://obs.kolabsys.com:82/Kolab:/3.1:/Updates/$OBS_repo_OS/Release.key
+wget $obs/Kolab:/3.1:/Updates/$OBS_repo_OS/Release.key
 apt-key add Release.key; rm -rf Release.key
-wget http://obs.kolabsys.com:82/Kolab:/Development/$OBS_repo_OS/Release.key
+wget $obs/Kolab:/Development/$OBS_repo_OS/Release.key
 apt-key add Release.key; rm -rf Release.key
-wget http://obs.kolabsys.com:82/home:/tpokorra:/branches:/Kolab:/Development/$OBS_repo_OS/Release.key
+wget $obs/home:/tpokorra:/branches:/Kolab:/Development/$OBS_repo_OS/Release.key
 apt-key add Release.key; rm -rf Release.key
 
 cat > /etc/apt/preferences.d/kolab <<FINISH
