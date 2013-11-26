@@ -34,7 +34,8 @@ patch -p1 -i `pwd`/patches/domainAdminEnableGroupware.patch -d /usr/share/kolab-
 echo "applying lastLoginTBitsAttribute patch"
 patch -p1 -i `pwd`/patches/lastLoginTBitsAttribute-wap.patch -d /usr/share/kolab-webadmin
 patch -p1 -i `pwd`/patches/lastLoginTBitsAttribute-pykolab.patch -d $pythonDistPackages
-
+echo "applying allowPrimaryEmailAddressFromDomain.patch"
+patch -p1 -i `pwd`/patches/allowPrimaryEmailAddressFromDomain.patch -d $pythonDistPackages
 
 #####################################################################################
 #using specific ldap attribute for the domainadmin overall quota
