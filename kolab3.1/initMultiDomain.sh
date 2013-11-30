@@ -52,6 +52,17 @@ sed -r -i -e "s#'ou=People,.*'#'ou=People,%dc'#g" /etc/roundcubemail/kolab_auth.
 sed -r -i -e "s#'ou=Groups,.*'#'ou=Groups,%dc'#g" /etc/roundcubemail/kolab_auth.inc.php
 
 #####################################################################################
+#enable freebusy for all domains
+#####################################################################################
+sed -r -i -e "s#base_dn = .*#base_dn = %dc#g" /usr/share/kolab-freebusy/config/config.ini
+
+#####################################################################################
+#fix a bug for freebusy (see https://issues.kolab.org/show_bug.cgi?id=2524, missing quotes)
+#####################################################################################
+sed -r -i -e 's#bind_dn = (.*)#bind_dn = "\1"#g' /usr/share/kolab-freebusy/config/config.ini
+
+
+#####################################################################################
 # Fix Global Address Book in Multi Domain environment
 ####################################################################################
 cp -r /etc/roundcubemail/config.inc.php /etc/roundcubemail/config.inc.php.beforeMultiDomain
@@ -90,6 +101,8 @@ then
   wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/deleteDomainWithUsersBug1869.patch -O patches/deleteDomainWithUsersBug1869.patch
   echo Downloading patch  sleepTimeBetweenDomainOperationsBug2491.patch
   wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/sleepTimeBetweenDomainOperationsBug2491.patch -O patches/sleepTimeBetweenDomainOperationsBug2491.patch
+  echo Downloading patch freebusyMultiDomainBug2630.patch
+  wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/freebusyMultiDomainBug2630.patch -O patches/freebusyMultiDomainBug2630.patch
 fi
 
 # different paths in debian and centOS
@@ -102,4 +115,5 @@ fi
 
 patch -p1 -i `pwd`/patches/deleteDomainWithUsersBug1869.patch -d /usr/share/kolab-webadmin
 patch -p1 -i `pwd`/patches/sleepTimeBetweenDomainOperationsBug2491.patch -d $pythonDistPackages
+patch -p1 -i `pwd`/patches/freebusyMultiDomainBug2630.patch -d /usr/share/kolab-freebusy
 
