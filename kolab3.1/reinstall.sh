@@ -22,11 +22,20 @@ else
   fi 
 fi
 
-echo "for the TBits patches for multi domain setup, please run "
+echo "for the TBits patches for multi domain and ISP setup, please run "
 echo "   ./initSetupKolabPatches.sh"
 echo "   setup-kolab"
-echo "    or unattended: setup-kolab --yes --quiet --timezone=Europe/Berlin"
-echo '    echo "Password for cn=Directory Manager is: " `cat /etc/kolab/kolab.conf | grep "^bind_pw" | cut -d " " -f 3`'
+if [ -f /etc/sysconfig/clock ]
+then
+  # CentOS
+  . /etc/sysconfig/clock
+fi
+if [ -f /etc/timezone ]
+then
+    # Debian
+    ZONE=`cat /etc/timezone`
+fi
+echo "    or unattended: setup-kolab --default --timezone=$ZONE --directory-manager-pwd=test
 echo "   ./initSSL.sh"
 echo "   ./initRoundcubePlugins.sh"
 echo "   ./initMultiDomain.sh"

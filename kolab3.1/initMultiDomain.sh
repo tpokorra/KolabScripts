@@ -106,10 +106,10 @@ then
 fi
 
 # different paths in debian and centOS
-# centOS
 pythonDistPackages=/usr/lib/python2.7/dist-packages
+# Debian
 if [ ! -d $pythonDistPackages ]; then
-  # Debian
+  # centOS
   pythonDistPackages=/usr/lib/python2.6/site-packages
 fi
 

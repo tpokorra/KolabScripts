@@ -1,0 +1,40 @@
+diff --git a/pykolab/setup/setup_ldap.py b/pykolab/setup/setup_ldap.py
+index 66c5d41..047b290 100644
+--- a/pykolab/setup/setup_ldap.py
++++ b/pykolab/setup/setup_ldap.py
+@@ -84,6 +84,14 @@ def cli_options():
+             help    = _("Setup configuration for Active Directory compatibility.")
+         )
+ 
++    ldap_group.add_option(
++            "--directory-manager-pwd",
++            dest    = "directory_manager_pwd",
++            action  = "store",
++            default = None,
++            help    = _("Specify password for the Domain Manager.")
++        )
++
+ def description():
+     return _("Setup LDAP.")
+ 
+@@ -165,7 +173,10 @@ def execute(*args, **kw):
+                 confirm=True
+             )
+ 
+-        print >> sys.stderr, utils.multiline_message(
++        if conf.directory_manager_pwd is not None:
++            _input['dirmgr_pass'] = conf.directory_manager_pwd
++        else:
++            print >> sys.stderr, utils.multiline_message(
+                 _("""
+                         Please supply a password for the LDAP Directory Manager
+                         user, which is the administrator user you will be using
+@@ -174,7 +185,7 @@ def execute(*args, **kw):
+                     """)
+             )
+ 
+-        _input['dirmgr_pass'] = utils.ask_question(
++            _input['dirmgr_pass'] = utils.ask_question(
+                 _("Directory Manager password"),
+                 default=utils.generate_password(),
+                 password=True,

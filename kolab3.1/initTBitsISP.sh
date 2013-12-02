@@ -14,10 +14,10 @@ fi
 # apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=2018
 #####################################################################################
 # different paths in debian and centOS
-# centOS
 pythonDistPackages=/usr/lib/python2.7/dist-packages
+# Debian
 if [ ! -d $pythonDistPackages ]; then
-  # Debian
+  # centOS
   pythonDistPackages=/usr/lib/python2.6/site-packages
 fi
 

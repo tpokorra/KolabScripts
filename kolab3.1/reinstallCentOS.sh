@@ -90,6 +90,6 @@ do
     sed -i "s#enabled=1#enabled=1\npriority=0#g" $f
 done
 
-yum clean metadata
-yum install kolab patch unzip
+#yum clean metadata
+yum -y install kolab patch unzip
 
