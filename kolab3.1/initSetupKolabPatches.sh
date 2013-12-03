@@ -24,4 +24,4 @@ fi
 echo "applying setupkolab_yes_quietBug2598.patch"
 patch -p1 -i `pwd`/patches/setupkolab_yes_quietBug2598.patch -d $pythonDistPackages
 echo "applying setupkolab_directory_manager_pwdBug2645.patch"
-patch -p1 -i `pwd`/patches/setupkolab_directory_manager_pwdBug2645.patch
+patch -p1 -i `pwd`/patches/setupkolab_directory_manager_pwdBug2645.patch -d $pythonDistPackages
