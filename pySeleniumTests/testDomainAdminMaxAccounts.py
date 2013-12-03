@@ -22,7 +22,7 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         kolabWAPhelper.log("Running test: test_max_accounts")
         
         # login Directory Manager
-        kolabWAPhelper.login_kolab_wap("http://localhost/kolab-webadmin", "cn=Directory Manager", "test")
+        kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
 
         kolabWAPhelper.select_domain("administrators.org")
 

@@ -49,7 +49,7 @@ class KolabAutoCreateFolders(unittest.TestCase):
         kolabWAPhelper.log ("Running test: test_modified_foldername_in_new_domain")
         
         # login
-        kolabWAPhelper.login_kolab_wap("http://localhost/kolab-webadmin", "cn=Directory Manager", "test")
+        kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
 
         domainname = kolabWAPhelper.create_domain()
 

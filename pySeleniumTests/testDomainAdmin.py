@@ -22,7 +22,7 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         kolabWAPhelper.log("Running test: test_default_user_type_in_normal_domain")
         
         # login Directory Manager
-        kolabWAPhelper.login_kolab_wap("http://localhost/kolab-webadmin", "cn=Directory Manager", "test")
+        kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
 
         username, emailLogin, password = kolabWAPhelper.create_user(
             prefix = "user")
@@ -36,9 +36,9 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         elem = self.driver.find_element_by_xpath("//table[@id='userlist']/tbody/tr/td")
         self.assertEquals(username + ", " + username, elem.text, "Expected to select user " + username + " but was " + elem.text)
         elem.click()
-        
-        kolabWAPhelper.wait_loading()
-        
+
+        kolabWAPhelper.wait_loading(initialwait = 1)
+
         # check if the user type is actually a normal kolab user
         elem = self.driver.find_element_by_xpath("//form[@id='user-form']/fieldset/table/tbody/tr/td[@class='value']")
         self.assertEquals("Kolab User", elem.text, "user type should be Kolab User, but was " + elem.text)
@@ -51,7 +51,7 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         kolabWAPhelper.log("Running test: test_domain_admin_user_type")
 
         # login Directory Manager
-        kolabWAPhelper.login_kolab_wap("http://localhost/kolab-webadmin", "cn=Directory Manager", "test")
+        kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
 
         kolabWAPhelper.select_domain("administrators.org")
 
@@ -68,8 +68,8 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         self.assertEquals(username + ", " + username, elem.text, "Expected to select user " + username + " but was " + elem.text)
         elem.click()
         
-        kolabWAPhelper.wait_loading()
-        
+        kolabWAPhelper.wait_loading(initialwait = 1)
+
         # check if the user type is actually a domain admin
         elem = self.driver.find_element_by_xpath("//form[@id='user-form']/fieldset/table/tbody/tr/td[@class='value']")
         self.assertEquals("Domain Administrator", elem.text, "user type should be Domain Administrator, but was " + elem.text)

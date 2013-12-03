@@ -38,14 +38,14 @@ class KolabWAPCreateUserAndEditSelf(unittest.TestCase):
         kolabWAPhelper.log("Running test: test_edit_user_himself")
         
         # login Directory Manager
-        kolabWAPhelper.login_kolab_wap("http://localhost/kolab-webadmin", "cn=Directory Manager", "test")
+        kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
 
         username, emailLogin, password = kolabWAPhelper.create_user()
 
         kolabWAPhelper.logout_kolab_wap()
 
         # login the new user
-        kolabWAPhelper.login_kolab_wap("http://localhost/kolab-webadmin", emailLogin, password)
+        kolabWAPhelper.login_kolab_wap("/kolab-webadmin", emailLogin, password)
 
         self.helper_user_edits_himself()
         

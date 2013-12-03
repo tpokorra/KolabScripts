@@ -12,7 +12,9 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
     def init_driver(self):
         webdriver.DesiredCapabilities.PHANTOMJS['phantomjs.page.customHeaders.Accept-Language'] = 'en-US'
-        self.driver = webdriver.PhantomJS('phantomjs')
+        # support self signed ssl certificate: see also https://github.com/detro/ghostdriver/issues/233
+        #webdriver.DesiredCapabilities.PHANTOMJS['ACCEPT_SSL_CERTS'] = 'true'
+        self.driver = webdriver.PhantomJS('phantomjs', service_args=['--ignore-ssl-errors=true'])
         
         #self.driver = webdriver.Firefox()
 
@@ -30,6 +32,10 @@ class KolabWAPTestHelpers(unittest.TestCase):
     # login any user to the kolab webadmin 
     def login_kolab_wap(self, url, username, password):
         driver = self.driver
+
+        if url[0] == '/':
+            url = "https://localhost" + url
+
         driver.get(url)
 
         # login the Directory Manager
@@ -176,7 +182,10 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem = driver.find_element_by_link_text("Contact Information")
         elem.click()
         elem = driver.find_element_by_name("mail")
+        # somehow a short wait is necessary for the email to be calculated from firstname and surname
+        time.sleep(0.5)
         emailLogin = elem.get_attribute('value')
+        self.assertNotEquals(0, emailLogin.__len__(), "email should be set automatically, but length is 0")
         
         elem = driver.find_element_by_link_text("System")
         elem.click()
