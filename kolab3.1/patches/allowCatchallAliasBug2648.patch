@@ -1,0 +1,48 @@
+diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
+--- a/lib/api/kolab_api_service_form_value.php
++++ b/lib/api/kolab_api_service_form_value.php
+@@ -1102,7 +1102,7 @@
+         }
+ 
+         foreach ($value as $mail_address) {
+-            if (!$this->_validate_email_address($mail_address)) {
++            if (!$this->_validate_email_address($mail_address, $allow_catchall=true)) {
+                 throw new Exception("Invalid email address '$mail_address'", 692);
+             }
+ 
+@@ -1354,7 +1354,7 @@
+         return array('list' => $result);
+     }
+ 
+-    private function _validate_email_address($mail_address)
++    private function _validate_email_address($mail_address, $allow_catchall=false)
+     {
+         $valid = true;
+ 
+@@ -1366,7 +1366,7 @@
+             $domain = substr($mail_address, $at_index+1);
+             $local = substr($mail_address, 0, $at_index);
+ 
+-            if (strlen($local) < 1 || strlen($local) > 64) {
++            if ((!$allow_catchall && strlen($local) < 1) || strlen($local) > 64) {
+                 // local part length exceeded
+                 //console("Local part of email address is longer than permitted");
+                 $valid = false;
+@@ -1376,7 +1376,7 @@
+                 //console("Domain part of email address is longer than permitted");
+                 $valid = false;
+ 
+-            } else if ($local[0] == '.' || $local[strlen($local)-1] == '.') {
++            } else if (strlen($local) > 0 && ($local[0] == '.' || $local[strlen($local)-1] == '.')) {
+                 // local part starts or ends with '.'
+                 //console("Local part of email address starts or ends with '.'");
+                 $valid = false;
+@@ -1396,7 +1396,7 @@
+                 //console("Domain part contains two consecutive dots");
+                 $valid = false;
+ 
+-            } else if (!preg_match('/^(\\\\.|[A-Za-z0-9!#%&`_=\\/$\'*+?^{}|~.-])+$/', str_replace("\\\\","",$local))) {
++            } else if (strlen($local) > 0 && !preg_match('/^(\\\\.|[A-Za-z0-9!#%&`_=\\/$\'*+?^{}|~.-])+$/', str_replace("\\\\","",$local))) {
+                 // character not valid in local part unless
+                 // local part is quoted
+                 if (!preg_match('/^"(\\\\"|[^"])+"$/', str_replace("\\\\","",$local))) {
