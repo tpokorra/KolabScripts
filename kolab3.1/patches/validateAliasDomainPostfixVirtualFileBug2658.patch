@@ -1,5 +1,6 @@
---- kolab_api_service_form_value.php	2013-12-04 14:42:03.657273074 +0100
-+++ /usr/share/kolab-webadmin/lib/api/kolab_api_service_form_value.php	2013-12-04 15:11:35.147273074 +0100
+diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
+--- a/lib/api/kolab_api_service_form_value.php
++++ b/lib/api/kolab_api_service_form_value.php
 @@ -1455,6 +1455,26 @@
          }
  
