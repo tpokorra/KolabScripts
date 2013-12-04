@@ -1,0 +1,29 @@
+--- kolab_api_service_form_value.php	2013-12-04 14:42:03.657273074 +0100
++++ /usr/share/kolab-webadmin/lib/api/kolab_api_service_form_value.php	2013-12-04 15:11:35.147273074 +0100
+@@ -1455,6 +1455,26 @@
+         }
+ 
+         if ($valid) {
++            // if /etc/postfix/ldap/virtual_alias_maps.cf contains: search_base = dc=%2,dc=%1
++            // instead of the hard coded domain name then we need a row 
++            // in the manually edited virtual alias file that matches the two domains
++            $postfix_virtual_file = $conf->get("kolab", "postfix_virtual_file");
++            if ($postfix_virtual_file != null) {
++                $valid = false;
++                $content = file($postfix_virtual_file);
++                foreach ($content as $line) {
++                    if (trim($line) == '@'.$email_domain.' @' .$my_primary_domain) {
++                        $valid = true;
++                    }
++                }
++
++                if (!$valid) {
++                    Log::trace("Found email address to be in one of my domains but the link to ".$my_primary_domain." is missing in ".$postfix_virtual_file);
++                }
++            }
++        }
++
++        if ($valid) {
+             Log::trace("Found email address to be in one of my domains.");
+         } else {
+             Log::trace("Found email address to NOT be in one of my domains.");
