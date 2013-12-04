@@ -1,8 +1,8 @@
 diff --git a/lib/Auth.php b/lib/Auth.php
-index 6833aa7..9272a73 100644
+index 701c385..f91198a 100644
 --- a/lib/Auth.php
 +++ b/lib/Auth.php
-@@ -239,6 +239,11 @@ class Auth {
+@@ -244,6 +244,11 @@ class Auth {
          return $this->auth_instance()->domainadmin_get_configuration($domain, $variablename);
      }
  
@@ -15,10 +15,10 @@ index 6833aa7..9272a73 100644
      {
          return $this->auth_instance()->find_recipient($address);
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index c71b7a5..a9a2930 100644
+index 3ac1f43..f105e5f 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -631,6 +631,33 @@ class LDAP extends Net_LDAP3 {
+@@ -638,6 +638,31 @@ class LDAP extends Net_LDAP3 {
          return array('domainadmin' => $maindomainadmin, $config_flag => $resultvalue);
      }
  
@@ -28,9 +28,7 @@ index c71b7a5..a9a2930 100644
 +    {
 +        $quota = 0;
 +        $domains = $this->domainadmin_get_domains($domainadmin);
-+        foreach ($domains as $associateddomain) {
-+            $domain = substr($associateddomain, strlen("associateddomain="));
-+            $domain = substr($domain, 0, strpos($domain, ','));
++        foreach ($domains as $domain) {
 +            // get all users that are part of this domain
 +            $users_result = $this->_search(
 +                               $this->_standard_root_dn($domain),
@@ -53,7 +51,7 @@ index c71b7a5..a9a2930 100644
      {
          $domain = $this->domain_info($domain, array_keys($attributes));
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
-index f980f81..c3d2972 100644
+index 79a4720..f0d99ec 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
 @@ -1234,7 +1234,66 @@ class kolab_api_service_form_value extends kolab_api_service

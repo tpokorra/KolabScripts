@@ -1,5 +1,5 @@
 diff --git a/lib/Auth.php b/lib/Auth.php
-index 9272a73..295eccc 100644
+index f91198a..f63a591 100644
 --- a/lib/Auth.php
 +++ b/lib/Auth.php
 @@ -214,6 +214,11 @@ class Auth {
@@ -15,10 +15,10 @@ index 9272a73..295eccc 100644
      {
          return $this->auth_instance()->domain_edit($domain, $attributes, $typeid);
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index a9a2930..5abc887 100644
+index f105e5f..105ac95 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -658,6 +658,28 @@ class LDAP extends Net_LDAP3 {
+@@ -663,6 +663,26 @@ class LDAP extends Net_LDAP3 {
          return $quota;
      }
  
@@ -27,9 +27,7 @@ index a9a2930..5abc887 100644
 +    {
 +        $numberOfAccounts = 0;
 +        $domains = $this->domainadmin_get_domains($domainadmin);
-+        foreach ($domains as $associateddomain) {
-+            $domain = substr($associateddomain, strlen("associateddomain="));
-+            $domain = substr($domain, 0, strpos($domain, ','));
++        foreach ($domains as $domain) {
 +            // get all users that are part of this domain
 +            $users_result = $this->_search(
 +                               $this->_standard_root_dn($domain),
