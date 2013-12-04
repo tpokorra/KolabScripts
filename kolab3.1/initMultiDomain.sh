@@ -35,11 +35,11 @@ do
   cp $f $f3
   if [[ "/etc/postfix/ldap/mydestination.cf" == "$f" ]]
   then
-    sed -r -i -e 's/^query_filter = .*$/query_filter = (&(associateddomain=%s)(associateddomain=*.*.*))/g' $f3
+    sed -r -i -e 's/^query_filter = .*$/query_filter = (\&(associateddomain=%s)(associateddomain=*.*.*))/g' $f3
   else
     sed -r -i -e 's/^search_base = .*$/search_base = dc=%2,dc=%1/g' $f
     sed -r -i -e 's/^search_base = .*$/search_base = dc=%3,dc=%2,dc=%1/g' $f3
-    sed -r -i -e 's/^domain = .*$/domain = ldap:/etc/postfix/ldap/mydestination_3.cf/g' $f3
+    sed -r -i -e 's#^domain = .*$#domain = ldap:/etc/postfix/ldap/mydestination_3.cf#g' $f3
   fi
 done
 
@@ -55,11 +55,11 @@ sed -r -i -e 's#^local_recipient_maps = .*$#local_recipient_maps = ldap:/etc/pos
 postfix_virtual_file=/etc/postfix/virtual_alias_maps_manual.cf
 if [ ! -f $postfix_virtual_file ]
 then
-    echo "# you can manually set aliases, across domains. " > $filename
-    echo "# for example: " >> $filename
-    echo "#myalias@test2.de mymailbox@test.de" >> $filename
-    echo "#@test4.de @test.de" >> $filename
-    echo "#@pokorra.it timotheus.pokorra@test1.de" >> $filename
+    echo "# you can manually set aliases, across domains. " > $postfix_virtual_file
+    echo "# for example: " >> $postfix_virtual_file
+    echo "#myalias@test2.de mymailbox@test.de" >> $postfix_virtual_file
+    echo "#@test4.de @test.de" >> $postfix_virtual_file
+    echo "#@pokorra.it timotheus.pokorra@test1.de" >> $postfix_virtual_file
 fi
 sed -i -e "s#ldap:/etc/postfix/ldap/virtual_alias_maps.cf#ldap:/etc/postfix/ldap/virtual_alias_maps.cf, hash:$postfix_virtual_file#" /etc/postfix/main.cf
 postmap $postfix_virtual_file
@@ -111,7 +111,7 @@ sed -r -i -e "s/\[kolab\]/[kolab]\nsleep_between_domain_operations_in_seconds = 
 #make sure that for alias domains, the emails will actually arrive, by checking the postfix file
 #see https://issues.kolab.org/show_bug.cgi?id=2658
 #####################################################################################
-sed -r -i -e "s/\[kolab\]/[kolab]\npostfix_virtual_file = $postfix_virtual_file/g" /etc/kolab/kolab.conf
+sed -r -i -e "s#\[kolab\]#[kolab]\npostfix_virtual_file = $postfix_virtual_file#g" /etc/kolab/kolab.conf
 
 #####################################################################################
 #avoid a couple of warnings by setting default values
