@@ -157,6 +157,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
                     mail_quota = None,
                     username = None,
                     alias = None,
+                    forward_to = None,
                     expected_message_contains = None):
         driver = self.driver
         driver.get(driver.current_url)
@@ -165,12 +166,23 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.wait_loading()
         elem = driver.find_element_by_xpath("//span[@class=\"formtitle\"]")
         self.assertEquals("Add User", elem.text, "form should have title Add User, but was: " + elem.text)
+        
         elem = driver.find_element_by_name("givenname")
         if username is None:
             username = prefix + datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         elem.send_keys(username)
         elem = driver.find_element_by_name("sn");
         elem.send_keys(username)
+
+        if forward_to is not None:
+            # create a user of account type Mail Forwarding
+            self.wait_loading(1.0)
+            driver.find_element_by_xpath("//select[@name='type_id']/option[text()='Mail Forwarding']").click()
+            self.wait_loading(1.0)
+            driver.find_element_by_link_text("Configuration").click()
+            self.wait_loading(1.0)
+            elem = driver.find_element_by_name("mailforwardingaddress[0]")
+            elem.send_keys(forward_to)
 
         if overall_quota is not None or default_quota is not None or max_accounts is not None or allow_groupware is not None:
             elem = driver.find_element_by_link_text("Domain Administrator")
@@ -230,9 +242,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
         # store the email address for later login
         elem = driver.find_element_by_link_text("Contact Information")
         elem.click()
+        self.wait_loading(0.5)
         elem = driver.find_element_by_name("mail")
-        # somehow a short wait is necessary for the email to be calculated from firstname and surname
-        time.sleep(0.5)
         emailLogin = elem.get_attribute('value')
         self.assertNotEquals(0, emailLogin.__len__(), "email should be set automatically, but length is 0")
 
