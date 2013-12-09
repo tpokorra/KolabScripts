@@ -87,8 +87,8 @@ service cyrus-imapd restart
 #####################################################################################
 usermod -G mail,$sslgroup postfix
 postconf -e smtpd_tls_key_file=$key_directory/private/$server_name.key
-postconf -e smtpd_tls_cert_file=$key_directory/certs/$server_name.crt
-postconf -e smtpd_tls_CAfile=$key_directory/certs/$server_name.ca-chain.pem
+postconf -e smtpd_tls_cert_file=$key_directory/private/$server_name.crt
+postconf -e smtpd_tls_CAfile=$key_directory/private/$server_name.ca-chain.pem
 service postfix restart
 
 #####################################################################################
