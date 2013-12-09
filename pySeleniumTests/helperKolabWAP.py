@@ -245,7 +245,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         return username, emailLogin, password
 
-    def SendEmail(self, recipientEmailAddress):
+    def send_email(self, recipientEmailAddress):
         driver = self.driver
         emailSubjectLine = "subject" + datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
@@ -262,7 +262,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         return emailSubjectLine
 
-    def CheckEmailReceived(self, emailSubjectLine):
+    def check_email_received(self, emailSubjectLine):
         driver = self.driver
 
         url = driver.current_url[:driver.current_url.find("?")]
