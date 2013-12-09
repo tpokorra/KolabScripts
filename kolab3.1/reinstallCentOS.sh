@@ -33,7 +33,7 @@ service dirsrv stop
 service wallace stop
 service httpd stop
 
-yum -y remove 389\* cyrus-imapd\* postfix\* mysql-server\* roundcube\* pykolab\* kolab\* libkolab\* kolab-3\*
+yum -y remove 389\* cyrus-imapd\* postfix\* mysql-server\* roundcube\* pykolab\* kolab\* libkolab\* kolab-3\* httpd
 
 echo "deleting files..."
 rm -Rf \
