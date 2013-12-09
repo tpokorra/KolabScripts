@@ -38,7 +38,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         driver.get(url)
 
-        # login the Directory Manager
+        # login the user
         elem = driver.find_element_by_id("login_name")
         elem.send_keys(username)
         elem = driver.find_element_by_id("login_pass")
@@ -55,6 +55,39 @@ class KolabWAPTestHelpers(unittest.TestCase):
     # logout the current user
     def logout_kolab_wap(self):
         self.driver.find_element_by_class_name("logout").click()
+        self.log("User has logged out")
+
+    # login any user to roundcube
+    def login_roundcube(self, url, username, password):
+        driver = self.driver
+
+        if url[0] == '/':
+            url = "https://localhost" + url
+
+        driver.get(url)
+
+        # login the user
+        elem = driver.find_element_by_id("rcmloginuser")
+        elem.send_keys(username)
+        elem = driver.find_element_by_id("rcmloginpwd")
+        elem.send_keys(password)
+        driver.find_element_by_xpath("//form/p/input[@class='button mainaction']").click()
+        self.wait_loading()
+
+        # verify success of login
+        elem = driver.find_element_by_class_name("username")
+        self.log( "User is logged in: " + elem.text)
+        return True
+
+    # logout the current user
+    def logout_roundcube(self):
+        driver = self.driver
+        #self.driver.find_element_by_xpath("//div[@id=\"topnav\"]/div[@id=\"taskbar\"]/a[@class=\"button-logout\"]").click()
+        url = driver.current_url[:driver.current_url.find("?")]
+        driver.get(url + "?_task=logout")
+        self.wait_loading()
+        elem = driver.find_element_by_class_name("notice")
+        self.assertEquals("You have successfully terminated the session. Good bye!", elem.text, "should have logged out")
         self.log("User has logged out")
 
     # create a new domain and select it
@@ -211,6 +244,35 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.log("User " + username + " has been created. Login with " + emailLogin + " and password " + password)
 
         return username, emailLogin, password
+
+    def SendEmail(self, recipientEmailAddress):
+        driver = self.driver
+        emailSubjectLine = "subject" + datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+
+        driver.find_element_by_xpath("//div[@id=\"messagetoolbar\"]/a[@class=\"button compose\"]").click()
+        self.wait_loading()
+        elem = driver.find_element_by_name("_to")
+        elem.send_keys(recipientEmailAddress)
+        elem = driver.find_element_by_name("_subject")
+        elem.send_keys(emailSubjectLine)
+        elem = driver.find_element_by_name("_message")
+        elem.send_keys("Hello World")
+        driver.find_element_by_xpath("//div[@id=\"mailtoolbar\"]/a[@class=\"button send\"]").click()
+        self.wait_loading()
+
+        return emailSubjectLine
+
+    def CheckEmailReceived(self, emailSubjectLine):
+        driver = self.driver
+
+        url = driver.current_url[:driver.current_url.find("?")]
+        driver.get(url + "?_task=mail&_mbox=INBOX")
+        self.wait_loading(0.5)
+        driver.find_element_by_xpath("//ul[@id=\"mailboxlist\"]/li[starts-with(@class, \"mailbox inbox\")]").click()
+        self.wait_loading()
+        
+        elem = driver.find_element_by_xpath("//table[@id=\"messagelist\"]/tbody/tr/td[@class=\"subject\"]/a")
+        self.assertEquals(emailSubjectLine, elem.text, "email subject should be " + emailSubjectLine + " but was " + elem.text)
 
     def log_current_page(self):
         filename = "/tmp/output" + datetime.datetime.now().strftime("%Y%m%d%H%M%S") + ".html"
