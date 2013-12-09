@@ -54,7 +54,7 @@ diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_servic
 index 79a4720..f0d99ec 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1234,7 +1234,66 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1237,7 +1237,66 @@ class kolab_api_service_form_value extends kolab_api_service
  
      private function validate_mailquota($value, $postdata = array(), $validation_type = null)
      {

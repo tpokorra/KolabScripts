@@ -10,7 +10,7 @@ diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_servic
                  throw new Exception("Invalid email address '$mail_address'", 692);
              }
  
-@@ -1354,7 +1354,7 @@
+@@ -1357,7 +1357,7 @@
          return array('list' => $result);
      }
  
@@ -19,7 +19,7 @@ diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_servic
      {
          $valid = true;
  
-@@ -1366,7 +1366,7 @@
+@@ -1369,7 +1369,7 @@
              $domain = substr($mail_address, $at_index+1);
              $local = substr($mail_address, 0, $at_index);
  
@@ -28,7 +28,7 @@ diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_servic
                  // local part length exceeded
                  //console("Local part of email address is longer than permitted");
                  $valid = false;
-@@ -1376,7 +1376,7 @@
+@@ -1379,7 +1379,7 @@
                  //console("Domain part of email address is longer than permitted");
                  $valid = false;
  
@@ -37,7 +37,7 @@ diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_servic
                  // local part starts or ends with '.'
                  //console("Local part of email address starts or ends with '.'");
                  $valid = false;
-@@ -1396,7 +1396,7 @@
+@@ -1399,7 +1399,7 @@
                  //console("Domain part contains two consecutive dots");
                  $valid = false;
  

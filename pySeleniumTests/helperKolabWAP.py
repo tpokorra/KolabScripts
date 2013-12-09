@@ -1,6 +1,7 @@
 import unittest
 import time
 import datetime
+import string
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
@@ -76,6 +77,13 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         # verify success of login
         elem = driver.find_element_by_class_name("username")
+        
+        # check that there is no error about non existing mailbox
+        if "Server Error: STATUS: Mailbox does not exist" in self.driver.page_source:
+            self.assertEquals("no error", "there was an error", "Server Error: STATUS: Mailbox does not exist")
+        if "Server Error! (No connection)" in self.driver.page_source:
+            self.assertEquals("no error", "there was an error", "Server Error! (No connection)")
+
         self.log( "User is logged in: " + elem.text)
         return True
 
@@ -91,7 +99,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.log("User has logged out")
 
     # create a new domain and select it
-    def create_domain(self, domainadmin = None):
+    def create_domain(self, domainadmin = None, withAliasDomain = False):
 
         driver = self.driver
         driver.get(driver.current_url)
@@ -103,6 +111,12 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem = driver.find_element_by_name("associateddomain[0]")
         domainname = "domain" + datetime.datetime.now().strftime("%Y%m%d%H%M%S") + ".de"
         elem.send_keys(domainname)
+
+        if withAliasDomain == True:
+            aliasdomainname = string.replace(domainname, "domain", "alias")
+            driver.find_element_by_xpath("//textarea[@name=\"associateddomain\"]/following-sibling::*[1]/span[@class=\"listelement\"]/span[@class=\"actions\"]/span[@class=\"add\"]").click()
+            elem = driver.find_element_by_xpath("//textarea[@name=\"associateddomain\"]/following-sibling::*[1]/span[2]/input");
+            elem.send_keys(aliasdomainname)
 
         if domainadmin is not None:
             elem = driver.find_element_by_link_text("Domain Administrators")
@@ -141,6 +155,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
                     default_quota_verify = None,
                     default_role_verify = None,
                     mail_quota = None,
+                    username = None,
+                    alias = None,
                     expected_message_contains = None):
         driver = self.driver
         driver.get(driver.current_url)
@@ -150,7 +166,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem = driver.find_element_by_xpath("//span[@class=\"formtitle\"]")
         self.assertEquals("Add User", elem.text, "form should have title Add User, but was: " + elem.text)
         elem = driver.find_element_by_name("givenname")
-        username = prefix + datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        if username is None:
+            username = prefix + datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         elem.send_keys(username)
         elem = driver.find_element_by_name("sn");
         elem.send_keys(username)
@@ -209,7 +226,6 @@ class KolabWAPTestHelpers(unittest.TestCase):
                 self.assertEquals(default_role_verify,
                         elem.get_attribute('value'), 
                         "default role should be " + default_role_verify + " but was " + elem.get_attribute('value'))
-            
 
         # store the email address for later login
         elem = driver.find_element_by_link_text("Contact Information")
@@ -219,7 +235,13 @@ class KolabWAPTestHelpers(unittest.TestCase):
         time.sleep(0.5)
         emailLogin = elem.get_attribute('value')
         self.assertNotEquals(0, emailLogin.__len__(), "email should be set automatically, but length is 0")
-        
+
+        if alias is not None:
+            driver.find_element_by_xpath("//textarea[@name=\"alias\"]/following-sibling::*[1]/span[@class=\"listelement\"]/span[@class=\"actions\"]/span[@class=\"add\"]").click()
+            elem = driver.find_element_by_xpath("//textarea[@name=\"alias\"]/following-sibling::*[1]/span[2]/input");
+            elem.send_keys(alias)
+            self.wait_loading(1.0)
+
         elem = driver.find_element_by_link_text("System")
         elem.click()
         elem = driver.find_element_by_name("userpassword")
