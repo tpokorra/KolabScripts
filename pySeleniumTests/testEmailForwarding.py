@@ -46,6 +46,35 @@ class KolabEmailMailForwarding(unittest.TestCase):
         kolabWAPhelper.check_email_received(subject)
         kolabWAPhelper.logout_roundcube()
 
+    def test_mail_forwarding_external(self):
+        kolabWAPhelper = self.kolabWAPhelper
+        kolabWAPhelper.log("Running test: test_mail_forwarding_external")
+
+        # login Directory Manager, create a user
+        kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
+
+        # please modify following line to add a domain that actually can receive emails, ie. has a valid MX record
+        enabled_maildomain="soliderp.net"
+        # quit the test if that domain does not exist in the current setup
+        kolabWAPhelper.select_domain(enabled_maildomain);
+
+        # add the user
+        username, emailLogin, password = kolabWAPhelper.create_user()
+
+        # create a forward address
+        # using an external echo address (see https://de.wikipedia.org/wiki/Echo-Mailer)
+        username2, emailForwardAddress, password2 = kolabWAPhelper.create_user(forward_to="echo@tu-berlin.de")
+
+        kolabWAPhelper.logout_kolab_wap()
+
+        # login user to roundcube and check for email
+        kolabWAPhelper.login_roundcube("/roundcubemail", emailLogin, password)
+        print "sending email to " + emailForwardAddress
+        emailSubjectLine = kolabWAPhelper.send_email(emailForwardAddress)
+        kolabWAPhelper.wait_loading(5.0)
+        kolabWAPhelper.check_email_received("Re: " + emailSubjectLine)
+        kolabWAPhelper.logout_roundcube()
+
     def tearDown(self):
         
         # write current page for debugging purposes
