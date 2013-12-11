@@ -4,6 +4,7 @@ import datetime
 import string
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import NoSuchElementException
 
 # useful functions for testing kolab-webadmin
 class KolabWAPTestHelpers(unittest.TestCase):
@@ -137,7 +138,11 @@ class KolabWAPTestHelpers(unittest.TestCase):
         return domainname
 
     def get_selected_domain(self):
-        elem = self.driver.find_element_by_id("selectlabel_domain")
+        try:
+            elem = self.driver.find_element_by_id("selectlabel_domain")
+        except NoSuchElementException, e:
+            # there is only one domain, no dropdown control
+            elem = self.driver.find_element_by_id("domain-selector")
         return elem.text
 
     def select_domain(self, domainname):
@@ -153,7 +158,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
     # create new shared folder
     # expects a list of delegate email addresses
-    def create_shared_folder(self, delegates, foldername = None):
+    def create_shared_folder(self, delegates = None, foldername = None):
         driver = self.driver
         driver.get(driver.current_url)
         elem = driver.find_element_by_link_text("Shared Folders")
@@ -173,12 +178,13 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem.send_keys(foldername)
         elem = driver.find_element_by_name("mail")
         elem.send_keys(emailSharedFolder)
-        for delegate in delegates:
-            elem = driver.find_element_by_name("kolabdelegate[-1]")
-            elem.send_keys(delegate)
-            self.wait_loading(1.0)
-            driver.find_element_by_xpath("//div[@id=\"autocompletepane\"]/ul/li").click()
-            self.wait_loading(0.1)
+        if delegates is not None:
+            for delegate in delegates:
+                elem = driver.find_element_by_name("kolabdelegate[-1]")
+                elem.send_keys(delegate)
+                self.wait_loading(1.0)
+                driver.find_element_by_xpath("//div[@id=\"autocompletepane\"]/ul/li").click()
+                self.wait_loading(0.1)
 
         driver.find_element_by_link_text("Other").click()
         self.wait_loading(1.0)
@@ -218,7 +224,13 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.wait_loading()
         elem = driver.find_element_by_xpath("//span[@class=\"formtitle\"]")
         self.assertEquals("Add User", elem.text, "form should have title Add User, but was: " + elem.text)
-        
+
+        # workaround for Kolab 3.1 vanilla: default new account is Contact. Select Kolab User instead
+        elem = driver.find_element_by_xpath("//select[@name='type_id']/option[@selected='selected']")
+        if elem.text == "Contact":
+            driver.find_element_by_xpath("//select[@name='type_id']/option[text()='Kolab User']").click()
+            self.wait_loading(1.0)
+
         elem = driver.find_element_by_name("givenname")
         if username is None:
             username = prefix + datetime.datetime.now().strftime("%Y%m%d%H%M%S")
