@@ -136,16 +136,66 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         return domainname
 
+    def get_selected_domain(self):
+        elem = self.driver.find_element_by_id("selectlabel_domain")
+        return elem.text
+
     def select_domain(self, domainname):
         driver = self.driver
         url = driver.current_url[:driver.current_url.find("?")]
         driver.get(url + "?domain=" + domainname)
-        elem = driver.find_element_by_id("selectlabel_domain")
-        self.assertEquals(domainname, elem.text, "selected domain: expected " + domainname + " but was " + elem.text)
+        selecteddomain = get_selected_domain()
+        self.assertEquals(domainname, selecteddomain, "selected domain: expected " + domainname + " but was " + selecteddomain)
         if not ">Users<" in driver.page_source:
             self.fail("selecting the domain did not work, no users menu item is available")
 
         self.log("Domain " + domainname + " has been selected")
+
+    # create new shared folder
+    # expects a list of delegate email addresses
+    def create_shared_folder(self, delegates, foldername = None):
+        driver = self.driver
+        driver.get(driver.current_url)
+        elem = driver.find_element_by_link_text("Shared Folders")
+        elem.click()
+        self.wait_loading()
+        elem = driver.find_element_by_xpath("//span[@class=\"formtitle\"]")
+        self.assertEquals("Add Shared Folder", elem.text, "form should have title Add Shared Folder, but was: " + elem.text)
+
+        if foldername is None:
+            foldername = "folder" + datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        emailSharedFolder = foldername + "@" + self.get_selected_domain()
+
+        # create a shared Mail folder
+        driver.find_element_by_xpath("//select[@name='type_id']/option[text()='Shared Mail Folder']").click()
+        self.wait_loading(1.0)
+        elem = driver.find_element_by_name("cn")
+        elem.send_keys(foldername)
+        elem = driver.find_element_by_name("mail")
+        elem.send_keys(emailSharedFolder)
+        for delegate in delegates:
+            elem = driver.find_element_by_name("kolabdelegate[-1]")
+            elem.send_keys(delegate)
+            self.wait_loading(1.0)
+            driver.find_element_by_xpath("//div[@id=\"autocompletepane\"]/ul/li").click()
+            self.wait_loading(0.1)
+
+        driver.find_element_by_link_text("Other").click()
+        self.wait_loading(1.0)
+        elem = driver.find_element_by_name("kolabtargetfolder")
+        elem.send_keys("shared/" + emailSharedFolder)
+        
+        elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
+        elem.click()
+
+        self.wait_loading()
+        elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
+
+        self.assertEquals("Shared folder created successfully.", elem.text, "Shared Folder was not saved successfully, message: " + elem.text)
+
+        self.log("Shared Folder " + emailSharedFolder + " has been created")
+
+        return emailSharedFolder, foldername
 
     # create new user account in currently selected domain
     def create_user(self,
@@ -297,17 +347,26 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         return emailSubjectLine
 
-    def check_email_received(self, emailSubjectLine):
+    def check_email_received(self, folder="INBOX", emailSubjectLine = None, emailSubjectLineDoesNotContain = None):
         driver = self.driver
 
         url = driver.current_url[:driver.current_url.find("?")]
-        driver.get(url + "?_task=mail&_mbox=INBOX")
+        driver.get(url + "?_task=mail&_mbox=" + folder)
         self.wait_loading(0.5)
-        driver.find_element_by_xpath("//ul[@id=\"mailboxlist\"]/li[starts-with(@class, \"mailbox inbox\")]").click()
-        self.wait_loading()
-        
-        elem = driver.find_element_by_xpath("//table[@id=\"messagelist\"]/tbody/tr/td[@class=\"subject\"]/a")
-        self.assertEquals(emailSubjectLine, elem.text, "email subject should be " + emailSubjectLine + " but was " + elem.text)
+
+        try:
+            elem = driver.find_element_by_xpath("//table[@id=\"messagelist\"]/tbody/tr/td[@class=\"subject\"]/a")
+        except NoSuchElementException, e:
+            if emailSubjectLine is not None:
+                self.assertEquals(emailSubjectLine, "empty", "email subject should be " + emailSubjectLine + " but there was no email at all")
+            return
+
+        if emailSubjectLine is not None:
+            self.assertEquals(emailSubjectLine, elem.text, "email subject should be " + emailSubjectLine + " but was " + elem.text)
+
+        if emailSubjectLineDoesNotContain is not None:
+            if emailSubjectLineDoesNotContain in elem.text:
+                self.assertTrue(False, "email subject should not contain " + emailSubjectLineDoesNotContain + " but was " + elem.text)
 
     def log_current_page(self):
         filename = "/tmp/output" + datetime.datetime.now().strftime("%Y%m%d%H%M%S") + ".html"
