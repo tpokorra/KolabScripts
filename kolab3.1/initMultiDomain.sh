@@ -44,9 +44,9 @@ do
 done
 
 cp -f /etc/postfix/main.cf /etc/postfix/main.cf.beforeMultiDomain
-sed -r -i -e 's#^transport_maps = .*$#transport_maps = ldap:/etc/postfix/ldap/transport_maps.cf, ldap:/etc/postfix/ldap/transport_maps_3.cf#g' /etc/postfix/main.cf
-sed -r -i -e 's#^virtual_alias_maps = .*$#virtual_alias_maps = $alias_maps, ldap:/etc/postfix/ldap/virtual_alias_maps.cf, ldap:/etc/postfix/ldap/mailenabled_distgroups.cf, ldap:/etc/postfix/ldap/mailenabled_dynamic_distgroups.cf, ldap:/etc/postfix/ldap/virtual_alias_maps_3.cf, ldap:/etc/postfix/ldap/mailenabled_distgroups_3.cf, ldap:/etc/postfix/ldap/mailenabled_dynamic_distgroups_3.cf#g' /etc/postfix/main.cf
-sed -r -i -e 's#^local_recipient_maps = .*$#local_recipient_maps = ldap:/etc/postfix/ldap/local_recipient_maps.cf, ldap:/etc/postfix/ldap/local_recipient_maps_3.cf#g' /etc/postfix/main.cf
+sed -r -i -e 's#transport_maps.cf#transport_maps.cf, ldap:/etc/postfix/ldap/transport_maps_3.cf#g' /etc/postfix/main.cf
+sed -i -e 's#virtual_alias_maps.cf#virtual_alias_maps.cf, ldap:/etc/postfix/ldap/virtual_alias_maps_3.cf, ldap:/etc/postfix/ldap/mailenabled_distgroups_3.cf, ldap:/etc/postfix/ldap/mailenabled_dynamic_distgroups_3.cf, ldap:/etc/postfix/ldap/virtual_alias_maps_sharedfolders_3.cf#' /etc/postfix/main.cf
+sed -r -i -e 's#local_recipient_maps.cf#local_recipient_maps.cf, ldap:/etc/postfix/ldap/local_recipient_maps_3.cf#g' /etc/postfix/main.cf
 
 # create a file that can be manipulated manually to allow aliases across domains;
 # eg. user mymailbox@test.de gets emails that are sent to myalias@test2.de;
@@ -61,7 +61,7 @@ then
     echo "#@test4.de @test.de" >> $postfix_virtual_file
     echo "#@pokorra.it timotheus.pokorra@test1.de" >> $postfix_virtual_file
 fi
-sed -i -e "s#ldap:/etc/postfix/ldap/virtual_alias_maps.cf#ldap:/etc/postfix/ldap/virtual_alias_maps.cf, hash:$postfix_virtual_file#" /etc/postfix/main.cf
+sed -i -e "s#virtual_alias_maps.cf#virtual_alias_maps.cf, hash:$postfix_virtual_file#" /etc/postfix/main.cf
 postmap $postfix_virtual_file
 
 service postfix restart
