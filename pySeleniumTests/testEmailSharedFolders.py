@@ -41,6 +41,9 @@ class KolabEmailSharedFolders(unittest.TestCase):
         
         # TODO: why can I see and subscribe to all folders in the domain?
         # can we set permissions who can read the folder? Recipient Access list?
+        # solution: http://lists.kolab.org/pipermail/users/2013-December/016161.html
+        #           quote: Shared folders are created with the ACL "anyone lrs" (anyone read) per default.  
+        #                  After creating them you'll likely adjust the ACLs based on your needs.
         
         print "sending email to " + emailSharedFolder
         emailSubjectLine = kolabWAPhelper.send_email(emailSharedFolder)
