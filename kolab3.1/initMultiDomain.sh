@@ -93,11 +93,6 @@ sed -r -i -e "s#'ou=People,.*'#'ou=People,%dc'#g" /etc/roundcubemail/config.inc.
 sed -r -i -e "s#'ou=Groups,.*'#'ou=Groups,%dc'#g" /etc/roundcubemail/config.inc.php
  
 #####################################################################################
-#fix a problem with kolab lm, see http://lists.kolab.org/pipermail/devel/2013-June/014435.html
-#####################################################################################
-sed -r -i -e "s/kolab_user_filter = /#kolab_user_filter = /g" /etc/kolab/kolab.conf
-
-#####################################################################################
 #set primary_mail value in kolab section, so that new users in a different domain will have a proper primary email address, even without changing kolab.conf for each domain
 #####################################################################################
 sed -r -i -e "s/primary_mail = .*/primary_mail = %(givenname)s.%(surname)s@%(domain)s/g" /etc/kolab/kolab.conf
