@@ -51,6 +51,27 @@ class KolabWAPCreateUserAndEditSelf(unittest.TestCase):
         
         kolabWAPhelper.logout_kolab_wap()
 
+    def test_edit_user_himself_multi_domain(self):
+        kolabWAPhelper = self.kolabWAPhelper
+        kolabWAPhelper.log("Running test: test_edit_user_himself_multi_domain")
+        
+        # login Directory Manager
+        kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
+
+        domainname = kolabWAPhelper.create_domain()
+
+        username, emailLogin, password = kolabWAPhelper.create_user()
+
+        kolabWAPhelper.logout_kolab_wap()
+
+        # login the new user
+        kolabWAPhelper.login_kolab_wap("/kolab-webadmin", emailLogin, password)
+
+        self.helper_user_edits_himself()
+        
+        kolabWAPhelper.logout_kolab_wap()
+
+
     def tearDown(self):
         
         # write current page for debugging purposes

@@ -1,0 +1,35 @@
+From 03585c0d014f483eb9cef81b029250e16aade6da Mon Sep 17 00:00:00 2001
+From: Daniel Hoffend <dh@dotlan.net>
+Date: Fri, 13 Dec 2013 17:41:02 +0100
+Subject: [PATCH] fix ldap attributes/rights for new domains
+
+---
+ lib/Auth/LDAP.php |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
+index ac07d6f..c624f27 100644
+--- a/lib/Auth/LDAP.php
++++ b/lib/Auth/LDAP.php
+@@ -342,7 +342,7 @@ class LDAP extends Net_LDAP3 {
+         // @TODO: this list should be configurable or auto-created somehow
+         $self_attrs = array(
+             'carLicense', 'description', 'displayName', 'facsimileTelephoneNumber', 'homePhone',
+-            'homePostalAddress', 'initials', 'jpegPhoto', 'labeledURI', 'mobile', 'o', 'pager', 'photo',
++            'homePostalAddress', 'initials', 'jpegPhoto', 'l', 'labeledURI', 'mobile', 'o', 'pager', 'photo',
+             'postOfficeBox', 'postalAddress', 'postalCode', 'preferredDeliveryMethod', 'preferredLanguage',
+             'registeredAddress', 'roomNumber', 'secretary', 'seeAlso', 'st', 'street', 'telephoneNumber',
+             'telexNumber', 'title', 'userCertificate', 'userPassword', 'userSMIMECertificate',
+@@ -361,7 +361,7 @@ class LDAP extends Net_LDAP3 {
+             ),
+             'aci' => array(
+                 // Self-modification
+-                "(targetattr = \"" . implode(" || ", $self_attrs) . "\")(version 3.0; acl \"Enable self write for common attributes\"; allow (write) userdn=\"ldap:///self\";)",
++                "(targetattr = \"" . implode(" || ", $self_attrs) . "\")(version 3.0; acl \"Enable self write for common attributes\"; allow (read,compare,search,write)(userdn = \"ldap:///self\");)",
+                 // Directory Administrators
+                 "(targetattr = \"*\")(version 3.0; acl \"Directory Administrators Group\"; allow (all) (groupdn=\"ldap:///cn=Directory Administrators," . $inetdomainbasedn . "\" or roledn=\"ldap:///cn=kolab-admin," . $inetdomainbasedn . "\");)",
+                 // Configuration Administrators
+-- 
+1.7.10.4
+
+

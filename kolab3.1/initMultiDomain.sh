@@ -129,6 +129,8 @@ then
   wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/freebusyMultiDomainBug2630.patch -O patches/freebusyMultiDomainBug2630.patch
   echo Downloading patch validateAliasDomainPostfixVirtualFileBug2658.patch
   wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/validateAliasDomainPostfixVirtualFileBug2658.patch -O patches/validateAliasDomainPostfixVirtualFileBug2658.patch
+  echo Downloading patch fixLDAPPermissionsForSelfBug2678.patch
+  wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/fixLDAPPermissionsForSelfBug2678.patch -O patches/fixLDAPPermissionsForSelfBug2678.patch
 fi
 
 # different paths in debian and centOS
@@ -143,4 +145,5 @@ patch -p1 -i `pwd`/patches/deleteDomainWithUsersBug1869.patch -d /usr/share/kola
 patch -p1 -i `pwd`/patches/sleepTimeBetweenDomainOperationsBug2491.patch -d $pythonDistPackages
 patch -p1 -i `pwd`/patches/freebusyMultiDomainBug2630.patch -d /usr/share/kolab-freebusy
 patch -p1 -i `pwd`/patches/validateAliasDomainPostfixVirtualFileBug2658.patch -d /usr/share/kolab-webadmin
+patch -p1 -i `pwd`/patches/fixLDAPPermissionsForSelfBug2678.patch -d /usr/share/kolab-webadmin
 
