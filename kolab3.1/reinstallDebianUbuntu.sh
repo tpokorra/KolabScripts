@@ -16,7 +16,16 @@ then
   echo "please call $0 <distribution version as on OBS>"
   exit 1
 fi
+
 OBS_repo_OS=$1
+
+if [ -z `hostname -f | awk -F "." '{ print $2 }'` ]
+then
+  echo "FAILURE: please make sure you have configured a FQDN"
+  echo
+  echo
+  exit 1
+fi
 
 service kolab-server stop
 service kolab-saslauthd stop
@@ -91,5 +100,6 @@ Pin-Priority: 501
 FINISH
 
 apt-get update
+apt-get install aptitude
 aptitude install kolab
 
