@@ -2,12 +2,18 @@ Instructions
 ============
 Please also see http://kolab.org/blog/timotheus-pokorra/2013/11/19/kolab-integration-tests-selenium-and-python
 
+Install Selenium:
+```sh
+sudo yum install python-setuptools
+sudo easy_install selenium 
+```
+
 You can use PhantomJS with Selenium to have a headless browser. It is based on Webkit.
 You need to download a binary once, from http://phantomjs.org/download.html:
 
 ```sh
 wget https://phantomjs.googlecode.com/files/phantomjs-1.9.2-linux-x86_64.tar.bz2
-tar xjf phantomjs-1.9.2-linux-x86_64.tar.bz
+tar xjf phantomjs-1.9.2-linux-x86_64.tar.bz2
 cp phantomjs-1.9.2-linux-x86_64/bin/phantomjs /usr/bin
 ```
 
