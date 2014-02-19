@@ -25,6 +25,7 @@ fi
 echo "for the TBits patches for multi domain and ISP setup, please run "
 echo "   ./initSetupKolabPatches.sh"
 echo "   setup-kolab"
+ZONE="Europe/Brussels"
 if [ -f /etc/sysconfig/clock ]
 then
   # CentOS
