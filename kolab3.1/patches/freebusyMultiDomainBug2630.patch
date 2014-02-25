@@ -17,7 +17,7 @@ diff --git a/lib/Kolab/FreeBusy/DirectoryLDAP.php b/lib/Kolab/FreeBusy/Directory
  			// search with configured filter
  			$filter = preg_replace('/%s/i', $user, $this->config['filter']);
 -			$ldapresult = $this->ldap->search($this->config['base_dn'], $filter, 'sub');
-+			$ldapresult = $this->ldap->search($this->config[$base_dn], $filter, 'sub');
++			$ldapresult = $this->ldap->search($base_dn, $filter, 'sub');
  
  			// got a valid result
  			if ($ldapresult && $ldapresult->count()) {
