@@ -22,6 +22,11 @@ else
   fi 
 fi
 
+if [ $? -ne 0 ]
+then
+  exit 1
+fi
+
 echo "for the TBits patches for multi domain and ISP setup, please run "
 echo "   ./initSetupKolabPatches.sh"
 echo "   setup-kolab"
