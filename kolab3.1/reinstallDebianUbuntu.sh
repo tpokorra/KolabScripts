@@ -100,6 +100,6 @@ Pin-Priority: 501
 FINISH
 
 apt-get update
-apt-get install aptitude
-aptitude install kolab
+apt-get -y install aptitude
+aptitude -y install kolab
 
