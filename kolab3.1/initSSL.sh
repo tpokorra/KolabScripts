@@ -10,12 +10,6 @@ export sslgroup=ssl
 export ca_file=startcom-ca.pem
 export ca_subclass_file=startcom-sub.class2.server.ca.pem
 
-if [ -d $key_directory ]
-then
-    # for CentOS: install mod_ssl
-    # yum -y install mod_ssl
-fi
-
 if [ ! -d $key_directory ]
 then
     # Debian: the keys live in a different place
@@ -97,31 +91,39 @@ postconf -e smtpd_tls_CAfile=$key_directory/certs/$server_name.ca-chain.pem
 service postfix restart
 
 #####################################################################################
-# configure Apache mod_nss
+# configure Apache mod_ssl
 #####################################################################################
 # for CentOS:
 if [ -d /etc/httpd ]
 then
-    #certutil -d /etc/httpd/alias -A  -t "CT,," -n "StartCom Certification Authority" -i $key_directory/private/$ca_file
-    pwd=foo
-    openssl pkcs12 -export -in $key_directory/certs/$server_name.crt -inkey $key_directory/private/$server_name.key -out /tmp/$server_name.p12 -name Server-Cert -passout pass:$pwd
-    echo "$pwd" > /tmp/foo
-    pk12util -i /tmp/$server_name.p12 -d /etc/httpd/alias -w /tmp/foo -k /dev/null
-    rm /tmp/foo
-    rm /tmp/$server_name.p12
+    yum -y install mod_ssl
 
-    sed -i -e 's/8443/443/' /etc/httpd/conf.d/nss.conf
-    sed -i -e 's/NSSNickname.*/NSSNickname Server-Cert/' /etc/httpd/conf.d/nss.conf
+    if [ -f /etc/httpd/conf.d/nss.conf ]
+    then
+      # deactivate mod_nss
+      mv /etc/httpd/conf.d/nss.conf /etc/httpd/conf.d/nss.conf.disabled
+    fi
 
-    echo '
+    sed -i -e "s#^SSLCertificateKeyFile.*#SSLCertificateKeyFile $key_directory/private/$server_name.key#" /etc/httpd/conf.d/ssl.conf
+    sed -i -e "s#^SSLCertificateFile.*#SSLCertificateFile $key_directory/certs/$server_name.crt#" /etc/httpd/conf.d/ssl.conf
+    sed -i -e "s/^#SSLCACertificateFile/SSLCACertificateFile/" /etc/httpd/conf.d/ssl.conf
+    sed -i -e "s#^SSLCACertificateFile.*#SSLCACertificateFile $key_directory/certs/$server_name.ca-chain.pem#" /etc/httpd/conf.d/ssl.conf
 
-    <VirtualHost _default_:80>
+    if [[ "`cat /etc/httpd/conf/httpd.conf | grep "VirtualHost _default_:80"`" == "" ]]
+    then
+      echo '
+
+      <VirtualHost _default_:80>
             RewriteEngine On
             RewriteRule ^(.*)$ https://%{HTTP_HOST}$1 [R=301,L]
-    </VirtualHost>
-    ' >> /etc/httpd/conf/httpd.conf
+      </VirtualHost>
+      ' >> /etc/httpd/conf/httpd.conf
+    fi
 
-    sed -i -e 's/<\/VirtualHost>/\tRedirectMatch ^\/$ \/roundcubemail\/\n<\/VirtualHost>/' /etc/httpd/conf.d/nss.conf
+    if [[ "`cat /etc/httpd/conf.d/ssl.conf | grep "roundcubemail"`" == "" ]]
+    then
+      sed -i -e 's/<\/VirtualHost>/\tRedirectMatch ^\/$ \/roundcubemail\/\n<\/VirtualHost>/' /etc/httpd/conf.d/ssl.conf
+    fi
 
     service httpd restart
 # for Debian
