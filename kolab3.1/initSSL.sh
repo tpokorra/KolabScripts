@@ -64,7 +64,8 @@ then
     cd ..
 
     groupadd $sslgroup
-    chmod -R 640 $key_directory/*
+    chmod -R 640 $key_directory/private/*
+    chmod -R 640 $key_directory/certs/*
     chown -R root:$sslgroup $key_directory/*
 
     # cat $key_directory/certs/$ca_file >> $key_directory/certs/ca-bundle.crt
