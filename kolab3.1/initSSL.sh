@@ -109,6 +109,11 @@ then
     sed -i -e "s/^#SSLCACertificateFile/SSLCACertificateFile/" /etc/httpd/conf.d/ssl.conf
     sed -i -e "s#^SSLCACertificateFile.*#SSLCACertificateFile $key_directory/certs/$server_name.ca-chain.pem#" /etc/httpd/conf.d/ssl.conf
 
+    # fix fully qualified hostname for httpd
+    hostname=`hostname`
+    sed -i -e "s/^#ServerName/ServerName/" /etc/httpd/conf/httpd.conf
+    sed -i -e "s#^ServerName.*#ServerName $hostname:443#" /etc/httpd/conf/httpd.conf
+
     if [[ "`cat /etc/httpd/conf/httpd.conf | grep "VirtualHost _default_:80"`" == "" ]]
     then
       echo '
