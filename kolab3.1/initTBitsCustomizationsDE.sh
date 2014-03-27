@@ -28,6 +28,21 @@ sed -r -i -e "s# = 0;# = 1;#g" /etc/roundcubemail/kolab_addressbook.inc.php
 # change default names for calendar and address book
 sed -r -i -e "s#Calendar#Kalender#g" /etc/roundcubemail/kolab_folders.inc.php
 sed -r -i -e "s#Contacts#Kontakte#g" /etc/roundcubemail/kolab_folders.inc.php
+sed -r -i -e "s#Sent#Gesendet#g" /etc/roundcubemail/kolab_folders.inc.php
+sed -r -i -e "s#Drafts#Entwürfe#g" /etc/roundcubemail/kolab_folders.inc.php
+sed -r -i -e "s#Trash#Papierkorb#g" /etc/roundcubemail/kolab_folders.inc.php
+#sed -r -i -e "s#Spam#Spam#g" /etc/roundcubemail/kolab_folders.inc.php
+sed -r -i -e "s#kolab_folders_task_default'\] = ''#kolab_folders_task_default'] = 'Aufgaben'#g" /etc/roundcubemail/kolab_folders.inc.php
+sed -r -i -e "s#kolab_folders_note_default'\] = ''#kolab_folders_note_default'] = 'Notizen'#g" /etc/roundcubemail/kolab_folders.inc.php
+#sed -r -i -e "s#kolab_folders_journal_default'\] = ''#kolab_folders_journal_default'] = 'Journal'#g" /etc/roundcubemail/kolab_folders.inc.php
+
+sed -r -i -e "s#'Calendar'#'Kalender'#g" /etc/kolab/kolab.conf
+sed -r -i -e "s#'Contacts'#'Kontakte'#g" /etc/kolab/kolab.conf
+sed -r -i -e "s#'Sent'#'Gesendet'#g" /etc/kolab/kolab.conf
+sed -r -i -e "s#'Drafts'#'Entwürfe'#g" /etc/kolab/kolab.conf
+sed -r -i -e "s#'Trash'#'Papierkorb'#g" /etc/kolab/kolab.conf
+sed -r -i -e "s#'Tasks'#'Aufgaben'#g" /etc/kolab/kolab.conf
+sed -r -i -e "s#'Notes'#'Notizen'#g" /etc/kolab/kolab.conf
 
 # change default language
 sed -r -i -e "s#// Re-apply mandatory settings here.#// Re-apply mandatory settings here.\n    \$config['locale_string'] = 'de';#g" /etc/roundcubemail/config.inc.php
