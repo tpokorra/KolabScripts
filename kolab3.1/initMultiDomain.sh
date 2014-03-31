@@ -1,10 +1,14 @@
 #!/bin/bash
 
 if ( which yum ); then
-  yum -y install wget patch
+  if ( ! which wget || ! which patch ); then
+    yum -y install wget patch
+  fi
 else
   if (which apt-get); then
-    apt-get -y install wget patch;
+    if ( ! which wget || ! which patch ); then
+      apt-get -y install wget patch;
+    fi
   else echo "Neither yum nor apt-get available. On which platform are you?";
   exit 0
   fi

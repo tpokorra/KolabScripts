@@ -1,14 +1,27 @@
 #!/bin/bash
 
-yum -y install wget patch unzip
+if ( which yum ); then
+  if ( ! which wget || ! which patch ); then
+    yum -y install wget patch
+  fi
+else
+  if (which apt-get); then
+    if ( ! which wget || ! which patch ); then
+      apt-get -y install wget patch;
+    fi
+  else echo "Neither yum nor apt-get available. On which platform are you?";
+  exit 0
+  fi
+fi
+
 
 #####################################################################################
 # install our modified version of the message_label plugin to support virtual folders aka imap flags
 # see  https://github.com/tpokorra/message_label/tree/message_label_tbits
 #####################################################################################
-wget https://github.com/tpokorra/message_label/archive/message_label_tbits.zip -O message_label.zip
-unzip message_label.zip
-rm -f message_label.zip
+wget https://github.com/tpokorra/message_label/archive/message_label_tbits.tar.gz -O message_label.tar.gz
+tar -xzf message_label.tar.gz
+rm -f message_label.tar.gz
 mv message_label-message_label_tbits /usr/share/roundcubemail/plugins/message_label
 cp -f /etc/roundcubemail/config.inc.php /etc/roundcubemail/config.inc.php.beforeMultiDomain
 sed -r -i -e "s#'redundant_attachments',#'redundant_attachments',\n            'message_label',#g" /etc/roundcubemail/config.inc.php
@@ -30,9 +43,9 @@ patch -p1 -i `pwd`/patches/managesieveWithMessagelabel.patch -d /usr/share/round
 # install the advanced_search plugin
 # see https://github.com/GMS-SA/roundcube-advanced-search
 #####################################################################################
-wget https://github.com/GMS-SA/roundcube-advanced-search/archive/stable.zip -O advanced_search.zip
-unzip advanced_search.zip
-rm -f advanced_search.zip
+wget https://github.com/GMS-SA/roundcube-advanced-search/archive/stable.zip -O advanced_search.tar.gz
+tar xzf advanced_search.tar.gz
+rm -f advanced_search.tar.gz
 mv roundcube-advanced-search-stable /usr/share/roundcubemail/plugins/advanced_search
 mv /usr/share/roundcubemail/plugins/advanced_search/config-default.inc.php /usr/share/roundcubemail/plugins/advanced_search/config.inc.php
 sed -r -i -e "s#messagemenu#toolbar#g" /usr/share/roundcubemail/plugins/advanced_search/config.inc.php
