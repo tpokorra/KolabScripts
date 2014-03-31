@@ -48,6 +48,8 @@ apt-get remove 389\* cyrus-imapd\* postfix\* mysql-server\* roundcube\* pykolab\
 echo "deleting files..."
 rm -Rf \
     /etc/postfix \
+    /etc/ssl/private/example* \
+    /etc/ssl/certs/example* \
     /etc/dirsrv/slapd-* \
     /usr/lib64/dirsrv \
     /usr/share/kolab-webadmin \

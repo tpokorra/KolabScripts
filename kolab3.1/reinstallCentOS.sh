@@ -41,6 +41,7 @@ rm -Rf \
     /etc/kolab \
     /etc/postfix \
     /etc/pki/tls/private/example* \
+    /etc/pki/tls/certs/example* \
     /etc/roundcubemail \
     /usr/lib64/dirsrv \
     /usr/share/kolab-webadmin \
