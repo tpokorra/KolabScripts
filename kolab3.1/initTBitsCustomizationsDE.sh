@@ -64,13 +64,13 @@ do
   if [[ $skip -gt 0 ]]
   then
     skip=$((skip-1))
-    echo $line
+    #echo $line
     continue;
   fi
   test=`echo $line | grep -e "Calendar/Personal Calendar" -e "Contacts/Personal Contacts" `
   if [[ ${#test} -gt 0 ]]
   then
-    echo $test;
+    #echo $test;
     skip=4
     continue;
   fi
