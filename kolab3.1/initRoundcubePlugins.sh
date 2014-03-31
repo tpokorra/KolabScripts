@@ -43,7 +43,7 @@ patch -p1 -i `pwd`/patches/managesieveWithMessagelabel.patch -d /usr/share/round
 # install the advanced_search plugin
 # see https://github.com/GMS-SA/roundcube-advanced-search
 #####################################################################################
-wget https://github.com/GMS-SA/roundcube-advanced-search/archive/stable.zip -O advanced_search.tar.gz
+wget https://github.com/GMS-SA/roundcube-advanced-search/archive/stable.tar.gz -O advanced_search.tar.gz
 tar -xzf advanced_search.tar.gz
 rm -f advanced_search.tar.gz
 mv roundcube-advanced-search-stable /usr/share/roundcubemail/plugins/advanced_search
