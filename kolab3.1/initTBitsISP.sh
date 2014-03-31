@@ -77,15 +77,17 @@ sed -r -i -e "s/\[kolab\]/[kolab]\ndomainadmins_management_domain = administrato
 php initDomainAdminManagementDomain.php
 
 #####################################################################################
-#only give users with role enable-groupware-features the permission to use calendar, tasks, files etc in Roundcube
+#disabled: only give users with role enable-groupware-features the permission to use calendar, tasks, files etc in Roundcube
 #####################################################################################
-sed -r -i -e "s/'calendar',/#'calendar',/g" /etc/roundcubemail/config.inc.php 
-sed -r -i -e "s/'kolab_activesync',/#'kolab_activesync',/g" /etc/roundcubemail/config.inc.php 
-sed -r -i -e "s/'kolab_addressbook',/#'kolab_addressbook',/g" /etc/roundcubemail/config.inc.php 
-sed -r -i -e "s/'kolab_files',/#'kolab_files',/g" /etc/roundcubemail/config.inc.php 
-sed -r -i -e "s/'tasklist',/#'tasklist',/g" /etc/roundcubemail/config.inc.php 
+if [ 1 -eq 2 ]
+then
+  sed -r -i -e "s/'calendar',/#'calendar',/g" /etc/roundcubemail/config.inc.php 
+  sed -r -i -e "s/'kolab_activesync',/#'kolab_activesync',/g" /etc/roundcubemail/config.inc.php 
+  sed -r -i -e "s/'kolab_addressbook',/#'kolab_addressbook',/g" /etc/roundcubemail/config.inc.php 
+  sed -r -i -e "s/'kolab_files',/#'kolab_files',/g" /etc/roundcubemail/config.inc.php 
+  sed -r -i -e "s/'tasklist',/#'tasklist',/g" /etc/roundcubemail/config.inc.php 
 
-KolabAuthRolePlugins="rcmail_config['kolab_auth_role_plugins'] = array( \
+  KolabAuthRolePlugins="rcmail_config['kolab_auth_role_plugins'] = array( \
        'cn=enable-groupware-features,%dc' => array( \
                'calendar', \
                'kolab_activesync', \
@@ -95,5 +97,6 @@ KolabAuthRolePlugins="rcmail_config['kolab_auth_role_plugins'] = array( \
            ), \
          );"
 
-sed -r -i -e "s/config\['plugins'\] = array\(/$KolabAuthRolePlugins\n\$config['plugins'] = array(/g" /etc/roundcubemail/config.inc.php
+  sed -r -i -e "s/config\['plugins'\] = array\(/$KolabAuthRolePlugins\n\$config['plugins'] = array(/g" /etc/roundcubemail/config.inc.php
+fi
 
