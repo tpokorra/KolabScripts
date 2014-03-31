@@ -33,8 +33,8 @@ echo "applying domainAdminDefaultQuota.patch"
 patch -p1 -i `pwd`/patches/domainAdminDefaultQuota.patch -d /usr/share/kolab-webadmin
 echo "applying domainAdminMaxAccounts.patch"
 patch -p1 -i `pwd`/patches/domainAdminMaxAccounts.patch -d /usr/share/kolab-webadmin
-echo "applying domainAdminEnableGroupware.patch"
-patch -p1 -i `pwd`/patches/domainAdminEnableGroupware.patch -d /usr/share/kolab-webadmin
+#echo "applying domainAdminEnableGroupware.patch"
+#patch -p1 -i `pwd`/patches/domainAdminEnableGroupware.patch -d /usr/share/kolab-webadmin
 echo "applying lastLoginTBitsAttribute patch"
 patch -p1 -i `pwd`/patches/lastLoginTBitsAttribute-wap.patch -d /usr/share/kolab-webadmin
 patch -p1 -i `pwd`/patches/lastLoginTBitsAttribute-pykolab.patch -d $pythonDistPackages
