@@ -51,5 +51,30 @@ sed -r -i -e "s#// Re-apply mandatory settings here.#// Re-apply mandatory setti
 #sed -r -i -e "s#'INBOX', 'Drafts', 'Sent', 'Spam', 'Trash'#'INBOX', 'Drafts', 'Sent', 'Spam', 'Trash', 'Kalender', 'Kontakte'#g" /etc/roundcubemail/config.inc.php
 # enable plugin subscriptions_options
 sed -r -i -e "s#'redundant_attachments',#'redundant_attachments',\n            'subscriptions_option',#g" /etc/roundcubemail/config.inc.php
-sed -r -i -e "s#// Re-apply mandatory settings here.#// Re-apply mandatory settings here.\n    \$rcmail_config['use_subscriptions'] = false;#g" /etc/roundcubemail/config.inc.php
+#sed -r -i -e "s#// Re-apply mandatory settings here.#// Re-apply mandatory settings here.\n    \$rcmail_config['use_subscriptions'] = false;#g" /etc/roundcubemail/config.inc.php
+
+# disable files component for all users
+sed -r -i -e "s/'kolab_files',/#'kolab_files',/g" /etc/roundcubemail/config.inc.php
+
+# remove personal calender from kolab.conf
+rm -f /etc/kolab/kolab.conf.new
+skip=0
+while read line
+do
+  if [[ $skip -gt 0 ]]
+  then
+    skip=$((skip-1))
+    echo $line
+    continue;
+  fi
+  test=`echo $line | grep -e "Calendar/Personal Calendar" -e "Contacts/Personal Contacts" `
+  if [[ ${#test} -gt 0 ]]
+  then
+    echo $test;
+    skip=4
+    continue;
+  fi
+  echo $line >> /etc/kolab/kolab.conf.new
+done < /etc/kolab/kolab.conf
+mv /etc/kolab/kolab.conf.new /etc/kolab/kolab.conf
 
