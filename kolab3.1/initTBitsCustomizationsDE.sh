@@ -59,6 +59,9 @@ sed -r -i -e "s/'kolab_files',/#'kolab_files',/g" /etc/roundcubemail/config.inc.
 # remove personal calender from kolab.conf
 rm -f /etc/kolab/kolab.conf.new
 skip=0
+# set internal file separator so that the leading spaces are not trimmed
+OIFS=$IFS
+IFS=
 while read line
 do
   if [[ $skip -gt 0 ]]
@@ -76,5 +79,6 @@ do
   fi
   echo $line >> /etc/kolab/kolab.conf.new
 done < /etc/kolab/kolab.conf
+IFS=$OIFS
 mv /etc/kolab/kolab.conf.new /etc/kolab/kolab.conf
 
