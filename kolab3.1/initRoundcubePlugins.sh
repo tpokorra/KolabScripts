@@ -44,7 +44,7 @@ patch -p1 -i `pwd`/patches/managesieveWithMessagelabel.patch -d /usr/share/round
 # see https://github.com/GMS-SA/roundcube-advanced-search
 #####################################################################################
 wget https://github.com/GMS-SA/roundcube-advanced-search/archive/stable.zip -O advanced_search.tar.gz
-tar xzf advanced_search.tar.gz
+tar -xzf advanced_search.tar.gz
 rm -f advanced_search.tar.gz
 mv roundcube-advanced-search-stable /usr/share/roundcubemail/plugins/advanced_search
 mv /usr/share/roundcubemail/plugins/advanced_search/config-default.inc.php /usr/share/roundcubemail/plugins/advanced_search/config.inc.php
