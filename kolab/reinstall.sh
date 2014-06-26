@@ -1,6 +1,6 @@
 #!/bin/bash
 # this script will remove Kolab, and DELETE all YOUR data!!!
-# it will reinstall Kolab, from Kolab 3.1 Updates
+# it will reinstall Kolab, from Kolab 3.2 Updates
 # you can optionally install the patches from TBits, see bottom of script
 
 if [ -f /etc/centos-release ]

@@ -1,6 +1,6 @@
 #!/bin/bash
 # this script will remove Kolab, and DELETE all YOUR data!!!
-# it will reinstall Kolab, from Kolab 3.1 Updates
+# it will reinstall Kolab, from Kolab 3.2 Updates
 # you can optionally install the patches from TBits, see bottom of script reinstall.sh
 
 #check that dirsrv will have write permissions to /dev/shm
@@ -81,8 +81,8 @@ fi
 cd /etc/yum.repos.d
 rm -Rf obs-tpokorra-nightly-kolab.repo
 #wget $obs/home:/tpokorra:/branches:/Kolab:/Development/$OBS_repo_OS/home:tpokorra:branches:Kolab:Development.repo -O obs-tpokorra-nightly-kolab.repo
-wget $obs/Kolab:/3.1/$OBS_repo_OS/Kolab:3.1.repo -O kolab-3.1.repo
-wget $obs/Kolab:/3.1:/Updates/$OBS_repo_OS/Kolab:3.1:Updates.repo -O kolab-3.1-updates.repo
+wget $obs/Kolab:/3.2/$OBS_repo_OS/Kolab:3.2.repo -O kolab-3.2.repo
+wget $obs/Kolab:/3.2:/Updates/$OBS_repo_OS/Kolab:3.2:Updates.repo -O kolab-3.2-updates.repo
 cd -
 
 # add priority = 0 to kolab repo files
