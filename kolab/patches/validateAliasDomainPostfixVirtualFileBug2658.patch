@@ -11,7 +11,7 @@ diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_servic
              }
          }
  
-@@ -1486,4 +1486,51 @@
+@@ -1483,4 +1483,51 @@
          return $valid;
      }
  
