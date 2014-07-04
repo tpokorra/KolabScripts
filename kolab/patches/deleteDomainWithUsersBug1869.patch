@@ -2,7 +2,7 @@ diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
 index bf02ba1..481deb9 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -483,11 +483,74 @@ class LDAP extends Net_LDAP3 {
+@@ -481,11 +481,74 @@ class LDAP extends Net_LDAP3 {
          return $this->modify_entry($domain_dn, $domain[$domain_dn], $attributes);
      }
  
