@@ -18,7 +18,7 @@ diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
 index 3ac1f43..f105e5f 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -638,6 +638,31 @@ class LDAP extends Net_LDAP3 {
+@@ -636,6 +636,31 @@ class LDAP extends Net_LDAP3 {
          return array('domainadmin' => $maindomainadmin, $config_flag => $resultvalue);
      }
  

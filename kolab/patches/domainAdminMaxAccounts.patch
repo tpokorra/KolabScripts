@@ -18,7 +18,7 @@ diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
 index f105e5f..105ac95 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -663,6 +663,26 @@ class LDAP extends Net_LDAP3 {
+@@ -661,6 +661,26 @@ class LDAP extends Net_LDAP3 {
          return $quota;
      }
  

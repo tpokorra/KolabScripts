@@ -20,7 +20,7 @@ index 40f3049..701c385 100644
      {
          return $this->auth_instance()->find_recipient($address);
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index 481deb9..3ac1f43 100644
+index 8175668..15b0c55 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
 @@ -146,6 +146,22 @@ class LDAP extends Net_LDAP3 {
@@ -56,7 +56,7 @@ index 481deb9..3ac1f43 100644
          $dn = $domain_name_attribute . '=' . $domain . ',' . $domain_base_dn;
  
          $result = $this->add_entry($dn, $attributes);
-@@ -466,9 +485,159 @@ class LDAP extends Net_LDAP3 {
+@@ -464,9 +483,159 @@ class LDAP extends Net_LDAP3 {
  
          $this->add_entry($dn, $attrs);
  
@@ -216,7 +216,7 @@ index 481deb9..3ac1f43 100644
      public function domain_edit($domain, $attributes, $typeid = null)
      {
          $domain = $this->domain_info($domain, array_keys($attributes));
-@@ -479,6 +648,16 @@ class LDAP extends Net_LDAP3 {
+@@ -477,6 +646,16 @@ class LDAP extends Net_LDAP3 {
  
          $domain_dn = key($domain);
  
@@ -233,17 +233,8 @@ index 481deb9..3ac1f43 100644
          // We should start throwing stuff over the fence here.
          return $this->modify_entry($domain_dn, $domain[$domain_dn], $attributes);
      }
-@@ -582,6 +761,8 @@ class LDAP extends Net_LDAP3 {
-             if ($result = $this->_search($domain_base_dn, $domain_filter, $attributes)) {
-                 $result = $result->entries(true);
-             }
-+
-+            $domain_dn = key($result);
-         }
-         else {
-             $this->_log(LOG_DEBUG, "Auth::LDAP::domain_info() uses _read()");
-@@ -592,6 +773,30 @@ class LDAP extends Net_LDAP3 {
-             return false;
+@@ -578,6 +757,30 @@ class LDAP extends Net_LDAP3 {
+             $result = $this->_read($domain_dn, $attributes);
          }
  
 +        if (isset($result[$domain_dn]["associateddomain"])) {
@@ -271,6 +262,15 @@ index 481deb9..3ac1f43 100644
 +        }
 +
          $this->_log(LOG_DEBUG, "Auth::LDAP::domain_info() result: " . var_export($result, true));
+ 
+         return $result ? $result : false;
+@@ -1029,6 +1232,8 @@ class LDAP extends Net_LDAP3 {
+                 $pass = $result['replace']['userpassword'];
+                 $_SESSION['user']->user_bind_pw = is_array($pass) ? implode($pass) : $pass;
+             }
++
++            $domain_dn = key($result);
+         }
  
          return $result;
 diff --git a/lib/api/kolab_api_service_domain.php b/lib/api/kolab_api_service_domain.php
@@ -319,7 +319,7 @@ index 6829047..5334112 100644
                  'optional' => true,
              ),
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
-index 260a717..79a4720 100644
+index c00eb8f..540ebf3 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
 @@ -1047,6 +1047,41 @@ class kolab_api_service_form_value extends kolab_api_service
@@ -364,7 +364,7 @@ index 260a717..79a4720 100644
      private function select_options_preferredlanguage($postdata, $attribs = array())
      {
          $options = $this->_select_options_from_db('preferredlanguage');
-@@ -1187,7 +1222,7 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1207,7 +1242,7 @@ class kolab_api_service_form_value extends kolab_api_service
          return 'OK';
      }
  
@@ -373,7 +373,7 @@ index 260a717..79a4720 100644
      {
          // convert MB/GB into KB
          if (preg_match('/^([0-9]+)\s*(KB|MB|GB)$/i', $value, $m)) {
-@@ -1197,10 +1232,24 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1217,10 +1252,24 @@ class kolab_api_service_form_value extends kolab_api_service
              case 'GB': $value = $m[1] * 1024 * 1024; break;
              }
          }
@@ -399,7 +399,7 @@ index 260a717..79a4720 100644
      private function validate_mailalternateaddress($value, $postdata = array(), $validation_type = null)
      {
          $conf = Conf::get_instance();
-@@ -1456,6 +1505,19 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1476,6 +1525,19 @@ class kolab_api_service_form_value extends kolab_api_service
          if (in_array($email_domain, $valid_domains)) {
              $valid = true;
          }
@@ -491,7 +491,7 @@ index 40c2fcc..0100a83 100644
              'kolabfreebusyfuture'       => 'config',
              'kolabinvitationpolicy'     => 'config',
 diff --git a/lib/kolab_api_service.php b/lib/kolab_api_service.php
-index 1972cb0..4fef41b 100644
+index 858e643..44998dd 100644
 --- a/lib/kolab_api_service.php
 +++ b/lib/kolab_api_service.php
 @@ -75,6 +75,7 @@ abstract class kolab_api_service
@@ -514,7 +514,7 @@ index 1972cb0..4fef41b 100644
          $object_keys  = array_keys($attributes);
          $keys_count   = count($object_keys);
 diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
-index c845126..7d96232 100644
+index 7e7ab58..eae3c04 100644
 --- a/lib/kolab_client_task.php
 +++ b/lib/kolab_client_task.php
 @@ -645,6 +645,24 @@ class kolab_client_task
@@ -554,7 +554,7 @@ index c845126..7d96232 100644
          default:
              $result['type'] = kolab_form::INPUT_TEXT;
  
-@@ -979,6 +1002,17 @@ class kolab_client_task
+@@ -987,6 +1010,17 @@ class kolab_client_task
          if (!empty($data['type_id'])) {
              $type = $data['type_id'];
          }
@@ -572,7 +572,7 @@ index c845126..7d96232 100644
          else {
              $data['type_id'] = $type = key($types);
          }
-@@ -1283,6 +1317,12 @@ class kolab_client_task
+@@ -1284,6 +1318,12 @@ class kolab_client_task
                      unset($field['default']);
                  }
  
@@ -679,7 +679,7 @@ index bc42754..339cbc7 100644
  $LANG['user.type_id'] = 'Account type';
  $LANG['user.uid'] = 'Unique identity (UID)';
 diff --git a/public_html/js/kolab_admin.js b/public_html/js/kolab_admin.js
-index 4df6339..49a01a9 100644
+index 659645c..cb50f23 100644
 --- a/public_html/js/kolab_admin.js
 +++ b/public_html/js/kolab_admin.js
 @@ -715,6 +715,8 @@ function kolab_admin()
