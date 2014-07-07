@@ -103,5 +103,5 @@ FINISH
 
 apt-get update
 apt-get -y install aptitude
-aptitude -y install kolab
+aptitude -y install kolab kolab-freebusy
 

@@ -95,5 +95,5 @@ do
 done
 
 #yum clean metadata
-yum -y install kolab patch unzip
+yum -y install kolab kolab-freebusy patch unzip
 
