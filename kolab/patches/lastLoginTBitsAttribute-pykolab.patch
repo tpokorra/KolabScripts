@@ -1,7 +1,7 @@
-diff --git a/pykolab/auth/ldap/__init__.py b/pykolab/auth/ldap/__init__.py
-index f597dfd..af6c477 100644
---- a/pykolab/auth/ldap/__init__.py
-+++ b/pykolab/auth/ldap/__init__.py
+diff --git a/auth/ldap/__init__.py b/auth/ldap/__init__.py
+index c0c3297..0bfcac7 100644
+--- a/auth/ldap/__init__.py
++++ b/auth/ldap/__init__.py
 @@ -220,6 +220,10 @@ class LDAP(pykolab.base.Base):
                  # to True!!
                  self.ldap.simple_bind_s(entry_dn, login[1])
@@ -13,11 +13,10 @@ index f597dfd..af6c477 100644
                  try:
                      auth_cache.set_entry(_filter, entry_dn)
                  except Exception, errmsg:
-
-diff --git a/pykolab/auth/ldap/auth_cache.py b/pykolab/auth/ldap/auth_cache.py
-index ba14262..1a11c7b 100644
---- a/pykolab/auth/ldap/auth_cache.py
-+++ b/pykolab/auth/ldap/auth_cache.py
+diff --git a/auth/ldap/auth_cache.py b/auth/ldap/auth_cache.py
+index 831e444..d1c6057 100644
+--- a/auth/ldap/auth_cache.py
++++ b/auth/ldap/auth_cache.py
 @@ -53,6 +53,7 @@ log = pykolab.getLogger('pykolab.auth_cache')
  metadata = MetaData()
  
@@ -26,7 +25,7 @@ index ba14262..1a11c7b 100644
  
  ##
  ## Classes
-@@ -115,15 +116,20 @@ def set_entry(key, value):
+@@ -150,7 +151,9 @@ def set_entry(key, value):
          db.commit()
  
  def purge_entries(db):
@@ -34,18 +33,18 @@ index ba14262..1a11c7b 100644
 +    global last_purge
 +    last_purge = datetime.datetime.now()
 +    db.query(Entry).filter(Entry.last_change <= (datetime.datetime.now() - datetime.timedelta(hours=1))).delete()
+     db.commit()
  
- def init_db():
-     """
+ def init_db(reinit=False):
+@@ -158,8 +161,11 @@ def init_db(reinit=False):
          Returns a SQLAlchemy Session() instance.
      """
      global db
 +    global last_purge
  
-     if not db == None:
+     if not db == None and not reinit:
 +        if last_purge <= (datetime.datetime.now() - datetime.timedelta(hours=1)):
 +            purge_entries(db)
          return db
  
      db_uri = conf.get('ldap', 'auth_cache_uri')
-
