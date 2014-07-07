@@ -7,7 +7,7 @@ index 34e54e7..52ae9ad 100644
  
              if len(removed_domains) == 0 and len(added_domains) == 0:
 -                time.sleep(600)
-+                sleep_between_domain_operations_in_seconds = float(conf.get('kolab', 'sleep_between_domain_operations_in_seconds'))
++                sleep_between_domain_operations_in_seconds = (float)(conf.get('kolab', 'domain_sync_interval'))
 +                time.sleep(sleep_between_domain_operations_in_seconds)
  
              log.debug(
@@ -20,8 +20,8 @@ index f85b594..13e25c2 100644
          self.mail_attributes = ['mail', 'alias']
          self.mailserver_attribute = 'mailhost'
  
-+        # when you add several domains within a short time, you should reduce this value to 10 seconds
-+        self.kolab_sleep_between_domain_operations_in_seconds = 600
++        # when you want a new domain to be added in a short time, you should reduce this value to 10 seconds
++        self.domain_sync_interval = 600
 +
          self.kolab_default_locale = 'en_US'
          self.ldap_unique_attribute = 'nsuniqueid'
