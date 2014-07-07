@@ -1,7 +1,8 @@
-diff -uNr a/pykolab/conf/__init__.py b/pykolab/conf/__init__.py
---- a/pykolab/conf/__init__.py	2014-06-26 10:27:16.443171000 +0200
-+++ b/pykolab/conf/__init__.py	2014-06-26 10:27:56.139171001 +0200
-@@ -278,6 +278,12 @@
+diff --git a/conf/__init__.py b/conf/__init__.py
+index 030a626..bb609c6 100644
+--- a/conf/__init__.py
++++ b/conf/__init__.py
+@@ -278,6 +278,12 @@ class Conf(object):
                                      help    = _("Set the debugging " + \
                                          "verbosity. Maximum is 9, tracing " + \
                                          "protocols like LDAP, SQL and IMAP."))
@@ -14,10 +15,11 @@ diff -uNr a/pykolab/conf/__init__.py b/pykolab/conf/__init__.py
  
          runtime_group.add_option(   "-l",
                                      dest    = "loglevel",
-diff -uNr a/pykolab/utils.py b/pykolab/utils.py
---- a/pykolab/utils.py	2014-06-26 10:27:16.447171001 +0200
-+++ b/pykolab/utils.py	2014-06-26 10:27:56.139171001 +0200
-@@ -30,6 +30,7 @@
+diff --git a/utils.py b/utils.py
+index d34daeb..ee1a047 100644
+--- a/utils.py
++++ b/utils.py
+@@ -30,6 +30,7 @@ from pykolab import constants
  from pykolab.translate import _
  
  log = pykolab.getLogger('pykolab.utils')
@@ -25,7 +27,7 @@ diff -uNr a/pykolab/utils.py b/pykolab/utils.py
  
  def ask_question(question, default="", password=False, confirm=False):
      """
-@@ -42,6 +43,12 @@
+@@ -42,6 +43,12 @@ def ask_question(question, default="", password=False, confirm=False):
  
          Usage: pykolab.utils.ask_question("What is the server?", default="localhost")
      """
@@ -38,7 +40,7 @@ diff -uNr a/pykolab/utils.py b/pykolab/utils.py
      if password:
          if default == "" or default == None:
              answer = getpass.getpass("%s: " % (question))
-@@ -108,6 +115,14 @@
+@@ -108,6 +115,14 @@ def ask_confirmation(question, default="y", all_inclusive_no=True):
          default_no = "'no'"
          default_yes = "Please type 'yes'"
  
@@ -53,7 +55,7 @@ diff -uNr a/pykolab/utils.py b/pykolab/utils.py
      answer = False
      while answer == False:
          answer = raw_input("%s [%s/%s]: " % (question,default_yes,default_no))
-@@ -129,6 +144,11 @@
+@@ -129,6 +144,11 @@ def ask_confirmation(question, default="y", all_inclusive_no=True):
                  return True
  
  def ask_menu(question, options={}, default=''):
@@ -65,10 +67,10 @@ diff -uNr a/pykolab/utils.py b/pykolab/utils.py
      if not default == '':
          print question + " [" + default + "]:"
      else:
-@@ -282,6 +302,9 @@
- def multiline_message(message):
-     _msg = ""
+@@ -280,6 +300,9 @@ def generate_password():
+     return output
  
+ def multiline_message(message):
 +    if conf.cli_keywords.quiet:
 +        return ""
 +
