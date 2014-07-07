@@ -1,6 +1,6 @@
 #!/bin/bash
 # this script will remove Kolab, and DELETE all YOUR data!!!
-# it will reinstall Kolab, from Kolab 3.2 Updates
+# it will reinstall Kolab, from Kolab Nightly builds
 # you can optionally install the patches from TBits, see bottom of script reinstall.sh
 
 echo "this script will remove Kolab, and DELETE all YOUR data!!!"
@@ -76,14 +76,14 @@ rm -Rf \
 # see http://kolab.org/blog/timotheus-pokorra/2013/11/26/downloading-obs-repo-php-proxy-file
 if [[ "$obs" = "" ]]
 then
-  export obs=http://obs.kolabsys.com:82
+  export obs=http://obs.kolabsys.com/repositories/
 fi
 
 cat > /etc/apt/sources.list.d/kolab.list <<FINISH
 deb $obs/Kolab:/3.2/$OBS_repo_OS/ ./
 deb $obs/Kolab:/3.2:/Updates/$OBS_repo_OS/ ./
-#deb $obs/Kolab:/Development/$OBS_repo_OS/ ./
-#deb $obs/home:/tpokorra:/branches:/Kolab:/Development/$OBS_repo_OS/ ./
+deb $obs/Kolab:/Development/$OBS_repo_OS/ ./
+deb $obs/home:/tpokorra:/branches:/Kolab:/Development/$OBS_repo_OS/ ./
 FINISH
 
 wget $obs/Kolab:/3.2/$OBS_repo_OS/Release.key
