@@ -75,7 +75,7 @@ rm -f epel*rpm
 # see http://kolab.org/blog/timotheus-pokorra/2013/11/26/downloading-obs-repo-php-proxy-file
 if [[ "$obs" = "" ]]
 then
-  export obs=http://obs.kolabsys.com:82
+  export obs=http://obs.kolabsys.com/repositories/
 fi
 
 cd /etc/yum.repos.d
