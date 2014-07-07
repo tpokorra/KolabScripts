@@ -112,7 +112,7 @@ sed -r -i -e "s/primary_mail = .*/primary_mail = %(givenname)s.%(surname)s@%(dom
 #####################################################################################
 #reduce the sleep time between adding domains, see https://issues.kolab.org/show_bug.cgi?id=2491
 #####################################################################################
-sed -r -i -e "s/\[kolab\]/[kolab]\nsleep_between_domain_operations_in_seconds = 10/g" /etc/kolab/kolab.conf
+sed -r -i -e "s/\[kolab\]/[kolab]\ndomain_sync_interval = 10/g" /etc/kolab/kolab.conf
 
 #####################################################################################
 #make sure that for alias domains, the emails will actually arrive, by checking the postfix file
