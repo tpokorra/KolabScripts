@@ -41,7 +41,7 @@ then
     # Debian
     ZONE=`cat /etc/timezone`
 fi
-echo "    or unattended: setup-kolab --default --timezone=$ZONE --directory-manager-pwd=test"
+echo "    or unattended: echo 2 | setup-kolab --default --timezone=$ZONE --directory-manager-pwd=test"
 echo "   ./initSSL.sh"
 echo "   ./initRoundcubePlugins.sh"
 echo "   ./initMultiDomain.sh"
