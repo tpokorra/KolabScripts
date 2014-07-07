@@ -13,6 +13,7 @@ else
   exit 0
   fi
 fi
+patchesurl=https://raw.github.com/TBits/KolabScripts/master/kolab/patches
 
 #####################################################################################
 #Removing Canonification from Cyrus IMAP
@@ -133,9 +134,9 @@ if [ ! -d patches ]
 then
   mkdir -p patches
   echo Downloading patch  sleepTimeBetweenDomainOperationsBug2491.patch
-  wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/sleepTimeBetweenDomainOperationsBug2491.patch -O patches/sleepTimeBetweenDomainOperationsBug2491.patch
+  wget $patchesurl/sleepTimeBetweenDomainOperationsBug2491.patch -O patches/sleepTimeBetweenDomainOperationsBug2491.patch
   echo Downloading patch validateAliasDomainPostfixVirtualFileBug2658.patch
-  wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/validateAliasDomainPostfixVirtualFileBug2658.patch -O patches/validateAliasDomainPostfixVirtualFileBug2658.patch
+  wget $patchesurl/validateAliasDomainPostfixVirtualFileBug2658.patch -O patches/validateAliasDomainPostfixVirtualFileBug2658.patch
 fi
 
 # different paths in debian and centOS
