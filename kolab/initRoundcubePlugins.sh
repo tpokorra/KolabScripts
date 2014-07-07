@@ -1,19 +1,18 @@
 #!/bin/bash
 
-if ( which yum ); then
-  if ( ! which wget || ! which patch ); then
+if [ `which yum` ]; then
+  if [[ ! `which wget` || ! `which patch` ]];
     yum -y install wget patch
   fi
 else
-  if (which apt-get); then
-    if ( ! which wget || ! which patch ); then
+  if [ `which apt-get` ]; then
+    if [[ ! `which wget` || ! `which patch` ]];
       apt-get -y install wget patch;
     fi
   else echo "Neither yum nor apt-get available. On which platform are you?";
   exit 0
   fi
 fi
-
 
 #####################################################################################
 # install our modified version of the message_label plugin to support virtual folders aka imap flags
