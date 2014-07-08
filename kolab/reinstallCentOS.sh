@@ -88,6 +88,7 @@ cd -
 for f in /etc/yum.repos.d/kolab-3*.repo
 do
     sed -i "s#enabled=1#enabled=1\npriority=0#g" $f
+    sed -i "s#http://obs.kolabsys.com:82/#$obs/#g" $f
 done
 
 #yum clean metadata
