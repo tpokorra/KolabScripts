@@ -233,32 +233,34 @@ index 8175668..15b0c55 100644
          // We should start throwing stuff over the fence here.
          return $this->modify_entry($domain_dn, $domain[$domain_dn], $attributes);
      }
-@@ -578,6 +757,30 @@ class LDAP extends Net_LDAP3 {
+@@ -578,6 +757,32 @@ class LDAP extends Net_LDAP3 {
              $result = $this->_read($domain_dn, $attributes);
          }
  
-+        if (isset($result[$domain_dn]["associateddomain"])) {
-+            $currentdomain_dn = $this->_standard_root_dn($result[$domain_dn]["associateddomain"]);
-+        } else {
-+            $currentdomain_dn = $domain_dn;
-+        }
-+
-+        $currentdomain_da_dn = "cn=Directory Administrators,".$currentdomain_dn;
-+
-+        $domain_admins_result = $this->_search($currentdomain_dn, "cn=Directory Administrators*", array("uniqueMember"));
-+        if ($domain_admins_result != null && count($domain_admins_result) > 0) {
-+            $domain_admins = $domain_admins_result->entries(true);
-+        }
-+
-+        // read domain admins from LDAP, uniqueMembers of Directory Administrators of domain
-+        $result[$domain_dn]["domainadmin"] = array();
-+        if (is_array($domain_admins[$currentdomain_da_dn]["uniquemember"])) {
-+            foreach ($domain_admins[$currentdomain_da_dn]["uniquemember"] as $domainadmin) {
-+                $result[$domain_dn]["domainadmin"][] = $domainadmin;
++        if ($domain_dn) {
++            if (isset($result[$domain_dn]["associateddomain"])) {
++                $currentdomain_dn = $this->_standard_root_dn($result[$domain_dn]["associateddomain"]);
++            } else {
++                $currentdomain_dn = $domain_dn;
 +            }
-+        }
-+        else {
-+            $result[$domain_dn]["domainadmin"][] = $domain_admins[$currentdomain_da_dn]["uniquemember"];
++
++            $currentdomain_da_dn = "cn=Directory Administrators,".$currentdomain_dn;
++
++            $domain_admins_result = $this->_search($currentdomain_dn, "cn=Directory Administrators*", array("uniqueMember"));
++            if ($domain_admins_result != null && count($domain_admins_result) > 0) {
++                $domain_admins = $domain_admins_result->entries(true);
++            }
++
++            // read domain admins from LDAP, uniqueMembers of Directory Administrators of domain
++            $result[$domain_dn]["domainadmin"] = array();
++            if (is_array($domain_admins[$currentdomain_da_dn]["uniquemember"])) {
++                foreach ($domain_admins[$currentdomain_da_dn]["uniquemember"] as $domainadmin) {
++                    $result[$domain_dn]["domainadmin"][] = $domainadmin;
++                }
++            }
++            else {
++                $result[$domain_dn]["domainadmin"][] = $domain_admins[$currentdomain_da_dn]["uniquemember"];
++            }
 +        }
 +
          $this->_log(LOG_DEBUG, "Auth::LDAP::domain_info() result: " . var_export($result, true));
