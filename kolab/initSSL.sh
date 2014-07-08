@@ -1,10 +1,18 @@
 #!/bin/bash
 
+if [ -z $1 ]
+then
+  echo "Please call: $0 <url of server>"
+  echo "  eg. $0 example.org"
+  exit 1
+fi
+export server_name=$1
+
+
 #####################################################################################
 # see also https://gist.github.com/dhoffend/7008915 with title: Simple SSL Configuration for Kolab 3.1
 #####################################################################################
 
-export server_name=example.org
 export key_directory=/etc/pki/tls
 export sslgroup=ssl
 export ca_file=startcom-ca.pem
