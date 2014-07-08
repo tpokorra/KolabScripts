@@ -79,8 +79,7 @@ then
 fi
 
 cd /etc/yum.repos.d
-rm -Rf obs-tpokorra-nightly-kolab.repo
-#wget $obs/home:/tpokorra:/branches:/Kolab:/Development/$OBS_repo_OS/home:tpokorra:branches:Kolab:Development.repo -O obs-tpokorra-nightly-kolab.repo
+rm -Rf kolab-*.repo
 wget $obs/Kolab:/3.2/$OBS_repo_OS/Kolab:3.2.repo -O kolab-3.2.repo
 wget $obs/Kolab:/3.2:/Updates/$OBS_repo_OS/Kolab:3.2:Updates.repo -O kolab-3.2-updates.repo
 cd -
