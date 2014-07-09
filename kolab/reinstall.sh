@@ -42,7 +42,8 @@ then
     ZONE=`cat /etc/timezone`
 fi
 echo "    or unattended: echo 2 | setup-kolab --default --timezone=$ZONE --directory-manager-pwd=test"
-echo "   ./initSSL.sh "`hostname`
+h=`hostname`
+echo "   ./initSSL.sh "${h:`expr index $h .`}
 echo "   ./initRoundcubePlugins.sh"
 echo "   ./initMultiDomain.sh"
 echo "   ./initMailForward.sh"
