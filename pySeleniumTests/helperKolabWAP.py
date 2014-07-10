@@ -34,6 +34,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         # find [kolab_wap], find line starting with api_url
         pos = content.index("[kolab_wap]")
+        if content.find("api_url", pos) == -1:
+          return "http://localhost"
         pos = content.index("api_url", pos)
         pos = content.index("http", pos)
         posSlash = content.index("/", pos)
