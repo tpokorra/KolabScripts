@@ -12,9 +12,9 @@ You can use PhantomJS with Selenium to have a headless browser. It is based on W
 You need to download a binary once, from http://phantomjs.org/download.html:
 
 ```sh
-wget https://phantomjs.googlecode.com/files/phantomjs-1.9.2-linux-x86_64.tar.bz2
-tar xjf phantomjs-1.9.2-linux-x86_64.tar.bz2
-cp phantomjs-1.9.2-linux-x86_64/bin/phantomjs /usr/bin
+wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.7-linux-x86_64.tar.bz2
+tar xjf phantomjs-1.9.7-linux-x86_64.tar.bz2
+cp phantomjs-1.9.7-linux-x86_64/bin/phantomjs /usr/bin
 ```
 
 Then you can just start the tests like this:
@@ -25,5 +25,5 @@ cd kolab3_tbits_scripts/pySeleniumTests
 
 To run all tests:
 ```sh
-for f in *.py; do ./$f; done
+./runTests.sh
 ```

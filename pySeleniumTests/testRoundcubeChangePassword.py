@@ -4,9 +4,6 @@ import unittest
 import time
 import datetime
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
-from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
 from helperKolabWAP import KolabWAPTestHelpers
@@ -35,9 +32,9 @@ class KolabRoundcubeChangePassword(unittest.TestCase):
         elem = driver.find_element_by_id("confpasswd")
         elem.send_keys("test1234")
 
-        wait = WebDriverWait(driver, 10);
-        btnSave = wait.until(EC.element_to_be_clickable((By.XPATH, "//form[@id=\"password-form\"]/div/div/p/input[@class=\"button mainaction\"]")));
-        btnSave.click()
+        elem = driver.find_element_by_xpath("//form[@id=\"password-form\"]//input[@class=\"button mainaction\"]")
+        elem.click()
+
         self.kolabWAPhelper.wait_loading()
         try:
             elem = driver.find_element_by_class_name("error")

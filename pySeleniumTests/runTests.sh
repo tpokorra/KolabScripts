@@ -7,6 +7,8 @@ if [ ! -z "$1" ]; then
   tests=$1
 fi
 
+rm -f /tmp/output*.html
+
 # run tests against a vanilla Kolab
 if [[ "$tests" == "all" || "$tests" == "vanilla" ]]; then
   ./testCreateUserAndEditSelf.py KolabWAPCreateUserAndEditSelf.test_edit_user_himself

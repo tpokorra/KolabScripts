@@ -17,6 +17,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         # support self signed ssl certificate: see also https://github.com/detro/ghostdriver/issues/233
         #webdriver.DesiredCapabilities.PHANTOMJS['ACCEPT_SSL_CERTS'] = 'true'
         self.driver = webdriver.PhantomJS('phantomjs', service_args=['--ignore-ssl-errors=true'])
+        self.driver.maximize_window()
         
         #self.driver = webdriver.Firefox()
 
