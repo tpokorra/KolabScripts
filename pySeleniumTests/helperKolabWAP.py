@@ -25,6 +25,22 @@ class KolabWAPTestHelpers(unittest.TestCase):
     def log(self, message):
         print datetime.datetime.now().strftime("%H:%M:%S") + " " + message
 
+    def getSiteUrl(self):
+        # read kolab.conf
+        fo = open("/etc/kolab/kolab.conf", "r+")
+        content = fo.read()
+        fo.close()
+
+        # find [kolab_wap], find line starting with api_url
+        pos = content.index("[kolab_wap]")
+        pos = content.index("api_url", pos)
+        pos = content.index("http", pos)
+        posSlash = content.index("/", pos)
+        posSlash = content.index("/", posSlash+1)
+        posSlash = content.index("/", posSlash+1)
+        # should return https://localhost or http://localhost
+        return content[pos:posSlash]
+
     def wait_loading(self, initialwait=0.5):
         time.sleep(initialwait)
         while self.driver.page_source.find('div id="loading"') != -1 and self.driver.page_source.find('id="message"') == -1:
@@ -36,7 +52,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         driver = self.driver
 
         if url[0] == '/':
-            url = "https://localhost" + url
+            url = self.getSiteUrl() + url
 
         driver.get(url)
 
@@ -64,7 +80,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         driver = self.driver
 
         if url[0] == '/':
-            url = "https://localhost" + url
+            url = self.getSiteUrl() + url
 
         driver.get(url)
 
