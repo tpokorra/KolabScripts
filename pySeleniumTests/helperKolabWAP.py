@@ -374,16 +374,17 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         self.assertEquals("User created successfully.", elem.text, "User was not saved successfully, message: " + elem.text)
 
-        # wait a couple of seconds until the sync script has been run (perhaps even the domain still needs to be created?)
-        out = ""
-        starttime=datetime.datetime.now()
-        while username not in out and (datetime.datetime.now()-starttime).seconds < 30:
-          self.wait_loading(1)
-          p = subprocess.Popen("kolab list-mailboxes | grep " + username, shell=True, stdout=subprocess.PIPE)
-          out, err = p.communicate()
+        if forward_to is None:
+            # wait a couple of seconds until the sync script has been run (perhaps even the domain still needs to be created?)
+            out = ""
+            starttime=datetime.datetime.now()
+            while username not in out and (datetime.datetime.now()-starttime).seconds < 30:
+                self.wait_loading(1)
+                p = subprocess.Popen("kolab list-mailboxes | grep " + username, shell=True, stdout=subprocess.PIPE)
+                out, err = p.communicate()
 
-        if username not in out:
-            self.assertTrue(False, "kolab list-mailboxes cannot find mailbox for new user " + username)
+            if username not in out:
+                self.assertTrue(False, "kolab list-mailboxes cannot find mailbox for new user " + username)
 
         self.log("User " + username + " has been created. Login with " + emailLogin + " and password " + password)
 
