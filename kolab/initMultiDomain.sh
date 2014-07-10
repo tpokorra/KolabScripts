@@ -153,3 +153,4 @@ patch -p1 -i `pwd`/patches/deleteDomainWithUsersBug1869.patch -d /usr/share/kola
 patch -p1 -i `pwd`/patches/sleepTimeBetweenDomainOperationsBug2491.patch -d $pythonDistPackages
 patch -p1 -i `pwd`/patches/validateAliasDomainPostfixVirtualFileBug2658.patch -d /usr/share/kolab-webadmin
 
+service kolabd restart

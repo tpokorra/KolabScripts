@@ -2,6 +2,7 @@ import unittest
 import time
 import datetime
 import string
+import subprocess
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
@@ -152,7 +153,19 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.wait_loading()
         elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
         self.assertEquals("Domain created successfully.", elem.text, "domain was not created successfully, message: " + elem.text)
-        
+
+        # wait a couple of seconds until the sync script has been run
+        out = ""
+        starttime=datetime.datetime.now()
+        while domainname not in out and (datetime.datetime.now()-starttime).seconds < 30:
+          self.wait_loading(1)
+          p = subprocess.Popen("kolab list-domains | grep " + domainname, shell=True, stdout=subprocess.PIPE)
+          out, err = p.communicate()
+
+        if domainname not in out:
+            self.assertTrue(False, "kolab list-domains cannot find domain " + domainname)
+  
+
         self.log("Domain " + domainname + " has been created")
         
         # reload so that the domain dropdown is updated, and switch to new domain at the same time
@@ -360,6 +373,17 @@ class KolabWAPTestHelpers(unittest.TestCase):
             return
 
         self.assertEquals("User created successfully.", elem.text, "User was not saved successfully, message: " + elem.text)
+
+        # wait a couple of seconds until the sync script has been run (perhaps even the domain still needs to be created?)
+        out = ""
+        starttime=datetime.datetime.now()
+        while username not in out and (datetime.datetime.now()-starttime).seconds < 30:
+          self.wait_loading(1)
+          p = subprocess.Popen("kolab list-mailboxes | grep " + username, shell=True, stdout=subprocess.PIPE)
+          out, err = p.communicate()
+
+        if username not in out:
+            self.assertTrue(False, "kolab list-mailboxes cannot find mailbox for new user " + username)
 
         self.log("User " + username + " has been created. Login with " + emailLogin + " and password " + password)
 
