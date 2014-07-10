@@ -96,6 +96,10 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.wait_loading()
 
         # verify success of login
+        if len(driver.find_elements_by_xpath("//div[@id=\"message\"]")) > 0:
+          elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
+          self.assertEquals("", elem.text, "Message after Login: " + elem.text)
+
         elem = driver.find_element_by_class_name("username")
         
         # check that there is no error about non existing mailbox
