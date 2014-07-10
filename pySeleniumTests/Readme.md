@@ -17,10 +17,17 @@ tar xjf phantomjs-1.9.7-linux-x86_64.tar.bz2
 cp phantomjs-1.9.7-linux-x86_64/bin/phantomjs /usr/bin
 ```
 
+Please also install the mail package because it is required by some tests:
+
+```sh
+yum install mail
+```
+
 Then you can just start the tests like this:
 ```sh
-cd kolab3_tbits_scripts/pySeleniumTests
+cd KolabScripts/pySeleniumTests
 ./testAutoCreateFolders.py
+./testCreateUserAndEditSelf.py KolabWAPCreateUserAndEditSelf.test_edit_user_himself
 ```
 
 To run all tests:
