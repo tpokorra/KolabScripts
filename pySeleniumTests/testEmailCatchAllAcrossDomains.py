@@ -34,17 +34,17 @@ class KolabEmailCatchAllAcrossDomains(unittest.TestCase):
         # what happens if we have not added the alias domain yet to postfix config?
         kolabWAPhelper.create_user(
             username=username,
-            alias="@" + aliasdomainname,
-            expected_message_contains="Alias '@" + aliasdomainname +"' must be configured manually")
+            alias="catchall@" + aliasdomainname,
+            expected_message_contains="Alias 'catchall@" + aliasdomainname +"' must be configured manually")
 
         # add alias domain, and call postmap
         postfixfile="/etc/postfix/virtual_alias_maps_manual.cf"
-        subprocess.call(['/bin/bash', '-c', 'echo "@' + aliasdomainname + ' ' + username + '.' + username +'@' + domainname + '" >> ' + postfixfile])
+        subprocess.call(['/bin/bash', '-c', 'echo "catchall@' + aliasdomainname + ' ' + username + '.' + username +'@' + domainname + '" >> ' + postfixfile])
         subprocess.call(['postmap', postfixfile])
         subprocess.call(['service', 'postfix', 'restart'])
         
         # now add user for real
-        username, emailLogin, password = kolabWAPhelper.create_user(username=username, alias="@" + aliasdomainname)
+        username, emailLogin, password = kolabWAPhelper.create_user(username=username, alias="catchall@" + aliasdomainname)
         kolabWAPhelper.logout_kolab_wap()
 
         # send email to catch all alias address from command line
