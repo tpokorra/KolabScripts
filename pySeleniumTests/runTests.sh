@@ -27,9 +27,10 @@ fi
 
 # requires multi domain patch
 if [[ "$tests" == "all" || "$tests" == "multidomain" ]]; then
-  # these tests have been run in vanilla, but this time we run all test cases
+  # these tests have been run in vanilla, but this time we run all test cases, and with SSL
   ./testCreateUserAndEditSelf.py || hasError=1
   ./testRoundcubeChangePassword.py || hasError=1
+  ./testEmailSendAndReceive.py || hasError=1
 
   ./testEmailCatchAllAcrossDomains.py || hasError=1
   ./testAutoCreateFolders.py || hasError=1

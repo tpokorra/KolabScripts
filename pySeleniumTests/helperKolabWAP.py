@@ -70,14 +70,14 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         # verify success of login
         elem = driver.find_element_by_class_name("login")
-        self.log( "User is logged in: " + elem.text)
+        self.log( "User is logged in to WAP: " + elem.text)
 
         return True
 
     # logout the current user
     def logout_kolab_wap(self):
         self.driver.find_element_by_class_name("logout").click()
-        self.log("User has logged out")
+        self.log("User has logged out from WAP")
 
     # login any user to roundcube
     def login_roundcube(self, url, username, password):
@@ -105,11 +105,19 @@ class KolabWAPTestHelpers(unittest.TestCase):
         
         # check that there is no error about non existing mailbox
         if "Server Error: STATUS: Mailbox does not exist" in self.driver.page_source:
-            self.assertEquals("no error", "there was an error", "Server Error: STATUS: Mailbox does not exist")
-        if "Server Error! (No connection)" in self.driver.page_source:
-            self.assertEquals("no error", "there was an error", "Server Error! (No connection)")
+          self.assertEquals("no error", "there was an error", "Server Error: STATUS: Mailbox does not exist")
 
-        self.log( "User is logged in: " + elem.text)
+        numberofattempts = 2
+        while numberofattempts > 0:
+          if "Server Error! (No connection)" in self.driver.page_source:
+            if numberofattempts > 0:
+              driver.get(url)
+              elem = driver.find_element_by_class_name("username")
+            else:
+              self.assertEquals("no error", "there was an error", "Server Error! (No connection)")
+          numberofattempts = numberofattempts - 1
+
+        self.log( "User is logged in to Roundcube: " + elem.text)
         return True
 
     # logout the current user
@@ -120,8 +128,9 @@ class KolabWAPTestHelpers(unittest.TestCase):
         driver.get(url + "?_task=logout")
         self.wait_loading()
         elem = driver.find_element_by_class_name("notice")
-        self.assertEquals("You have successfully terminated the session. Good bye!", elem.text, "should have logged out")
-        self.log("User has logged out")
+        self.assertEquals("You have successfully terminated the session. Good bye!", elem.text, "should have logged out, but was: " + elem.text)
+        #driver.delete_all_cookies()
+        self.log("User has logged out from Roundcube")
 
     # create a new domain and select it
     def create_domain(self, domainadmin = None, withAliasDomain = False):
