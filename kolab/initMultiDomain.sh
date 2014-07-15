@@ -143,8 +143,8 @@ then
   wget $patchesurl/validateAliasDomainPostfixVirtualFileBug2658.patch -O patches/validateAliasDomainPostfixVirtualFileBug2658.patch
   echo Downloading patch fixmailquotaBug2414.patch
   wget $patchesurl/fixmailquotaBug2414.patch -O patches/fixmailquotaBug2414.patch
-  echo Downloading patch fixProblemSyncMultiDomain.patch
-  wget $patchesurl/fixProblemSyncMultiDomain.patch -O patches/fixProblemSyncMultiDomain.patch
+  echo Downloading patch problemSyncMultiDomainBug3197.patch
+  wget $patchesurl/fixProblemSyncMultiDomain.patch -O patches/problemSyncMultiDomainBug3197.patch
 fi
 
 # different paths in debian and centOS
@@ -159,6 +159,6 @@ patch -p1 -i `pwd`/patches/deleteDomainWithUsersBug1869.patch -d /usr/share/kola
 patch -p1 -i `pwd`/patches/sleepTimeBetweenDomainOperationsBug2491.patch -d $pythonDistPackages
 patch -p1 -i `pwd`/patches/validateAliasDomainPostfixVirtualFileBug2658.patch -d /usr/share/kolab-webadmin
 patch -p1 -i `pwd`/patches/fixmailquotaBug2414.patch -d /usr/share/kolab-webadmin
-patch -p1 -i `pwd`/patches/fixProblemSyncMultiDomain.patch -d $pythonDistPackages
+patch -p1 -i `pwd`/patches/problemSyncMultiDomainBug3197.patch -d $pythonDistPackages
 
 service kolabd restart
