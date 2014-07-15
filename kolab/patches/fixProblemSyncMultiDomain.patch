@@ -1,20 +1,34 @@
---- a/pykolab/auth/ldap/__init__.py	2014-07-14 13:51:25.819960000 +0200
-+++ b/pykolab/auth/ldap/__init__.py	2014-07-14 13:51:05.691960012 +0200
-@@ -2194,7 +2194,7 @@
-            The exact form and shape of the feedback very much depends on the
-            supportedControl used to even get the data.
-         """
--
-+        entry = None
-         log.debug(
-                 "auth.ldap.LDAP._synchronize_callback(args %r, kw %r)" % (
-                         args,
-@@ -2296,6 +2296,8 @@
- #                        )
- #
- #                    server = self.imap.user_mailbox_server(folder)
-+        if entry == None:
-+          return
-         log.debug(
-                 _("Done with _synchronize_callback() for entry %r") % (
-                         entry['id']
+--- a/pykolab/auth/ldap/cache.py	2014-07-15 16:31:04.639728896 +0200
++++ b/pykolab/auth/ldap/cache.py	2014-07-15 16:35:48.239728529 +0200
+@@ -52,7 +52,7 @@
+ 
+ metadata = MetaData()
+ 
+-db = None
++db = {}
+ 
+ ##
+ ## Classes
+@@ -164,8 +164,8 @@
+     """
+     global db
+ 
+-    if not db == None and not reinit:
+-        return db
++    if domain in db and not reinit:
++        return db[domain]
+ 
+     if reinit:
+         import os
+@@ -179,9 +179,9 @@
+     metadata.create_all(engine)
+ 
+     Session = sessionmaker(bind=engine)
+-    db = Session()
++    db[domain] = Session()
+ 
+-    return db
++    return db[domain]
+ 
+ def last_modify_timestamp(domain):
+     db = init_db(domain)
