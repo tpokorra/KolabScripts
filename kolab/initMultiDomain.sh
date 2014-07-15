@@ -21,9 +21,11 @@ patchesurl=https://raw.github.com/TBits/KolabScripts/Kolab3.2/kolab/patches
 # but that would mean that we need separate files for each domain...
 #####################################################################################
 cp -f /etc/imapd.conf /etc/imapd.conf.beforeMultiDomain
-sed -r -i -e 's/^auth_mech/#auth_mech/g' /etc/imapd.conf
-sed -r -i -e 's/^pts_module/#pts_module/g' /etc/imapd.conf
-sed -r -i -e 's/^ldap_/#ldap_/g' /etc/imapd.conf
+echo "ldap_domain_base_dn: cn=kolab,cn=config
+ldap_domain_filter: (&(objectclass=domainrelatedobject)(associateddomain=%s))
+ldap_domain_name_attribute: associatedDomain
+ldap_domain_scope: sub
+ldap_domain_result_attribute: inetdomainbasedn" >> /etc/imapd.conf
 service cyrus-imapd restart
 
 #####################################################################################
