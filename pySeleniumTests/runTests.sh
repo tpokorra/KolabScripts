@@ -14,7 +14,9 @@ hasError=0
 if [[ "$tests" == "all" || "$tests" == "vanilla" ]]; then
   ./testCreateUserAndEditSelf.py KolabWAPCreateUserAndEditSelf.test_edit_user_himself || hasError=1
   ./testRoundcubeChangePassword.py KolabRoundcubeChangePassword.test_edit_user_password || hasError=1
+  ./testAutoCreateFolders.py KolabAutoCreateFolders.test_modified_foldername || hasError=1
   ./testEmailSendAndReceive.py || hasError=1
+  ./testEmailSharedFolders.py || hasError=1
 fi
 
 # requires configuration for catchall and forwarding, and multidomain
@@ -30,11 +32,9 @@ if [[ "$tests" == "all" || "$tests" == "multidomain" ]]; then
   # these tests have been run in vanilla, but this time we run all test cases, and with SSL
   ./testCreateUserAndEditSelf.py || hasError=1
   ./testRoundcubeChangePassword.py || hasError=1
-  ./testEmailSendAndReceive.py || hasError=1
+  ./testAutoCreateFolders.py || hasError=1
 
   ./testEmailCatchAllAcrossDomains.py || hasError=1
-  ./testAutoCreateFolders.py || hasError=1
-  ./testEmailSharedFolders.py || hasError=1
 fi
 
 # requires domain admin patch
