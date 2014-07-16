@@ -53,7 +53,7 @@ class KolabWAPCreateUserAndEditSelf(unittest.TestCase):
 
     def test_edit_user_himself_multi_domain_with_quota(self):
         kolabWAPhelper = self.kolabWAPhelper
-        kolabWAPhelper.log("Running test: test_edit_user_himself_multi_domain")
+        kolabWAPhelper.log("Running test: test_edit_user_himself_multi_domain_with_quota")
         
         # login Directory Manager
         kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
