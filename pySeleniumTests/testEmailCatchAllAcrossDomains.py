@@ -54,7 +54,7 @@ class KolabEmailCatchAllAcrossDomains(unittest.TestCase):
 
         # login user to roundcube and check for email
         kolabWAPhelper.login_roundcube("/roundcubemail", emailLogin, password)
-        kolabWAPhelper.check_email_received("subject " + aliasdomainname)
+        kolabWAPhelper.check_email_received(emailSubjectLine="subject " + aliasdomainname)
         kolabWAPhelper.logout_roundcube()
 
     def tearDown(self):

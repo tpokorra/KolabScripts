@@ -33,7 +33,7 @@ class KolabEmailSendAndReceiveEmail(unittest.TestCase):
 
         # login user2 to roundcube and check for email
         kolabWAPhelper.login_roundcube("/roundcubemail", emailLogin2, password2)
-        kolabWAPhelper.check_email_received(emailSubjectLine)
+        kolabWAPhelper.check_email_received(emailSubjectLine=emailSubjectLine)
         kolabWAPhelper.logout_roundcube()
 
     def tearDown(self):

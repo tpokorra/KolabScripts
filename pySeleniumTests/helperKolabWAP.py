@@ -6,6 +6,9 @@ import subprocess
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
+from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 
 # useful functions for testing kolab-webadmin
 class KolabWAPTestHelpers(unittest.TestCase):
@@ -423,19 +426,41 @@ class KolabWAPTestHelpers(unittest.TestCase):
         driver.get(url + "?_task=mail&_mbox=" + folder)
         self.wait_loading(0.5)
 
+        # check for valid folder, should be selected
         try:
-            elem = driver.find_element_by_xpath("//table[@id=\"messagelist\"]/tbody/tr/td[@class=\"subject\"]/a")
+            elem = driver.find_element_by_xpath("//ul[@id=\"mailboxlist\"]/li[contains(@class, 'mailbox " + folder.lower() + " selected')]")
         except NoSuchElementException, e:
-            if emailSubjectLine is not None:
-                self.assertEquals(emailSubjectLine, "empty", "email subject should be " + emailSubjectLine + " but there was no email at all")
-            return
+            self.assertEquals(folder, "not found", "cannot select the folder " + folder + " " + "//ul[@id=\"mailboxlist\"]/li[@class=\"mailbox " + folder.lower() + " selected\"]")
 
+        wait = WebDriverWait(driver, 10);
+
+        # there seem to be problems to load the message list in Selenium.
+        # is the javascript method not run to load the message list?
+        # if emailSubjectLine is not None:
+        #   elem = wait.until(EC.visibility_of_element_located(
+        #              (By.XPATH, "//table[@id=\"messagelist\"]/tbody/tr/td[@class=\"subject\"]/a[text()='" + emailSubjectLine + "']")),
+        #          "cannot find the email with subject " + emailSubjectLine)
+        # if emailSubjectLineDoesNotContain is not None:
+        #   try:
+        #     elem = wait.until(EC.visibility_of_element_located((By.XPATH, "//table[@id=\"messagelist\"]/tbody/tr/td[@class=\"subject\"]/a[text()='" + emailSubjectLineDoesNotContain + "'")),
+        #          "cannot find the email with subject " + emailSubjectLineDoesNotContain);
+        #     self.assertTrue(False, "email subject should not contain " + emailSubjectLineDoesNotContain + " but was " + elem.text)
+        #   except TimeoutException, e:
+        #     self.assertTrue(True, "we expect a timeout, since we don't want to find the email with this subject") 
+
+        # roundcubemail/?_task=mail&_action=show&_uid=1&_mbox=INBOX
+        driver.get(url + "?_task=mail&_action=show&_uid=1&_mbox=" + folder)
         if emailSubjectLine is not None:
-            self.assertEquals(emailSubjectLine, elem.text, "email subject should be " + emailSubjectLine + " but was " + elem.text)
-
+           elem = wait.until(EC.visibility_of_element_located(
+                      (By.XPATH, "//h2[@class='subject'][text()='" + emailSubjectLine + "']")),
+                   "the first email does not have the subject " + emailSubjectLine)
         if emailSubjectLineDoesNotContain is not None:
-            if emailSubjectLineDoesNotContain in elem.text:
-                self.assertTrue(False, "email subject should not contain " + emailSubjectLineDoesNotContain + " but was " + elem.text)
+           try:
+             elem = wait.until(EC.visibility_of_element_located((By.XPATH, "//h2[@class='subject'][text()='" + emailSubjectLineDoesNotContain + "']")),
+                  "cannot find the email with subject " + emailSubjectLineDoesNotContain);
+             self.assertTrue(False, "email subject should not contain " + emailSubjectLineDoesNotContain + " but was " + elem.text)
+           except TimeoutException, e:
+             self.assertTrue(True, "we expect a timeout, since we don't want to find the email with this subject as the first email") 
 
     def log_current_page(self):
         filename = "/tmp/output" + datetime.datetime.now().strftime("%Y%m%d%H%M%S") + ".html"

@@ -43,7 +43,7 @@ class KolabEmailMailForwarding(unittest.TestCase):
 
         # login user to roundcube and check for email
         kolabWAPhelper.login_roundcube("/roundcubemail", emailLogin, password)
-        kolabWAPhelper.check_email_received(subject)
+        kolabWAPhelper.check_email_received(emailSubjectLine=subject)
         kolabWAPhelper.logout_roundcube()
 
     def test_mail_forwarding_external(self):
@@ -72,7 +72,7 @@ class KolabEmailMailForwarding(unittest.TestCase):
         print "sending email to " + emailForwardAddress
         emailSubjectLine = kolabWAPhelper.send_email(emailForwardAddress)
         kolabWAPhelper.wait_loading(5.0)
-        kolabWAPhelper.check_email_received("Re: " + emailSubjectLine)
+        kolabWAPhelper.check_email_received(emailSubjectLine="Re: " + emailSubjectLine)
         kolabWAPhelper.logout_roundcube()
 
     def tearDown(self):
