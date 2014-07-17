@@ -30,4 +30,4 @@ patch -p1 -i `pwd`/patches/setupkolab_yes_quietBug2598.patch -d $pythonDistPacka
 echo "applying setupkolab_directory_manager_pwdBug2645.patch"
 patch -p1 -i `pwd`/patches/setupkolab_directory_manager_pwdBug2645.patch -d $pythonDistPackages
 echo "applying wallaceInitScriptBug917.patch"
-patch -p1 -i < wallaceInitScriptBug917.patch -d /etc
+patch -p1 -i < `pwd`/patches/wallaceInitScriptBug917.patch -d /etc
