@@ -427,11 +427,17 @@ class KolabWAPTestHelpers(unittest.TestCase):
         driver.get(url + "?_task=mail&_mbox=" + folder)
         self.wait_loading(0.5)
 
-        # check for valid folder, should be selected
-        try:
-            elem = driver.find_element_by_xpath("//ul[@id=\"mailboxlist\"]/li[contains(@class, 'mailbox " + folder.lower() + " selected')]")
-        except NoSuchElementException, e:
-            self.assertEquals(folder, "not found", "cannot select the folder " + folder + " " + "//ul[@id=\"mailboxlist\"]/li[@class=\"mailbox " + folder.lower() + " selected\"]")
+        # check for valid folder
+        if "Shared+Folders" in folder:
+            if "Server Error: STATUS: Mailbox does not exist" in self.driver.page_source:
+                self.assertEquals("no error", "invalid folder", "Folder does not exist: " + folder)
+        else:
+            # normal folder, should be selected
+            # somehow, the error message Mailbox does not exist is not picked up by Selenium when the folder does not exist
+            try:
+                elem = driver.find_element_by_xpath("//ul[@id=\"mailboxlist\"]/li[contains(@class, 'mailbox " + folder.lower() + " selected')]")
+            except NoSuchElementException, e:
+                self.assertEquals(folder, "not found", "cannot select the folder " + folder + " " + "//ul[@id=\"mailboxlist\"]/li[@class=\"mailbox " + folder.lower() + " selected\"]")
 
         wait = WebDriverWait(driver, 10);
 
