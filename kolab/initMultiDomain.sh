@@ -98,6 +98,11 @@ sed -r -i -e "s#base_dn = .*#base_dn = %dc#g" /usr/share/kolab-freebusy/config/c
 #####################################################################################
 sed -r -i -e 's#bind_dn = (.*)#bind_dn = "\1"#g' /usr/share/kolab-freebusy/config/config.ini
 
+#####################################################################################
+#auto created folders: do not use an extra partition for the archive folder. 
+#see https://issues.kolab.org/show_bug.cgi?id=3210
+#####################################################################################
+sed -r -i -e "s#'partition': 'archive'##g" /etc/kolab/kolab.conf
 
 #####################################################################################
 # Fix Global Address Book in Multi Domain environment
