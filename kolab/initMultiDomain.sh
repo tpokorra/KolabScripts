@@ -131,7 +131,7 @@ sed -r -i -e "s#\[kolab\]#[kolab]\npostfix_virtual_file = $postfix_virtual_file#
 #avoid a couple of warnings by setting default values
 #####################################################################################
 sed -r -i -e "s#\[ldap\]#[ldap]\nmodifytimestamp_format = %%Y%%m%%d%%H%%M%%SZ#g" /etc/kolab/kolab.conf
-sed -r -i -e "s/\[cyrus-imap\]/[imap]\nvirtual_domains = userid\n[cyrus-imap]/g" /etc/kolab/kolab.conf
+sed -r -i -e "s/\[cyrus-imap\]/[imap]\nvirtual_domains = userid\n\n[cyrus-imap]/g" /etc/kolab/kolab.conf
 
 #####################################################################################
 # apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=1869
