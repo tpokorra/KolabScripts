@@ -39,7 +39,7 @@ class KolabEmailCatchAllAcrossDomains(unittest.TestCase):
 
         # add alias domain, and call postmap
         postfixfile="/etc/postfix/virtual_alias_maps_manual.cf"
-        subprocess.call(['/bin/bash', '-c', 'echo "catchall@' + aliasdomainname + ' ' + username + '.' + username +'@' + domainname + '" >> ' + postfixfile])
+        subprocess.call(['/bin/bash', '-c', 'echo "@' + aliasdomainname + ' ' + username + '.' + username +'@' + domainname + '" >> ' + postfixfile])
         subprocess.call(['postmap', postfixfile])
         subprocess.call(['service', 'postfix', 'restart'])
         
