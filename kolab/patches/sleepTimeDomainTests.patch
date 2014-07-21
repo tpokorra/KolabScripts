@@ -1,0 +1,14 @@
+diff --git a/kolabd/__init__.py b/kolabd/__init__.py
+index 92a929c..ddc7dcb 100644
+--- a/kolabd/__init__.py
++++ b/kolabd/__init__.py
+@@ -288,7 +288,7 @@ class KolabDaemon(object):
+                 domain_auth[domain].start()
+                 # Pause or hammer your LDAP server to death
+                 if len(added_domains) >= 5:
+-                    time.sleep(10)
++                    time.sleep(1)
+ 
+             for domain in removed_domains:
+                 domain_auth[domain].terminate()
+

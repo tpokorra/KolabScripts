@@ -117,11 +117,6 @@ sed -r -i -e "s#'ou=Groups,.*'#'ou=Groups,%dc'#g" /etc/roundcubemail/config.inc.
 sed -r -i -e "s/primary_mail = .*/primary_mail = %(givenname)s.%(surname)s@%(domain)s/g" /etc/kolab/kolab.conf
 
 #####################################################################################
-#reduce the sleep time between adding domains, see https://issues.kolab.org/show_bug.cgi?id=2491
-#####################################################################################
-sed -r -i -e "s/\[kolab\]/[kolab]\ndomain_sync_interval = 10/g" /etc/kolab/kolab.conf
-
-#####################################################################################
 #make sure that for alias domains, the emails will actually arrive, by checking the postfix file
 #see https://issues.kolab.org/show_bug.cgi?id=2658
 #####################################################################################
