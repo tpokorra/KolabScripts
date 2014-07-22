@@ -1,6 +1,6 @@
 --- a/public_html/js/kolab_admin.js	2014-02-11 11:37:44.000000000 +0100
 +++ b/public_html/js/kolab_admin.js	2014-07-11 14:44:12.623960515 +0200
-@@ -766,6 +766,8 @@
+@@ -808,6 +808,8 @@
        var unit = $('select[name="' + this.name + '-unit"]').val();
        if (unit && this.value)
          data.json[this.name] = this.value + unit;
