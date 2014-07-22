@@ -20,11 +20,9 @@ class KolabRoundcubeChangePassword(unittest.TestCase):
         driver = self.driver
 
         url = driver.current_url[:driver.current_url.find("?")]
-        driver.get(url + "?_task=settings")
+        driver.get(url + "?_task=settings&_action=plugin.password")
         self.kolabWAPhelper.wait_loading(0.5)
 
-        driver.find_element_by_xpath("//div[@id=\"settings-tabs\"]/span[@class=\"listitem password\"]/a").click()
-        self.kolabWAPhelper.wait_loading()
         elem = driver.find_element_by_id("curpasswd")
         elem.send_keys("test")
         elem = driver.find_element_by_id("newpasswd")

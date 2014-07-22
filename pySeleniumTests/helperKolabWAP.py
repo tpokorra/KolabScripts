@@ -415,7 +415,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem.send_keys(emailSubjectLine)
         elem = driver.find_element_by_name("_message")
         elem.send_keys("Hello World")
-        driver.find_element_by_xpath("//div[@id=\"mailtoolbar\"]/a[@class=\"button send\"]").click()
+        driver.find_element_by_xpath("//div[@id=\"messagetoolbar\"]/a[@class=\"button send\"]").click()
         self.wait_loading()
 
         return emailSubjectLine
