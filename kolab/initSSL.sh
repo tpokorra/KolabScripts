@@ -88,6 +88,10 @@ sed -r -i \
     -e "s|^tls_key_file:.*|tls_key_file: $key_directory/private/$server_name.key|g" \
     -e "s|^tls_ca_file:.*|tls_ca_file: $key_directory/certs/$server_name.ca-chain.pem|g" \
     /etc/imapd.conf
+echo "test\
+test" | saslpasswd2 /etc/sasldb2
+chown cyrus: /etc/sasldb2
+chmod 640 /etc/sasldb2
 service cyrus-imapd restart
 
 #####################################################################################
