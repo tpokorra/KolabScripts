@@ -391,7 +391,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
             # wait a couple of seconds until the sync script has been run (perhaps even the domain still needs to be created?)
             out = ""
             starttime=datetime.datetime.now()
-            while username not in out and (datetime.datetime.now()-starttime).seconds < 180:
+            while username not in out and (datetime.datetime.now()-starttime).seconds < 60:
                 self.wait_loading(1)
                 p = subprocess.Popen("kolab list-mailboxes | grep " + username, shell=True, stdout=subprocess.PIPE)
                 out, err = p.communicate()
