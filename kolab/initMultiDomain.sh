@@ -21,11 +21,28 @@ patchesurl=https://raw.github.com/TBits/KolabScripts/Kolab3.2/kolab/patches
 # but that would mean that we need separate files for each domain...
 #####################################################################################
 cp -f /etc/imapd.conf /etc/imapd.conf.beforeMultiDomain
+sed -i -e "s#ldap_base: .*#ldap_base: dc=%2,dc=%1#g" /etc/imapd.conf
+sed -i -e "s#ldap_group_base: .*#ldap_group_base: dc=%2,dc=%1#g" /etc/imapd.conf
+sed -i -e "s#ldap_member_base: .*#ldap_member_base: ou=People,dc=%2,dc=%1#g" /etc/imapd.conf
+
 echo "ldap_domain_base_dn: cn=kolab,cn=config
 ldap_domain_filter: (&(objectclass=domainrelatedobject)(associateddomain=%s))
 ldap_domain_name_attribute: associatedDomain
 ldap_domain_scope: sub
 ldap_domain_result_attribute: inetdomainbasedn" >> /etc/imapd.conf
+
+if [ 1 -eq 2 ]
+then
+# remove canonification
+sed -i \
+    -e 's/^auth_mech/#auth_mech/g' \
+    -e 's/^pts_module/#pts_module/g' \
+    -e 's/^ldap_/#ldap_/g' \
+    -e 's/auxprop saslauthd/saslauthd/' \
+    -e '/ptloader/d' \
+    /etc/cyrus.conf \
+    /etc/imapd.conf
+fi
 service cyrus-imapd restart
 
 #####################################################################################
