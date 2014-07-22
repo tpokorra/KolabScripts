@@ -29,3 +29,5 @@ if [ ! -d $pythonDistPackages ]; then
 fi
 
 patch -p1 -i `pwd`/patches/sleepTimeDomainTests.patch -d $pythonDistPackages
+
+service kolabd restart
