@@ -481,12 +481,11 @@ index 40c2fcc..0100a83 100644
              'asterisk'      => 'user.asterisk',
              'other'         => 'user.other',
          );
-@@ -143,6 +144,10 @@ class kolab_client_task_user extends kolab_client_task
+@@ -143,6 +144,9 @@ class kolab_client_task_user extends kolab_client_task
              'kolabhomeserver'           => 'config',
              'mailhost'                  => 'config',
              'mailquota'                 => 'config',
 +            'tbitskolabmaxaccounts'     => 'domainadmin',
-+            'tbitskolaballowgroupware'  => 'domainadmin',
 +            'tbitskolaboverallquota'    => 'domainadmin',
 +            'tbitskolabdefaultquota'    => 'domainadmin',
              'cyrususerquota'            => 'config',
@@ -634,11 +633,10 @@ index b88e520..607f36a 100644
  $LANG['user.edit.success'] = 'Benutzer erfolgreich bearbeitet.';
  $LANG['user.fax'] = 'Faxnummer';
  $LANG['user.fbinterval'] = 'Frei-Beschäftigt Intervall';
-@@ -238,6 +241,10 @@ $LANG['user.sn'] = 'Nachname';
+@@ -238,6 +241,9 @@ $LANG['user.sn'] = 'Nachname';
  $LANG['user.street'] = 'Straße';
  $LANG['user.system'] = 'System';
  $LANG['user.telephonenumber'] = 'Telefonnummer';
-+$LANG['user.tbitskolaballowgroupware'] = 'Erlaube Groupware Funktionen für Benutzer';
 +$LANG['user.tbitskolabmaxaccounts'] = 'Maximale Anzahl von Benutzerkonten';
 +$LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
 +$LANG['user.tbitskolabdefaultquota'] = 'Voreinstellung Quota für Benutzerkonten';
@@ -669,11 +667,10 @@ index bc42754..339cbc7 100644
  $LANG['user.edit.success'] = 'User updated successfully.';
  $LANG['user.fax'] = 'Fax number';
  $LANG['user.fbinterval'] = 'Free-Busy interval';
-@@ -315,6 +318,10 @@ $LANG['user.sn'] = 'Surname';
+@@ -315,6 +318,9 @@ $LANG['user.sn'] = 'Surname';
  $LANG['user.street'] = 'Street';
  $LANG['user.system'] = 'System';
  $LANG['user.telephonenumber'] = 'Phone Number';
-+$LANG['user.tbitskolaballowgroupware'] = 'Allow Groupware features for accounts';
 +$LANG['user.tbitskolabmaxaccounts'] = 'Maximum number of accounts';
 +$LANG['user.tbitskolaboverallquota'] = 'Overall Quota assigned';
 +$LANG['user.tbitskolabdefaultquota'] = 'Default Quota for user accounts';
