@@ -54,7 +54,7 @@ diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_servic
 index 79a4720..f0d99ec 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1257,7 +1257,66 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1257,7 +1257,72 @@ class kolab_api_service_form_value extends kolab_api_service
  
      private function validate_mailquota($value, $postdata = array(), $validation_type = null)
      {
@@ -62,7 +62,7 @@ index 79a4720..f0d99ec 100644
 +        $value = $this->validate_quota($value, $postdata, $validation_type);
 +
 +        if (empty($value)) {
-+            return $value;
++            $value = 0;
 +        }
 +
 +        if (!is_numeric($value)) {
@@ -85,6 +85,12 @@ index 79a4720..f0d99ec 100644
 +
 +            if (isset($result)) {
 +                $domainadminquota = $result[$quota_attribute];
++
++                if ($value == 0 && $domainadminquota != 0) {
++                    throw new Exception('error: You must specify a mailquota for the user. <br/>'.
++                           'An unlimited mailquota is not permitted for your user because you have a limited overall mailquota.');
++                }
++
 +                $domainadmin = $result['domainadmin'];
 +                // get all quotas from all users of that domain admin, excluding this user
 +                $quota_used = $auth->domainadmin_get_user_quota($domainadmin, 'uid='.$postdata['uid'].','.$postdata['ou']);
