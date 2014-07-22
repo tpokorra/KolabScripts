@@ -1,9 +1,9 @@
 diff --git a/lib/Auth.php b/lib/Auth.php
-index 40f3049..701c385 100644
+index b492f86..37885be 100644
 --- a/lib/Auth.php
 +++ b/lib/Auth.php
-@@ -234,6 +234,16 @@ class Auth {
-         return $this->auth_instance()->domain_info($domaindata);
+@@ -221,6 +221,16 @@ class Auth {
+         return $this->auth_instance()->domain_is_empty($domain);
      }
  
 +    public function domainadmin_get_domains($domainadmin)
@@ -20,7 +20,7 @@ index 40f3049..701c385 100644
      {
          return $this->auth_instance()->find_recipient($address);
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index 8175668..15b0c55 100644
+index 0c03be0..6ad01c3 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
 @@ -146,6 +146,22 @@ class LDAP extends Net_LDAP3 {
@@ -46,32 +46,92 @@ index 8175668..15b0c55 100644
          return $result;
      }
  
-@@ -175,6 +191,9 @@ class LDAP extends Net_LDAP3 {
+@@ -178,6 +194,9 @@ class LDAP extends Net_LDAP3 {
              array_unshift($attributes[$domain_name_attribute], $domain);
          }
  
 +        $attributes_domainadmin = $attributes["domainadmin"];
 +        unset($attributes["domainadmin"]);
 +
-         $dn = $domain_name_attribute . '=' . $domain . ',' . $domain_base_dn;
+         $domain_dn = $domain_name_attribute . '=' . $domain . ',' . $domain_base_dn;
  
-         $result = $this->add_entry($dn, $attributes);
-@@ -464,9 +483,159 @@ class LDAP extends Net_LDAP3 {
+         $result = $this->add_entry($domain_dn, $attributes);
+@@ -186,6 +205,8 @@ class LDAP extends Net_LDAP3 {
+             return false;
+         }
  
-         $this->add_entry($dn, $attrs);
- 
-+        $domain = $this->domain_info($domain, array_keys($attributes));
-+
-+        if (empty($domain)) {
-+            return false;
-+        }
-+
-+        $domain_dn = key($domain);
-+
 +        $this->domain_admin_save($domain, $domain_dn, $attributes_domainadmin);
 +
-+        return true;
-+    }
+         if (!empty($attributes['inetdomainbasedn'])) {
+             $inetdomainbasedn = $attributes['inetdomainbasedn'];
+         }
+@@ -381,6 +402,16 @@ class LDAP extends Net_LDAP3 {
+ 
+         $domain_dn = key($domain);
+ 
++        # using isset, because if the array is empty, then we want to drop the domain admins.
++        if (isset($attributes["domainadmin"])) {
++            $this->domain_admin_save($domain, $domain_dn, $attributes["domainadmin"]);
++            unset($attributes["domainadmin"]);
++        }
++
++        // unset the domainadmin and aci values in the original value, to avoid problems during ldap modify
++        unset($domain[$domain_dn]["domainadmin"]);
++        unset($domain[$domain_dn]["aci"]);
++
+         // We should start throwing stuff over the fence here.
+         return $this->modify_entry($domain_dn, $domain[$domain_dn], $attributes);
+     }
+@@ -428,6 +459,36 @@ class LDAP extends Net_LDAP3 {
+             $result = $this->_read($domain_dn, $attributes);
+         }
+ 
++        if ($result) {
++            if (!$domain_dn) {
++                $domain_dn=array_shift(array_keys($result));
++            }
++
++            if (isset($result[$domain_dn]["associateddomain"])) {
++                $currentdomain_dn = $this->_standard_root_dn($result[$domain_dn]["associateddomain"]);
++            } else {
++                $currentdomain_dn = $domain_dn;
++            }
++
++            $currentdomain_da_dn = "cn=Directory Administrators,".$currentdomain_dn;
++
++            $domain_admins_result = $this->_search($currentdomain_dn, "cn=Directory Administrators*", array("uniqueMember"));
++            if ($domain_admins_result != null && count($domain_admins_result) > 0) {
++                $domain_admins = $domain_admins_result->entries(true);
++            }
++
++            // read domain admins from LDAP, uniqueMembers of Directory Administrators of domain
++            $result[$domain_dn]["domainadmin"] = array();
++            if (is_array($domain_admins[$currentdomain_da_dn]["uniquemember"])) {
++                foreach ($domain_admins[$currentdomain_da_dn]["uniquemember"] as $domainadmin) {
++                    $result[$domain_dn]["domainadmin"][] = $domainadmin;
++                }
++            }
++            else {
++                $result[$domain_dn]["domainadmin"][] = $domain_admins[$currentdomain_da_dn]["uniquemember"];
++            }
++        }
++
+         $this->_log(LOG_DEBUG, "Auth::LDAP::domain_info() result: " . var_export($result, true));
+ 
+         return $result ? $result : false;
+@@ -984,6 +1045,8 @@ class LDAP extends Net_LDAP3 {
+                 $pass = $result['replace']['userpassword'];
+                 $_SESSION['user']->user_bind_pw = is_array($pass) ? implode($pass) : $pass;
+             }
++
++            $domain_dn = key($result);
+         }
+ 
+         return $result;
+@@ -1709,4 +1772,144 @@ class LDAP extends Net_LDAP3 {
+ 
+         return false;
+     }
 +
 +    private function ChangeDomainReadCapability($user, $domain, $action='add')
 +    {
@@ -108,9 +168,9 @@ index 8175668..15b0c55 100644
 +        }
 +
 +        ldap_close($tmpconn);
-         return true;
-     }
- 
++        return true;
++    }
++
 +    private function domain_admin_save($domain, $domain_dn, $domainadmins) {
 +        $currentdomain_dn = $this->_standard_root_dn($domain[$domain_dn]["associateddomain"]);
 +        $currentdomain_da_dn = "cn=Directory Administrators,".$currentdomain_dn;
@@ -125,7 +185,7 @@ index 8175668..15b0c55 100644
 +        }
 +
 +        if (!is_array($domain_admins[$currentdomain_da_dn]["uniquemember"])) {
-+            $domain_admins[$currentdomain_da_dn]["uniquemember"] = 
++            $domain_admins[$currentdomain_da_dn]["uniquemember"] =
 +              (array)($domain_admins[$currentdomain_da_dn]["uniquemember"]);
 +        }
 +
@@ -155,9 +215,9 @@ index 8175668..15b0c55 100644
 +                $this->ChangeDomainReadCapability($oldadmin, $domain[$domain_dn]["associateddomain"], 'remove');
 +            }
 +        }
-+
-+        $result = $this->modify_entry($currentdomain_da_dn, $domain_admins[$currentdomain_da_dn], $info);
 +        
++        $result = $this->modify_entry($currentdomain_da_dn, $domain_admins[$currentdomain_da_dn], $info);
++
 +        if (!$result) {
 +            return false;
 +        }
@@ -212,78 +272,12 @@ index 8175668..15b0c55 100644
 +
 +        return array('domainadmin' => $maindomainadmin, $config_flag => $resultvalue);
 +    }
-+
-     public function domain_edit($domain, $attributes, $typeid = null)
-     {
-         $domain = $this->domain_info($domain, array_keys($attributes));
-@@ -477,6 +646,16 @@ class LDAP extends Net_LDAP3 {
- 
-         $domain_dn = key($domain);
- 
-+        # using isset, because if the array is empty, then we want to drop the domain admins.
-+        if (isset($attributes["domainadmin"])) {
-+            $this->domain_admin_save($domain, $domain_dn, $attributes["domainadmin"]);
-+            unset($attributes["domainadmin"]);
-+        }
-+
-+        // unset the domainadmin and aci values in the original value, to avoid problems during ldap modify
-+        unset($domain[$domain_dn]["domainadmin"]);
-+        unset($domain[$domain_dn]["aci"]);
-+
-         // We should start throwing stuff over the fence here.
-         return $this->modify_entry($domain_dn, $domain[$domain_dn], $attributes);
-     }
-@@ -578,6 +757,36 @@ class LDAP extends Net_LDAP3 {
-             $result = $this->_read($domain_dn, $attributes);
-         }
- 
-+        if ($result) {
-+            if (!$domain_dn) {
-+                $domain_dn=array_shift(array_keys($result));
-+            }
-+
-+            if (isset($result[$domain_dn]["associateddomain"])) {
-+                $currentdomain_dn = $this->_standard_root_dn($result[$domain_dn]["associateddomain"]);
-+            } else {
-+                $currentdomain_dn = $domain_dn;
-+            }
-+
-+            $currentdomain_da_dn = "cn=Directory Administrators,".$currentdomain_dn;
-+
-+            $domain_admins_result = $this->_search($currentdomain_dn, "cn=Directory Administrators*", array("uniqueMember"));
-+            if ($domain_admins_result != null && count($domain_admins_result) > 0) {
-+                $domain_admins = $domain_admins_result->entries(true);
-+            }
-+
-+            // read domain admins from LDAP, uniqueMembers of Directory Administrators of domain
-+            $result[$domain_dn]["domainadmin"] = array();
-+            if (is_array($domain_admins[$currentdomain_da_dn]["uniquemember"])) {
-+                foreach ($domain_admins[$currentdomain_da_dn]["uniquemember"] as $domainadmin) {
-+                    $result[$domain_dn]["domainadmin"][] = $domainadmin;
-+                }
-+            }
-+            else {
-+                $result[$domain_dn]["domainadmin"][] = $domain_admins[$currentdomain_da_dn]["uniquemember"];
-+            }
-+        }
-+
-         $this->_log(LOG_DEBUG, "Auth::LDAP::domain_info() result: " . var_export($result, true));
- 
-         return $result ? $result : false;
-@@ -1029,6 +1232,8 @@ class LDAP extends Net_LDAP3 {
-                 $pass = $result['replace']['userpassword'];
-                 $_SESSION['user']->user_bind_pw = is_array($pass) ? implode($pass) : $pass;
-             }
-+
-+            $domain_dn = key($result);
-         }
- 
-         return $result;
+ }
 diff --git a/lib/api/kolab_api_service_domain.php b/lib/api/kolab_api_service_domain.php
-index 4d5fcaa..da50b97 100644
+index 16b1908..625b696 100644
 --- a/lib/api/kolab_api_service_domain.php
 +++ b/lib/api/kolab_api_service_domain.php
-@@ -235,4 +235,25 @@ class kolab_api_service_domain extends kolab_api_service
+@@ -265,4 +265,25 @@ class kolab_api_service_domain extends kolab_api_service
  
          return false;
      }
@@ -310,7 +304,7 @@ index 4d5fcaa..da50b97 100644
 +    }
  }
 diff --git a/lib/api/kolab_api_service_domain_types.php b/lib/api/kolab_api_service_domain_types.php
-index 6829047..5334112 100644
+index 189b39f..d15c119 100644
 --- a/lib/api/kolab_api_service_domain_types.php
 +++ b/lib/api/kolab_api_service_domain_types.php
 @@ -34,6 +34,10 @@ class kolab_api_service_domain_types extends kolab_api_service
@@ -325,10 +319,10 @@ index 6829047..5334112 100644
                  'optional' => true,
              ),
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
-index c00eb8f..540ebf3 100644
+index a48d44a..16475db 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1047,6 +1047,41 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1031,6 +1031,41 @@ class kolab_api_service_form_value extends kolab_api_service
          );
      }
  
@@ -370,7 +364,7 @@ index c00eb8f..540ebf3 100644
      private function select_options_preferredlanguage($postdata, $attribs = array())
      {
          $options = $this->_select_options_from_db('preferredlanguage');
-@@ -1207,7 +1242,7 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1189,7 +1224,7 @@ class kolab_api_service_form_value extends kolab_api_service
          return 'OK';
      }
  
@@ -379,7 +373,7 @@ index c00eb8f..540ebf3 100644
      {
          // convert MB/GB into KB
          if (preg_match('/^([0-9]+)\s*(KB|MB|GB)$/i', $value, $m)) {
-@@ -1217,10 +1252,24 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1199,10 +1234,24 @@ class kolab_api_service_form_value extends kolab_api_service
              case 'GB': $value = $m[1] * 1024 * 1024; break;
              }
          }
@@ -405,7 +399,7 @@ index c00eb8f..540ebf3 100644
      private function validate_mailalternateaddress($value, $postdata = array(), $validation_type = null)
      {
          $conf = Conf::get_instance();
-@@ -1476,6 +1525,19 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1507,6 +1556,19 @@ class kolab_api_service_form_value extends kolab_api_service
          if (in_array($email_domain, $valid_domains)) {
              $valid = true;
          }
@@ -425,8 +419,79 @@ index c00eb8f..540ebf3 100644
  
          if ($valid) {
              Log::trace("Found email address to be in one of my domains.");
+diff --git a/lib/api/kolab_api_service_form_value.php.orig b/lib/api/kolab_api_service_form_value.php.orig
+index e066d8a..a48d44a 100644
+--- a/lib/api/kolab_api_service_form_value.php.orig
++++ b/lib/api/kolab_api_service_form_value.php.orig
+@@ -1120,6 +1120,9 @@ class kolab_api_service_form_value extends kolab_api_service
+                 if (!$this->_validate_email_address_in_any_of_my_domains($mail_address)) {
+                     throw new Exception("Email address '$mail_address' not in local domain", 693);
+                 }
++                if (!$this->_validate_crossdomain_alias($mail_address, $postdata['mail'])) {
++                    throw new Exception("Alias '$mail_address' must be configured manually for '".$postdata['mail']."'");
++                }
+             }
+         }
+ 
+@@ -1514,4 +1517,56 @@ class kolab_api_service_form_value extends kolab_api_service
+         return $valid;
+     }
+ 
++    private function _validate_crossdomain_alias($mail_address, $primary_address)
++    {
++        $at_index = strrpos($mail_address, "@");
++        if (is_bool($at_index) && !$at_index) {
++            throw new Exception("Invalid email address: No domain name space", 235);
++        } else {
++            $email_domain = substr($mail_address, $at_index+1);
++        }
++
++        $my_primary_domain = $_SESSION['user']->get_domain();
++
++        if ($email_domain == $my_primary_domain) {
++            return true;
++        }
++
++        $valid = true;
++
++        // if /etc/postfix/ldap/virtual_alias_maps.cf contains: search_base = dc=%2,dc=%1
++        // instead of the hard coded domain name then we need a row 
++        // in the manually edited virtual alias file that matches the two domains
++        $conf = Conf::get_instance();
++        $postfix_virtual_file = $conf->get("kolab", "postfix_virtual_file");
++        if ($postfix_virtual_file != null) {
++            $valid = false;
++            $localpart_alias=substr($mail_address, 0, $at_index);
++            $localpart_primary_address=substr($primary_address, 0, strrpos($primary_address, "@"));
++            $content = file($postfix_virtual_file);
++            foreach ($content as $line) {
++                if (trim($line) == $mail_address.' '.$primary_address) {
++                    // catchall, or specific address
++                    $valid = true;
++                } else if ($localpart_alias == $localpart_primary_address) {
++                    // only forward one address, to the same email address local part
++                    if (trim($line) == '@'.$email_domain.' @' .$my_primary_domain) {
++                        $valid = true;
++                    }
++                } else if ($localpart_alias == "catchall") {
++                    // forward all emails to that domain to another address
++                    if (trim($line) == '@'.$email_domain.' ' .$primary_address) {
++                        $valid = true;
++                    }
++                }
++            }
++        }
++
++        if (!$valid) {
++            Log::trace("Found email address to be in one of my domains but the link to ".$my_primary_domain." is missing in ".$postfix_virtual_file);
++        }
++
++        return $valid;
++    }
++
+ }
 diff --git a/lib/client/kolab_client_task_domain.php b/lib/client/kolab_client_task_domain.php
-index 4a1190a..25d601a 100644
+index 5c23e8a..d424801 100644
 --- a/lib/client/kolab_client_task_domain.php
 +++ b/lib/client/kolab_client_task_domain.php
 @@ -115,6 +115,7 @@ class kolab_client_task_domain extends kolab_client_task
@@ -437,15 +502,15 @@ index 4a1190a..25d601a 100644
          );
  
          // field-to-section map and fields order
-@@ -122,6 +123,7 @@ class kolab_client_task_domain extends kolab_client_task
-             'type_id'           => 'system',
+@@ -123,6 +124,7 @@ class kolab_client_task_domain extends kolab_client_task
              'type_id_name'      => 'system',
              'associateddomain'  => 'system',
+             'inetdomainstatus'  => 'system',
 +            'domainadmin'       => 'admins',
          );
  
          //console("domain_form() \$data", $data);
-@@ -177,6 +179,15 @@ class kolab_client_task_domain extends kolab_client_task
+@@ -178,6 +180,15 @@ class kolab_client_task_domain extends kolab_client_task
              );
          }
  
@@ -462,19 +527,19 @@ index 4a1190a..25d601a 100644
          $form = $this->form_create('domain', $attribs, $sections, $fields, $fields_map, $data, $add_mode);
  
 diff --git a/lib/client/kolab_client_task_settings.php b/lib/client/kolab_client_task_settings.php
-index f1e37ac..7a7c481 100644
+index 2731120..9a23161 100644
 --- a/lib/client/kolab_client_task_settings.php
 +++ b/lib/client/kolab_client_task_settings.php
 @@ -34,6 +34,7 @@ class kolab_client_task_settings extends kolab_client_task
      protected $form_element_types = array(
          'text', 'select', 'multiselect', 'list', 'list-autocomplete', 'checkbox', 'password', 'ldap_url',
-         'text-quota',
+         'text-quota', 'aci', 'imap_acl',
 +        'list-domainadmins',
      );
  
  
 diff --git a/lib/client/kolab_client_task_user.php b/lib/client/kolab_client_task_user.php
-index 40c2fcc..0100a83 100644
+index 6d51754..c5d71d9 100644
 --- a/lib/client/kolab_client_task_user.php
 +++ b/lib/client/kolab_client_task_user.php
 @@ -88,6 +88,7 @@ class kolab_client_task_user extends kolab_client_task
@@ -496,18 +561,10 @@ index 40c2fcc..0100a83 100644
              'kolabfreebusyfuture'       => 'config',
              'kolabinvitationpolicy'     => 'config',
 diff --git a/lib/kolab_api_service.php b/lib/kolab_api_service.php
-index 858e643..44998dd 100644
+index 2c57d9d..04155e4 100644
 --- a/lib/kolab_api_service.php
 +++ b/lib/kolab_api_service.php
-@@ -75,6 +75,7 @@ abstract class kolab_api_service
-                     'attributes' => kolab_api_service_domain_types::$DEFAULT_TYPE_ATTRS,
-                 ),
-             );
-+            $object_types['1']['attributes']['form_fields']['domainadmin']['type'] = 'list';
-             $object_types['1']['attributes']['form_fields']['aci'] = array(
-                 'type'     => 'list',
-                 'optional' => true,
-@@ -125,6 +126,10 @@ abstract class kolab_api_service
+@@ -110,6 +110,10 @@ abstract class kolab_api_service
              return key($object_types);
          }
  
@@ -516,10 +573,18 @@ index 858e643..44998dd 100644
 +        ksort($object_types);
 +
          $object_class = array_map('strtolower', $object_class);
-         $object_keys  = array_keys($attributes);
+         $object_keys  = array_diff(array_keys($attributes), array(self::unique_attribute()));
          $keys_count   = count($object_keys);
+@@ -240,6 +244,7 @@ abstract class kolab_api_service
+                     'attributes' => kolab_api_service_domain_types::$DEFAULT_TYPE_ATTRS,
+                 ),
+             );
++            $object_types['1']['attributes']['form_fields']['domainadmin']['type'] = 'list';
+             $object_types['1']['attributes']['form_fields']['aci'] = array(
+                 'type'     => 'list',
+                 'optional' => true,
 diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
-index 7e7ab58..eae3c04 100644
+index a90cb13..d364430 100644
 --- a/lib/kolab_client_task.php
 +++ b/lib/kolab_client_task.php
 @@ -645,6 +645,24 @@ class kolab_client_task
@@ -547,8 +612,8 @@ index 7e7ab58..eae3c04 100644
       * Returns user name.
       *
       * @param string $dn User DN attribute value
-@@ -879,6 +897,11 @@ class kolab_client_task
-             $result['default'] = $field['default'];
+@@ -912,6 +930,11 @@ class kolab_client_task
+             );
              break;
  
 +        case 'list-domainadmins':
@@ -559,7 +624,7 @@ index 7e7ab58..eae3c04 100644
          default:
              $result['type'] = kolab_form::INPUT_TEXT;
  
-@@ -987,6 +1010,17 @@ class kolab_client_task
+@@ -1020,6 +1043,17 @@ class kolab_client_task
          if (!empty($data['type_id'])) {
              $type = $data['type_id'];
          }
@@ -577,8 +642,8 @@ index 7e7ab58..eae3c04 100644
          else {
              $data['type_id'] = $type = key($types);
          }
-@@ -1284,6 +1318,12 @@ class kolab_client_task
-                     unset($field['default']);
+@@ -1330,6 +1364,12 @@ class kolab_client_task
+                     }
                  }
  
 +                // used for selectlist, eg. domainadmins
@@ -591,7 +656,7 @@ index 7e7ab58..eae3c04 100644
                  // It's likely that we'll need autocompletion on ordinary lists
                  if (!empty($field['data-autocomplete'])) {
 diff --git a/lib/kolab_form.php b/lib/kolab_form.php
-index 2fe3e9c..125dab5 100644
+index 9ebf900..1c26be7 100644
 --- a/lib/kolab_form.php
 +++ b/lib/kolab_form.php
 @@ -39,6 +39,7 @@ class kolab_form
@@ -600,9 +665,9 @@ index 2fe3e9c..125dab5 100644
      const INPUT_TEXTQUOTA = 30;
 +    const INPUT_DOMAINADMIN = 40;
  
-     const TYPE_LIST = 1;
- 
-@@ -314,6 +315,11 @@ class kolab_form
+     private $attribs  = array();
+     private $elements = array();
+@@ -302,6 +303,11 @@ class kolab_form
              $content = kolab_html::textarea($attribs, true);
              break;
  
@@ -615,7 +680,7 @@ index 2fe3e9c..125dab5 100644
              if (!empty($attribs['multiple']) && empty($attribs['size'])) {
                  $attribs['size'] = 5;
 diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
-index b88e520..607f36a 100644
+index b88e520..1609cc3 100644
 --- a/lib/locale/de_DE.php
 +++ b/lib/locale/de_DE.php
 @@ -31,8 +31,10 @@ $LANG['delete'] = 'Löschen';
@@ -648,22 +713,23 @@ index b88e520..607f36a 100644
  $LANG['user.type_id'] = 'Kontotyp';
  $LANG['user.uid'] = 'Eindeutige Identität (UID)';
 diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
-index bc42754..339cbc7 100644
+index e36977d..fbb51c9 100644
 --- a/lib/locale/en_US.php
 +++ b/lib/locale/en_US.php
-@@ -47,9 +47,11 @@ $LANG['deleting'] = 'Deleting data...';
+@@ -128,10 +128,12 @@ $LANG['deleting'] = 'Deleting data...';
  
  $LANG['domain.add'] = 'Add Domain';
  $LANG['domain.add.success'] = 'Domain created successfully.';
 +$LANG['domain.admins'] = 'Domain Administrators';
  $LANG['domain.associateddomain'] = 'Domain name(s)';
  $LANG['domain.delete.confirm'] = 'Are you sure, you want to delete this domain?';
+ $LANG['domain.delete.force'] = "There are users assigned to this domain.\nAre you sure, you want to delete this domain and all assigned objects?";
  $LANG['domain.delete.success'] = 'Domain deleted successfully.';
 +$LANG['domain.domainadmin'] = 'Administrators for this domain';
  $LANG['domain.edit'] = 'Edit domain';
  $LANG['domain.edit.success'] = 'Domain updated successfully.';
- $LANG['domain.inetdomainbasedn'] = 'Custom Root DN(s)';
-@@ -268,6 +270,7 @@ $LANG['user.country.desc'] = '2 letter code from ISO 3166-1';
+ $LANG['domain.inetdomainbasedn'] = 'Custom Root DN';
+@@ -377,6 +379,7 @@ $LANG['user.country.desc'] = '2 letter code from ISO 3166-1';
  $LANG['user.delete.confirm'] = 'Are you sure, you want to delete this user?';
  $LANG['user.delete.success'] = 'User deleted successfully.';
  $LANG['user.displayname'] = 'Display name';
@@ -671,7 +737,7 @@ index bc42754..339cbc7 100644
  $LANG['user.edit.success'] = 'User updated successfully.';
  $LANG['user.fax'] = 'Fax number';
  $LANG['user.fbinterval'] = 'Free-Busy interval';
-@@ -315,6 +318,9 @@ $LANG['user.sn'] = 'Surname';
+@@ -424,6 +427,9 @@ $LANG['user.sn'] = 'Surname';
  $LANG['user.street'] = 'Street';
  $LANG['user.system'] = 'System';
  $LANG['user.telephonenumber'] = 'Phone Number';
@@ -682,10 +748,10 @@ index bc42754..339cbc7 100644
  $LANG['user.type_id'] = 'Account type';
  $LANG['user.uid'] = 'Unique identity (UID)';
 diff --git a/public_html/js/kolab_admin.js b/public_html/js/kolab_admin.js
-index 659645c..cb50f23 100644
+index 24b251a..515f0bf 100644
 --- a/public_html/js/kolab_admin.js
 +++ b/public_html/js/kolab_admin.js
-@@ -715,6 +715,8 @@ function kolab_admin()
+@@ -740,6 +740,8 @@ function kolab_admin()
      // replace some textarea fields with pretty/smart input lists
      $('textarea[data-type="list"]', form)
        .each(function() { kadm.form_list_element_wrapper(this); });
@@ -694,7 +760,7 @@ index 659645c..cb50f23 100644
      // create smart select fields
      $('input[data-type="select"]', form)
        .each(function() { kadm.form_select_element_wrapper(this); });
-@@ -751,6 +753,22 @@ function kolab_admin()
+@@ -783,6 +785,22 @@ function kolab_admin()
        data.json[this.name] = value;
      });
  
@@ -717,7 +783,7 @@ index 659645c..cb50f23 100644
      // smart selects
      $('input[data-type="select"]', form).each(function() {
        delete data.json[this.name];
-@@ -794,8 +812,10 @@ function kolab_admin()
+@@ -838,8 +856,10 @@ function kolab_admin()
    };
  
    // Replaces form element with smart list element
@@ -729,7 +795,7 @@ index 659645c..cb50f23 100644
      var i = 0, j = 0, list = [], elem, e = $(form_element),
        form = form_element.form,
        disabled = e.attr('disabled'),
-@@ -861,14 +881,24 @@ function kolab_admin()
+@@ -902,14 +922,24 @@ function kolab_admin()
  
        // add input rows
        $.each(list, function(i, v) {
@@ -762,7 +828,7 @@ index 659645c..cb50f23 100644
          elem.appendTo(area);
        });
      }
-@@ -953,6 +983,90 @@ function kolab_admin()
+@@ -994,6 +1024,90 @@ function kolab_admin()
      return elem;
    };
  
@@ -854,10 +920,10 @@ index 659645c..cb50f23 100644
    {
      var elem, input = $(this.ac_input).get(0),
 diff --git a/public_html/skins/default/style.css b/public_html/skins/default/style.css
-index 6647caa..b439cca 100644
+index b634f20..346e09b 100644
 --- a/public_html/skins/default/style.css
 +++ b/public_html/skins/default/style.css
-@@ -631,6 +631,11 @@ span.listelement input:focus {
+@@ -661,6 +661,11 @@ span.listelement input:focus {
    outline: none;
  }
  
