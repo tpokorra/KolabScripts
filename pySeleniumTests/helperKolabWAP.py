@@ -355,7 +355,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         # store the email address for later login
         elem = driver.find_element_by_link_text("Contact Information")
         elem.click()
-        self.wait_loading(0.5)
+        self.wait_loading(1.0)
         elem = driver.find_element_by_name("mail")
         emailLogin = elem.get_attribute('value')
         self.assertNotEquals(0, emailLogin.__len__(), "email should be set automatically, but length is 0")
