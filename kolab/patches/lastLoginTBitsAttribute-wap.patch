@@ -117,14 +117,13 @@ diff -uNr a/lib/kolab_html.php b/lib/kolab_html.php
 diff -uNr a/lib/locale/de_DE.php b/lib/locale/de_DE.php
 --- a/lib/locale/de_DE.php	2013-11-26 11:03:49.479153091 +0100
 +++ b/lib/locale/de_DE.php	2013-11-26 11:02:24.157153091 +0100
-@@ -239,12 +239,14 @@
+@@ -239,11 +239,13 @@
  $LANG['user.room'] = 'Raumnummer';
  $LANG['user.sn'] = 'Nachname';
  $LANG['user.street'] = 'Straße';
 +$LANG['user.statistics'] = 'Info';
  $LANG['user.system'] = 'System';
  $LANG['user.telephonenumber'] = 'Telefonnummer';
- $LANG['user.tbitskolaballowgroupware'] = 'Erlaube Groupware Funktionen für Benutzer';
  $LANG['user.tbitskolabmaxaccounts'] = 'Maximale Anzahl von Benutzerkonten';
  $LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
  $LANG['user.tbitskolabdefaultquota'] = 'Voreinstellung Quota für Benutzerkonten';
