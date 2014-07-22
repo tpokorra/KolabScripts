@@ -31,7 +31,7 @@ ldap_domain_name_attribute: associatedDomain
 ldap_domain_scope: sub
 ldap_domain_result_attribute: inetdomainbasedn" >> /etc/imapd.conf
 
-if [ 1 -eq 2 ]
+if [ 1 -eq 1 ]
 then
 # remove canonification
 sed -i \
