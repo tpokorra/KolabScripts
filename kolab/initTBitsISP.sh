@@ -100,3 +100,5 @@ then
   sed -r -i -e "s/config\['plugins'\] = array\(/$KolabAuthRolePlugins\n\$config['plugins'] = array(/g" /etc/roundcubemail/config.inc.php
 fi
 
+service kolab-saslauthd restart
+service kolabd restart
