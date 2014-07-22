@@ -1,10 +1,18 @@
 #!/bin/bash
 
+if [ -z $1 ]
+then
+  echo "Please call: $0 <url of server>"
+  echo "  eg. $0 example.org"
+  exit 1
+fi
+export server_name=$1
+
+
 #####################################################################################
 # see also https://gist.github.com/dhoffend/7008915 with title: Simple SSL Configuration for Kolab 3.1
 #####################################################################################
 
-export server_name=example.org
 export key_directory=/etc/pki/tls
 export sslgroup=ssl
 export ca_file=startcom-ca.pem
@@ -80,6 +88,10 @@ sed -r -i \
     -e "s|^tls_key_file:.*|tls_key_file: $key_directory/private/$server_name.key|g" \
     -e "s|^tls_ca_file:.*|tls_ca_file: $key_directory/certs/$server_name.ca-chain.pem|g" \
     /etc/imapd.conf
+echo "test\
+test" | saslpasswd2 /etc/sasldb2
+chown cyrus: /etc/sasldb2
+chmod 640 /etc/sasldb2
 service cyrus-imapd restart
 
 #####################################################################################

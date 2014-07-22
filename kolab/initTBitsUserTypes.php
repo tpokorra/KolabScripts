@@ -51,7 +51,6 @@ unset($newType['attributes']['form_fields']['kolaballowsmtprecipient']);
 unset($newType['attributes']['form_fields']['kolaballowsmtpsender']);
 unset($newType['attributes']['form_fields']['kolabinvitationpolicy']);
 $newType['attributes']['form_fields']['tbitskolabmaxaccounts'] = array('type' => 'text', 'optional' => 1);
-$newType['attributes']['form_fields']['tbitskolaballowgroupware'] = array('type' => 'checkbox', 'optional' => 0);
 $newType['attributes']['form_fields']['tbitskolaboverallquota'] = array('type' => 'text-quota', 'optional' => 1);
 $newType['attributes']['form_fields']['tbitskolabdefaultquota'] = array('type' => 'text-quota', 'optional' => 1);
 

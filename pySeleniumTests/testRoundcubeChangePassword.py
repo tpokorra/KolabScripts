@@ -32,7 +32,9 @@ class KolabRoundcubeChangePassword(unittest.TestCase):
         elem = driver.find_element_by_id("confpasswd")
         elem.send_keys("test1234")
 
-        driver.find_element_by_xpath("//form[@id=\"password-form\"]/div/div/p/input[@class=\"button mainaction\"]").click()
+        elem = driver.find_element_by_xpath("//form[@id=\"password-form\"]//input[@class=\"button mainaction\"]")
+        elem.click()
+
         self.kolabWAPhelper.wait_loading()
         try:
             elem = driver.find_element_by_class_name("error")

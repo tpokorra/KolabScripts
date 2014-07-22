@@ -21,9 +21,28 @@ patchesurl=https://raw.github.com/TBits/KolabScripts/master/kolab/patches
 # but that would mean that we need separate files for each domain...
 #####################################################################################
 cp -f /etc/imapd.conf /etc/imapd.conf.beforeMultiDomain
-sed -r -i -e 's/^auth_mech/#auth_mech/g' /etc/imapd.conf
-sed -r -i -e 's/^pts_module/#pts_module/g' /etc/imapd.conf
-sed -r -i -e 's/^ldap_/#ldap_/g' /etc/imapd.conf
+sed -i -e "s#ldap_base: .*#ldap_base: dc=%2,dc=%1#g" /etc/imapd.conf
+sed -i -e "s#ldap_group_base: .*#ldap_group_base: dc=%2,dc=%1#g" /etc/imapd.conf
+sed -i -e "s#ldap_member_base: .*#ldap_member_base: ou=People,dc=%2,dc=%1#g" /etc/imapd.conf
+
+echo "ldap_domain_base_dn: cn=kolab,cn=config
+ldap_domain_filter: (&(objectclass=domainrelatedobject)(associateddomain=%s))
+ldap_domain_name_attribute: associatedDomain
+ldap_domain_scope: sub
+ldap_domain_result_attribute: inetdomainbasedn" >> /etc/imapd.conf
+
+if [ 1 -eq 1 ]
+then
+# remove canonification
+sed -i \
+    -e 's/^auth_mech/#auth_mech/g' \
+    -e 's/^pts_module/#pts_module/g' \
+    -e 's/^ldap_/#ldap_/g' \
+    -e 's/auxprop saslauthd/saslauthd/' \
+    -e '/ptloader/d' \
+    /etc/cyrus.conf \
+    /etc/imapd.conf
+fi
 service cyrus-imapd restart
 
 #####################################################################################
@@ -96,6 +115,11 @@ sed -r -i -e "s#base_dn = .*#base_dn = %dc#g" /usr/share/kolab-freebusy/config/c
 #####################################################################################
 sed -r -i -e 's#bind_dn = (.*)#bind_dn = "\1"#g' /usr/share/kolab-freebusy/config/config.ini
 
+#####################################################################################
+#auto created folders: do not use an extra partition for the archive folder. 
+#see https://issues.kolab.org/show_bug.cgi?id=3210
+#####################################################################################
+sed -r -i -e "s#'partition': 'archive'##g" /etc/kolab/kolab.conf
 
 #####################################################################################
 # Fix Global Address Book in Multi Domain environment
@@ -110,11 +134,6 @@ sed -r -i -e "s#'ou=Groups,.*'#'ou=Groups,%dc'#g" /etc/roundcubemail/config.inc.
 sed -r -i -e "s/primary_mail = .*/primary_mail = %(givenname)s.%(surname)s@%(domain)s/g" /etc/kolab/kolab.conf
 
 #####################################################################################
-#reduce the sleep time between adding domains, see https://issues.kolab.org/show_bug.cgi?id=2491
-#####################################################################################
-sed -r -i -e "s/\[kolab\]/[kolab]\ndomain_sync_interval = 10/g" /etc/kolab/kolab.conf
-
-#####################################################################################
 #make sure that for alias domains, the emails will actually arrive, by checking the postfix file
 #see https://issues.kolab.org/show_bug.cgi?id=2658
 #####################################################################################
@@ -124,7 +143,7 @@ sed -r -i -e "s#\[kolab\]#[kolab]\npostfix_virtual_file = $postfix_virtual_file#
 #avoid a couple of warnings by setting default values
 #####################################################################################
 sed -r -i -e "s#\[ldap\]#[ldap]\nmodifytimestamp_format = %%Y%%m%%d%%H%%M%%SZ#g" /etc/kolab/kolab.conf
-sed -r -i -e "s/\[cyrus-imap\]/[imap]\nvirtual_domains = userid\n[cyrus-imap]/g" /etc/kolab/kolab.conf
+sed -r -i -e "s/\[cyrus-imap\]/[imap]\nvirtual_domains = userid\n\n[cyrus-imap]/g" /etc/kolab/kolab.conf
 
 #####################################################################################
 # apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=1869
@@ -137,6 +156,10 @@ then
   wget $patchesurl/sleepTimeBetweenDomainOperationsBug2491.patch -O patches/sleepTimeBetweenDomainOperationsBug2491.patch
   echo Downloading patch validateAliasDomainPostfixVirtualFileBug2658.patch
   wget $patchesurl/validateAliasDomainPostfixVirtualFileBug2658.patch -O patches/validateAliasDomainPostfixVirtualFileBug2658.patch
+  echo Downloading patch fixmailquotaBug3198.patch
+  wget $patchesurl/fixmailquotaBug3198.patch -O patches/fixmailquotaBug3198.patch
+  echo Downloading patch problemSyncMultiDomainBug3197.patch
+  wget $patchesurl/problemSyncMultiDomainBug3197.patch -O patches/problemSyncMultiDomainBug3197.patch
 fi
 
 # different paths in debian and centOS
@@ -149,4 +172,8 @@ fi
 
 patch -p1 -i `pwd`/patches/sleepTimeBetweenDomainOperationsBug2491.patch -d $pythonDistPackages
 patch -p1 -i `pwd`/patches/validateAliasDomainPostfixVirtualFileBug2658.patch -d /usr/share/kolab-webadmin
+patch -p1 -i `pwd`/patches/fixmailquotaBug3198.patch -d /usr/share/kolab-webadmin
+patch -p1 -i `pwd`/patches/problemSyncMultiDomainBug3197.patch -d $pythonDistPackages
 
+service kolab-saslauthd restart
+service kolabd restart

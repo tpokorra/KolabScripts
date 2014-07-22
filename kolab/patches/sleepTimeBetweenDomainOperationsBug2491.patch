@@ -2,13 +2,16 @@ diff --git a/kolabd/__init__.py b/kolabd/__init__.py
 index 34e54e7..52ae9ad 100644
 --- a/kolabd/__init__.py
 +++ b/kolabd/__init__.py
-@@ -269,7 +269,8 @@ class KolabDaemon(object):
+@@ -269,7 +269,11 @@ class KolabDaemon(object):
                      added_domains.append(domain)
  
              if len(removed_domains) == 0 and len(added_domains) == 0:
 -                time.sleep(600)
-+                sleep_between_domain_operations_in_seconds = (float)(conf.get('kolab', 'domain_sync_interval'))
-+                time.sleep(sleep_between_domain_operations_in_seconds)
++                try:
++                    sleep_between_domain_operations_in_seconds = (float)(conf.get('kolab', 'domain_sync_interval'))
++                    time.sleep(sleep_between_domain_operations_in_seconds)
++                except ValueError:
++                    time.sleep(600)
  
              log.debug(
                      _("added domains: %r, removed domains: %r") % (
@@ -21,7 +24,7 @@ index f85b594..13e25c2 100644
          self.mailserver_attribute = 'mailhost'
  
 +        # when you want a new domain to be added in a short time, you should reduce this value to 10 seconds
-+        self.domain_sync_interval = 600
++        self.kolab_domain_sync_interval = 600
 +
          self.kolab_default_locale = 'en_US'
          self.ldap_unique_attribute = 'nsuniqueid'

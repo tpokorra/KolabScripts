@@ -2,9 +2,14 @@ import unittest
 import time
 import datetime
 import string
+import subprocess
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
+from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
+from selenium.common.exceptions import TimeoutException
 
 # useful functions for testing kolab-webadmin
 class KolabWAPTestHelpers(unittest.TestCase):
@@ -17,6 +22,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         # support self signed ssl certificate: see also https://github.com/detro/ghostdriver/issues/233
         #webdriver.DesiredCapabilities.PHANTOMJS['ACCEPT_SSL_CERTS'] = 'true'
         self.driver = webdriver.PhantomJS('phantomjs', service_args=['--ignore-ssl-errors=true'])
+        self.driver.maximize_window()
         
         #self.driver = webdriver.Firefox()
 
@@ -24,6 +30,24 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
     def log(self, message):
         print datetime.datetime.now().strftime("%H:%M:%S") + " " + message
+
+    def getSiteUrl(self):
+        # read kolab.conf
+        fo = open("/etc/kolab/kolab.conf", "r+")
+        content = fo.read()
+        fo.close()
+
+        # find [kolab_wap], find line starting with api_url
+        pos = content.index("[kolab_wap]")
+        if content.find("api_url", pos) == -1:
+          return "http://localhost"
+        pos = content.index("api_url", pos)
+        pos = content.index("http", pos)
+        posSlash = content.index("/", pos)
+        posSlash = content.index("/", posSlash+1)
+        posSlash = content.index("/", posSlash+1)
+        # should return https://localhost or http://localhost
+        return content[pos:posSlash]
 
     def wait_loading(self, initialwait=0.5):
         time.sleep(initialwait)
@@ -36,7 +60,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         driver = self.driver
 
         if url[0] == '/':
-            url = "https://localhost" + url
+            url = self.getSiteUrl() + url
 
         driver.get(url)
 
@@ -50,21 +74,21 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         # verify success of login
         elem = driver.find_element_by_class_name("login")
-        self.log( "User is logged in: " + elem.text)
+        self.log( "User is logged in to WAP: " + elem.text)
 
         return True
 
     # logout the current user
     def logout_kolab_wap(self):
         self.driver.find_element_by_class_name("logout").click()
-        self.log("User has logged out")
+        self.log("User has logged out from WAP")
 
     # login any user to roundcube
     def login_roundcube(self, url, username, password):
         driver = self.driver
 
         if url[0] == '/':
-            url = "https://localhost" + url
+            url = self.getSiteUrl() + url
 
         driver.get(url)
 
@@ -77,15 +101,27 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.wait_loading()
 
         # verify success of login
+        if len(driver.find_elements_by_xpath("//div[@id=\"message\"]")) > 0:
+          elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
+          self.assertEquals("", elem.text, "Message after Login: " + elem.text)
+
         elem = driver.find_element_by_class_name("username")
         
         # check that there is no error about non existing mailbox
         if "Server Error: STATUS: Mailbox does not exist" in self.driver.page_source:
-            self.assertEquals("no error", "there was an error", "Server Error: STATUS: Mailbox does not exist")
-        if "Server Error! (No connection)" in self.driver.page_source:
-            self.assertEquals("no error", "there was an error", "Server Error! (No connection)")
+          self.assertEquals("no error", "there was an error", "Server Error: STATUS: Mailbox does not exist")
 
-        self.log( "User is logged in: " + elem.text)
+        numberofattempts = 2
+        while numberofattempts > 0:
+          if "Server Error! (No connection)" in self.driver.page_source:
+            if numberofattempts > 0:
+              driver.get(url)
+              elem = driver.find_element_by_class_name("username")
+            else:
+              self.assertEquals("no error", "there was an error", "Server Error! (No connection)")
+          numberofattempts = numberofattempts - 1
+
+        self.log( "User is logged in to Roundcube: " + elem.text)
         return True
 
     # logout the current user
@@ -96,8 +132,9 @@ class KolabWAPTestHelpers(unittest.TestCase):
         driver.get(url + "?_task=logout")
         self.wait_loading()
         elem = driver.find_element_by_class_name("notice")
-        self.assertEquals("You have successfully terminated the session. Good bye!", elem.text, "should have logged out")
-        self.log("User has logged out")
+        self.assertEquals("You have successfully terminated the session. Good bye!", elem.text, "should have logged out, but was: " + elem.text)
+        #driver.delete_all_cookies()
+        self.log("User has logged out from Roundcube")
 
     # create a new domain and select it
     def create_domain(self, domainadmin = None, withAliasDomain = False):
@@ -129,7 +166,19 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.wait_loading()
         elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
         self.assertEquals("Domain created successfully.", elem.text, "domain was not created successfully, message: " + elem.text)
-        
+
+        # wait a couple of seconds until the sync script has been run
+        out = ""
+        starttime=datetime.datetime.now()
+        while domainname not in out and (datetime.datetime.now()-starttime).seconds < 30:
+          self.wait_loading(1)
+          p = subprocess.Popen("kolab list-domains | grep " + domainname, shell=True, stdout=subprocess.PIPE)
+          out, err = p.communicate()
+
+        if domainname not in out:
+            self.assertTrue(False, "kolab list-domains cannot find domain " + domainname)
+  
+
         self.log("Domain " + domainname + " has been created")
         
         # reload so that the domain dropdown is updated, and switch to new domain at the same time
@@ -306,7 +355,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         # store the email address for later login
         elem = driver.find_element_by_link_text("Contact Information")
         elem.click()
-        self.wait_loading(0.5)
+        self.wait_loading(1.0)
         elem = driver.find_element_by_name("mail")
         emailLogin = elem.get_attribute('value')
         self.assertNotEquals(0, emailLogin.__len__(), "email should be set automatically, but length is 0")
@@ -338,6 +387,18 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         self.assertEquals("User created successfully.", elem.text, "User was not saved successfully, message: " + elem.text)
 
+        if forward_to is None:
+            # wait a couple of seconds until the sync script has been run (perhaps even the domain still needs to be created?)
+            out = ""
+            starttime=datetime.datetime.now()
+            while username not in out and (datetime.datetime.now()-starttime).seconds < 60:
+                self.wait_loading(1)
+                p = subprocess.Popen("kolab list-mailboxes | grep " + username, shell=True, stdout=subprocess.PIPE)
+                out, err = p.communicate()
+
+            if username not in out:
+                self.assertTrue(False, "kolab list-mailboxes cannot find mailbox for new user " + username)
+
         self.log("User " + username + " has been created. Login with " + emailLogin + " and password " + password)
 
         return username, emailLogin, password
@@ -366,19 +427,47 @@ class KolabWAPTestHelpers(unittest.TestCase):
         driver.get(url + "?_task=mail&_mbox=" + folder)
         self.wait_loading(0.5)
 
-        try:
-            elem = driver.find_element_by_xpath("//table[@id=\"messagelist\"]/tbody/tr/td[@class=\"subject\"]/a")
-        except NoSuchElementException, e:
-            if emailSubjectLine is not None:
-                self.assertEquals(emailSubjectLine, "empty", "email subject should be " + emailSubjectLine + " but there was no email at all")
-            return
+        # check for valid folder
+        if "Shared+Folders" in folder:
+            if "Server Error: STATUS: Mailbox does not exist" in self.driver.page_source:
+                self.assertEquals("no error", "invalid folder", "Folder does not exist: " + folder)
+        else:
+            # normal folder, should be selected
+            # somehow, the error message Mailbox does not exist is not picked up by Selenium when the folder does not exist
+            try:
+                elem = driver.find_element_by_xpath("//ul[@id=\"mailboxlist\"]/li[contains(@class, 'mailbox " + folder.lower() + " selected')]")
+            except NoSuchElementException, e:
+                self.assertEquals(folder, "not found", "cannot select the folder " + folder + " " + "//ul[@id=\"mailboxlist\"]/li[@class=\"mailbox " + folder.lower() + " selected\"]")
 
+        wait = WebDriverWait(driver, 10);
+
+        # there seem to be problems to load the message list in Selenium.
+        # is the javascript method not run to load the message list?
+        # if emailSubjectLine is not None:
+        #   elem = wait.until(EC.visibility_of_element_located(
+        #              (By.XPATH, "//table[@id=\"messagelist\"]/tbody/tr/td[@class=\"subject\"]/a[text()='" + emailSubjectLine + "']")),
+        #          "cannot find the email with subject " + emailSubjectLine)
+        # if emailSubjectLineDoesNotContain is not None:
+        #   try:
+        #     elem = wait.until(EC.visibility_of_element_located((By.XPATH, "//table[@id=\"messagelist\"]/tbody/tr/td[@class=\"subject\"]/a[text()='" + emailSubjectLineDoesNotContain + "'")),
+        #          "cannot find the email with subject " + emailSubjectLineDoesNotContain);
+        #     self.assertTrue(False, "email subject should not contain " + emailSubjectLineDoesNotContain + " but was " + elem.text)
+        #   except TimeoutException, e:
+        #     self.assertTrue(True, "we expect a timeout, since we don't want to find the email with this subject") 
+
+        # roundcubemail/?_task=mail&_action=show&_uid=1&_mbox=INBOX
+        driver.get(url + "?_task=mail&_action=show&_uid=1&_mbox=" + folder)
         if emailSubjectLine is not None:
-            self.assertEquals(emailSubjectLine, elem.text, "email subject should be " + emailSubjectLine + " but was " + elem.text)
-
+           elem = wait.until(EC.visibility_of_element_located(
+                      (By.XPATH, "//h2[@class='subject'][text()='" + emailSubjectLine + "']")),
+                   "the first email does not have the subject " + emailSubjectLine)
         if emailSubjectLineDoesNotContain is not None:
-            if emailSubjectLineDoesNotContain in elem.text:
-                self.assertTrue(False, "email subject should not contain " + emailSubjectLineDoesNotContain + " but was " + elem.text)
+           try:
+             elem = wait.until(EC.visibility_of_element_located((By.XPATH, "//h2[@class='subject'][text()='" + emailSubjectLineDoesNotContain + "']")),
+                  "cannot find the email with subject " + emailSubjectLineDoesNotContain);
+             self.assertTrue(False, "email subject should not contain " + emailSubjectLineDoesNotContain + " but was " + elem.text)
+           except TimeoutException, e:
+             self.assertTrue(True, "we expect a timeout, since we don't want to find the email with this subject as the first email") 
 
     def log_current_page(self):
         filename = "/tmp/output" + datetime.datetime.now().strftime("%Y%m%d%H%M%S") + ".html"

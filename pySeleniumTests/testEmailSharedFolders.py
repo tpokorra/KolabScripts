@@ -20,7 +20,7 @@ class KolabEmailSharedFolders(unittest.TestCase):
 
     def test_shared_folder(self):
         kolabWAPhelper = self.kolabWAPhelper
-        kolabWAPhelper.log("Running test: test_send_and_receive_email")
+        kolabWAPhelper.log("Running test: test_shared_folder")
         
         # login Directory Manager, create 2 users
         kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")

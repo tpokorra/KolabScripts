@@ -15,19 +15,19 @@ else
 fi
 
 #####################################################################################
-# apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=2018
+#reduce the sleep time between adding domains, see https://issues.kolab.org/show_bug.cgi?id=2491
 #####################################################################################
+sed -r -i -e "s/\[kolab\]/[kolab]\ndomain_sync_interval = 10/g" /etc/kolab/kolab.conf
+
+
 # different paths in debian and centOS
-# Debian
 pythonDistPackages=/usr/lib/python2.7/dist-packages
+# Debian
 if [ ! -d $pythonDistPackages ]; then
   # centOS
   pythonDistPackages=/usr/lib/python2.6/site-packages
 fi
 
-echo "applying setupkolab_yes_quietBug2598.patch to $pythonDistPackages/pykolab"
-patch -p1 -i `pwd`/patches/setupkolab_yes_quietBug2598.patch -d $pythonDistPackages/pykolab
-echo "applying setupkolab_directory_manager_pwdBug2645.patch"
-patch -p1 -i `pwd`/patches/setupkolab_directory_manager_pwdBug2645.patch -d $pythonDistPackages
-echo "applying wallaceInitScriptBug917.patch"
-patch -p1 -i `pwd`/patches/wallaceInitScriptBug917.patch -d /etc
+patch -p1 -i `pwd`/patches/sleepTimeDomainTests.patch -d $pythonDistPackages
+
+service kolabd restart

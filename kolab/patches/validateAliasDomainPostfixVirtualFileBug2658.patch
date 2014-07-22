@@ -51,6 +51,11 @@ diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_servic
 +                    if (trim($line) == '@'.$email_domain.' @' .$my_primary_domain) {
 +                        $valid = true;
 +                    }
++                } else if ($localpart_alias == "catchall") {
++                    // forward all emails to that domain to another address
++                    if (trim($line) == '@'.$email_domain.' ' .$primary_address) {
++                        $valid = true;
++                    }
 +                }
 +            }
 +        }

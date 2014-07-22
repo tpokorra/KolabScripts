@@ -233,32 +233,38 @@ index 8175668..15b0c55 100644
          // We should start throwing stuff over the fence here.
          return $this->modify_entry($domain_dn, $domain[$domain_dn], $attributes);
      }
-@@ -578,6 +757,30 @@ class LDAP extends Net_LDAP3 {
+@@ -578,6 +757,36 @@ class LDAP extends Net_LDAP3 {
              $result = $this->_read($domain_dn, $attributes);
          }
  
-+        if (isset($result[$domain_dn]["associateddomain"])) {
-+            $currentdomain_dn = $this->_standard_root_dn($result[$domain_dn]["associateddomain"]);
-+        } else {
-+            $currentdomain_dn = $domain_dn;
-+        }
-+
-+        $currentdomain_da_dn = "cn=Directory Administrators,".$currentdomain_dn;
-+
-+        $domain_admins_result = $this->_search($currentdomain_dn, "cn=Directory Administrators*", array("uniqueMember"));
-+        if ($domain_admins_result != null && count($domain_admins_result) > 0) {
-+            $domain_admins = $domain_admins_result->entries(true);
-+        }
-+
-+        // read domain admins from LDAP, uniqueMembers of Directory Administrators of domain
-+        $result[$domain_dn]["domainadmin"] = array();
-+        if (is_array($domain_admins[$currentdomain_da_dn]["uniquemember"])) {
-+            foreach ($domain_admins[$currentdomain_da_dn]["uniquemember"] as $domainadmin) {
-+                $result[$domain_dn]["domainadmin"][] = $domainadmin;
++        if ($result) {
++            if (!$domain_dn) {
++                $domain_dn=array_shift(array_keys($result));
 +            }
-+        }
-+        else {
-+            $result[$domain_dn]["domainadmin"][] = $domain_admins[$currentdomain_da_dn]["uniquemember"];
++
++            if (isset($result[$domain_dn]["associateddomain"])) {
++                $currentdomain_dn = $this->_standard_root_dn($result[$domain_dn]["associateddomain"]);
++            } else {
++                $currentdomain_dn = $domain_dn;
++            }
++
++            $currentdomain_da_dn = "cn=Directory Administrators,".$currentdomain_dn;
++
++            $domain_admins_result = $this->_search($currentdomain_dn, "cn=Directory Administrators*", array("uniqueMember"));
++            if ($domain_admins_result != null && count($domain_admins_result) > 0) {
++                $domain_admins = $domain_admins_result->entries(true);
++            }
++
++            // read domain admins from LDAP, uniqueMembers of Directory Administrators of domain
++            $result[$domain_dn]["domainadmin"] = array();
++            if (is_array($domain_admins[$currentdomain_da_dn]["uniquemember"])) {
++                foreach ($domain_admins[$currentdomain_da_dn]["uniquemember"] as $domainadmin) {
++                    $result[$domain_dn]["domainadmin"][] = $domainadmin;
++                }
++            }
++            else {
++                $result[$domain_dn]["domainadmin"][] = $domain_admins[$currentdomain_da_dn]["uniquemember"];
++            }
 +        }
 +
          $this->_log(LOG_DEBUG, "Auth::LDAP::domain_info() result: " . var_export($result, true));
@@ -479,12 +485,11 @@ index 40c2fcc..0100a83 100644
              'asterisk'      => 'user.asterisk',
              'other'         => 'user.other',
          );
-@@ -143,6 +144,10 @@ class kolab_client_task_user extends kolab_client_task
+@@ -143,6 +144,9 @@ class kolab_client_task_user extends kolab_client_task
              'kolabhomeserver'           => 'config',
              'mailhost'                  => 'config',
              'mailquota'                 => 'config',
 +            'tbitskolabmaxaccounts'     => 'domainadmin',
-+            'tbitskolaballowgroupware'  => 'domainadmin',
 +            'tbitskolaboverallquota'    => 'domainadmin',
 +            'tbitskolabdefaultquota'    => 'domainadmin',
              'cyrususerquota'            => 'config',
@@ -632,11 +637,10 @@ index b88e520..607f36a 100644
  $LANG['user.edit.success'] = 'Benutzer erfolgreich bearbeitet.';
  $LANG['user.fax'] = 'Faxnummer';
  $LANG['user.fbinterval'] = 'Frei-Beschäftigt Intervall';
-@@ -238,6 +241,10 @@ $LANG['user.sn'] = 'Nachname';
+@@ -238,6 +241,9 @@ $LANG['user.sn'] = 'Nachname';
  $LANG['user.street'] = 'Straße';
  $LANG['user.system'] = 'System';
  $LANG['user.telephonenumber'] = 'Telefonnummer';
-+$LANG['user.tbitskolaballowgroupware'] = 'Erlaube Groupware Funktionen für Benutzer';
 +$LANG['user.tbitskolabmaxaccounts'] = 'Maximale Anzahl von Benutzerkonten';
 +$LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
 +$LANG['user.tbitskolabdefaultquota'] = 'Voreinstellung Quota für Benutzerkonten';
@@ -667,11 +671,10 @@ index bc42754..339cbc7 100644
  $LANG['user.edit.success'] = 'User updated successfully.';
  $LANG['user.fax'] = 'Fax number';
  $LANG['user.fbinterval'] = 'Free-Busy interval';
-@@ -315,6 +318,10 @@ $LANG['user.sn'] = 'Surname';
+@@ -315,6 +318,9 @@ $LANG['user.sn'] = 'Surname';
  $LANG['user.street'] = 'Street';
  $LANG['user.system'] = 'System';
  $LANG['user.telephonenumber'] = 'Phone Number';
-+$LANG['user.tbitskolaballowgroupware'] = 'Allow Groupware features for accounts';
 +$LANG['user.tbitskolabmaxaccounts'] = 'Maximum number of accounts';
 +$LANG['user.tbitskolaboverallquota'] = 'Overall Quota assigned';
 +$LANG['user.tbitskolabdefaultquota'] = 'Default Quota for user accounts';

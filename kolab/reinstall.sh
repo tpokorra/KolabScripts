@@ -42,7 +42,8 @@ then
     ZONE=`cat /etc/timezone`
 fi
 echo "    or unattended: echo 2 | setup-kolab --default --timezone=$ZONE --directory-manager-pwd=test"
-echo "   ./initSSL.sh"
+h=`hostname`
+echo "   ./initSSL.sh "${h:`expr index $h .`}
 echo "   ./initRoundcubePlugins.sh"
 echo "   ./initMultiDomain.sh"
 echo "   ./initMailForward.sh"
@@ -50,3 +51,4 @@ echo "   ./initMailCatchall.sh"
 echo "   ./initTBitsISP.sh"
 echo ""
 echo "  also have a look at initTBitsCustomizationsDE.sh, perhaps there are some useful customizations for you as well"
+echo "  for running the pySeleniumTests, run initSleepTimesForTest.sh to increase the speed of domain and email account creation"

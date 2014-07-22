@@ -29,7 +29,7 @@ class KolabEmailCatchAll(unittest.TestCase):
         domainname = kolabWAPhelper.create_domain()
 
         # add the user
-        username, emailLogin, password = kolabWAPhelper.create_user(alias="@" + domainname)
+        username, emailLogin, password = kolabWAPhelper.create_user(alias="catchall@" + domainname)
         kolabWAPhelper.logout_kolab_wap()
 
         # send email to catch all alias address from command line
@@ -40,7 +40,7 @@ class KolabEmailCatchAll(unittest.TestCase):
 
         # login user to roundcube and check for email
         kolabWAPhelper.login_roundcube("/roundcubemail", emailLogin, password)
-        kolabWAPhelper.check_email_received(subject)
+        kolabWAPhelper.check_email_received(emailSubjectLine=subject)
         kolabWAPhelper.logout_roundcube()
 
     def tearDown(self):

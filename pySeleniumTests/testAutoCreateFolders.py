@@ -38,10 +38,35 @@ class KolabAutoCreateFolders(unittest.TestCase):
         fo = open("/etc/kolab/kolab.conf", "wb")
         fo.write(content)
         fo.close()
+
+        # restart kolabd to pickup the changed kolab.conf file
+        p = subprocess.Popen("service kolabd restart > /dev/null 2>&1", shell=True, stdout=subprocess.PIPE)
+        out, err = p.communicate()
         
         self.kolabWAPhelper.log("kolab.conf has been changed, autocreate_folders now contains " + newContactsFolderName)
         
         return newContactsFolderName
+
+    def test_modified_foldername(self):
+
+        kolabWAPhelper = self.kolabWAPhelper
+        kolabWAPhelper.log ("Running test: test_modified_foldername")
+        
+        # login
+        kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
+
+        #modify the default folders in /etc/kolab/kolab.conf
+        newContactsFolderName = self.helper_modify_autocreate_folders()
+
+        username, emailLogin, password = kolabWAPhelper.create_user()
+
+        kolabWAPhelper.logout_kolab_wap()
+
+        # check if mailbox has been created, with the modified folder name
+        p = subprocess.Popen("kolab lm | grep " + username + " | grep " + newContactsFolderName, shell=True, stdout=subprocess.PIPE)
+        out, err = p.communicate()
+        if newContactsFolderName not in out:
+            self.assertTrue(False, "kolab lm cannot find mailbox with folder " + newContactsFolderName + " for new user " + username)
 
     def test_modified_foldername_in_new_domain(self):
 
