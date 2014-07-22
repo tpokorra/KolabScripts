@@ -1,8 +1,8 @@
 diff --git a/lib/Auth.php b/lib/Auth.php
-index 701c385..f91198a 100644
+index 37885be..53c1d8d 100644
 --- a/lib/Auth.php
 +++ b/lib/Auth.php
-@@ -244,6 +244,11 @@ class Auth {
+@@ -231,6 +231,11 @@ class Auth {
          return $this->auth_instance()->domainadmin_get_configuration($domain, $variablename);
      }
  
@@ -15,11 +15,11 @@ index 701c385..f91198a 100644
      {
          return $this->auth_instance()->find_recipient($address);
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index 3ac1f43..f105e5f 100644
+index 6ad01c3..5f3f406 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -636,6 +636,31 @@ class LDAP extends Net_LDAP3 {
-         return array('domainadmin' => $maindomainadmin, $config_flag => $resultvalue);
+@@ -392,6 +392,31 @@ class LDAP extends Net_LDAP3 {
+         return $domain_dn;
      }
  
 +    // get the quota that has already been shared among the users of the domains that this domainadmin manages.
@@ -51,10 +51,10 @@ index 3ac1f43..f105e5f 100644
      {
          $domain = $this->domain_info($domain, array_keys($attributes));
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
-index 79a4720..f0d99ec 100644
+index 16475db..660c6eb 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1257,7 +1257,72 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1239,7 +1239,72 @@ class kolab_api_service_form_value extends kolab_api_service
  
      private function validate_mailquota($value, $postdata = array(), $validation_type = null)
      {
