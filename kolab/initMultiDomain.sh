@@ -161,4 +161,5 @@ patch -p1 -i `pwd`/patches/validateAliasDomainPostfixVirtualFileBug2658.patch -d
 patch -p1 -i `pwd`/patches/fixmailquotaBug3198.patch -d /usr/share/kolab-webadmin
 patch -p1 -i `pwd`/patches/problemSyncMultiDomainBug3197.patch -d $pythonDistPackages
 
+service kolab-saslauthd restart
 service kolabd restart
