@@ -348,7 +348,7 @@ index a48d44a..16475db 100644
 +        $domainadmin[] = "Directory Manager";
 +        $_domainadmins[] = $domainadmin;
 +
-+        if ($domainadmins = $auth->search($domainadmin_dn, '(objectclass=kolabinetorgperson)')) {
++        if ($domainadmins = $auth->search($domainadmin_dn, '(objectclass=kolabinetorgperson)', 'sub', array('dn', 'displayname'))) {
 +            foreach ($domainadmins->entries(true) as $domainadmin_dn => $domainadmin_attrs) {
 +                $domainadmin = array();
 +                $domainadmin[] = $domainadmin_dn;
