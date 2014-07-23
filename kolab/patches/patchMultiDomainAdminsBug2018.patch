@@ -128,7 +128,7 @@ index 0c03be0..6ad01c3 100644
          }
  
          return $result;
-@@ -1709,4 +1772,144 @@ class LDAP extends Net_LDAP3 {
+@@ -1709,4 +1772,148 @@ class LDAP extends Net_LDAP3 {
  
          return false;
      }
@@ -172,6 +172,10 @@ index 0c03be0..6ad01c3 100644
 +    }
 +
 +    private function domain_admin_save($domain, $domain_dn, $domainadmins) {
++        if (is_string($domain)) {
++            $domain = $this->domain_info($domain, array('domainadmin'));
++        }
++
 +        $currentdomain_dn = $this->_standard_root_dn($domain[$domain_dn]["associateddomain"]);
 +        $currentdomain_da_dn = "cn=Directory Administrators,".$currentdomain_dn;
 +
@@ -547,7 +551,7 @@ index a90cb13..d364430 100644
  
 +        case 'list-domainadmins':
 +            $result['type'] = kolab_form::INPUT_DOMAINADMIN;
-+            $result['data-type'] = kolab_form::TYPE_LIST;
++            $result['data-type'] = 'list';
 +            break;
 +
          default:
