@@ -50,7 +50,7 @@ class KolabEmailCatchAllAcrossDomains(unittest.TestCase):
         # send email to catch all alias address from command line
         print "sending email..."
         subprocess.call(['/bin/bash', '-c', 'echo "test" | mail -s "subject ' + aliasdomainname + '" test@' + aliasdomainname])
-        kolabWAPhelper.wait_loading(2.0)
+        kolabWAPhelper.wait_loading(10.0)
 
         # login user to roundcube and check for email
         kolabWAPhelper.login_roundcube("/roundcubemail", emailLogin, password)
