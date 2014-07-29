@@ -3,6 +3,8 @@
 #####################################################################################
 # adjust some settings, that might be specific to TBits
 #####################################################################################
+service kolabd stop
+service kolab-saslauthd stop
 
 # add admin_auto_fields_rw = true to kolab_wap section of kolab.conf
 sed -r -i -e "s#\[kolab_wap\]#[kolab_wap]\nadmin_auto_fields_rw = true#g" /etc/kolab/kolab.conf
@@ -81,4 +83,7 @@ do
 done < /etc/kolab/kolab.conf
 IFS=$OIFS
 mv /etc/kolab/kolab.conf.new /etc/kolab/kolab.conf
+
+service kolabd start
+service kolab-saslauthd start
 
