@@ -97,13 +97,15 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem.send_keys(username)
         elem = driver.find_element_by_id("rcmloginpwd")
         elem.send_keys(password)
-        driver.find_element_by_xpath("//form/p/input[@class='button mainaction']").click()
+        driver.find_element_by_id("rcmloginsubmit").click()
         self.wait_loading()
 
         # verify success of login
         if len(driver.find_elements_by_xpath("//div[@id=\"message\"]")) > 0:
           elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
           self.assertEquals("", elem.text, "Message after Login: " + elem.text)
+        if self.driver.page_source.find("<title>404 Not Found</title>") != -1:
+          self.assertEquals("", "404 not found", "error fetching page")
 
         elem = driver.find_element_by_class_name("username")
         
