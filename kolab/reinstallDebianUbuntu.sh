@@ -27,6 +27,22 @@ then
   exit 1
 fi
 
+# install locale to avoid problems like:
+# Please check that your locale settings:
+#	LANGUAGE = (unset),
+#	LC_ALL = (unset),
+#	LANG = "en_US.UTF-8"
+#    are supported and installed on your system.
+debconf-set-selections <<< 'locales	locales/locales_to_be_generated	multiselect	en_US.UTF-8 UTF-8'
+debconf-set-selections <<< 'locales	locales/default_environment_locale	select	en_US.UTF-8'
+export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true
+dpkg-reconfigure locales
+
+# make sure that mysql installs noninteractively
+# to get these values: apt-get install mysql-server && apt-get install debconf-utils && debconf-get-selections | grep mysql
+debconf-set-selections <<< 'mysql-server-5.5	mysql-server/root_password_again	password'
+debconf-set-selections <<< 'mysql-server-5.5	mysql-server/root_password	password'
+
 service kolab-server stop
 service kolab-saslauthd stop
 service cyrus-imapd stop
