@@ -63,10 +63,14 @@ class KolabAutoCreateFolders(unittest.TestCase):
         kolabWAPhelper.logout_kolab_wap()
 
         # check if mailbox has been created, with the modified folder name
-        p = subprocess.Popen("kolab lm | grep " + username + " | grep " + newContactsFolderName, shell=True, stdout=subprocess.PIPE)
-        out, err = p.communicate()
+        out = ""
+        starttime=datetime.datetime.now()
+        while newContactsFolderName not in out and (datetime.datetime.now()-starttime).seconds < 60:
+           kolabWAPhelper.wait_loading(1)
+           p = subprocess.Popen("kolab list-mailboxes | grep " + username, shell=True, stdout=subprocess.PIPE)
+           out, err = p.communicate()
         if newContactsFolderName not in out:
-            self.assertTrue(False, "kolab lm cannot find mailbox with folder " + newContactsFolderName + " for new user " + username)
+           self.assertTrue(False, "kolab lm cannot find mailbox with folder " + newContactsFolderName + " for new user " + username)
 
     def test_modified_foldername_in_new_domain(self):
 
@@ -86,8 +90,12 @@ class KolabAutoCreateFolders(unittest.TestCase):
         kolabWAPhelper.logout_kolab_wap()
 
         # check if mailbox has been created, with the modified folder name
-        p = subprocess.Popen("kolab lm | grep " + username + " | grep " + newContactsFolderName, shell=True, stdout=subprocess.PIPE)
-        out, err = p.communicate()
+        out = ""
+        starttime=datetime.datetime.now()
+        while newContactsFolderName not in out and (datetime.datetime.now()-starttime).seconds < 60:
+           kolabWAPhelper.wait_loading(1)
+           p = subprocess.Popen("kolab list-mailboxes | grep " + username, shell=True, stdout=subprocess.PIPE)
+           out, err = p.communicate()
         if newContactsFolderName not in out:
             self.assertTrue(False, "kolab lm cannot find mailbox with folder " + newContactsFolderName + " for new user " + username)
 
