@@ -141,8 +141,8 @@ then
     if [[ "`cat /etc/httpd/conf.d/ssl.conf | grep "roundcubemail"`" == "" ]]
     then
       newConfigLines="\tRewriteEngine On\n \
-\tRewriteRule ^/roundcubemail/[a-f0-9]{16}/(.*) /roundcubemail/$1 [PT,L]\n \
-\tRewriteRule ^/webmail/[a-f0-9]{16}/(.*) /webmail/$1 [PT,L]\n \
+\tRewriteRule ^/roundcubemail/[a-f0-9]{16}/(.*) /roundcubemail/\$1 [PT,L]\n \
+\tRewriteRule ^/webmail/[a-f0-9]{16}/(.*) /webmail/\$1 [PT,L]\n \
 \tRedirectMatch ^/$ /roundcubemail/\n"
 
       sed -i -e "s#</VirtualHost>#$newConfigLines</VirtualHost>#" /etc/httpd/conf.d/ssl.conf
@@ -171,8 +171,8 @@ else
     ' >> /etc/apache2/conf/httpd.conf
 
     newConfigLines="\tRewriteEngine On\n \
-\tRewriteRule ^/roundcubemail/[a-f0-9]{16}/(.*) /roundcubemail/$1 [PT,L]\n \
-\tRewriteRule ^/webmail/[a-f0-9]{16}/(.*) /webmail/$1 [PT,L]\n \
+\tRewriteRule ^/roundcubemail/[a-f0-9]{16}/(.*) /roundcubemail/\$1 [PT,L]\n \
+\tRewriteRule ^/webmail/[a-f0-9]{16}/(.*) /webmail/\$1 [PT,L]\n \
 \tRedirectMatch ^/$ /roundcubemail/\n"
 
     sed -i -e "s#</VirtualHost>#$newConfigLines</VirtualHost>#" /etc/apache2/conf.d/nss.conf
