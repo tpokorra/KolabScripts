@@ -248,6 +248,17 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         self.assertEquals("Shared folder created successfully.", elem.text, "Shared Folder was not saved successfully, message: " + elem.text)
 
+        # wait a couple of seconds until the sync script has been run
+        out = ""
+        starttime=datetime.datetime.now()
+        while emailSharedFolder not in out and (datetime.datetime.now()-starttime).seconds < 60:
+            self.wait_loading(1)
+            p = subprocess.Popen("kolab list-mailboxes | grep " + emailSharedFolder, shell=True, stdout=subprocess.PIPE)
+            out, err = p.communicate()
+
+        if emailSharedFolder not in out:
+            self.assertTrue(False, "kolab list-mailboxes cannot find shared folder " + emailSharedFolder)
+
         self.log("Shared Folder " + emailSharedFolder + " has been created")
 
         return emailSharedFolder, foldername
