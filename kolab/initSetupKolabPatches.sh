@@ -32,9 +32,3 @@ echo "applying setupkolab_yes_quietBug2598.patch to $pythonDistPackages/pykolab"
 patch -p1 -i `pwd`/patches/setupkolab_yes_quietBug2598.patch -d $pythonDistPackages/pykolab
 echo "applying setupkolab_directory_manager_pwdBug2645.patch"
 patch -p1 -i `pwd`/patches/setupkolab_directory_manager_pwdBug2645.patch -d $pythonDistPackages
-
-if [[ "$dist" == "CentOS" ]]; then
-  # on Debian we don't need to patch the init script, because it is completely different, provided in debian.tar.gz
-  echo "applying wallaceInitScriptBug917.patch"
-  patch -p1 -i `pwd`/patches/wallaceInitScriptBug917.patch -d /etc
-fi
