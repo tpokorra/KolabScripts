@@ -82,6 +82,8 @@ cd /etc/yum.repos.d
 rm -Rf kolab-*.repo
 wget $obs/Kolab:/3.2/$OBS_repo_OS/Kolab:3.2.repo -O kolab-3.2.repo
 wget $obs/Kolab:/3.2:/Updates/$OBS_repo_OS/Kolab:3.2:Updates.repo -O kolab-3.2-updates.repo
+sed -i "s/gpgcheck=1/gpgcheck=0/g" kolab-3.2.repo
+sed -i "s/gpgcheck=1/gpgcheck=0/g" kolab-3.2-updates.repo
 cd -
 
 # add priority = 0 to kolab repo files
@@ -91,6 +93,10 @@ do
     sed -i "s#http://obs.kolabsys.com:82/#$obs/#g" $f
 done
 
-#yum clean metadata
-yum -y install kolab patch unzip
+tryagain=0
+yum -y install kolab patch unzip || tryagain=1
+if [ $tryagain -eq 1 ]; then
+  yum clean metadata
+  yum -y install kolab patch unzip
+fi
 
