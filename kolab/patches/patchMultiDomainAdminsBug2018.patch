@@ -500,7 +500,7 @@ index 2c57d9d..04155e4 100644
 @@ -110,6 +110,10 @@ abstract class kolab_api_service
              return key($object_types);
          }
- 
+
 +        # sort object types by the key: Kolab user should win over Domain Admin, because it comes first
 +        # there are only additional fields, so a kolab user would be displayed as admin, when sorting by type name
 +        ksort($object_types);
@@ -508,7 +508,22 @@ index 2c57d9d..04155e4 100644
          $object_class = array_map('strtolower', $object_class);
          $object_keys  = array_diff(array_keys($attributes), array(self::unique_attribute()));
          $keys_count   = count($object_keys);
-@@ -240,6 +244,7 @@ abstract class kolab_api_service
+@@ -186,6 +190,14 @@ abstract class kolab_api_service
+                 }
+             }
+
++            // if this is a user, make sure that differences (eg. object class tbitsKolabDomainAdmin) are weighted more,
++            // so that a difference of 0 is better than a difference of 1
++            if ($object_name == 'user') {
++                if ($differences > 0) {
++                   $elem_score -= 2;
++                }
++            }
++
+             // degrade class score if object contains more attributes
+             // than defined in object type
+             if ($keys_count && $elem_keys_score < $keys_count) {
+@@ -240,6 +252,7 @@ abstract class kolab_api_service
                      'attributes' => kolab_api_service_domain_types::$DEFAULT_TYPE_ATTRS,
                  ),
              );
