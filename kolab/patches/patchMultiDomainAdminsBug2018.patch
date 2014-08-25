@@ -805,7 +805,7 @@ index 24b251a..515f0bf 100644
 +
 +    var list = this.env.assoc_fields ? this.env.assoc_fields[assoc_fields_options] : [];
 +    $.each(list, function(i, v) {
-+        content = content + '<option value="' + v[0] + '">' + v[1] + '</option>';
++        content = content + '<option value="' + v[0] +  '"' +  (v[0] == data['value']?'selected':'')+ '>' + v[1] + '</option>';
 +    });
 +    content = content + '</select></span>';
 +
