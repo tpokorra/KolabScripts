@@ -32,3 +32,7 @@ echo "applying setupkolab_yes_quietBug2598.patch to $pythonDistPackages/pykolab"
 patch -p1 -i `pwd`/patches/setupkolab_yes_quietBug2598.patch -d $pythonDistPackages/pykolab
 echo "applying setupkolab_directory_manager_pwdBug2645.patch"
 patch -p1 -i `pwd`/patches/setupkolab_directory_manager_pwdBug2645.patch -d $pythonDistPackages
+
+echo "applying temporary patches"
+patch -p1 -i `pwd`/patches/kolabsaslauthBug3499.patch -d $pythonDistPackages 
+patch -p1 -i `pwd`/patches/roundcubeResolveUrlIssue37.patch -d /usr/share/roundcubemail
