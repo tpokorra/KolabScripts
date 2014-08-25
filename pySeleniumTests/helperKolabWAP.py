@@ -3,6 +3,7 @@ import time
 import datetime
 import string
 import subprocess
+import os
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
@@ -169,6 +170,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
         self.assertEquals("Domain created successfully.", elem.text, "domain was not created successfully, message: " + elem.text)
 
+        # restart kolabd service, otherwise we need to wait up to 10 minutes for the domain to be created
+        os.system("service kolabd restart")
         # wait a couple of seconds until the sync script has been run
         out = ""
         starttime=datetime.datetime.now()
@@ -250,6 +253,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         self.assertEquals("Shared folder created successfully.", elem.text, "Shared Folder was not saved successfully, message: " + elem.text)
 
+        # restart kolabd service, otherwise we need to wait up to 10 minutes for the folder to be created
+        os.system("service kolabd restart")
         # wait a couple of seconds until the sync script has been run
         out = ""
         starttime=datetime.datetime.now()
@@ -401,6 +406,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.assertEquals("User created successfully.", elem.text, "User was not saved successfully, message: " + elem.text)
 
         if forward_to is None:
+            # restart kolabd service, otherwise we need to wait up to 10 minutes for the mailbox to be created
+            os.system("service kolabd restart")
             # wait a couple of seconds until the sync script has been run (perhaps even the domain still needs to be created?)
             out = ""
             starttime=datetime.datetime.now()
