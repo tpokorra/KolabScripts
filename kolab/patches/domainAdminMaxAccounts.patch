@@ -49,7 +49,7 @@ diff --git a/lib/api/kolab_api_service_user.php b/lib/api/kolab_api_service_user
 index 79dcb59..1cbce61 100644
 --- a/lib/api/kolab_api_service_user.php
 +++ b/lib/api/kolab_api_service_user.php
-@@ -70,6 +70,48 @@ class kolab_api_service_user extends kolab_api_service
+@@ -70,6 +70,48 @@
      }
  
      /**
@@ -98,13 +98,14 @@ index 79dcb59..1cbce61 100644
       * Create user.
       *
       * @param array $get   GET parameters
-@@ -129,6 +171,9 @@ class kolab_api_service_user extends kolab_api_service
+@@ -81,6 +123,9 @@
      {
-         Log::trace("\$postdata to user_edit()", $postdata);
+         Log::trace("user_add()", $postdata);
  
 +        // check if the domainadmin is allowed to add more accounts
 +        $this->validate_user_add();
 +
-         $user_attributes = $this->parse_input_attributes('user', $postdata);
-         $user            = $postdata['id'];
+         $attributes = $this->parse_input_attributes('user', $postdata);
  
+         Log::trace("user_add()", $attributes);
+
