@@ -23,7 +23,7 @@ diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
 index 0c03be0..6ad01c3 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -146,6 +146,22 @@ class LDAP extends Net_LDAP3 {
+@@ -146,6 +146,22 @@
          $_SESSION['user']->user_bind_dn = $result;
          $_SESSION['user']->user_bind_pw = $password;
  
@@ -46,7 +46,7 @@ index 0c03be0..6ad01c3 100644
          return $result;
      }
  
-@@ -178,6 +194,9 @@ class LDAP extends Net_LDAP3 {
+@@ -178,6 +194,9 @@
              array_unshift($attributes[$domain_name_attribute], $domain);
          }
  
@@ -56,16 +56,18 @@ index 0c03be0..6ad01c3 100644
          $domain_dn = $domain_name_attribute . '=' . $domain . ',' . $domain_base_dn;
  
          $result = $this->add_entry($domain_dn, $attributes);
-@@ -186,6 +205,8 @@ class LDAP extends Net_LDAP3 {
-             return false;
+@@ -368,6 +387,10 @@
+             $this->add_entry($dn, $attrs);
          }
  
-+        $this->domain_admin_save($domain, $domain_dn, $attributes_domainadmin);
++        if (!$this->domain_admin_save($domain, $domain_dn, $attributes_domainadmin)) {
++            return false;
++        }
 +
-         if (!empty($attributes['inetdomainbasedn'])) {
-             $inetdomainbasedn = $attributes['inetdomainbasedn'];
-         }
-@@ -381,6 +402,16 @@ class LDAP extends Net_LDAP3 {
+         return $domain_dn;
+     }
+ 
+@@ -381,6 +404,16 @@
  
          $domain_dn = key($domain);
  
@@ -82,7 +84,7 @@ index 0c03be0..6ad01c3 100644
          // We should start throwing stuff over the fence here.
          return $this->modify_entry($domain_dn, $domain[$domain_dn], $attributes);
      }
-@@ -428,6 +459,36 @@ class LDAP extends Net_LDAP3 {
+@@ -428,6 +461,36 @@
              $result = $this->_read($domain_dn, $attributes);
          }
  
@@ -119,7 +121,7 @@ index 0c03be0..6ad01c3 100644
          $this->_log(LOG_DEBUG, "Auth::LDAP::domain_info() result: " . var_export($result, true));
  
          return $result ? $result : false;
-@@ -984,6 +1045,8 @@ class LDAP extends Net_LDAP3 {
+@@ -996,6 +1059,8 @@
                  $pass = $result['replace']['userpassword'];
                  $_SESSION['user']->user_bind_pw = is_array($pass) ? implode($pass) : $pass;
              }
@@ -128,7 +130,7 @@ index 0c03be0..6ad01c3 100644
          }
  
          return $result;
-@@ -1709,4 +1772,148 @@ class LDAP extends Net_LDAP3 {
+@@ -1721,4 +1786,158 @@
  
          return false;
      }
@@ -174,6 +176,14 @@ index 0c03be0..6ad01c3 100644
 +    private function domain_admin_save($domain, $domain_dn, $domainadmins) {
 +        if (is_string($domain)) {
 +            $domain = $this->domain_info($domain, array('domainadmin'));
++        }
++
++        if (!array_key_exists('associateddomain', $domain[$domain_dn])) {
++            // domain_dn is in this format:  associateddomain=atest1.de,cn=kolab,cn=config
++            $tmp=explode(",", $domain_dn);
++            $tmp=$tmp[0];
++            $tmp=explode("=", $tmp);
++            $domain[$domain_dn]["associateddomain"] = $tmp[1];
 +        }
 +
 +        $currentdomain_dn = $this->_standard_root_dn($domain[$domain_dn]["associateddomain"]);
@@ -222,9 +232,11 @@ index 0c03be0..6ad01c3 100644
 +        
 +        $result = $this->modify_entry($currentdomain_da_dn, $domain_admins[$currentdomain_da_dn], $info);
 +
-+        if (!$result) {
++        if (!is_array($result)) {
 +            return false;
 +        }
++
++        return true;
 +    }
 +
 +    // returns an array with the domains that this domainadmin has access to
