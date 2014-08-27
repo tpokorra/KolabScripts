@@ -80,14 +80,16 @@ fi
 
 cd /etc/yum.repos.d
 rm -Rf kolab-*.repo
-wget $obs/Kolab:/3.2/$OBS_repo_OS/Kolab:3.3.repo -O kolab-3.3.repo
-wget $obs/Kolab:/3.2:/Updates/$OBS_repo_OS/Kolab:3.3:Updates.repo -O kolab-3.3-updates.repo
+wget $obs/Kolab:/3.3/$OBS_repo_OS/Kolab:3.3.repo -O kolab-3.3.repo
+wget $obs/Kolab:/3.3:/Updates/$OBS_repo_OS/Kolab:3.3:Updates.repo -O kolab-3.3-updates.repo
 wget $obs/Kolab:/Development/$OBS_repo_OS/Kolab:Development.repo -O kolab-3-development.repo
 wget $obs/home:/tpokorra:/branches:/Kolab:/Development/$OBS_repo_OS/home:tpokorra:branches:Kolab:Development.repo -O kolab-3-obs-tpokorra-nightly.repo
 sed -i "s/gpgcheck=1/gpgcheck=0/g" kolab-3.3.repo
 sed -i "s/gpgcheck=1/gpgcheck=0/g" kolab-3.3-updates.repo
 sed -i "s/gpgcheck=1/gpgcheck=0/g" kolab-3-development.repo
 sed -i "s/gpgcheck=1/gpgcheck=0/g" kolab-3-obs-tpokorra-nightly.repo
+# there are problems using my nightly builds and the development builds at the same time?
+#sed -i "s/enabled=1/enabled=0/g" kolab-3-development.repo
 cd -
 
 # add priority = 0 to kolab repo files
