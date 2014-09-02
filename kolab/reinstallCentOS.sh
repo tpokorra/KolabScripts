@@ -87,7 +87,8 @@ cd -
 
 yum install gnupg2
 # manually: gpg --search devel@lists.kolab.org
-gpg --import key/devel\@lists.kolab.org.asc 
+gpg --import key/devel\@lists.kolab.org.asc
+rpm --import key/devel\@lists.kolab.org.asc
 #cd /etc/yum.repos.d
 #sed -i "s/gpgcheck=1/gpgcheck=0/g" kolab-3.3.repo
 #sed -i "s/gpgcheck=1/gpgcheck=0/g" kolab-3.3-updates.repo
