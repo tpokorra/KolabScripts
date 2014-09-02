@@ -32,3 +32,12 @@ echo "applying setupkolab_yes_quietBug2598.patch to $pythonDistPackages/pykolab"
 patch -p1 -i `pwd`/patches/setupkolab_yes_quietBug2598.patch -d $pythonDistPackages/pykolab
 echo "applying setupkolab_directory_manager_pwdBug2645.patch"
 patch -p1 -i `pwd`/patches/setupkolab_directory_manager_pwdBug2645.patch -d $pythonDistPackages
+
+#####################################################################################
+# make sure that kolab webadmin works even on my virtual machine with routed port 80
+#####################################################################################
+sed -r -i \
+    -e '/api_url/d' \
+    -e "s#\[kolab_wap\]#[kolab_wap]\napi_url = http://localhost/kolab-webadmin/api#g" \
+    /etc/kolab/kolab.conf
+
