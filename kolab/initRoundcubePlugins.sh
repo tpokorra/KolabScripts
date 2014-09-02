@@ -14,6 +14,9 @@ else
   fi
 fi
 
+# disable the message_label plugin, because Kolab 3.3 has tags for emails
+if [ 1 -eq 0 ];
+then
 #####################################################################################
 # install our modified version of the message_label plugin to support virtual folders aka imap flags
 # see  https://github.com/tpokorra/message_label/tree/message_label_tbits
@@ -37,6 +40,7 @@ echo Downloading patch managesieveWithMessagelabel.patch...
 wget https://raw.github.com/tpokorra/kolab3_tbits_scripts/master/kolab3.1/patches/managesieveWithMessagelabel.patch
 mv managesieveWithMessagelabel.patch patches/
 patch -p1 -i `pwd`/patches/managesieveWithMessagelabel.patch -d /usr/share/roundcubemail
+fi
 
 #####################################################################################
 # install the advanced_search plugin
@@ -45,8 +49,10 @@ patch -p1 -i `pwd`/patches/managesieveWithMessagelabel.patch -d /usr/share/round
 wget https://github.com/GMS-SA/roundcube-advanced-search/archive/stable.tar.gz -O advanced_search.tar.gz
 tar -xzf advanced_search.tar.gz
 rm -f advanced_search.tar.gz
-mv roundcube-advanced-search-stable /usr/share/roundcubemail/plugins/advanced_search
-mv /usr/share/roundcubemail/plugins/advanced_search/config-default.inc.php /usr/share/roundcubemail/plugins/advanced_search/config.inc.php
-sed -r -i -e "s#messagemenu#toolbar#g" /usr/share/roundcubemail/plugins/advanced_search/config.inc.php
+#pluginsPath=/usr/share/roundcubemail/public_html/assets/plugins
+pluginsPath=/usr/share/roundcubemail/plugins
+mv roundcube-advanced-search-stable $pluginsPath/advanced_search
+mv $pluginsPath/advanced_search/config-default.inc.php $pluginsPath/advanced_search/config.inc.php
+sed -r -i -e "s#messagemenu#toolbar#g" $pluginsPath/advanced_search/config.inc.php
 sed -r -i -e "s#'redundant_attachments',#'redundant_attachments',\n            'advanced_search',#g" /etc/roundcubemail/config.inc.php
 
