@@ -41,3 +41,4 @@ sed -r -i \
     -e "s#\[kolab_wap\]#[kolab_wap]\napi_url = http://localhost/kolab-webadmin/api#g" \
     /etc/kolab/kolab.conf
 
+sed -i -e "s#?>#    \$config['file_api_url'] = 'http://localhost/chwala/api/';\n\n?>#g" /etc/roundcubemail/config.inc.php

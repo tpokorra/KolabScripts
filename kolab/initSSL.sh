@@ -219,6 +219,7 @@ then
 fi
 
 sed -i -e 's/http:/https:/' /etc/roundcubemail/kolab_files.inc.php
+sed -i -e 's/http:/https:/' /etc/roundcubemail/config.inc.php
 
 #####################################################################################
 # configure LDAP server
