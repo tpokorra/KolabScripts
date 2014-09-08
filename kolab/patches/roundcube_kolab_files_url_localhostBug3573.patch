@@ -1,0 +1,25 @@
+From b2d09c7a176a593027fb5fcac2e657f444c86b43 Mon Sep 17 00:00:00 2001
+From: Timotheus Pokorra <tp@tbits.net>
+Date: Thu, 4 Sep 2014 16:06:59 +0200
+Subject: [PATCH] make sure that we can use kolab_files in roundcube even if the server is behind some tunneling.
+ use localhost rather than the hostname that the server is known under from the outside
+
+---
+ plugins/kolab_files/lib/kolab_files_engine.php |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/plugins/kolab_files/lib/kolab_files_engine.php b/plugins/kolab_files/lib/kolab_files_engine.php
+index 8cb408b..aaa41fb 100644
+--- a/plugins/kolab_files/lib/kolab_files_engine.php
++++ b/plugins/kolab_files/lib/kolab_files_engine.php
+@@ -539,6 +539,7 @@ class kolab_files_engine
+ 
+         try {
+             $url = $request->getUrl();
++            $url->setHost("localhost");
+ 
+             // Send ping request
+             if ($token) {
+-- 
+1.7.1
+
