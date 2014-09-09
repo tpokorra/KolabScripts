@@ -46,6 +46,12 @@ sed -r -i -e "s/\[kolab\]/[kolab]\ndomainadmin_quota_attribute = tbitskolabovera
 
 
 #####################################################################################
+#enable storing the last login time for each user
+#####################################################################################
+sed -r -i -e "s/\[ldap\]/[ldap]\nsetlastlogin = True/g" /etc/kolab/kolab.conf
+
+
+#####################################################################################
 #disable LDAP debugging
 #####################################################################################
 sed -r -i -e 's/config_set\("debug", true\)/config_set("debug", false)/g' /usr/share/kolab-webadmin/lib/Auth/LDAP.php
