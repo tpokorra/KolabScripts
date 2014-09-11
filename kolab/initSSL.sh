@@ -146,6 +146,15 @@ then
 \tRedirectMatch ^/$ /roundcubemail/\n"
 
       sed -i -e "s#</VirtualHost>#$newConfigLines</VirtualHost>#" /etc/httpd/conf.d/ssl.conf
+
+      newConfigLines="\t\n \
+\t# Be compatible with older packages and installed plugins.\n \
+\tRewriteCond %{REQUEST_URI} ^/roundcubemail/assets/\n \
+\tRewriteCond %{REQUEST_URI} \!-f\n \
+\tRewriteCond %{REQUEST_URI} \!-d\n \
+\tRewriteRule .*/roundcubemail/assets/(.*)\$ /roundcubemail/\$1 [PT,L]\n"
+
+      sed -i -e "s~</VirtualHost>~$newConfigLines</VirtualHost>~" /etc/httpd/conf.d/ssl.conf
     fi
 
     service httpd restart
@@ -175,7 +184,16 @@ else
 \tRewriteRule ^/webmail/[a-f0-9]{16}/(.*) /webmail/\$1 [PT,L]\n \
 \tRedirectMatch ^/$ /roundcubemail/\n"
 
-    sed -i -e "s#</VirtualHost>#$newConfigLines</VirtualHost>#" /etc/apache2/conf.d/nss.conf
+    sed -i -e "s#</VirtualHost>#$newConfigLines</VirtualHost>#" /etc/httpd/conf.d/ssl.conf
+
+    newConfigLines="\t\n \
+\t# Be compatible with older packages and installed plugins.\n \
+\tRewriteCond %{REQUEST_URI} ^/roundcubemail/assets/\n \
+\tRewriteCond %{REQuEST_URI} \!-f\n \
+\tRewriteCond %{REQuEST_URI} \!-d\n \
+\tRewriteRule .*/roundcubemail/assets/(.*)\$ /roundcubemail/\$1 [PT,L]\n"
+
+    sed -i -e "s~</VirtualHost>~$newConfigLines</VirtualHost>~" /etc/apache2/conf.d/nss.conf
 
     service apache2 restart
 fi
@@ -201,6 +219,7 @@ then
 fi
 
 sed -i -e 's/http:/https:/' /etc/roundcubemail/kolab_files.inc.php
+sed -i -e 's/http:/https:/' /etc/roundcubemail/config.inc.php
 
 #####################################################################################
 # configure LDAP server

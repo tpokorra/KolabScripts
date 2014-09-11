@@ -1,6 +1,6 @@
 #!/bin/bash
 # this script will remove Kolab, and DELETE all YOUR data!!!
-# it will reinstall Kolab, from Kolab Nightly builds
+# it will reinstall Kolab, from Kolab 3.3 Updates
 # you can optionally install the patches from TBits, see bottom of script reinstall.sh
 
 #check that dirsrv will have write permissions to /dev/shm
@@ -91,6 +91,16 @@ sed -i "s/gpgcheck=1/gpgcheck=0/g" kolab-3-obs-tpokorra-nightly.repo
 # there are problems using my nightly builds and the development builds at the same time?
 #sed -i "s/enabled=1/enabled=0/g" kolab-3-development.repo
 cd -
+
+yum install gnupg2
+# manually: gpg --search devel@lists.kolab.org
+gpg --import key/devel\@lists.kolab.org.asc
+rpm --import key/devel\@lists.kolab.org.asc
+#cd /etc/yum.repos.d
+#sed -i "s/gpgcheck=1/gpgcheck=0/g" kolab-3.3.repo
+#sed -i "s/gpgcheck=1/gpgcheck=0/g" kolab-3.3-updates.repo
+#sed -i "s/gpgcheck=1/gpgcheck=0/g" kolab-3-development.repo
+#cd -
 
 # add priority = 0 to kolab repo files
 for f in /etc/yum.repos.d/kolab-3*.repo

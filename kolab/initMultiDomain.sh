@@ -159,6 +159,8 @@ then
   wget $patchesurl/fixmailquotaBug3198.patch -O patches/fixmailquotaBug3198.patch
   echo Downloading patch problemSyncMultiDomainBug3197.patch
   wget $patchesurl/problemSyncMultiDomainBug3197.patch -O patches/problemSyncMultiDomainBug3197.patch
+  echo Downloading patch roundcube_kolab_files_url_localhostBug3573.patch
+  wget $patchesurl/roundcube_kolab_files_url_localhostBug3573.patch -O patches/roundcube_kolab_files_url_localhostBug3573.patch
 fi
 
 # different paths in debian and centOS
@@ -172,6 +174,7 @@ fi
 patch -p1 -i `pwd`/patches/validateAliasDomainPostfixVirtualFileBug2658.patch -d /usr/share/kolab-webadmin
 patch -p1 -i `pwd`/patches/fixmailquotaBug3198.patch -d /usr/share/kolab-webadmin
 patch -p1 -i `pwd`/patches/problemSyncMultiDomainBug3197.patch -d $pythonDistPackages
+patch -p1 -i `pwd`/patches/roundcube_kolab_files_url_localhostBug3573.patch -d /usr/share/roundcubemail
 
 service kolab-saslauthd restart
 service kolabd restart

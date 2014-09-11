@@ -43,6 +43,7 @@ if [[ "$tests" == "all" || "$tests" == "domainadmin" ]]; then
   ./testDomainAdminDefaultQuota.py || hasError=1
   ./testDomainAdminMaxAccounts.py || hasError=1
   ./testDomainAdminOverallQuota.py || hasError=1
+  ./testLastLogin.py || hasError=1
 fi
 
 exit $hasError
