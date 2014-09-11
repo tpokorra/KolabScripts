@@ -545,6 +545,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         # roundcubemail/?_task=mail&_action=show&_uid=1&_mbox=INBOX
         driver.get(url + "?_task=mail&_action=show&_uid=1&_mbox=" + folder)
+        self.wait_loading(5)
         if emailSubjectLine is not None:
            elem = wait.until(EC.visibility_of_element_located(
                       (By.XPATH, "//h2[@class='subject'][text()='" + emailSubjectLine + "']")),
