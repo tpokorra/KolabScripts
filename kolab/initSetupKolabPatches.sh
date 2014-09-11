@@ -24,8 +24,12 @@ fi
 # Debian
 pythonDistPackages=/usr/lib/python2.7/dist-packages
 if [ ! -d $pythonDistPackages ]; then
-  # centOS
+  # centOS6
   pythonDistPackages=/usr/lib/python2.6/site-packages
+  if [ ! -d $pythonDistPackages ]; then
+    # centOS7
+    pythonDistPackages=/usr/lib/python2.7/site-packages
+  fi
 fi
 
 echo "applying setupkolab_yes_quietBug2598.patch to $pythonDistPackages/pykolab"

@@ -26,14 +26,15 @@ then
 fi
 OBS_repo_OS=$1
 
-service kolabd stop
-service kolab-saslauthd stop
-service cyrus-imapd stop
-service dirsrv stop
-service wallace stop
-service httpd stop
+systemctl stop kolabd
+systemctl stop kolab-saslauthd
+systemctl stop cyrus-imapd
+systemctl stop dirsrv
+systemctl stop wallace
+systemctl stop httpd
+systemctl stop mariadb
 
-yum -y remove 389\* cyrus-imapd\* postfix\* mysql-server\* roundcube\* pykolab\* kolab\* libkolab\* kolab-3\* httpd
+yum -y remove 389\* cyrus-imapd\* postfix\* mariadb-server\* roundcube\* pykolab\* kolab\* libkolab\* kolab-3\* httpd
 
 echo "deleting files..."
 rm -Rf \
