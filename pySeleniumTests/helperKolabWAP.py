@@ -193,8 +193,20 @@ class KolabWAPTestHelpers(unittest.TestCase):
         #driver.delete_all_cookies()
         self.log("User has logged out from Roundcube")
 
+    def stopKolabSync(self):
+        os.system("service kolabd stop")
+
+    def startKolabSync(self):
+        # first one run that waits for the sync to finish
+        os.system("kolab sync > /dev/null 2>&1")
+        # now start the service again
+        os.system("service kolabd start")
+
     # create a new domain and select it
     def create_domain(self, domainadmin = None, withAliasDomain = False):
+
+        # stop kolabd service, otherwise we need to wait up to 10 minutes for the domain to be created
+        self.stopKolabSync()
 
         driver = self.driver
         driver.get(driver.current_url)
@@ -224,8 +236,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
         self.assertEquals("Domain created successfully.", elem.text, "domain was not created successfully, message: " + elem.text)
 
-        # restart kolabd service, otherwise we need to wait up to 10 minutes for the domain to be created
-        os.system("service kolabd restart")
+        self.startKolabSync()
         # wait a couple of seconds until the sync script has been run
         out = ""
         starttime=datetime.datetime.now()
@@ -237,7 +248,6 @@ class KolabWAPTestHelpers(unittest.TestCase):
         if domainname not in out:
             self.assertTrue(False, "kolab list-domains cannot find domain " + domainname)
   
-
         self.log("Domain " + domainname + " has been created")
         
         # reload so that the domain dropdown is updated, and switch to new domain at the same time
@@ -267,6 +277,9 @@ class KolabWAPTestHelpers(unittest.TestCase):
     # create new shared folder
     # expects a list of delegate email addresses
     def create_shared_folder(self, delegates = None, foldername = None):
+        # restart kolabd service, otherwise we need to wait up to 10 minutes for the folder to be created
+        self.stopKolabSync()
+
         driver = self.driver
         driver.get(driver.current_url)
         elem = driver.find_element_by_link_text("Shared Folders")
@@ -307,8 +320,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         self.assertEquals("Shared folder created successfully.", elem.text, "Shared Folder was not saved successfully, message: " + elem.text)
 
-        # restart kolabd service, otherwise we need to wait up to 10 minutes for the folder to be created
-        os.system("service kolabd restart")
+        self.startKolabSync()
         # wait a couple of seconds until the sync script has been run
         out = ""
         starttime=datetime.datetime.now()
@@ -338,6 +350,9 @@ class KolabWAPTestHelpers(unittest.TestCase):
                     alias = None,
                     forward_to = None,
                     expected_message_contains = None):
+        # restart kolabd service, otherwise we need to wait up to 10 minutes for the mailbox to be created
+        self.stopKolabSync()
+
         driver = self.driver
         driver.get(driver.current_url)
         elem = driver.find_element_by_link_text("Users")
@@ -459,9 +474,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         self.assertEquals("User created successfully.", elem.text, "User was not saved successfully, message: " + elem.text)
 
+        self.startKolabSync() 
         if forward_to is None:
-            # restart kolabd service, otherwise we need to wait up to 10 minutes for the mailbox to be created
-            os.system("service kolabd restart")
             # wait a couple of seconds until the sync script has been run (perhaps even the domain still needs to be created?)
             out = ""
             starttime=datetime.datetime.now()
