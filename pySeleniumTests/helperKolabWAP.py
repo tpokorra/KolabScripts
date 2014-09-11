@@ -12,6 +12,18 @@ from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException
 
+import pykolab
+import pykolab.base
+
+from pykolab import utils
+from pykolab.constants import *
+from pykolab.errors import *
+from pykolab.translate import _
+
+conf = pykolab.getConf()
+conf.finalize_conf()
+conf.read_config("/etc/kolab/kolab.conf")
+
 # useful functions for testing kolab-webadmin
 class KolabWAPTestHelpers(unittest.TestCase):
 
@@ -32,23 +44,65 @@ class KolabWAPTestHelpers(unittest.TestCase):
     def log(self, message):
         print datetime.datetime.now().strftime("%H:%M:%S") + " " + message
 
-    def getSiteUrl(self):
-        # read kolab.conf
-        fo = open("/etc/kolab/kolab.conf", "r+")
-        content = fo.read()
-        fo.close()
+    def getConf(self, section, attribute):
+        return conf.get(section, attribute)
 
-        # find [kolab_wap], find line starting with api_url
-        pos = content.index("[kolab_wap]")
-        if content.find("api_url", pos) == -1:
+    def getSiteUrl(self):
+        api_url = self.getConf('kolab_wap', 'api_url')
+        if api_url is None:
           return "http://localhost"
-        pos = content.index("api_url", pos)
-        pos = content.index("http", pos)
-        posSlash = content.index("/", pos)
-        posSlash = content.index("/", posSlash+1)
-        posSlash = content.index("/", posSlash+1)
+        posSlash = api_url.index("/")
+        posSlash = api_url.index("/", posSlash+1)
+        posSlash = api_url.index("/", posSlash+1)
         # should return https://localhost or http://localhost
-        return content[pos:posSlash]
+        return api_url[:posSlash]
+
+    def getLDAPValue(self, entry_dn, attribute):
+        self.ldap = ldap.ldapobject.ReconnectLDAPObject(
+                self.getConf('ldap', 'ldap_uri'),
+                trace_level=0,
+                retry_max=200,
+                retry_delay=3.0
+            )
+
+        self.ldap.protocol_version = 3
+        self.ldap.supported_controls = []
+
+        bind_dn=self.getConf('ldap', 'bind_dn')
+        bind_pw=self.getConf('ldap', 'bind_pw')
+        try:
+            self.ldap.simple_bind_s(bind_dn, bind_pw)
+        except ldap.SERVER_DOWN:
+           print("server down.")
+        except ldap.INVALID_CREDENTIALS:
+           print("Invalid DN, username and/or password.")
+
+        attributes = [attribute]
+        _search = self.ldap.search_ext(
+                entry_dn,
+                ldap.SCOPE_BASE,
+                filterstr='(objectclass=*)',
+                attrlist=[ 'dn' ] + attributes
+            )
+
+        (
+                _result_type,
+                _result_data,
+                _result_msgid,
+                _result_controls
+            ) = self.ldap.result3(_search)
+
+        if len(_result_data) >= 1:
+            (_entry_dn, _entry_attrs) = _result_data[0]
+            entry_attrs = utils.normalize(_entry_attrs)
+            if entry_attrs.has_key(attribute):
+              return entry_attrs[attribute]
+            elif entry_attrs.has_key(attribute.lower()):
+              return entry_attrs[attribute.lower()]
+            else:
+              return None
+        else:
+            return None
 
     def wait_loading(self, initialwait=0.5):
         time.sleep(initialwait)
