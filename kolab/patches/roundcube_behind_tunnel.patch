@@ -4,8 +4,8 @@
              }
  
              $path = (rcube_utils::https_check() ? 'https' : 'http') . '://'
--                . $_SERVER['SERVER_NAME'] . $base . '/' . $path;
-+                . $_SERVER['HTTP_HOST'] . $base . '/' . $path;
+-                . $_SERVER['SERVER_NAME'] . rtrim($base, '/') . '/' . ltrim($path, '/');
++                . $_SERVER['HTTP_HOST'] . rtrim($base, '/') . '/' . ltrim($path, '/');
          }
  
          $this->assets_path = $path;
