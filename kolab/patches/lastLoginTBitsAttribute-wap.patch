@@ -122,20 +122,14 @@ diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
 index 1609cc3..e806293 100644
 --- a/lib/locale/de_DE.php
 +++ b/lib/locale/de_DE.php
-@@ -239,11 +239,13 @@ $LANG['user.preferredlanguage'] = 'Muttersprache';
- $LANG['user.room'] = 'Raumnummer';
- $LANG['user.sn'] = 'Nachname';
- $LANG['user.street'] = 'Straße';
-+$LANG['user.statistics'] = 'Info';
- $LANG['user.system'] = 'System';
- $LANG['user.telephonenumber'] = 'Telefonnummer';
+@@ -448,5 +448,7 @@
+ $LANG['domain.domainadmin'] = 'Administratoren für diese Domain';
  $LANG['user.tbitskolabmaxaccounts'] = 'Maximale Anzahl von Benutzerkonten';
  $LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
  $LANG['user.tbitskolabdefaultquota'] = 'Voreinstellung Quota für Benutzerkonten';
++$LANG['user.statistics'] = 'Info';
 +$LANG['user.tbitskolablastlogin'] = 'Letzte erfolgreiche Anmeldung';
- $LANG['user.title'] = 'Jobbezeichnung';
- $LANG['user.type_id'] = 'Kontotyp';
- $LANG['user.uid'] = 'Eindeutige Identität (UID)';
+
 diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
 index fbb51c9..4bf06d3 100644
 --- a/lib/locale/en_US.php

@@ -643,35 +643,18 @@ diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
 index b88e520..1609cc3 100644
 --- a/lib/locale/de_DE.php
 +++ b/lib/locale/de_DE.php
-@@ -31,8 +31,10 @@ $LANG['delete'] = 'Löschen';
- $LANG['deleting'] = 'Daten löschen…';
- $LANG['domain.add'] = 'Domäne hinzufügen';
- $LANG['domain.add.success'] = 'Domäne erfolgreich hinzugefügt.';
-+$LANG['domain.admins'] = 'Domain Administratoren';
- $LANG['domain.associateddomain'] = 'Domänenname(n)';
- $LANG['domain.delete.success'] = 'Domäne erfolgreich gelöscht.';
-+$LANG['domain.domainadmin'] = 'Administratoren für diese Domain';
- $LANG['domain.edit'] = 'Domäne bearbeiten';
- $LANG['domain.edit.success'] = 'Domäne erfolgreich aktualisiert.';
- $LANG['domain.inetdomainbasedn'] = 'Benutzerdefinierte(s) Root DN(s)';
-@@ -192,6 +194,7 @@ $LANG['user.country'] = 'Land';
- $LANG['user.country.desc'] = '2 Buchstaben Ländercode aus ISO 3166-1';
- $LANG['user.delete.success'] = 'Benutzer erfolgreich gelöscht.';
- $LANG['user.displayname'] = 'Anzeigename';
+@@ -442,3 +442,11 @@
+ $LANG['welcome'] = 'Willkommen bei der Kolab Groupware Server-Wartung';
+ 
+ $LANG['yes'] = 'ja';
++
 +$LANG['user.domainadmin'] = 'Domain Administrator';
- $LANG['user.edit.success'] = 'Benutzer erfolgreich bearbeitet.';
- $LANG['user.fax'] = 'Faxnummer';
- $LANG['user.fbinterval'] = 'Frei-Beschäftigt Intervall';
-@@ -238,6 +241,9 @@ $LANG['user.sn'] = 'Nachname';
- $LANG['user.street'] = 'Straße';
- $LANG['user.system'] = 'System';
- $LANG['user.telephonenumber'] = 'Telefonnummer';
++$LANG['domain.admins'] = 'Domain Administratoren';
++$LANG['domain.domainadmin'] = 'Administratoren für diese Domain';
 +$LANG['user.tbitskolabmaxaccounts'] = 'Maximale Anzahl von Benutzerkonten';
 +$LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
 +$LANG['user.tbitskolabdefaultquota'] = 'Voreinstellung Quota für Benutzerkonten';
- $LANG['user.title'] = 'Jobbezeichnung';
- $LANG['user.type_id'] = 'Kontotyp';
- $LANG['user.uid'] = 'Eindeutige Identität (UID)';
++
 diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
 index e36977d..fbb51c9 100644
 --- a/lib/locale/en_US.php
