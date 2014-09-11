@@ -10,7 +10,7 @@ index c0c3297..0bfcac7 100644
 +                # store current unix time in last login
 +                self.bind = False
 +                if self.config_get('setlastlogin') == "True":
-+                    self.set_entry_attribute(entry_dn, "tbitsKolabLastLogin", int(time.time()))
++                    self.set_entry_attribute(entry_dn, "tbitsKolabLastLogin", str(int(time.time())))
 +
                  try:
                      auth_cache.set_entry(_filter, entry_dn)
