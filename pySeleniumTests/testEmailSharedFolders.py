@@ -34,7 +34,7 @@ class KolabEmailSharedFolders(unittest.TestCase):
         
         # need to give everyone permission to send to this folder
         subprocess.call(['/bin/bash', '-c', "kolab sam shared/" + emailSharedFolder + " anyone lrsp"])
-        kolabWAPhelper.wait_loading(2.0)
+        kolabWAPhelper.wait_loading(20.0)
 
         # login user to roundcube to send and check for email
         kolabWAPhelper.login_roundcube("/roundcubemail", emailLogin1, password1)
