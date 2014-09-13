@@ -102,6 +102,6 @@ do
     sed -i "s#http://obs.kolabsys.com:82/#$obs/#g" $f
 done
 
-#yum clean metadata
+yum clean metadata
 yum -y install kolab kolab-freebusy patch unzip
 
