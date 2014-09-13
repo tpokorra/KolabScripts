@@ -5,7 +5,13 @@
 
 if [ -f /etc/centos-release ]
 then
-  ./reinstallCentOS.sh CentOS_6
+  release=`cat /etc/centos-release`
+  if [[ $release == CentOS\ Linux\ release\ 7* ]]
+  then
+    ./reinstallCentOS7.sh CentOS_7
+  else
+    ./reinstallCentOS.sh CentOS_6
+  fi
 else
   if [ -f /etc/lsb-release ]
   then

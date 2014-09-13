@@ -21,8 +21,12 @@ fi
 pythonDistPackages=/usr/lib/python2.7/dist-packages
 # Debian
 if [ ! -d $pythonDistPackages ]; then
-  # centOS
+  # centOS6
   pythonDistPackages=/usr/lib/python2.6/site-packages
+  if [ ! -d $pythonDistPackages ]; then
+    # centOS7
+    pythonDistPackages=/usr/lib/python2.7/site-packages
+  fi
 fi
 
 echo "applying patchMultiDomainAdminsBug2018.patch"
