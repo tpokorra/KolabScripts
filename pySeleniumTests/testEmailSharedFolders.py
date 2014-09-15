@@ -33,8 +33,11 @@ class KolabEmailSharedFolders(unittest.TestCase):
         kolabWAPhelper.logout_kolab_wap()
         
         # need to give everyone permission to send to this folder
+        # need to wait some seconds, otherwise the permissions will be reset to lrs, probably by kolabd???
+        kolabWAPhelper.wait_loading(5.0)
         subprocess.call(['/bin/bash', '-c', "kolab sam shared/" + emailSharedFolder + " anyone lrsp"])
-        kolabWAPhelper.wait_loading(20.0)
+        kolabWAPhelper.wait_loading(2.0)
+        #subprocess.call(['/bin/bash', '-c', "kolab lam shared/" + emailSharedFolder])
 
         # login user to roundcube to send and check for email
         kolabWAPhelper.login_roundcube("/roundcubemail", emailLogin1, password1)
