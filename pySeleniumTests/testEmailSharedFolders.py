@@ -34,7 +34,7 @@ class KolabEmailSharedFolders(unittest.TestCase):
         
         # need to give everyone permission to send to this folder
         # need to wait some seconds, otherwise the permissions will be reset to lrs, probably by kolabd???
-        kolabWAPhelper.wait_loading(5.0)
+        kolabWAPhelper.wait_loading(20.0)
         subprocess.call(['/bin/bash', '-c', "kolab sam shared/" + emailSharedFolder + " anyone lrsp"])
         kolabWAPhelper.wait_loading(20.0)
         subprocess.call(['/bin/bash', '-c', "kolab lam shared/" + emailSharedFolder])

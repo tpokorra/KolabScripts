@@ -311,7 +311,14 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.wait_loading(1.0)
         elem = driver.find_element_by_name("kolabtargetfolder")
         elem.send_keys("shared/" + emailSharedFolder)
+
+        driver.find_element_by_xpath("//select[@id='aclacl']/option[text()='anyone']").click()
+        driver.find_element_by_xpath("//td[@class='buttons']/input[1]").click()
+        self.wait_loading(1.0)
+        driver.find_element_by_xpath("//select[@id='acl-type']/option[text()='all']").click()
+        driver.find_element_by_xpath("//div[@class='modal_btn_buttonok']").click()
         
+        self.wait_loading(1.0)
         elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
         elem.click()
 
@@ -331,6 +338,10 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         if emailSharedFolder not in out:
             self.assertTrue(False, "kolab list-mailboxes cannot find shared folder " + emailSharedFolder)
+
+        self.wait_loading(2.0)
+        subprocess.call(['/bin/bash', '-c', "kolab list-mailboxes | grep " + emailSharedFolder])
+        subprocess.call(['/bin/bash', '-c', "kolab lam shared/" + emailSharedFolder])
 
         self.log("Shared Folder " + emailSharedFolder + " has been created")
 
