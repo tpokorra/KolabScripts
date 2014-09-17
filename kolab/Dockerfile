@@ -48,6 +48,7 @@ EXPOSE 443
 # Run manually inside the docker container:
 #  echo `hostname -f` > /proc/sys/kernel/hostname
 #  echo 2 | setup-kolab --default --timezone=Europe/Brussels --directory-manager-pwd=test
+#  ./initHttpTunnel.sh
 #  ./initSSL.sh test.example.org
 #  /root/stop.sh
 #  exit
