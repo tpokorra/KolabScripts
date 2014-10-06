@@ -338,20 +338,21 @@ diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_servic
 index a48d44a..16475db 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1031,6 +1031,41 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1031,6 +1031,51 @@ class kolab_api_service_form_value extends kolab_api_service
          );
      }
  
 +    /**
 +     * get the users that are domainadmins.
-+     * We assume: all users in the domainadmin management domain (kolab.conf: domainadmins_management_domain), plus the Directory Manager
++     * We assume: all users of type Domain Administrator, plus the Directory Manager
 +     */
 +    private function select_options_domainadmin($postdata, $attribs = array())
 +    {
++        $auth = Auth::get_instance();
 +        $conf = Conf::get_instance();
-+
-+        $domainadmin_dn = "dc=" . implode(',dc=', explode('.', $conf->get("domainadmins_management_domain")));
-+        $auth = Auth::get_instance($domainadmin_dn);
++        $all_domains   = $auth->list_domains();
++        $all_domains   = $all_domains['list'];
++        $dna           = $conf->get('domain_name_attribute');
 +
 +        $_domainadmins = array();
 +
@@ -360,16 +361,25 @@ index a48d44a..16475db 100644
 +        $domainadmin[] = "Directory Manager";
 +        $_domainadmins[] = $domainadmin;
 +
-+        if ($domainadmins = $auth->search($domainadmin_dn, '(objectclass=kolabinetorgperson)', 'sub', array('dn', 'displayname'))) {
-+            foreach ($domainadmins->entries(true) as $domainadmin_dn => $domainadmin_attrs) {
-+                $domainadmin = array();
-+                $domainadmin[] = $domainadmin_dn;
-+                $domainadmin[] = $domainadmin_attrs['displayname'];
-+                $_domainadmins[] = $domainadmin;
++        foreach ($all_domains as $domain_id => $domain_attrs) {
++            if (!is_array($domain_attrs[$dna])) {
++                $domain_attrs[$dna] = (array)($domain_attrs[$dna]);
 +            }
 +
-+            sort($_domainadmins);
++            $domainadmin_dn = "dc=" . implode(',dc=', explode('.', $domain_attrs[$dna][0]));
++            $auth = Auth::get_instance($domainadmin_dn);
++
++            if ($domainadmins = $auth->search($domainadmin_dn, '(objectclass=tbitsKolabDomainAdmin)', 'sub', array('dn', 'displayname'))) {
++                foreach ($domainadmins->entries(true) as $domainadmin_dn => $domainadmin_attrs) {
++                    $domainadmin = array();
++                    $domainadmin[] = $domainadmin_dn;
++                    $domainadmin[] = $domainadmin_attrs['displayname'];
++                    $_domainadmins[] = $domainadmin;
++                }
++            }
 +        }
++
++        sort($_domainadmins);
 +
 +        return array(
 +            'list'    => $_domainadmins,
