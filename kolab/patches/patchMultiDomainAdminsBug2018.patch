@@ -323,13 +323,14 @@ diff --git a/lib/api/kolab_api_service_domain_types.php b/lib/api/kolab_api_serv
 index 189b39f..d15c119 100644
 --- a/lib/api/kolab_api_service_domain_types.php
 +++ b/lib/api/kolab_api_service_domain_types.php
-@@ -34,6 +34,10 @@ class kolab_api_service_domain_types extends kolab_api_service
+@@ -34,6 +34,11 @@ class kolab_api_service_domain_types extends kolab_api_service
              'associateddomain' => array(
                  'type' => 'list'
              ),
 +            'domainadmin' => array(
-+                'type' => 'list-domainadmins',
-+                'optional' => 'true',
++                'type' => 'list',
++                'autocomplete' => true,
++                'optional' => true,
 +            ),
              'inetdomainbasedn' => array(
                  'optional' => true,
@@ -338,7 +339,7 @@ diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_servic
 index a48d44a..16475db 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1031,6 +1031,51 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1031,6 +1031,84 @@ class kolab_api_service_form_value extends kolab_api_service
          );
      }
  
@@ -346,8 +347,42 @@ index a48d44a..16475db 100644
 +     * get the users that are domainadmins.
 +     * We assume: all users of type Domain Administrator, plus the Directory Manager
 +     */
-+    private function select_options_domainadmin($postdata, $attribs = array())
++    private function list_options_domainadmin($postdata, $attribs = array())
 +    {
++        if (!empty($postdata['list'])) {
++            $data['page_size'] = count($postdata['list']);
++            $data['search'] = array(
++                'entrydn' => array(
++                    'value' => $postdata['list'],
++                    'type'  => 'exact',
++                ),
++            );
++
++            $data['attributes'] = array('displayname', 'mail');
++
++            $service    = $this->controller->get_service('users');
++            $result     = $service->users_list(null, $data);
++            $list       = $result['list'];
++            $result     = array();
++            $result_key = $postdata['result_key'] ?: 'entrydn';
++
++            // convert to key=>value array
++            foreach ($list as $idx => $value) {
++                $ret = $value['displayname'];
++                if (!empty($value['mail'])) {
++                    $ret .= ' <' . $value['mail'] . '>';
++                }
++
++                if ($result_key != 'entrydn') {
++                    $idx = $value[$result_key];
++                }
++
++                $result[$idx] = $ret;
++            }
++
++            return $result;
++        }
++
 +        $auth = Auth::get_instance();
 +        $conf = Conf::get_instance();
 +        $all_domains   = $auth->list_domains();
@@ -356,10 +391,9 @@ index a48d44a..16475db 100644
 +
 +        $_domainadmins = array();
 +
-+        $domainadmin = array();
-+        $domainadmin[] = $conf->get("bind_dn"); // "cn=Directory Manager";
-+        $domainadmin[] = "Directory Manager";
-+        $_domainadmins[] = $domainadmin;
++        if (stripos("Directory Manager", $postdata['search']) !== false) {
++            $_domainadmins["Directory Manager"] = $conf->get("bind_dn");
++        }
 +
 +        foreach ($all_domains as $domain_id => $domain_attrs) {
 +            if (!is_array($domain_attrs[$dna])) {
@@ -369,22 +403,22 @@ index a48d44a..16475db 100644
 +            $domainadmin_dn = "dc=" . implode(',dc=', explode('.', $domain_attrs[$dna][0]));
 +            $auth = Auth::get_instance($domainadmin_dn);
 +
-+            if ($domainadmins = $auth->search($domainadmin_dn, '(objectclass=tbitsKolabDomainAdmin)', 'sub', array('dn', 'displayname'))) {
++            if ($domainadmins = $auth->search($domainadmin_dn, '(objectclass=tbitsKolabDomainAdmin)', 'sub', array('dn', 'displayname', 'mail'))) {
 +                foreach ($domainadmins->entries(true) as $domainadmin_dn => $domainadmin_attrs) {
-+                    $domainadmin = array();
-+                    $domainadmin[] = $domainadmin_dn;
-+                    $domainadmin[] = $domainadmin_attrs['displayname'];
-+                    $_domainadmins[] = $domainadmin;
++                    $ret = $domainadmin_attrs['displayname'];
++                    if (!empty($domainadmin_attrs['mail'])) {
++                        $ret .= ' <' . $domainadmin_attrs['mail'] . '>';
++                    }
++                    if (stripos($ret, $postdata['search']) !== false) {
++                        $_domainadmins[$domainadmin_dn] = $ret;
++                    }
 +                }
 +            }
 +        }
 +
 +        sort($_domainadmins);
 +
-+        return array(
-+            'list'    => $_domainadmins,
-+            'default' => strtolower($conf->get("bind_dn")),
-+        );
++        return $_domainadmins;
 +    }
 +
      private function select_options_preferredlanguage($postdata, $attribs = array())
