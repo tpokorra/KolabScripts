@@ -17,10 +17,9 @@ diff --git a/lib/client/kolab_client_task_settings.php b/lib/client/kolab_client
 index 9a23161..1f16029 100644
 --- a/lib/client/kolab_client_task_settings.php
 +++ b/lib/client/kolab_client_task_settings.php
-@@ -35,6 +35,7 @@ class kolab_client_task_settings extends kolab_client_task
+@@ -35,5 +35,6 @@ class kolab_client_task_settings extends kolab_client_task
          'text', 'select', 'multiselect', 'list', 'list-autocomplete', 'checkbox', 'password', 'ldap_url',
          'text-quota', 'aci', 'imap_acl',
-         'list-domainadmins',
 +        'text-unixtimestamp',
      );
  
@@ -65,11 +64,10 @@ diff --git a/lib/kolab_form.php b/lib/kolab_form.php
 index 1c26be7..7fb2bf7 100644
 --- a/lib/kolab_form.php
 +++ b/lib/kolab_form.php
-@@ -40,6 +40,7 @@ class kolab_form
+@@ -40,5 +40,6 @@ class kolab_form
      const INPUT_CONTENT  = 20;
      const INPUT_TEXTQUOTA = 30;
-     const INPUT_DOMAINADMIN = 40;
-+    const INPUT_TEXTUNIXTIMESTAMP = 50;
++    const INPUT_TEXTUNIXTIMESTAMP = 40;
  
      private $attribs  = array();
      private $elements = array();
