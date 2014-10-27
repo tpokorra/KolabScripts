@@ -339,7 +339,7 @@ diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_servic
 index a48d44a..16475db 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1031,6 +1031,84 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1031,6 +1031,81 @@ class kolab_api_service_form_value extends kolab_api_service
          );
      }
  
@@ -349,50 +349,47 @@ index a48d44a..16475db 100644
 +     */
 +    private function list_options_domainadmin($postdata, $attribs = array())
 +    {
-+        if (!empty($postdata['list'])) {
-+            $data['page_size'] = count($postdata['list']);
-+            $data['search'] = array(
-+                'entrydn' => array(
-+                    'value' => $postdata['list'],
-+                    'type'  => 'exact',
-+                ),
-+            );
-+
-+            $data['attributes'] = array('displayname', 'mail');
-+
-+            $service    = $this->controller->get_service('users');
-+            $result     = $service->users_list(null, $data);
-+            $list       = $result['list'];
-+            $result     = array();
-+            $result_key = $postdata['result_key'] ?: 'entrydn';
-+
-+            // convert to key=>value array
-+            foreach ($list as $idx => $value) {
-+                $ret = $value['displayname'];
-+                if (!empty($value['mail'])) {
-+                    $ret .= ' <' . $value['mail'] . '>';
-+                }
-+
-+                if ($result_key != 'entrydn') {
-+                    $idx = $value[$result_key];
-+                }
-+
-+                $result[$idx] = $ret;
-+            }
-+
-+            return $result;
-+        }
-+
 +        $auth = Auth::get_instance();
 +        $conf = Conf::get_instance();
 +        $all_domains   = $auth->list_domains();
 +        $all_domains   = $all_domains['list'];
 +        $dna           = $conf->get('domain_name_attribute');
-+
 +        $_domainadmins = array();
 +
++        if (!empty($postdata['list'])) {
++            foreach ($all_domains as $domain_id => $domain_attrs) {
++                if (!is_array($domain_attrs[$dna])) {
++                    $domain_attrs[$dna] = (array)($domain_attrs[$dna]);
++                }
++
++                foreach ($postdata['list'] as $id => $v) {
++                    if ($v == "cn=Directory Manager") {
++                        $_domainadmins[$v] = "Directory Manager";
++                    }
++                }
++
++                $domainadmin_dn = "dc=" . implode(',dc=', explode('.', $domain_attrs[$dna][0]));
++                $auth = Auth::get_instance($domainadmin_dn);
++
++                if ($domainadmins = $auth->search($domainadmin_dn, '(objectclass=tbitsKolabDomainAdmin)', 'sub', array('dn', 'displayname', 'mail'))) {
++                    foreach ($domainadmins->entries(true) as $domainadmin_dn => $domainadmin_attrs) {
++                        $ret = $domainadmin_attrs['displayname'];
++                        if (!empty($domainadmin_attrs['mail'])) {
++                            $ret .= ' <' . $domainadmin_attrs['mail'] . '>';
++                        }
++                        foreach ($postdata['list'] as $id => $v) {
++                            if ($domainadmin_dn == $v) {
++                               $_domainadmins[$domainadmin_dn] = $ret;
++                            }
++                        }
++                    }
++                }
++            }
++            return $_domainadmins;
++        }
++
 +        if (stripos("Directory Manager", $postdata['search']) !== false) {
-+            $_domainadmins["Directory Manager"] = $conf->get("bind_dn");
++            $_domainadmins[$conf->get("bind_dn")] = "Directory Manager";
 +        }
 +
 +        foreach ($all_domains as $domain_id => $domain_attrs) {
@@ -416,7 +413,7 @@ index a48d44a..16475db 100644
 +            }
 +        }
 +
-+        sort($_domainadmins);
++        // sort($_domainadmins);
 +
 +        return $_domainadmins;
 +    }
