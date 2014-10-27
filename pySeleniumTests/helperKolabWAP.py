@@ -228,7 +228,10 @@ class KolabWAPTestHelpers(unittest.TestCase):
         if domainadmin is not None:
             elem = driver.find_element_by_link_text("Domain Administrators")
             elem.click()
-            driver.find_element_by_xpath("//select[@name='domainadmin[0]']/option[text()='" + domainadmin + ", " + domainadmin + "']").click()
+            elem = driver.find_element_by_xpath("//input[@name='domainadmin[-1]']")
+            elem.send_keys(domainadmin)
+            self.wait_loading(0.5)
+            driver.find_element_by_xpath("//div[@id='autocompletepane']/ul/li[@class='selected']").click()
 
         elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
         elem.click()
