@@ -228,7 +228,10 @@ class KolabWAPTestHelpers(unittest.TestCase):
         if domainadmin is not None:
             elem = driver.find_element_by_link_text("Domain Administrators")
             elem.click()
-            driver.find_element_by_xpath("//select[@name='domainadmin[0]']/option[text()='" + domainadmin + ", " + domainadmin + "']").click()
+            elem = driver.find_element_by_xpath("//input[@name='domainadmin[-1]']")
+            elem.send_keys(domainadmin)
+            self.wait_loading(0.5)
+            driver.find_element_by_xpath("//div[@id='autocompletepane']/ul/li[@class='selected']").click()
 
         elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
         elem.click()
@@ -311,7 +314,14 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.wait_loading(1.0)
         elem = driver.find_element_by_name("kolabtargetfolder")
         elem.send_keys("shared/" + emailSharedFolder)
+
+        driver.find_element_by_xpath("//select[@id='aclacl']/option[text()='anyone']").click()
+        driver.find_element_by_xpath("//td[@class='buttons']/input[1]").click()
+        self.wait_loading(1.0)
+        driver.find_element_by_xpath("//select[@id='acl-type']/option[text()='all']").click()
+        driver.find_element_by_xpath("//div[@class='modal_btn_buttonok']").click()
         
+        self.wait_loading(1.0)
         elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
         elem.click()
 
@@ -331,6 +341,10 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         if emailSharedFolder not in out:
             self.assertTrue(False, "kolab list-mailboxes cannot find shared folder " + emailSharedFolder)
+
+        self.wait_loading(2.0)
+        subprocess.call(['/bin/bash', '-c', "kolab list-mailboxes | grep " + emailSharedFolder])
+        subprocess.call(['/bin/bash', '-c', "kolab lam shared/" + emailSharedFolder])
 
         self.log("Shared Folder " + emailSharedFolder + " has been created")
 
@@ -506,7 +520,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem = driver.find_element_by_name("_message")
         elem.send_keys("Hello World")
         driver.find_element_by_xpath("//div[@id=\"messagetoolbar\"]/a[@class=\"button send\"]").click()
-        self.wait_loading()
+        self.wait_loading(20)
 
         return emailSubjectLine
 

@@ -323,13 +323,14 @@ diff --git a/lib/api/kolab_api_service_domain_types.php b/lib/api/kolab_api_serv
 index 189b39f..d15c119 100644
 --- a/lib/api/kolab_api_service_domain_types.php
 +++ b/lib/api/kolab_api_service_domain_types.php
-@@ -34,6 +34,10 @@ class kolab_api_service_domain_types extends kolab_api_service
+@@ -34,6 +34,11 @@ class kolab_api_service_domain_types extends kolab_api_service
              'associateddomain' => array(
                  'type' => 'list'
              ),
 +            'domainadmin' => array(
-+                'type' => 'list-domainadmins',
-+                'optional' => 'true',
++                'type' => 'list',
++                'autocomplete' => true,
++                'optional' => true,
 +            ),
              'inetdomainbasedn' => array(
                  'optional' => true,
@@ -338,43 +339,83 @@ diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_servic
 index a48d44a..16475db 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1031,6 +1031,41 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1031,6 +1031,81 @@ class kolab_api_service_form_value extends kolab_api_service
          );
      }
  
 +    /**
 +     * get the users that are domainadmins.
-+     * We assume: all users in the domainadmin management domain (kolab.conf: domainadmins_management_domain), plus the Directory Manager
++     * We assume: all users of type Domain Administrator, plus the Directory Manager
 +     */
-+    private function select_options_domainadmin($postdata, $attribs = array())
++    private function list_options_domainadmin($postdata, $attribs = array())
 +    {
++        $auth = Auth::get_instance();
 +        $conf = Conf::get_instance();
-+
-+        $domainadmin_dn = "dc=" . implode(',dc=', explode('.', $conf->get("domainadmins_management_domain")));
-+        $auth = Auth::get_instance($domainadmin_dn);
-+
++        $all_domains   = $auth->list_domains();
++        $all_domains   = $all_domains['list'];
++        $dna           = $conf->get('domain_name_attribute');
 +        $_domainadmins = array();
 +
-+        $domainadmin = array();
-+        $domainadmin[] = $conf->get("bind_dn"); // "cn=Directory Manager";
-+        $domainadmin[] = "Directory Manager";
-+        $_domainadmins[] = $domainadmin;
++        if (!empty($postdata['list'])) {
++            foreach ($all_domains as $domain_id => $domain_attrs) {
++                if (!is_array($domain_attrs[$dna])) {
++                    $domain_attrs[$dna] = (array)($domain_attrs[$dna]);
++                }
 +
-+        if ($domainadmins = $auth->search($domainadmin_dn, '(objectclass=kolabinetorgperson)', 'sub', array('dn', 'displayname'))) {
-+            foreach ($domainadmins->entries(true) as $domainadmin_dn => $domainadmin_attrs) {
-+                $domainadmin = array();
-+                $domainadmin[] = $domainadmin_dn;
-+                $domainadmin[] = $domainadmin_attrs['displayname'];
-+                $_domainadmins[] = $domainadmin;
++                foreach ($postdata['list'] as $id => $v) {
++                    if ($v == "cn=Directory Manager") {
++                        $_domainadmins[$v] = "Directory Manager";
++                    }
++                }
++
++                $domainadmin_dn = "dc=" . implode(',dc=', explode('.', $domain_attrs[$dna][0]));
++                $auth = Auth::get_instance($domainadmin_dn);
++
++                if ($domainadmins = $auth->search($domainadmin_dn, '(objectclass=tbitsKolabDomainAdmin)', 'sub', array('dn', 'displayname', 'mail'))) {
++                    foreach ($domainadmins->entries(true) as $domainadmin_dn => $domainadmin_attrs) {
++                        $ret = $domainadmin_attrs['displayname'];
++                        if (!empty($domainadmin_attrs['mail'])) {
++                            $ret .= ' <' . $domainadmin_attrs['mail'] . '>';
++                        }
++                        foreach ($postdata['list'] as $id => $v) {
++                            if ($domainadmin_dn == $v) {
++                               $_domainadmins[$domainadmin_dn] = $ret;
++                            }
++                        }
++                    }
++                }
 +            }
-+
-+            sort($_domainadmins);
++            return $_domainadmins;
 +        }
 +
-+        return array(
-+            'list'    => $_domainadmins,
-+            'default' => strtolower($conf->get("bind_dn")),
-+        );
++        if (stripos("Directory Manager", $postdata['search']) !== false) {
++            $_domainadmins[$conf->get("bind_dn")] = "Directory Manager";
++        }
++
++        foreach ($all_domains as $domain_id => $domain_attrs) {
++            if (!is_array($domain_attrs[$dna])) {
++                $domain_attrs[$dna] = (array)($domain_attrs[$dna]);
++            }
++
++            $domainadmin_dn = "dc=" . implode(',dc=', explode('.', $domain_attrs[$dna][0]));
++            $auth = Auth::get_instance($domainadmin_dn);
++
++            if ($domainadmins = $auth->search($domainadmin_dn, '(objectclass=tbitsKolabDomainAdmin)', 'sub', array('dn', 'displayname', 'mail'))) {
++                foreach ($domainadmins->entries(true) as $domainadmin_dn => $domainadmin_attrs) {
++                    $ret = $domainadmin_attrs['displayname'];
++                    if (!empty($domainadmin_attrs['mail'])) {
++                        $ret .= ' <' . $domainadmin_attrs['mail'] . '>';
++                    }
++                    if (stripos($ret, $postdata['search']) !== false) {
++                        $_domainadmins[$domainadmin_dn] = $ret;
++                    }
++                }
++            }
++        }
++
++        // sort($_domainadmins);
++
++        return $_domainadmins;
 +    }
 +
      private function select_options_preferredlanguage($postdata, $attribs = array())
@@ -471,18 +512,6 @@ index 5c23e8a..d424801 100644
          // Create form object and populate with fields
          $form = $this->form_create('domain', $attribs, $sections, $fields, $fields_map, $data, $add_mode);
  
-diff --git a/lib/client/kolab_client_task_settings.php b/lib/client/kolab_client_task_settings.php
-index 2731120..9a23161 100644
---- a/lib/client/kolab_client_task_settings.php
-+++ b/lib/client/kolab_client_task_settings.php
-@@ -34,6 +34,7 @@ class kolab_client_task_settings extends kolab_client_task
-     protected $form_element_types = array(
-         'text', 'select', 'multiselect', 'list', 'list-autocomplete', 'checkbox', 'password', 'ldap_url',
-         'text-quota', 'aci', 'imap_acl',
-+        'list-domainadmins',
-     );
- 
- 
 diff --git a/lib/client/kolab_client_task_user.php b/lib/client/kolab_client_task_user.php
 index 6d51754..c5d71d9 100644
 --- a/lib/client/kolab_client_task_user.php
@@ -535,14 +564,6 @@ index 2c57d9d..04155e4 100644
              // degrade class score if object contains more attributes
              // than defined in object type
              if ($keys_count && $elem_keys_score < $keys_count) {
-@@ -240,6 +252,7 @@ abstract class kolab_api_service
-                     'attributes' => kolab_api_service_domain_types::$DEFAULT_TYPE_ATTRS,
-                 ),
-             );
-+            $object_types['1']['attributes']['form_fields']['domainadmin']['type'] = 'list';
-             $object_types['1']['attributes']['form_fields']['aci'] = array(
-                 'type'     => 'list',
-                 'optional' => true,
 diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
 index a90cb13..d364430 100644
 --- a/lib/kolab_client_task.php
@@ -572,19 +593,7 @@ index a90cb13..d364430 100644
       * Returns user name.
       *
       * @param string $dn User DN attribute value
-@@ -912,6 +930,11 @@ class kolab_client_task
-             );
-             break;
- 
-+        case 'list-domainadmins':
-+            $result['type'] = kolab_form::INPUT_DOMAINADMIN;
-+            $result['data-type'] = 'list';
-+            break;
-+
-         default:
-             $result['type'] = kolab_form::INPUT_TEXT;
- 
-@@ -1020,6 +1043,17 @@ class kolab_client_task
+@@ -1020,6 +1038,17 @@ class kolab_client_task
          if (!empty($data['type_id'])) {
              $type = $data['type_id'];
          }
@@ -602,43 +611,6 @@ index a90cb13..d364430 100644
          else {
              $data['type_id'] = $type = key($types);
          }
-@@ -1330,6 +1364,12 @@ class kolab_client_task
-                     }
-                 }
- 
-+                // used for selectlist, eg. domainadmins
-+                if (!empty($data[$idx."_options"]))
-+                {
-+                    $assoc_fields[$idx] = !empty($data[$idx."_options"]) ? $data[$idx."_options"] : array();
-+                }
-+
-                 // @TODO: We assume here that all autocompletion lists are associative
-                 // It's likely that we'll need autocompletion on ordinary lists
-                 if (!empty($field['data-autocomplete'])) {
-diff --git a/lib/kolab_form.php b/lib/kolab_form.php
-index 9ebf900..1c26be7 100644
---- a/lib/kolab_form.php
-+++ b/lib/kolab_form.php
-@@ -39,6 +39,7 @@ class kolab_form
-     const INPUT_CUSTOM   = 10;
-     const INPUT_CONTENT  = 20;
-     const INPUT_TEXTQUOTA = 30;
-+    const INPUT_DOMAINADMIN = 40;
- 
-     private $attribs  = array();
-     private $elements = array();
-@@ -302,6 +303,11 @@ class kolab_form
-             $content = kolab_html::textarea($attribs, true);
-             break;
- 
-+        case self::INPUT_DOMAINADMIN:
-+            $attribs['data-type'] = 'selectlist';
-+            $content = kolab_html::textarea($attribs, true);
-+            break;
-+
-         case self::INPUT_SELECT:
-             if (!empty($attribs['multiple']) && empty($attribs['size'])) {
-                 $attribs['size'] = 5;
 diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
 index b88e520..1609cc3 100644
 --- a/lib/locale/de_DE.php
@@ -690,191 +662,3 @@ index e36977d..fbb51c9 100644
  $LANG['user.title'] = 'Job Title';
  $LANG['user.type_id'] = 'Account type';
  $LANG['user.uid'] = 'Unique identity (UID)';
-diff --git a/public_html/js/kolab_admin.js b/public_html/js/kolab_admin.js
-index 24b251a..515f0bf 100644
---- a/public_html/js/kolab_admin.js
-+++ b/public_html/js/kolab_admin.js
-@@ -740,6 +740,8 @@ function kolab_admin()
-     // replace some textarea fields with pretty/smart input lists
-     $('textarea[data-type="list"]', form)
-       .each(function() { kadm.form_list_element_wrapper(this); });
-+    $('textarea[data-type="selectlist"]', form)
-+      .each(function() { kadm.form_list_element_wrapper(this, "select"); });
-     // create smart select fields
-     $('input[data-type="select"]', form)
-       .each(function() { kadm.form_select_element_wrapper(this); });
-@@ -783,6 +785,22 @@ function kolab_admin()
-       data.json[this.name] = value;
-     });
- 
-+    // list of selects
-+    $('textarea[data-type="selectlist"]:not(:disabled)', form).each(function() {
-+      var i, v, value = [],
-+        re = RegExp('^' + RegExp.escape(this.name) + '\[[0-9-]+\]$');
-+
-+      for (i in data.json) {
-+        if (i.match(re)) {
-+          if (v = $('select[name="'+i+'"]', form).val())
-+            value.push(v);
-+          delete data.json[i];
-+        }
-+      }
-+
-+      data.json[this.name] = value;
-+    });
-+
-     // smart selects
-     $('input[data-type="select"]', form).each(function() {
-       delete data.json[this.name];
-@@ -838,8 +856,10 @@ function kolab_admin()
-   };
- 
-   // Replaces form element with smart list element
--  this.form_list_element_wrapper = function(form_element)
-+  this.form_list_element_wrapper = function(form_element, element_type)
-   {
-+    element_type = element_type || "text";
-+
-     var i = 0, j = 0, list = [], elem, e = $(form_element),
-       form = form_element.form,
-       disabled = e.attr('disabled'),
-@@ -902,14 +922,24 @@ function kolab_admin()
- 
-       // add input rows
-       $.each(list, function(i, v) {
--        var elem = kadm.form_list_element(form, {
--          value: v,
--          key: i,
--          maxlength: maxlength,
--          autocomplete: autocomplete,
--          element: e
--        }, j++);
--
-+        if (element_type == 'text') {
-+            var elem = kadm.form_list_element(form, {
-+              value: v,
-+              key: i,
-+              maxlength: maxlength,
-+              autocomplete: autocomplete,
-+              element: e
-+            }, j++);
-+        }
-+        else if (element_type='select') {
-+            var elem = kadm.form_selectlist_element(form, {
-+              value: v,
-+              key: i,
-+              maxlength: maxlength,
-+              autocomplete: autocomplete,
-+              element: e
-+            }, j++);
-+        }
-         elem.appendTo(area);
-       });
-     }
-@@ -994,6 +1024,90 @@ function kolab_admin()
-     return elem;
-   };
- 
-+  // Creates smart list element
-+  this.form_selectlist_element = function(form, data, idx)
-+  {
-+    var content, elem, input,
-+      key = data.key,
-+      orig = data.element,
-+      ac = data.autocomplete;
-+
-+    assoc_fields_options = (orig ? orig.attr('name') : data.name); //  + '_options';
-+    data.name = (orig ? orig.attr('name') : data.name) + '[' + idx + ']';
-+    data.readonly = (ac && idx >= 0);
-+
-+    // remove internal attributes
-+    delete data['element'];
-+    delete data['autocomplete'];
-+    delete data['key'];
-+
-+    // build element content
-+    content = '<span class="listelement"><span class="actions">'
-+      + (!ac ? '<span title="" class="add"></span>' : ac && idx == -1 ? '<span title="" class="search"></span>' : '')
-+      + (!ac || idx >= 0 ? '<span title="" class="reset"></span>' : '')
-+      + '</span><select>';
-+
-+    var list = this.env.assoc_fields ? this.env.assoc_fields[assoc_fields_options] : [];
-+    $.each(list, function(i, v) {
-+        content = content + '<option value="' + v[0] +  '"' +  (v[0] == data['value']?'selected':'')+ '>' + v[1] + '</option>';
-+    });
-+    content = content + '</select></span>';
-+
-+    elem = $(content);
-+    input = $('select', elem);
-+
-+    // Set INPUT attributes
-+    input.attr(data);
-+
-+    if (data.readonly)
-+      input.addClass('readonly');
-+    if (ac)
-+      input.addClass('autocomplete');
-+
-+    // attach element creation event
-+    if (!ac)
-+      $('span[class="add"]', elem).click(function() {
-+        var name = data.name.replace(/\[[0-9]+\]$/, ''),
-+          span = $(this.parentNode.parentNode),
-+          maxcount = $('textarea[name="'+name+'"]').attr('data-maxcount');
-+
-+        // check element count limit
-+        if (maxcount && maxcount <= span.parent().children().length) {
-+          alert(kadm.t('form.maxcount.exceeded'));
-+          return;
-+        }
-+
-+        var dt = (new Date()).getTime(),
-+          elem = kadm.form_selectlist_element(form, {name: name}, dt);
-+
-+        kadm.ac_stop();
-+        span.after(elem);
-+        $('select', elem).focus();
-+      });
-+
-+    // attach element deletion event
-+    if (!ac || idx >= 0)
-+      $('span[class="reset"]', elem).click(function() {
-+        var span = $(this.parentNode.parentNode),
-+          name = data.name.replace(/\[[0-9]+\]$/, ''),
-+          l = $('select[name^="' + name + '"]', form),
-+          key = $(this).data('key');
-+
-+        if (l.length > 1 || $('select[name="' + name + '"]', form).attr('data-autocomplete'))
-+          span.remove();
-+        else
-+          $('select', span).val('').focus();
-+
-+        // delete key from internal field representation
-+        if (key !== undefined && kadm.env.assoc_fields[name])
-+          delete kadm.env.assoc_fields[name][key];
-+
-+        kadm.ac_stop();
-+      }).data('key', key);
-+
-+    return elem;
-+  };
-+
-   this.form_element_oninsert = function(key, val)
-   {
-     var elem, input = $(this.ac_input).get(0),
-diff --git a/public_html/skins/default/style.css b/public_html/skins/default/style.css
-index b634f20..346e09b 100644
---- a/public_html/skins/default/style.css
-+++ b/public_html/skins/default/style.css
-@@ -661,6 +661,11 @@ span.listelement input:focus {
-   outline: none;
- }
- 
-+span.listelement select {
-+  width: 332px;
-+  height: 18px;
-+}
-+
- span.listelement span.actions {
-   float: left;
-   padding: 1px 0;

@@ -36,6 +36,28 @@ class KolabWAPLastLogin(unittest.TestCase):
 
         # last login time will only be updated after an hour, so we cannot test that here. see pykolab/auth/ldap/auth_cache.py purge_entries
 
+    def test_last_login_in_other_domain(self):
+        kolabWAPhelper = self.kolabWAPhelper
+        kolabWAPhelper.log("Running test: test_last_login")
+        
+        # login Directory Manager
+        kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
+
+        domainname = kolabWAPhelper.create_domain()
+
+        username, emailLogin, password = kolabWAPhelper.create_user()
+        kolabWAPhelper.logout_kolab_wap()
+
+        # login the new user
+        kolabWAPhelper.login_roundcube("/roundcubemail", emailLogin, password)
+        kolabWAPhelper.logout_roundcube()
+
+        # check that the last login timestamp is greater than 1 January 2014
+        value = kolabWAPhelper.getLDAPValue("uid="+username+",ou=People,dc=" + ",dc=".join(domainname.split(".")), 'tbitsKolabLastLogin')
+        self.assertTrue(int(value) > 1388534400, "login date should be after 1 January 2014")
+
+        # last login time will only be updated after an hour, so we cannot test that here. see pykolab/auth/ldap/auth_cache.py purge_entries
+
     def tearDown(self):
         
         # write current page for debugging purposes
