@@ -318,7 +318,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         driver.find_element_by_xpath("//select[@id='aclacl']/option[text()='anyone']").click()
         driver.find_element_by_xpath("//td[@class='buttons']/input[1]").click()
         self.wait_loading(1.0)
-        driver.find_element_by_xpath("//select[@id='acl-type']/option[text()='all']").click()
+        driver.find_element_by_xpath("//select[@id='acl-type']/option[@value='all']").click()
         driver.find_element_by_xpath("//div[@class='modal_btn_buttonok']").click()
         
         self.wait_loading(1.0)
@@ -511,7 +511,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         driver = self.driver
         emailSubjectLine = "subject" + datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
-        driver.find_element_by_xpath("//div[@id=\"messagetoolbar\"]/a[@class=\"button compose\"]").click()
+        driver.find_element_by_xpath("//div[@id=\"messagetoolbar\"]/a[contains(@class,'button') and contains(@class,'compose')]").click()
         self.wait_loading()
         elem = driver.find_element_by_name("_to")
         elem.send_keys(recipientEmailAddress)
