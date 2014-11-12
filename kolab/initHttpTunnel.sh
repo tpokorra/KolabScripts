@@ -12,3 +12,6 @@ sed -i -e "s#?>#    \$config['file_api_url'] = 'http://localhost/chwala/api/';\n
 
 patch -p1 -i `pwd`/patches/roundcube_behind_tunnel.patch -d /usr/share/roundcubemail
 patch -p1 -i `pwd`/patches/roundcube_kolab_files_url_localhostBug3573.patch -d /usr/share/roundcubemail
+
+# make sure that the assets can be loaded
+ln -s /usr/share/roundcubemail/public_html/assets/* /usr/share/roundcubemail/public_html/
