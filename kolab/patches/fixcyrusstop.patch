@@ -1,0 +1,12 @@
+--- /usr/lib/cyrus-imapd/cvt_cyrusdb_all	2014-11-14 14:39:01.000000000 +0100
++++ cvt_cyrusdb_all	2014-11-20 13:50:56.042401000 +0100
+@@ -36,6 +36,9 @@
+             shift
+         ;;
+ 
++        *)
++            shift
++
+     esac
+ done
+
