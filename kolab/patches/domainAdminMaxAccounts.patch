@@ -71,7 +71,7 @@ index 79dcb59..1cbce61 100644
 +            foreach ($domaindetails['domainadmin'] as $domainadmin) {
 +                // ignore cn=Directory Manager
 +                if ($domainadmin != $conf->get('bind_dn')) {
-+                    $userinfo = array_shift(array_values($auth->user_info($domainadmin, array($quota_attribute))));
++                    $userinfo = array_shift(array_values($auth->user_info($domainadmin, array($quota_attribute, 'tbitskolabmaxaccounts'))));
 +                    if (isset($userinfo['tbitskolabmaxaccounts'])) {
 +                        // what about multiple domain admins of one domain?
 +                        if (isset($domainadminmaxaccounts)) {
