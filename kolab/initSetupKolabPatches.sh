@@ -39,3 +39,5 @@ patch -p1 -i `pwd`/patches/setupkolab_directory_manager_pwdBug2645.patch -d $pyt
 
 echo "temporary fixes for Cyrus stop script"
 patch -p0 -i `pwd`/patches/fixcyrusstop.patch
+echo "applying additionalfoldersBug3974.patch to $pythonDistPackages/pykolab"
+patch -p1 -i `pwd`/patches/additionalfoldersBug3974.patch -d $pythonDistPackages/pykolab
