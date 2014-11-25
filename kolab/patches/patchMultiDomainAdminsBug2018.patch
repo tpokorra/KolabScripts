@@ -67,13 +67,15 @@ index 0c03be0..6ad01c3 100644
          return $domain_dn;
      }
  
-@@ -381,6 +404,16 @@
+@@ -381,6 +404,18 @@
  
          $domain_dn = key($domain);
  
 +        # using isset, because if the array is empty, then we want to drop the domain admins.
 +        if (isset($attributes["domainadmin"])) {
-+            $this->domain_admin_save($domain, $domain_dn, $attributes["domainadmin"]);
++            if (!$this->domain_admin_save($domain, $domain_dn, $attributes["domainadmin"])) {
++                return false;
++            }
 +            unset($attributes["domainadmin"]);
 +        }
 +
@@ -130,7 +132,7 @@ index 0c03be0..6ad01c3 100644
          }
  
          return $result;
-@@ -1721,4 +1786,158 @@
+@@ -1721,4 +1786,164 @@
  
          return false;
      }
@@ -146,6 +148,8 @@ index 0c03be0..6ad01c3 100644
 +            return false;
 +        }
 +
++        $domain_dn = $this->_standard_root_dn($domain);
++        $domain = str_replace(array(",dc=", "dc="), array(".",""), $domain_dn); 
 +        $associateddomain_dn="associateddomain=$domain,cn=kolab,cn=config";
 +        $info = array();
 +        $info["aci"] = array();
@@ -218,7 +222,9 @@ index 0c03be0..6ad01c3 100644
 +
 +            if (!in_array($domainadmins[$count], $domain_admins[$currentdomain_da_dn]["uniquemember"])) {
 +                # add read permission to associateddomain in cn=kolab,cn=config
-+                $this->ChangeDomainReadCapability($domainadmins[$count], $domain[$domain_dn]["associateddomain"], 'add');
++                if (!$this->ChangeDomainReadCapability($domainadmins[$count], $domain[$domain_dn]["associateddomain"], 'add')) {
++                    return false;
++                }
 +            }
 +        }
 +
@@ -226,7 +232,9 @@ index 0c03be0..6ad01c3 100644
 +        foreach ($domain_admins[$currentdomain_da_dn]["uniquemember"] as $oldadmin) {
 +            if (!in_array($oldadmin, $domainadmins)) {
 +                # drop read permission to associateddomain in cn=kolab,cn=config
-+                $this->ChangeDomainReadCapability($oldadmin, $domain[$domain_dn]["associateddomain"], 'remove');
++                if (!$this->ChangeDomainReadCapability($oldadmin, $domain[$domain_dn]["associateddomain"], 'remove')) {
++                    return false;
++                }
 +            }
 +        }
 +        
