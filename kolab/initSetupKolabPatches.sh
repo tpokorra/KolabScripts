@@ -38,4 +38,4 @@ echo "applying setupkolab_directory_manager_pwdBug2645.patch"
 patch -p1 -i `pwd`/patches/setupkolab_directory_manager_pwdBug2645.patch -d $pythonDistPackages
 
 # temporary patch, is fixed in kolab webadmin 3.2.2
-patch -p1 -i `pwd`/patches/defaultAccountTypeUserBug2587.patch /usr/share/kolab-webadmin
+patch -p1 -i `pwd`/patches/defaultAccountTypeUserBug2587.patch -d /usr/share/kolab-webadmin
