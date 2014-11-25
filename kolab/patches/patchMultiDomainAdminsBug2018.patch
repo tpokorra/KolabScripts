@@ -564,53 +564,6 @@ index 2c57d9d..04155e4 100644
              // degrade class score if object contains more attributes
              // than defined in object type
              if ($keys_count && $elem_keys_score < $keys_count) {
-diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
-index a90cb13..d364430 100644
---- a/lib/kolab_client_task.php
-+++ b/lib/kolab_client_task.php
-@@ -645,6 +645,24 @@ class kolab_client_task
-     }
- 
-     /**
-+     * Returns the id of the type that is identified by the key
-+     *
-+     * @param string $types array of types for the current object class
-+     * @param string $key identifies the type that we want the id for
-+     *
-+     * @return string the id for the type that we are looking for
-+     */
-+    protected function get_object_type_id_by_key($types, $key)
-+    {
-+       foreach ($types as $id => $data) {
-+           if ($data['key'] == $key) {
-+              return $id;
-+           }
-+       }
-+       return -1;
-+    }
-+
-+    /**
-      * Returns user name.
-      *
-      * @param string $dn User DN attribute value
-@@ -1020,6 +1038,17 @@ class kolab_client_task
-         if (!empty($data['type_id'])) {
-             $type = $data['type_id'];
-         }
-+        else if ($name == "user") {
-+            // set the default user type
-+            $defaultUserType = $this->get_object_type_id_by_key($types, "kolab");
-+            $conf = Conf::get_instance();
-+            if ($conf->get('domainadmins_management_domain') == $_SESSION['user']['domain']) {
-+                // in the management domain, default to DomainAdmin user
-+                $defaultUserType = $this->get_object_type_id_by_key($types, "domainadmin");
-+            }
-+
-+            $data['type_id'] = $type = $defaultUserType;
-+        }
-         else {
-             $data['type_id'] = $type = key($types);
-         }
 diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
 index b88e520..1609cc3 100644
 --- a/lib/locale/de_DE.php

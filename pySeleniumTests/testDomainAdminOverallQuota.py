@@ -25,8 +25,6 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         # login Directory Manager
         kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
 
-        kolabWAPhelper.select_domain("administrators.org")
-
         username, emailLogin, password = kolabWAPhelper.create_user(
             prefix = "admin",
             overall_quota = "800mb")
@@ -55,8 +53,6 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         # login Directory Manager
         kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
 
-        kolabWAPhelper.select_domain("administrators.org")
-
         username, emailLogin, password = kolabWAPhelper.create_user(
             prefix = "admin",
             overall_quota = "1gb")
@@ -76,8 +72,6 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         
         # login Directory Manager
         kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
-
-        kolabWAPhelper.select_domain("administrators.org")
 
         username, emailLogin, password = kolabWAPhelper.create_user(
             prefix = "admin")

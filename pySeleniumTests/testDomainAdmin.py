@@ -45,37 +45,6 @@ class KolabWAPDomainAdmin(unittest.TestCase):
 
         kolabWAPhelper.logout_kolab_wap()
 
-    # test if correct user type is used when not many attributes are set which are specific for domain admins
-    def test_domain_admin_user_type(self):
-        kolabWAPhelper = self.kolabWAPhelper
-        kolabWAPhelper.log("Running test: test_domain_admin_user_type")
-
-        # login Directory Manager
-        kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
-
-        kolabWAPhelper.select_domain("administrators.org")
-
-        username, emailLogin, password = kolabWAPhelper.create_user(
-            prefix = "admin")
-
-        # now edit the user
-        elem = self.driver.find_element_by_id("searchinput")
-        elem.send_keys(username)
-        elem.send_keys(Keys.ENTER)
-        kolabWAPhelper.wait_loading(initialwait = 2)
-
-        elem = self.driver.find_element_by_xpath("//tbody/tr/td[@class=\"name\"]")
-        self.assertEquals(username + ", " + username, elem.text, "Expected to select user " + username + " but was " + elem.text)
-        elem.click()
-        
-        kolabWAPhelper.wait_loading(initialwait = 1)
-
-        # check if the user type is actually a domain admin
-        elem = self.driver.find_element_by_xpath("//form[@id='user-form']/fieldset/table/tbody/tr/td[@class='value']")
-        self.assertEquals("Domain Administrator", elem.text, "user type should be Domain Administrator, but was " + elem.text)
-
-        kolabWAPhelper.logout_kolab_wap()
-
     def tearDown(self):
         
         # write current page for debugging purposes

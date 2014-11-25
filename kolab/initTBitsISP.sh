@@ -78,11 +78,5 @@ service dirsrv restart
 #####################################################################################
 php initTBitsUserTypes.php
 
-#####################################################################################
-#set the domain for management of the domain admins
-#####################################################################################
-sed -r -i -e "s/\[kolab\]/[kolab]\ndomainadmins_management_domain = administrators.org/g" /etc/kolab/kolab.conf
-php initDomainAdminManagementDomain.php
-
 service kolab-saslauthd restart
 service kolabd restart
