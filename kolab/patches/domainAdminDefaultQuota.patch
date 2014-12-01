@@ -1,21 +1,22 @@
-diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
-index d364430..813fa02 100644
---- a/lib/kolab_client_task.php
-+++ b/lib/kolab_client_task.php
-@@ -1050,6 +1050,16 @@ class kolab_client_task
-             if ($conf->get('domainadmins_management_domain') == $_SESSION['user']['domain']) {
-                 // in the management domain, default to DomainAdmin user
-                 $defaultUserType = $this->get_object_type_id_by_key($types, "domainadmin");
-+            } else {
-+                // get the default mailquota of the domain admin
-+                $result = $this->api_get('domain.domainadmin_info', array('variablename' => 'tbitskolabdefaultquota'));
-+                $domaininfo = $result->get();
-+
-+                $defaultdomainquota = $domaininfo['tbitskolabdefaultquota'];
-+                if (isset($defaultdomainquota)) {
-+                    // set the default mail quota
-+                    $data['mailquota'] = $defaultdomainquota;
-+                }
-             }
- 
+--- a/lib/kolab_client_task.php	2014-12-01 11:19:31.981301999 +0100
++++ b/lib/kolab_client_task.php	2014-12-01 11:16:16.993301999 +0100
+@@ -1046,9 +1046,19 @@
+             // set the default user type
+             $defaultUserType = $this->get_object_type_id_by_key($types, "kolab");
              $data['type_id'] = $type = $defaultUserType;
++
++            // get the default mailquota of the domain admin
++            $result = $this->api_get('domain.domainadmin_info', array('variablename' => 'tbitskolabdefaultquota'));
++            $domaininfo = $result->get();
++
++            $defaultdomainquota = $domaininfo['tbitskolabdefaultquota'];
++            if (isset($defaultdomainquota)) {
++                // set the default mail quota
++                $data['mailquota'] = $defaultdomainquota;
++            }
+         }
+         else {
+             $data['type_id'] = $type = key($types);
+         }
+ 
+         if ($type) {

@@ -375,10 +375,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem = driver.find_element_by_xpath("//span[@class=\"formtitle\"]")
         self.assertEquals("Add User", elem.text, "form should have title Add User, but was: " + elem.text)
 
-        # workaround for Kolab 3.1 vanilla: default new account is Contact. Select Kolab User instead
-        elem = driver.find_element_by_xpath("//select[@name='type_id']/option[@selected='selected']")
-        if elem.text == "Contact":
-            driver.find_element_by_xpath("//select[@name='type_id']/option[text()='Kolab User']").click()
+        if prefix=="admin":
+            driver.find_element_by_xpath("//select[@name='type_id']/option[text()='Domain Administrator']").click()
             self.wait_loading(1.0)
 
         elem = driver.find_element_by_name("givenname")
