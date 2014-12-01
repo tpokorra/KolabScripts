@@ -18,7 +18,7 @@ diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
 index 5f3f406..aafe618 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -417,6 +417,26 @@ class LDAP extends Net_LDAP3 {
+@@ -417,6 +417,35 @@ class LDAP extends Net_LDAP3 {
          return $quota;
      }
  
@@ -36,6 +36,15 @@ index 5f3f406..aafe618 100644
 +            if ($users_result != null && count($users_result) > 0) {
 +               $users = $users_result->entries(true);
 +               $numberOfAccounts += count($users);
++            }
++            // substract the domainadmin users
++            $users_result = $this->_search(
++                               $this->_standard_root_dn($domain),
++                               "objectclass=tbitskolabdomainadmin",
++                               array($this->conf->get("quota_attribute")));
++            if ($users_result != null && count($users_result) > 0) {
++               $users = $users_result->entries(true);
++               $numberOfAccounts -= count($users);
 +            }
 +        }
 +

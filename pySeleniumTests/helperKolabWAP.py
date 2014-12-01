@@ -539,6 +539,11 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem.send_keys(username)
         self.wait_loading(0.5)
         driver.find_element_by_xpath("//div[@id='autocompletepane']/ul/li[@class='selected']").click()
+        elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
+        elem.click()
+        self.wait_loading()
+        elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
+        self.assertEquals("Domain updated successfully.", elem.text, "domain was not updated successfully, message: " + elem.text)
  
         return username, emailLogin, password, domainname
          

@@ -24,12 +24,10 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         # login Directory Manager
         kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
 
-        username, emailLogin, password = kolabWAPhelper.create_user(
-            prefix = "admin",
+        username, emailLogin, password, domainname = kolabWAPhelper.create_domainadmin(
             max_accounts = 3)
 
-        # create domains, with domain admin
-        domainname = kolabWAPhelper.create_domain(username)
+        # create another domain, with domain admin
         domainname2 = kolabWAPhelper.create_domain(username)
         
         # create user accounts
