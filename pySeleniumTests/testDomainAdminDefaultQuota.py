@@ -24,8 +24,6 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         # login Directory Manager
         kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
 
-        kolabWAPhelper.select_domain("administrators.org")
-
         username, emailLogin, password = kolabWAPhelper.create_user(
             prefix = "admin",
             default_quota = "100mb",

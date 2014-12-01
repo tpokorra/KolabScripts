@@ -67,13 +67,15 @@ index 0c03be0..6ad01c3 100644
          return $domain_dn;
      }
  
-@@ -381,6 +404,16 @@
+@@ -381,6 +404,18 @@
  
          $domain_dn = key($domain);
  
 +        # using isset, because if the array is empty, then we want to drop the domain admins.
 +        if (isset($attributes["domainadmin"])) {
-+            $this->domain_admin_save($domain, $domain_dn, $attributes["domainadmin"]);
++            if (!$this->domain_admin_save($domain, $domain_dn, $attributes["domainadmin"])) {
++                return false;
++            }
 +            unset($attributes["domainadmin"]);
 +        }
 +
@@ -130,7 +132,7 @@ index 0c03be0..6ad01c3 100644
          }
  
          return $result;
-@@ -1721,4 +1786,158 @@
+@@ -1721,4 +1786,164 @@
  
          return false;
      }
@@ -146,6 +148,8 @@ index 0c03be0..6ad01c3 100644
 +            return false;
 +        }
 +
++        $domain_dn = $this->_standard_root_dn($domain);
++        $domain = str_replace(array(",dc=", "dc="), array(".",""), $domain_dn); 
 +        $associateddomain_dn="associateddomain=$domain,cn=kolab,cn=config";
 +        $info = array();
 +        $info["aci"] = array();
@@ -218,7 +222,9 @@ index 0c03be0..6ad01c3 100644
 +
 +            if (!in_array($domainadmins[$count], $domain_admins[$currentdomain_da_dn]["uniquemember"])) {
 +                # add read permission to associateddomain in cn=kolab,cn=config
-+                $this->ChangeDomainReadCapability($domainadmins[$count], $domain[$domain_dn]["associateddomain"], 'add');
++                if (!$this->ChangeDomainReadCapability($domainadmins[$count], $domain[$domain_dn]["associateddomain"], 'add')) {
++                    return false;
++                }
 +            }
 +        }
 +
@@ -226,7 +232,9 @@ index 0c03be0..6ad01c3 100644
 +        foreach ($domain_admins[$currentdomain_da_dn]["uniquemember"] as $oldadmin) {
 +            if (!in_array($oldadmin, $domainadmins)) {
 +                # drop read permission to associateddomain in cn=kolab,cn=config
-+                $this->ChangeDomainReadCapability($oldadmin, $domain[$domain_dn]["associateddomain"], 'remove');
++                if (!$this->ChangeDomainReadCapability($oldadmin, $domain[$domain_dn]["associateddomain"], 'remove')) {
++                    return false;
++                }
 +            }
 +        }
 +        
@@ -289,6 +297,25 @@ index 0c03be0..6ad01c3 100644
 +        return array('domainadmin' => $maindomainadmin, $config_flag => $resultvalue);
 +    }
  }
+--- a/lib/Auth/LDAP.php	2014-12-01 18:41:10.949301999 +0100
++++ b/lib/Auth/LDAP.php	2014-12-01 18:43:23.457301999 +0100
+@@ -252,6 +252,7 @@
+         if (in_array('tbitsKolabUser', $this->classes_allowed())) {
+             $self_attrs = array_merge($self_attrs, array('tbitsKolabLastLogin'));
+         }
++        $admin_readonly_attrs = array("tbitsKolabMaxAccounts", "tbitsKolabOverallQuota");
+ 
+         $_domain = str_replace('.', '_', $domain);
+         $dn      = $inetdomainbasedn;
+@@ -295,7 +296,7 @@
+                     // Self-modification
+                     "(targetattr = \"" . implode(" || ", $self_attrs) . "\")(version 3.0; acl \"Enable self write for common attributes\"; allow (read,compare,search,write) userdn=\"ldap:///self\";)",
+                     // Directory Administrators
+-                    "(targetattr = \"*\")(version 3.0; acl \"Directory Administrators Group\"; allow (all) (groupdn=\"ldap:///cn=Directory Administrators,{$inetdomainbasedn}\" or roledn=\"ldap:///cn=kolab-admin,{$inetdomainbasedn}\");)",
++                    "(targetattr != \"". implode(" || ", $admin_readonly_attrs) . "\")(version 3.0; acl \"Directory Administrators Group\"; allow (all) (groupdn=\"ldap:///cn=Directory Administrators,{$inetdomainbasedn}\" or roledn=\"ldap:///cn=kolab-admin,{$inetdomainbasedn}\");)",
+                     // Configuration Administrators
+                     "(targetattr = \"*\")(version 3.0; acl \"Configuration Administrators Group\"; allow (all) groupdn=\"ldap:///cn=Configuration Administrators,ou=Groups,ou=TopologyManagement,o=NetscapeRoot\";)",
+                     // Administrator users
 diff --git a/lib/api/kolab_api_service_domain.php b/lib/api/kolab_api_service_domain.php
 index 16b1908..625b696 100644
 --- a/lib/api/kolab_api_service_domain.php
@@ -512,6 +539,18 @@ index 5c23e8a..d424801 100644
          // Create form object and populate with fields
          $form = $this->form_create('domain', $attribs, $sections, $fields, $fields_map, $data, $add_mode);
  
+--- a/lib/kolab_client_task.php	2014-12-01 18:41:10.901301999 +0100
++++ b/lib/kolab_client_task.php	2014-12-01 18:47:30.229301999 +0100
+@@ -1152,7 +1152,8 @@
+                 }
+             }
+             else {
+-                if (in_array('add', $entry_rights) && in_array('delete', $entry_rights)) {
++                if ((strpos($idx, "tbits") != 0) && in_array('add', $entry_rights) && in_array('delete', $entry_rights)) {
++
+                     if ($admin_auto_fields_rw) {
+                         $fields[$idx]['readonly'] = false;
+                     }
 diff --git a/lib/client/kolab_client_task_user.php b/lib/client/kolab_client_task_user.php
 index 6d51754..c5d71d9 100644
 --- a/lib/client/kolab_client_task_user.php
@@ -564,53 +603,6 @@ index 2c57d9d..04155e4 100644
              // degrade class score if object contains more attributes
              // than defined in object type
              if ($keys_count && $elem_keys_score < $keys_count) {
-diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
-index a90cb13..d364430 100644
---- a/lib/kolab_client_task.php
-+++ b/lib/kolab_client_task.php
-@@ -645,6 +645,24 @@ class kolab_client_task
-     }
- 
-     /**
-+     * Returns the id of the type that is identified by the key
-+     *
-+     * @param string $types array of types for the current object class
-+     * @param string $key identifies the type that we want the id for
-+     *
-+     * @return string the id for the type that we are looking for
-+     */
-+    protected function get_object_type_id_by_key($types, $key)
-+    {
-+       foreach ($types as $id => $data) {
-+           if ($data['key'] == $key) {
-+              return $id;
-+           }
-+       }
-+       return -1;
-+    }
-+
-+    /**
-      * Returns user name.
-      *
-      * @param string $dn User DN attribute value
-@@ -1020,6 +1038,17 @@ class kolab_client_task
-         if (!empty($data['type_id'])) {
-             $type = $data['type_id'];
-         }
-+        else if ($name == "user") {
-+            // set the default user type
-+            $defaultUserType = $this->get_object_type_id_by_key($types, "kolab");
-+            $conf = Conf::get_instance();
-+            if ($conf->get('domainadmins_management_domain') == $_SESSION['user']['domain']) {
-+                // in the management domain, default to DomainAdmin user
-+                $defaultUserType = $this->get_object_type_id_by_key($types, "domainadmin");
-+            }
-+
-+            $data['type_id'] = $type = $defaultUserType;
-+        }
-         else {
-             $data['type_id'] = $type = key($types);
-         }
 diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
 index b88e520..1609cc3 100644
 --- a/lib/locale/de_DE.php

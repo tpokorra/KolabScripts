@@ -7,8 +7,7 @@ from helperKolabWAP import KolabWAPTestHelpers
 
 # assumes password for cn=Directory Manager is test.
 # assumes that the initTBitsISP.sh script has been run.
-# will create a domain admin user in the domain administrators.org (type domainadmin)
-# will create a new domain, and assign that domain admin user as domain administrator
+# will create a new domain, and a new domain admin inside that domain, and assign that domain admin user as domain administrator for the domain
 # will create users inside that new domain (type normal kolab user)
 class KolabWAPDomainAdmin(unittest.TestCase):
 
@@ -45,34 +44,59 @@ class KolabWAPDomainAdmin(unittest.TestCase):
 
         kolabWAPhelper.logout_kolab_wap()
 
-    # test if correct user type is used when not many attributes are set which are specific for domain admins
-    def test_domain_admin_user_type(self):
+    def test_domain_admin_with_own_domain(self):
         kolabWAPhelper = self.kolabWAPhelper
-        kolabWAPhelper.log("Running test: test_domain_admin_user_type")
+        kolabWAPhelper.log("Running test: test_domain_admin_with_own_domain")
 
         # login Directory Manager
         kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
 
-        kolabWAPhelper.select_domain("administrators.org")
-
-        username, emailLogin, password = kolabWAPhelper.create_user(
-            prefix = "admin")
+        username, emailLogin, password, domainname = kolabWAPhelper.create_domainadmin()
 
         # now edit the user
+        self.driver.get(self.driver.current_url)
+        elem = self.driver.find_element_by_link_text("Users")
+        elem.click()
+        kolabWAPhelper.wait_loading()
         elem = self.driver.find_element_by_id("searchinput")
         elem.send_keys(username)
         elem.send_keys(Keys.ENTER)
         kolabWAPhelper.wait_loading(initialwait = 2)
 
-        elem = self.driver.find_element_by_xpath("//tbody/tr/td[@class=\"name\"]")
+        elem = self.driver.find_element_by_xpath("//table[@id='userlist']/tbody/tr/td")
         self.assertEquals(username + ", " + username, elem.text, "Expected to select user " + username + " but was " + elem.text)
         elem.click()
-        
+
         kolabWAPhelper.wait_loading(initialwait = 1)
 
-        # check if the user type is actually a domain admin
+        # check if the user type is actually a domain admin user
         elem = self.driver.find_element_by_xpath("//form[@id='user-form']/fieldset/table/tbody/tr/td[@class='value']")
         self.assertEquals("Domain Administrator", elem.text, "user type should be Domain Administrator, but was " + elem.text)
+
+        kolabWAPhelper.logout_kolab_wap()
+
+    # test that domain admin cannot edit its own maxaccount / overallquota
+    def test_domain_admin_edit_own_parameters(self):
+        kolabWAPhelper = self.kolabWAPhelper
+        kolabWAPhelper.log("Running test: test_domain_admin_edit_own_parameters")
+
+        # login Directory Manager
+        kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
+
+        username, emailLogin, password, domainname = kolabWAPhelper.create_domainadmin()
+        kolabWAPhelper.logout_kolab_wap()
+
+        kolabWAPhelper.login_kolab_wap("/kolab-webadmin", emailLogin, password)
+        elem = self.driver.find_element_by_xpath("//div[@class=\"settings\"]")
+        elem.click()
+        self.kolabWAPhelper.wait_loading()
+        elem = self.driver.find_element_by_link_text("Domain Administrator")
+        elem.click()
+        self.kolabWAPhelper.wait_loading()
+        # the domain admin should not be able to edit his own parameters, eg max accounts
+        elem = self.driver.find_element_by_xpath("//input[@name=\"tbitskolabmaxaccounts\"]")
+        if not "readonly" in elem.get_attribute('class'):
+          self.assertTrue(False, "maxaccounts should be readonly for the domain admin")
 
         kolabWAPhelper.logout_kolab_wap()
 
