@@ -297,6 +297,25 @@ index 0c03be0..6ad01c3 100644
 +        return array('domainadmin' => $maindomainadmin, $config_flag => $resultvalue);
 +    }
  }
+--- a/lib/Auth/LDAP.php	2014-12-01 18:41:10.949301999 +0100
++++ b/lib/Auth/LDAP.php	2014-12-01 18:43:23.457301999 +0100
+@@ -252,6 +252,7 @@
+         if (in_array('tbitsKolabUser', $this->classes_allowed())) {
+             $self_attrs = array_merge($self_attrs, array('tbitsKolabLastLogin'));
+         }
++        $admin_readonly_attrs = array("tbitsKolabMaxAccounts", "tbitsKolabOverallQuota");
+ 
+         $_domain = str_replace('.', '_', $domain);
+         $dn      = $inetdomainbasedn;
+@@ -295,7 +296,7 @@
+                     // Self-modification
+                     "(targetattr = \"" . implode(" || ", $self_attrs) . "\")(version 3.0; acl \"Enable self write for common attributes\"; allow (read,compare,search,write) userdn=\"ldap:///self\";)",
+                     // Directory Administrators
+-                    "(targetattr = \"*\")(version 3.0; acl \"Directory Administrators Group\"; allow (all) (groupdn=\"ldap:///cn=Directory Administrators,{$inetdomainbasedn}\" or roledn=\"ldap:///cn=kolab-admin,{$inetdomainbasedn}\");)",
++                    "(targetattr != \"". implode(" || ", $admin_readonly_attrs) . "\")(version 3.0; acl \"Directory Administrators Group\"; allow (all) (groupdn=\"ldap:///cn=Directory Administrators,{$inetdomainbasedn}\" or roledn=\"ldap:///cn=kolab-admin,{$inetdomainbasedn}\");)",
+                     // Configuration Administrators
+                     "(targetattr = \"*\")(version 3.0; acl \"Configuration Administrators Group\"; allow (all) groupdn=\"ldap:///cn=Configuration Administrators,ou=Groups,ou=TopologyManagement,o=NetscapeRoot\";)",
+                     // Administrator users
 diff --git a/lib/api/kolab_api_service_domain.php b/lib/api/kolab_api_service_domain.php
 index 16b1908..625b696 100644
 --- a/lib/api/kolab_api_service_domain.php
@@ -520,6 +539,18 @@ index 5c23e8a..d424801 100644
          // Create form object and populate with fields
          $form = $this->form_create('domain', $attribs, $sections, $fields, $fields_map, $data, $add_mode);
  
+--- a/lib/kolab_client_task.php	2014-12-01 18:41:10.901301999 +0100
++++ b/lib/kolab_client_task.php	2014-12-01 18:47:30.229301999 +0100
+@@ -1152,7 +1152,8 @@
+                 }
+             }
+             else {
+-                if (in_array('add', $entry_rights) && in_array('delete', $entry_rights)) {
++                if ((strpos($idx, "tbits") != 0) && in_array('add', $entry_rights) && in_array('delete', $entry_rights)) {
++
+                     if ($admin_auto_fields_rw) {
+                         $fields[$idx]['readonly'] = false;
+                     }
 diff --git a/lib/client/kolab_client_task_user.php b/lib/client/kolab_client_task_user.php
 index 6d51754..c5d71d9 100644
 --- a/lib/client/kolab_client_task_user.php

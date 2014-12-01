@@ -54,6 +54,7 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         username, emailLogin, password, domainname = kolabWAPhelper.create_domainadmin()
 
         # now edit the user
+        self.driver.get(self.driver.current_url)
         elem = self.driver.find_element_by_link_text("Users")
         elem.click()
         kolabWAPhelper.wait_loading()
@@ -72,8 +73,30 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         elem = self.driver.find_element_by_xpath("//form[@id='user-form']/fieldset/table/tbody/tr/td[@class='value']")
         self.assertEquals("Domain Administrator", elem.text, "user type should be Domain Administrator, but was " + elem.text)
 
+        kolabWAPhelper.logout_kolab_wap()
 
-        # TODO test that domain admin cannot edit its own maxaccount / overallquota
+    # test that domain admin cannot edit its own maxaccount / overallquota
+    def test_domain_admin_edit_own_parameters(self):
+        kolabWAPhelper = self.kolabWAPhelper
+        kolabWAPhelper.log("Running test: test_domain_admin_edit_own_parameters")
+
+        # login Directory Manager
+        kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
+
+        username, emailLogin, password, domainname = kolabWAPhelper.create_domainadmin()
+        kolabWAPhelper.logout_kolab_wap()
+
+        kolabWAPhelper.login_kolab_wap("/kolab-webadmin", emailLogin, password)
+        elem = self.driver.find_element_by_xpath("//div[@class=\"settings\"]")
+        elem.click()
+        self.kolabWAPhelper.wait_loading()
+        elem = self.driver.find_element_by_link_text("Domain Administrator")
+        elem.click()
+        self.kolabWAPhelper.wait_loading()
+        # the domain admin should not be able to edit his own parameters, eg max accounts
+        elem = self.driver.find_element_by_xpath("//input[@name=\"tbitskolabmaxaccounts\"]")
+        if not "readonly" in elem.get_attribute('class'):
+          self.assertTrue(False, "maxaccounts should be readonly for the domain admin")
 
         kolabWAPhelper.logout_kolab_wap()
 
