@@ -385,6 +385,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem.send_keys(username)
         elem = driver.find_element_by_name("sn");
         elem.send_keys(username)
+        self.wait_loading(1.0)
 
         if forward_to is not None:
             # create a user of account type Mail Forwarding
@@ -478,7 +479,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
         elem.click()
 
-        self.wait_loading()
+        self.wait_loading(1)
         elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
         if expected_message_contains is not None:
             self.assertNotEquals(-1, elem.text.find(expected_message_contains), "User should not have been created, message should contain: " + expected_message_contains + " but was: " + elem.text)
@@ -502,6 +503,45 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.log("User " + username + " has been created. Login with " + emailLogin + " and password " + password)
 
         return username, emailLogin, password
+
+    # create a new domain, and create a domain admin for that domain, inside that domain
+    def create_domainadmin(self,
+                    overall_quota = None,
+                    default_quota = None,
+                    max_accounts = None,
+                    allow_groupware = None,
+                    default_quota_verify = None,
+                    default_role_verify = None,
+                    mail_quota = None,
+                    username = None,
+                    alias = None,
+                    forward_to = None,
+                    expected_message_contains = None):
+        driver=self.driver
+        domainname = self.create_domain()
+        (username, emailLogin, password) = self.create_user("admin",
+              overall_quota, default_quota, max_accounts, allow_groupware, default_quota_verify, default_role_verify, mail_quota, username, alias, forward_to, expected_message_contains)
+        # now edit the domain and set the domainadmin
+        elem = driver.find_element_by_link_text("Domains")
+        elem.click()
+        self.wait_loading()
+        elem = self.driver.find_element_by_id("searchinput")
+        elem.send_keys(domainname)
+        elem.send_keys(Keys.ENTER)
+        self.wait_loading(initialwait = 2)
+        elem = self.driver.find_element_by_xpath("//table[@id='domainlist']/tbody/tr/td")
+        self.assertEquals(domainname, elem.text, "Expected to select domain " + domainname + " but was " + elem.text)
+        elem.click()
+        self.wait_loading(initialwait = 1)
+        elem = driver.find_element_by_link_text("Domain Administrators")
+        elem.click()
+        elem = driver.find_element_by_xpath("//input[@name='domainadmin[-1]']")
+        elem.send_keys(username)
+        self.wait_loading(0.5)
+        driver.find_element_by_xpath("//div[@id='autocompletepane']/ul/li[@class='selected']").click()
+ 
+        return username, emailLogin, password, domainname
+         
 
     def send_email(self, recipientEmailAddress):
         driver = self.driver
