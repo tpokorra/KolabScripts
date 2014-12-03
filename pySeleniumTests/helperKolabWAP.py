@@ -106,7 +106,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
     def wait_loading(self, initialwait=0.5):
         time.sleep(initialwait)
-        while self.driver.page_source.find('div id="loading"') != -1 and self.driver.page_source.find('id="message"') == -1:
+        while (self.driver.page_source.find('div id="loading"') != -1 and self.driver.page_source.find('id="message"') == -1) or (self.driver.page_source.find('id="message">Loading...') != -1):
             self.log("loading")
             time.sleep(0.5)
 
@@ -156,15 +156,9 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.wait_loading()
 
         # verify success of login
-        message = "Loading..."
-        while message == "Loading...":
-          if len(driver.find_elements_by_xpath("//div[@id=\"message\"]")) > 0:
+        if len(driver.find_elements_by_xpath("//div[@id=\"message\"]")) > 0:
             elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
-            message = elem.text
-            if message == "Loading...":
-              self.wait_loading()
-            else:
-              self.assertEquals("", elem.text, "Message after Login: " + elem.text)
+            self.assertEquals("", elem.text, "Message after Login: " + elem.text)
         if self.driver.page_source.find("<title>404 Not Found</title>") != -1:
           self.assertEquals("", "404 not found", "error fetching page")
 
