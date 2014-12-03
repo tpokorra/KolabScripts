@@ -151,8 +151,8 @@ then
 \t# Be compatible with older packages and installed plugins.\n \
 \tRewriteCond %{REQUEST_URI} ^/roundcubemail/assets/\n \
 \tRewriteCond %{REQUEST_URI} \!-f\n \
-\tRewriteCond %{REQUEST_URI} \!-d\n \
-\tRewriteRule .*/roundcubemail/assets/(.*)\$ /roundcubemail/\$1 [PT,L]\n"
+\tRewriteCond %{REQUEST_URI} \!-d\n \n"
+#   \tRewriteRule .*/roundcubemail/assets/(.*)\$ /roundcubemail/\$1 [PT,L]\n"
 
       sed -i -e "s~</VirtualHost>~$newConfigLines</VirtualHost>~" /etc/httpd/conf.d/ssl.conf
     fi
@@ -190,8 +190,8 @@ else
 \t# Be compatible with older packages and installed plugins.\n \
 \tRewriteCond %{REQUEST_URI} ^/roundcubemail/assets/\n \
 \tRewriteCond %{REQuEST_URI} \!-f\n \
-\tRewriteCond %{REQuEST_URI} \!-d\n \
-\tRewriteRule .*/roundcubemail/assets/(.*)\$ /roundcubemail/\$1 [PT,L]\n"
+\tRewriteCond %{REQuEST_URI} \!-d\n \n"
+#   \tRewriteRule .*/roundcubemail/assets/(.*)\$ /roundcubemail/\$1 [PT,L]\n"
 
     sed -i -e "s~</VirtualHost>~$newConfigLines</VirtualHost>~" /etc/apache2/conf.d/nss.conf
 
