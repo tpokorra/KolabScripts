@@ -36,6 +36,7 @@ if (false === $service_type->type_edit(null, $kolabUserType)) {
 
 $newType = $kolabUserType;
 unset($newType['id']);
+unset($newType['is_default']);
 $newType['type'] = 'user';
 $newType['key'] = 'domainadmin';
 $newType['name'] = 'Domain Administrator';

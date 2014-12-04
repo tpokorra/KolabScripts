@@ -378,6 +378,9 @@ class KolabWAPTestHelpers(unittest.TestCase):
         if prefix=="admin":
             driver.find_element_by_xpath("//select[@name='type_id']/option[text()='Domain Administrator']").click()
             self.wait_loading(1.0)
+        else:
+            elem = driver.find_element_by_xpath("//select[@name='type_id']/option[@selected='selected']")
+            self.assertEquals("Kolab User", elem.text, "Expected that Kolab User would be the default user type")
 
         elem = driver.find_element_by_name("givenname")
         if username is None:
