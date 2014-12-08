@@ -39,3 +39,6 @@ patch -p1 -i `pwd`/patches/setupkolab_directory_manager_pwdBug2645.patch -d $pyt
 
 # temporary patch, is fixed in kolab webadmin 3.2.2
 patch -p1 -i `pwd`/patches/defaultAccountTypeUserBug2587.patch -d /usr/share/kolab-webadmin
+
+# temporary patch, should go upstream soon
+patch -p1 -i `pwd`/patches/addSharedFolderBug4043.patch -d /usr/share/kolab-webadmin
