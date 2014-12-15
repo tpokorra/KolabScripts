@@ -34,7 +34,7 @@ systemctl stop wallace
 systemctl stop httpd
 systemctl stop mariadb
 
-yum -y remove 389\* cyrus-imapd\* postfix\* mariadb-server\* roundcube\* pykolab\* kolab\* libkolab\* kolab-3\* httpd
+yum -y remove 389\* cyrus-imapd\* postfix\* mariadb-server\* roundcube\* pykolab\* kolab\* libkolab\* kolab-3\* httpd up-imapproxy nginx stunnel
 
 echo "deleting files..."
 rm -Rf \
