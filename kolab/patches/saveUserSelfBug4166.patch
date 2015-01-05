@@ -1,0 +1,13 @@
+diff --git a/lib/kolab_api_service.php b/lib/kolab_api_service.php
+index 6809bd5..2b04cc9 100644
+--- a/lib/kolab_api_service.php
++++ b/lib/kolab_api_service.php
+@@ -312,7 +312,7 @@ abstract class kolab_api_service
+                 Log::trace("Running parse input attributes for key $key");
+ 
+                 if (($value['type'] == 'text' || empty($value['type'])) && is_array($attribs[$key])) {
+-                    $attribs[$key] = array_shift($attribs[$key]);
++                    //$attribs[$key] = array_shift($attribs[$key]);
+                 }
+ 
+                 if (empty($attribs[$key]) && empty($value['optional'])) {

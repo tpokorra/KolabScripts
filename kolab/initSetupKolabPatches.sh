@@ -44,3 +44,4 @@ patch -p2 -i `pwd`/patches/kolabsyncBug3975.patch -d $pythonDistPackages/pykolab
 
 # temporary patch, should go upstream soon
 patch -p1 -i `pwd`/patches/addSharedFolderBug4043.patch -d /usr/share/kolab-webadmin
+patch -p1 -i `pwd`/patches/saveUserSelfBug4166.patch -d /usr/share/kolab-webadmin
