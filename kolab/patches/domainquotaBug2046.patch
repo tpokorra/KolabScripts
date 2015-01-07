@@ -128,3 +128,14 @@ index 16475db..660c6eb 100644
      }
  
      private function validate_tbitskolaboverallquota($value, $postdata = array(), $validation_type = null)
+--- a/public_html/js/kolab_admin.js	2014-02-11 11:37:44.000000000 +0100
++++ b/public_html/js/kolab_admin.js	2014-07-11 14:44:12.623960515 +0200
+@@ -819,6 +819,8 @@
+       var unit = $('select[name="' + this.name + '-unit"]').val();
+       if (unit && this.value)
+         data.json[this.name] = this.value + unit;
++      if (!this.value)
++        data.json[this.name] = "0kb";
+       delete data.json[this.name + '-unit'];
+     });
+ 
