@@ -21,7 +21,7 @@ class KolabWAPCreateUserAndEditSelf(unittest.TestCase):
         driver = self.driver
         elem = driver.find_element_by_xpath("//div[@class=\"settings\"]")
         elem.click()
-        self.kolabWAPhelper.wait_loading()
+        self.kolabWAPhelper.wait_loading(1.0)
         elem = driver.find_element_by_name("initials")
         elem.send_keys("T")
         elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
