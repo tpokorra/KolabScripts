@@ -45,7 +45,6 @@ $newType['attributes']['fields']['objectclass'][] = 'tbitskolabdomainadmin';
 unset($newType['attributes']['auto_form_fields']['alias']);
 unset($newType['attributes']['auto_form_fields']['mailhost']);
 unset($newType['attributes']['form_fields']['mailquota']);
-unset($newType['attributes']['form_fields']['mailalternateaddress']);
 unset($newType['attributes']['form_fields']['alias']);
 unset($newType['attributes']['form_fields']['kolabdelegate']);
 unset($newType['attributes']['form_fields']['kolaballowsmtprecipient']);
