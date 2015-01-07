@@ -17,13 +17,14 @@ diff --git a/lib/client/kolab_client_task_settings.php b/lib/client/kolab_client
 index 9a23161..1f16029 100644
 --- a/lib/client/kolab_client_task_settings.php
 +++ b/lib/client/kolab_client_task_settings.php
-@@ -35,5 +35,6 @@ class kolab_client_task_settings extends kolab_client_task
-         'text', 'select', 'multiselect', 'list', 'list-autocomplete', 'checkbox', 'password', 'ldap_url',
-         'text-quota', 'aci', 'imap_acl',
+@@ -34,6 +34,7 @@ class kolab_client_task_settings extends kolab_client_task
+     protected $form_element_types = array(
+         'text', 'text-separated', 'text-quota', 'text-autocomplete',
 +        'text-unixtimestamp',
+         'select', 'multiselect',
+         'list', 'list-autocomplete', 'checkbox', 'password', 'ldap_url',
+         'aci', 'imap_acl',
      );
- 
- 
 diff --git a/lib/client/kolab_client_task_user.php b/lib/client/kolab_client_task_user.php
 index c5d71d9..4739dcd 100644
 --- a/lib/client/kolab_client_task_user.php
