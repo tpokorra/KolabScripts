@@ -167,8 +167,8 @@ if [ ! -d $pythonDistPackages ]; then
   pythonDistPackages=/usr/lib/python2.6/site-packages
 fi
 
-patch -p1 -i `pwd`/patches/validateAliasDomainPostfixVirtualFileBug2658.patch -d /usr/share/kolab-webadmin
-patch -p1 -i `pwd`/patches/problemSyncMultiDomainBug3197.patch -d $pythonDistPackages
+patch -p1 -i `pwd`/patches/validateAliasDomainPostfixVirtualFileBug2658.patch -d /usr/share/kolab-webadmin || exit -1
+patch -p1 -i `pwd`/patches/problemSyncMultiDomainBug3197.patch -d $pythonDistPackages || exit -1
 
 service kolab-saslauthd restart
 service kolabd restart

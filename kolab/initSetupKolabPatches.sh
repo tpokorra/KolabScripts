@@ -33,12 +33,12 @@ if [ ! -d $pythonDistPackages ]; then
 fi
 
 echo "applying setupkolab_yes_quietBug2598.patch to $pythonDistPackages/pykolab"
-patch -p1 -i `pwd`/patches/setupkolab_yes_quietBug2598.patch -d $pythonDistPackages/pykolab
+patch -p1 -i `pwd`/patches/setupkolab_yes_quietBug2598.patch -d $pythonDistPackages/pykolab || exit -1
 echo "applying setupkolab_directory_manager_pwdBug2645.patch"
-patch -p1 -i `pwd`/patches/setupkolab_directory_manager_pwdBug2645.patch -d $pythonDistPackages
+patch -p1 -i `pwd`/patches/setupkolab_directory_manager_pwdBug2645.patch -d $pythonDistPackages || exit -1
 
 echo "temporary fixes for Cyrus stop script"
-patch -p0 -i `pwd`/patches/fixcyrusstop.patch
+patch -p0 -i `pwd`/patches/fixcyrusstop.patch || exit -1
 echo "applying kolabsyncBug3975.patch to $pythonDistPackages/pykolab"
-patch -p2 -i `pwd`/patches/kolabsyncBug3975.patch -d $pythonDistPackages/pykolab
+patch -p2 -i `pwd`/patches/kolabsyncBug3975.patch -d $pythonDistPackages/pykolab || exit -1
 
