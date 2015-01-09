@@ -106,7 +106,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
     def wait_loading(self, initialwait=0.5):
         time.sleep(initialwait)
-        while (self.driver.page_source.find('div id="loading"') != -1 and self.driver.page_source.find('id="message"') == -1) or (self.driver.page_source.find('id="message">Loading...') != -1):
+        while (self.driver.page_source.find('div id="loading"') != -1 and self.driver.page_source.find('id="message"') == -1) or (self.driver.page_source.find('id="message">Loading...') != -1) or (self.driver.page_source.find('id="message"><div class="loading">Loading...') != -1):
             self.log("loading")
             time.sleep(0.5)
 
