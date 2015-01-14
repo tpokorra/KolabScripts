@@ -38,6 +38,7 @@ echo "applying setupkolab_directory_manager_pwdBug2645.patch"
 patch -p1 -i `pwd`/patches/setupkolab_directory_manager_pwdBug2645.patch -d $pythonDistPackages || exit -1
 
 if [ -f /usr/lib/cyrus-imapd/cvt_cyrusdb_all ]
+then
   echo "temporary fixes for Cyrus stop script"
   patch -p0 -i `pwd`/patches/fixcyrusstop.patch || exit -1
 fi
