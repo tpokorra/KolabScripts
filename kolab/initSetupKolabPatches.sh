@@ -44,4 +44,5 @@ then
 fi
 echo "applying kolabsyncBug3975.patch to $pythonDistPackages/pykolab"
 patch -p2 -i `pwd`/patches/kolabsyncBug3975.patch -d $pythonDistPackages/pykolab || exit -1
-
+echo "applying patch for waiting after restart of dirsrv (necessary on Debian)"
+patch -p1 -i `pwd`/patches/setupKolabSleepDirSrv.patch -d $pythonDistPackages || exit -1

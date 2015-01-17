@@ -1,0 +1,14 @@
+diff --git a/pykolab/setup/setup_ldap.py b/pykolab/setup/setup_ldap.py
+index 04311d2..c587ee4 100644
+--- a/pykolab/setup/setup_ldap.py
++++ b/pykolab/setup/setup_ldap.py
+@@ -415,6 +415,8 @@ ServerAdminPwd = %(admin_pass)s
+         subprocess.call(['/usr/sbin/service','dirsrv','start'])
+     else:
+         log.error(_("Could not start the directory server service."))
++ 
++    time.sleep(10)
+ 
+     if os.path.isfile('/bin/systemctl'):
+         subprocess.call(['/bin/systemctl', 'enable', 'dirsrv.target'])
+
