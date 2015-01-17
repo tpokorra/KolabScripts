@@ -21,7 +21,6 @@ export ca_subclass_file=startcom-sub.class2.server.ca.pem
 if [ ! -d $key_directory ]
 then
     # Debian: the keys live in a different place
-    echo "Warning: this has not been tested for Debian yet!!!"
     key_directory=/etc/ssl
     sslgroup=ssl-cert
 fi
@@ -41,9 +40,9 @@ answersCreateKey() {
 
 if [ ! -f $key_directory/certs/$server_name.crt ]
 then
-    rm -Rf key
-    mkdir key
-    cd key
+    rm -Rf keys
+    mkdir keys
+    cd keys
 
     # generate a private key, and self signed certificate
     answersCreateKey | openssl req -newkey rsa:2048 -keyout $server_name.key -nodes -x509 -days 365 -out $server_name.crt
@@ -160,40 +159,17 @@ then
     service httpd restart
 # for Debian
 else
-    #certutil -d /etc/apache2/alias -A  -t "CT,," -n "StartCom Certification Authority" -i $key_directory/private/$ca_file
-    pwd=foo
-    openssl pkcs12 -export -in $key_directory/certs/$server_name.crt -inkey $key_directory/private/$server_name.key -out /tmp/$server_name.p12 -name Server-Cert -passout pass:$pwd
-    echo "$pwd" > /tmp/foo
-    pk12util -i /tmp/$server_name.p12 -d /etc/apache2/alias -w /tmp/foo -k /dev/null
-    rm /tmp/foo
-    rm /tmp/$server_name.p12
+    a2dismod nss
+    a2enmod ssl
 
-    sed -i -e 's/8443/443/' /etc/apache2/conf.d/nss.conf
-    sed -i -e 's/NSSNickname.*/NSSNickname Server-Cert/' /etc/apache2/conf.d/nss.conf
+    sed -i -e "s/NameVirtualHost \*:80/NameVirtualHost *:443/g" /etc/apache2/ports.conf
 
-    echo '
+    newConfigLines="SSLEngine On\n \
+SSLCertificateKeyFile $key_directory/private/$server_name.key\n \
+SSLCertificateFile $key_directory/certs/$server_name.crt\n \
+SSLCACertificateFile $key_directory/certs/$server_name.ca-chain.pem\n"
 
-    <VirtualHost _default_:80>
-            RewriteEngine On
-            RewriteRule ^(.*)$ https://%{HTTP_HOST}$1 [R=301,L]
-    </VirtualHost>
-    ' >> /etc/apache2/conf/httpd.conf
-
-    newConfigLines="\tRewriteEngine On\n \
-\tRewriteRule ^/roundcubemail/[a-f0-9]{16}/(.*) /roundcubemail/\$1 [PT,L]\n \
-\tRewriteRule ^/webmail/[a-f0-9]{16}/(.*) /webmail/\$1 [PT,L]\n \
-\tRedirectMatch ^/$ /roundcubemail/\n"
-
-    sed -i -e "s#</VirtualHost>#$newConfigLines</VirtualHost>#" /etc/httpd/conf.d/ssl.conf
-
-    newConfigLines="\t\n \
-\t# Be compatible with older packages and installed plugins.\n \
-\tRewriteCond %{REQUEST_URI} ^/roundcubemail/assets/\n \
-\tRewriteCond %{REQuEST_URI} \!-f\n \
-\tRewriteCond %{REQuEST_URI} \!-d\n \n"
-#   \tRewriteRule .*/roundcubemail/assets/(.*)\$ /roundcubemail/\$1 [PT,L]\n"
-
-    sed -i -e "s~</VirtualHost>~$newConfigLines</VirtualHost>~" /etc/apache2/conf.d/nss.conf
+    sed -i -e "s#</VirtualHost>#$newConfigLines</VirtualHost>#" /etc/apache2/sites-enabled/000-default
 
     service apache2 restart
 fi
