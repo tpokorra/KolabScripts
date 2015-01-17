@@ -164,9 +164,10 @@ else
 
     sed -i -e "s/NameVirtualHost \*:80/NameVirtualHost *:443/g" /etc/apache2/ports.conf
 
-    newConfigLines="SSLEngine On\n \
-SSLCertificateKeyFile $key_directory/private/$server_name.key\n \
-SSLCertificateFile $key_directory/certs/$server_name.crt\n \
+    sed -i -e "s/^SSL/#SSL/g" /etc/apache2/sites-enabled/000-default
+    newConfigLines="SSLEngine On\n\
+SSLCertificateKeyFile $key_directory/private/$server_name.key\n\
+SSLCertificateFile $key_directory/certs/$server_name.crt\n\
 SSLCACertificateFile $key_directory/certs/$server_name.ca-chain.pem\n"
 
     sed -i -e "s#</VirtualHost>#$newConfigLines</VirtualHost>#" /etc/apache2/sites-enabled/000-default
