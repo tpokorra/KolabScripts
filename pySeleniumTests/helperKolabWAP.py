@@ -193,14 +193,28 @@ class KolabWAPTestHelpers(unittest.TestCase):
         #driver.delete_all_cookies()
         self.log("User has logged out from Roundcube")
 
-    def stopKolabSync(self):
-        os.system("service kolabd stop")
+    def startKolabServer(self, cmd = 'start'):
+        if os.path.isfile('/bin/systemctl'):
+            subprocess.call(['/bin/systemctl', cmd, 'kolabd.service'])
+        elif os.path.isfile('/sbin/service'):
+            subprocess.call(['/sbin/service', 'kolabd', cmd])
+        elif os.path.isfile('/usr/sbin/service'):
+            subprocess.call(['/usr/sbin/service','kolab-server', cmd])
+        else:
+            self.log(_("Could not %s the kolab server service.") % (cmd))
+        self.log(_("Could not %s the kolab server service.") % (cmd))
+
+    def stopKolabServer(self):
+        self.startKolabServer('stop')
+
+    def restartKolabServer(self):
+        self.startKolabServer('restart')
 
     def startKolabSync(self):
         # first one run that waits for the sync to finish
         os.system("kolab sync > /dev/null 2>&1")
         # now start the service again
-        os.system("service kolabd start")
+        self.startKolabServer()
 
     # create a new domain and select it
     def create_domain(self, domainadmin = None, withAliasDomain = False):
@@ -281,7 +295,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
     # expects a list of delegate email addresses
     def create_shared_folder(self, delegates = None, foldername = None):
         # restart kolabd service, otherwise we need to wait up to 10 minutes for the folder to be created
-        self.stopKolabSync()
+        self.stopKolabServer()
 
         driver = self.driver
         driver.get(driver.current_url)
@@ -365,7 +379,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
                     forward_to = None,
                     expected_message_contains = None):
         # restart kolabd service, otherwise we need to wait up to 10 minutes for the mailbox to be created
-        self.stopKolabSync()
+        self.stopKolabServer()
 
         driver = self.driver
         driver.get(driver.current_url)
@@ -493,7 +507,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.startKolabSync() 
         if forward_to is None:
             # restart kolabd service, otherwise we need to wait up to 10 minutes for the mailbox to be created
-            os.system("service kolabd restart")
+            self.restartKolabServer()
             # wait a couple of seconds until the sync script has been run (perhaps even the domain still needs to be created?)
             out = ""
             starttime=datetime.datetime.now()
