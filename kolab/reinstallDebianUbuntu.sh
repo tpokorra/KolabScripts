@@ -56,11 +56,7 @@ then
   /usr/sbin/remove-ds-admin -f -a -y
 fi
 
-apt-get -y remove 389\* cyrus-imapd\* postfix\* mysql-server\* roundcube\* pykolab\* kolab\* libkolab\* kolab-3\*
-
-# TODO problem reinstall? /etc/kolab/kolab.conf is gone after reinstall?
-# rm -Rf /etc/kolab/kolab.conf
-rm -Rf /etc/roundcubemail/*
+apt-get -y purge 389\* cyrus-imapd\* postfix\* mysql-server\* roundcube\* pykolab\* kolab\* libkolab\* kolab-3\*
 
 echo "deleting files..."
 rm -Rf \
