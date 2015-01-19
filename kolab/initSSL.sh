@@ -172,6 +172,15 @@ SSLCACertificateFile $key_directory/certs/$server_name.ca-chain.pem\n"
 
     sed -i -e "s#</VirtualHost>#$newConfigLines</VirtualHost>#" /etc/apache2/sites-enabled/000-default
 
+    if [[ "`cat /etc/apache2/sites-enabled/000-default | grep "RewriteEngine On"`" == "" ]]
+    then
+      newConfigLines="\tRewriteEngine On\n \
+\tRewriteRule ^/roundcubemail/[a-f0-9]{16}/(.*) /roundcubemail/\$1 [PT,L]\n \
+\tRewriteRule ^/webmail/[a-f0-9]{16}/(.*) /webmail/\$1 [PT,L]\n \
+\tRedirectMatch ^/$ /roundcubemail/\n"
+
+      sed -i -e "s#</VirtualHost>#$newConfigLines</VirtualHost>#" /etc/apache2/sites-enabled/000-default
+    fi
     service apache2 restart
 fi
 
