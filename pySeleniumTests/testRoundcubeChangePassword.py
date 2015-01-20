@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import unittest
+import unittest2
 import time
 import datetime
 from selenium import webdriver
@@ -10,7 +10,7 @@ from helperKolabWAP import KolabWAPTestHelpers
 
 # assumes password for cn=Directory Manager is test
 # will create a new user, and try to login in Roundcube and try to change the password
-class KolabRoundcubeChangePassword(unittest.TestCase):
+class KolabRoundcubeChangePassword(unittest2.TestCase):
 
     def setUp(self):
         self.kolabWAPhelper = KolabWAPTestHelpers()
@@ -87,6 +87,6 @@ class KolabRoundcubeChangePassword(unittest.TestCase):
         self.driver.close()
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest2.main()
 
 
