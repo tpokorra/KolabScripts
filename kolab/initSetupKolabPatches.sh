@@ -50,12 +50,10 @@ patch -p1 -i `pwd`/patches/setupKolabSleepDirSrv.patch -d $pythonDistPackages ||
 # TODO on Debian, we need to install the rewrite for the csrf token
 if [ -f /etc/apache2/sites-enabled/000-default ]
 then
-      newConfigLines="\t\n \
-\t# Be compatible with older packages and installed plugins.\n \
-\tRewriteCond %{REQUEST_URI} ^/roundcubemail/assets/\n \
-\tRewriteCond %{REQUEST_URI} \!-f\n \
-\tRewriteCond %{REQUEST_URI} \!-d\n \n"
-#   \tRewriteRule .*/roundcubemail/assets/(.*)\$ /roundcubemail/\$1 [PT,L]\n"
+      newConfigLines="\tRewriteEngine On\n \
+\tRewriteRule ^/roundcubemail/[a-f0-9]{16}/(.*) /roundcubemail/\$1 [PT,L]\n \
+\tRewriteRule ^/webmail/[a-f0-9]{16}/(.*) /webmail/\$1 [PT,L]\n \
+\tRedirectMatch ^/$ /roundcubemail/\n"
 
       sed -i -e "s~</VirtualHost>~$newConfigLines</VirtualHost>~" /etc/apache2/sites-enabled/000-default
 fi
