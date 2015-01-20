@@ -1,4 +1,4 @@
-import unittest2
+import unittest2 as unittest
 import time
 import datetime
 import string
@@ -25,7 +25,7 @@ conf.finalize_conf()
 conf.read_config("/etc/kolab/kolab.conf")
 
 # useful functions for testing kolab-webadmin
-class KolabWAPTestHelpers(unittest2.TestCase):
+class KolabWAPTestHelpers(unittest.TestCase):
 
     def __init__(self):
         return

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import unittest
+import unittest2 as unittest
 import time
 import datetime
 from selenium import webdriver
@@ -13,6 +13,7 @@ from helperKolabWAP import KolabWAPTestHelpers
 class KolabEmailSendAndReceiveEmail(unittest.TestCase):
 
     def setUp(self):
+        unittest.TestCase.__init__(self, '__init__')
         self.kolabWAPhelper = KolabWAPTestHelpers()
         self.driver = self.kolabWAPhelper.init_driver()
 
