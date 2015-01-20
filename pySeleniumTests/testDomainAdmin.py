@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import unittest2 as unittest
+import unittest
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from helperKolabWAP import KolabWAPTestHelpers

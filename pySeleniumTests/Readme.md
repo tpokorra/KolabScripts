@@ -4,7 +4,7 @@ Please also see http://kolab.org/blog/timotheus-pokorra/2013/11/19/kolab-integra
 
 Install Selenium:
 ```sh
-sudo yum install python-setuptools python-unittest2
+sudo yum install python-setuptools
 sudo easy_install selenium 
 ```
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import unittest2 as unittest
+import unittest
 import time
 import datetime
 import subprocess
@@ -15,7 +15,6 @@ from helperKolabWAP import KolabWAPTestHelpers
 class KolabEmailSharedFolders(unittest.TestCase):
 
     def setUp(self):
-        unittest.TestCase.__init__(self, '__init__')
         self.kolabWAPhelper = KolabWAPTestHelpers()
         self.driver = self.kolabWAPhelper.init_driver()
 

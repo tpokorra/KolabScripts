@@ -1,4 +1,4 @@
-import unittest2 as unittest
+import unittest
 import time
 import datetime
 import string
@@ -28,6 +28,7 @@ conf.read_config("/etc/kolab/kolab.conf")
 class KolabWAPTestHelpers(unittest.TestCase):
 
     def __init__(self):
+        unittest.TestCase.__init__(self, '__init__')
         return
 
     def init_driver(self):
