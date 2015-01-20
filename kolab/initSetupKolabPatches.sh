@@ -46,3 +46,16 @@ echo "applying kolabsyncBug3975.patch to $pythonDistPackages/pykolab"
 patch -p2 -i `pwd`/patches/kolabsyncBug3975.patch -d $pythonDistPackages/pykolab || exit -1
 echo "applying patch for waiting after restart of dirsrv (necessary on Debian)"
 patch -p1 -i `pwd`/patches/setupKolabSleepDirSrv.patch -d $pythonDistPackages || exit -1
+
+# TODO on Debian, we need to install the rewrite for the csrf token
+if [ -f /etc/apache2/sites-enabled/000-default ]
+then
+      newConfigLines="\t\n \
+\t# Be compatible with older packages and installed plugins.\n \
+\tRewriteCond %{REQUEST_URI} ^/roundcubemail/assets/\n \
+\tRewriteCond %{REQUEST_URI} \!-f\n \
+\tRewriteCond %{REQUEST_URI} \!-d\n \n"
+#   \tRewriteRule .*/roundcubemail/assets/(.*)\$ /roundcubemail/\$1 [PT,L]\n"
+
+      sed -i -e "s~</VirtualHost>~$newConfigLines</VirtualHost>~" /etc/apache2/sites-enabled/000-default
+fi
