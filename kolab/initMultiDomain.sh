@@ -171,4 +171,14 @@ patch -p1 -i `pwd`/patches/validateAliasDomainPostfixVirtualFileBug2658.patch -d
 patch -p1 -i `pwd`/patches/problemSyncMultiDomainBug3197.patch -d $pythonDistPackages || exit -1
 
 service kolab-saslauthd restart
-service kolabd restart
+
+if [ -f /bin/systemctl ]
+then
+  /bin/systemctl restart kolabd.service
+elif [ -f /sbin/service ]
+then
+  service kolabd restart
+elif [ -f /usr/sbin/service ]
+then
+  service kolab-server restart
+fi

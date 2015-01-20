@@ -79,4 +79,14 @@ service dirsrv restart
 php initTBitsUserTypes.php
 
 service kolab-saslauthd restart
-service kolabd restart
+
+if [ -f /bin/systemctl ]
+then
+  /bin/systemctl restart kolabd.service
+elif [ -f /sbin/service ]
+then
+  service kolabd restart
+elif [ -f /usr/sbin/service ]
+then
+  service kolab-server restart
+fi
