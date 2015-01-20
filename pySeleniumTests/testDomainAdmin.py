@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import unittest
+import unittest2
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from helperKolabWAP import KolabWAPTestHelpers
@@ -9,7 +9,7 @@ from helperKolabWAP import KolabWAPTestHelpers
 # assumes that the initTBitsISP.sh script has been run.
 # will create a new domain, and a new domain admin inside that domain, and assign that domain admin user as domain administrator for the domain
 # will create users inside that new domain (type normal kolab user)
-class KolabWAPDomainAdmin(unittest.TestCase):
+class KolabWAPDomainAdmin(unittest2.TestCase):
 
     def setUp(self):
         self.kolabWAPhelper = KolabWAPTestHelpers()
@@ -108,6 +108,6 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         self.driver.close()
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest2.main()
 
 

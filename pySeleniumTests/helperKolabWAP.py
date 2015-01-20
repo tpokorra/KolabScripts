@@ -1,4 +1,4 @@
-import unittest
+import unittest2
 import time
 import datetime
 import string
@@ -25,7 +25,7 @@ conf.finalize_conf()
 conf.read_config("/etc/kolab/kolab.conf")
 
 # useful functions for testing kolab-webadmin
-class KolabWAPTestHelpers(unittest.TestCase):
+class KolabWAPTestHelpers(unittest2.TestCase):
 
     def __init__(self):
         return
@@ -202,7 +202,6 @@ class KolabWAPTestHelpers(unittest.TestCase):
             subprocess.call(['/usr/sbin/service','kolab-server', cmd])
         else:
             self.log(_("Could not %s the kolab server service.") % (cmd))
-        self.log(_("Could not %s the kolab server service.") % (cmd))
 
     def stopKolabServer(self):
         self.startKolabServer('stop')

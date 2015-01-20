@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import unittest
+import unittest2
 import time
 import datetime
 from selenium import webdriver
@@ -10,7 +10,7 @@ from helperKolabWAP import KolabWAPTestHelpers
 # assumes password for cn=Directory Manager is test
 # will create a new user, and try to login is that user and change the initials
 # will check kolab lm if the calendar folder has been created for the user
-class KolabWAPCreateUserAndEditSelf(unittest.TestCase):
+class KolabWAPCreateUserAndEditSelf(unittest2.TestCase):
 
     def setUp(self):
         self.kolabWAPhelper = KolabWAPTestHelpers()
@@ -100,6 +100,6 @@ class KolabWAPCreateUserAndEditSelf(unittest.TestCase):
         self.driver.close()
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest2.main()
 
 
