@@ -220,7 +220,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
     def create_domain(self, domainadmin = None, withAliasDomain = False):
 
         # stop kolabd service, otherwise we need to wait up to 10 minutes for the domain to be created
-        self.stopKolabSync()
+        self.stopKolabServer()
 
         driver = self.driver
         driver.get(driver.current_url)
