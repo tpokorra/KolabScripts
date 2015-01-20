@@ -153,7 +153,7 @@ then
 \tRewriteCond %{REQUEST_URI} \!-d\n \n"
 #   \tRewriteRule .*/roundcubemail/assets/(.*)\$ /roundcubemail/\$1 [PT,L]\n"
 
-      sed -i -e "s~</VirtualHost>~$newConfigLines</VirtualHost>~" /etc/httpd/conf.d/ssl.conf
+#      sed -i -e "s~</VirtualHost>~$newConfigLines</VirtualHost>~" /etc/httpd/conf.d/ssl.conf
     fi
 
     service httpd restart
