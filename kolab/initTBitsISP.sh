@@ -71,7 +71,7 @@ done
 
 service dirsrv restart
 # wait a few seconds, on Debian we need to wait for dirsrv to restart
-sleep 5
+sleep 20
 
 
 #####################################################################################
