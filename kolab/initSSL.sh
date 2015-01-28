@@ -164,7 +164,7 @@ else
 
     sed -i -e "s/NameVirtualHost \*:80/NameVirtualHost *:443/g" /etc/apache2/ports.conf
 
-    sed -i -e "s~<VirtualHost *:80>~<VirtualHost *:443>~/g" /etc/apache2/sites-enabled/000-default
+    sed -i -e "s/VirtualHost \*:80/VirtualHost \*:443/g" /etc/apache2/sites-enabled/000-default
 
     sed -i -e "s/^SSL/#SSL/g" /etc/apache2/sites-enabled/000-default
     newConfigLines="SSLEngine On\n\
