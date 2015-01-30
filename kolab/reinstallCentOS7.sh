@@ -68,8 +68,8 @@ rm -Rf \
 /etc/init.d/rsyslog restart
 
 rm -f epel*rpm
-wget http://ftp.uni-kl.de/pub/linux/fedora-epel/7/x86_64/e/epel-release-7-1.noarch.rpm
-yum -y localinstall --nogpgcheck epel-release-7-1.noarch.rpm
+wget http://mirror.de.leaseweb.net/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
+yum -y localinstall --nogpgcheck epel-release-7-5.noarch.rpm
 rm -f epel*rpm
 
 # could use environment variable obs=http://my.proxy.org/obs.kolabsys.com 
