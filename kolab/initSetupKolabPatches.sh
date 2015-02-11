@@ -40,7 +40,7 @@ patch -p1 -i `pwd`/patches/setupkolab_directory_manager_pwdBug2645.patch -d $pyt
 if [ -f /usr/lib/cyrus-imapd/cvt_cyrusdb_all ]
 then
   echo "temporary fixes for Cyrus stop script"
-  patch -p0 -i `pwd`/patches/fixcyrusstop.patch || exit -1
+  patch -p1 -d /usr/lib/cyrus-imapd -i `pwd`/patches/fixcyrusstop.patch || exit -1
 fi
 echo "applying kolabsyncBug3975.patch to $pythonDistPackages/pykolab"
 patch -p2 -i `pwd`/patches/kolabsyncBug3975.patch -d $pythonDistPackages/pykolab || exit -1
