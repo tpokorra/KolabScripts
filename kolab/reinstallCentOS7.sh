@@ -83,7 +83,6 @@ cd /etc/yum.repos.d
 rm -Rf kolab-*.repo
 wget $obs/Kolab:/3.3/$OBS_repo_OS/Kolab:3.3.repo -O kolab-3.3.repo
 wget $obs/Kolab:/3.3:/Updates/$OBS_repo_OS/Kolab:3.3:Updates.repo -O kolab-3.3-updates.repo
-wget $obs/Kolab:/Development/$OBS_repo_OS/Kolab:Development.repo -O kolab-3-development.repo
 cd -
 
 yum install gnupg2
