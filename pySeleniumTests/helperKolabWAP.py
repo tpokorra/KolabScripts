@@ -153,7 +153,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem.send_keys(username)
         elem = driver.find_element_by_id("rcmloginpwd")
         elem.send_keys(password)
-        driver.find_element_by_id("rcmloginsubmit").click()
+        driver.find_element_by_class_name("mainaction").click()
         self.wait_loading()
 
         # verify success of login
