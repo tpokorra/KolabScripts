@@ -24,7 +24,7 @@ index 0cd9c33..11e8dbf 100644
  
          fp = None
 --- a/share/templates/amavisd.conf.tpl
-+++ /usr/share/kolab/templates/amavisd.conf.tpl
++++ b/usr/share/kolab/templates/amavisd.conf.tpl
 @@ -373,7 +373,7 @@ use strict;
  
  # \#\## http://www.clamav.net/
