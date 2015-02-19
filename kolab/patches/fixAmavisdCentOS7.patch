@@ -18,7 +18,7 @@ index 0cd9c33..11e8dbf 100644
 +                amavisdconf_content = file('/etc/clamd.d/amavisd.conf')
 +                for line in amavisdconf_content:
 +                  if line.startswith('LocalSocket'):
-+                     amavisd_settings['clamdsock'] = line[len('LocalSocket '):]
++                     amavisd_settings['clamdsock'] = line[len('LocalSocket '):].strip()
 +
              t = Template(template_definition, searchList=[amavisd_settings])
  
