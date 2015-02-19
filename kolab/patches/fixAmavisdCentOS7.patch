@@ -1,15 +1,3 @@
-From 7ea3cf80166f7e6d3105b37a41b183d0295305bf Mon Sep 17 00:00:00 2001
-From: Timotheus Pokorra <tp@tbits.net>
-Date: Thu, 19 Feb 2015 13:38:54 +0100
-Subject: [PATCH] CentOS7: make sure we are using the correct path for the
- clamd.sock (#3565) reading from /etc/clamd.d/amavisd.conf, otherwise
- defaulting to /var/spool/amavisd/clamd.sock which was previously used
-
----
- pykolab/setup/setup_mta.py       | 7 +++++++
- share/templates/amavisd.conf.tpl | 2 +-
- 2 files changed, 8 insertions(+), 1 deletion(-)
-
 diff --git a/pykolab/setup/setup_mta.py b/pykolab/setup/setup_mta.py
 index 0cd9c33..11e8dbf 100644
 --- a/pykolab/setup/setup_mta.py
@@ -35,10 +23,8 @@ index 0cd9c33..11e8dbf 100644
              t = Template(template_definition, searchList=[amavisd_settings])
  
          fp = None
-diff --git a/share/templates/amavisd.conf.tpl b/share/templates/amavisd.conf.tpl
-index 12fb4ed..1fa43fb 100644
 --- a/share/templates/amavisd.conf.tpl
-+++ b/share/templates/amavisd.conf.tpl
++++ /usr/share/kolab/templates/amavisd.conf.tpl
 @@ -373,7 +373,7 @@ use strict;
  
  # \#\## http://www.clamav.net/
