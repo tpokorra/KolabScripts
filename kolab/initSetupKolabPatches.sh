@@ -49,7 +49,7 @@ patch -p1 -i `pwd`/patches/setupKolabSleepDirSrv.patch -d $pythonDistPackages ||
 
 #Temporary test of patch
 patch -p1 -i `pwd`/patches/fixAmavisdCentOS7.patch -d $pythonDistPackages || exit -1
-patch -p0 -i `pwd`/patches/fixAmavisdCentOS7b.patch || exit -1
+patch -p1 -i `pwd`/patches/fixAmavisdCentOS7b.patch -d /usr || exit -1
 
 # TODO on Debian, we need to install the rewrite for the csrf token
 if [ -f /etc/apache2/sites-enabled/000-default ]

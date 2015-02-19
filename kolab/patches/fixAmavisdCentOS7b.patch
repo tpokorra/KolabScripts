@@ -1,5 +1,5 @@
---- /usr/share/templates/amavisd.conf.tpl.orig
-+++ /usr/share/kolab/templates/amavisd.conf.tpl
+--- a/share/templates/amavisd.conf.tpl.orig
++++ b/share/kolab/templates/amavisd.conf.tpl
 @@ -373,7 +373,7 @@ use strict;
  
  # \#\## http://www.clamav.net/
