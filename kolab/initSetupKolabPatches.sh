@@ -47,6 +47,9 @@ patch -p2 -i `pwd`/patches/kolabsyncBug3975.patch -d $pythonDistPackages/pykolab
 echo "applying patch for waiting after restart of dirsrv (necessary on Debian)"
 patch -p1 -i `pwd`/patches/setupKolabSleepDirSrv.patch -d $pythonDistPackages || exit -1
 
+#Temporary test of patch
+patch -p1 -i `pwd`/patches/fixAmavisdCentOS7.patch -d $pythonDistPackages || exit -1
+
 # TODO on Debian, we need to install the rewrite for the csrf token
 if [ -f /etc/apache2/sites-enabled/000-default ]
 then

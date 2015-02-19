@@ -1,0 +1,53 @@
+From 7ea3cf80166f7e6d3105b37a41b183d0295305bf Mon Sep 17 00:00:00 2001
+From: Timotheus Pokorra <tp@tbits.net>
+Date: Thu, 19 Feb 2015 13:38:54 +0100
+Subject: [PATCH] CentOS7: make sure we are using the correct path for the
+ clamd.sock (#3565) reading from /etc/clamd.d/amavisd.conf, otherwise
+ defaulting to /var/spool/amavisd/clamd.sock which was previously used
+
+---
+ pykolab/setup/setup_mta.py       | 7 +++++++
+ share/templates/amavisd.conf.tpl | 2 +-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/pykolab/setup/setup_mta.py b/pykolab/setup/setup_mta.py
+index 0cd9c33..11e8dbf 100644
+--- a/pykolab/setup/setup_mta.py
++++ b/pykolab/setup/setup_mta.py
+@@ -363,6 +363,7 @@ result_format = "shared+%%s"
+             'primary_domain': conf.get('kolab', 'primary_domain'),
+             'ldap_filter': "(|(mail=%m)(alias=%m))",
+             'ldap_base_dn': conf.get('ldap', 'base_dn'),
++            'clamdsock': '/var/spool/amavisd/clamd.sock',
+         }
+ 
+     template_file = None
+@@ -381,6 +382,12 @@ result_format = "shared+%%s"
+             template_definition = fp.read()
+             fp.close()
+ 
++            if os.path.isfile('/etc/clamd.d/amavisd.conf'):
++                amavisdconf_content = file('/etc/clamd.d/amavisd.conf')
++                for line in amavisdconf_content:
++                  if line.startswith('LocalSocket'):
++                     amavisd_settings['clamdsock'] = line[len('LocalSocket '):]
++
+             t = Template(template_definition, searchList=[amavisd_settings])
+ 
+         fp = None
+diff --git a/share/templates/amavisd.conf.tpl b/share/templates/amavisd.conf.tpl
+index 12fb4ed..1fa43fb 100644
+--- a/share/templates/amavisd.conf.tpl
++++ b/share/templates/amavisd.conf.tpl
+@@ -373,7 +373,7 @@ use strict;
+ 
+ # \#\## http://www.clamav.net/
+ ['ClamAV-clamd',
+-  \&ask_daemon, ["CONTSCAN {}\n", "/var/spool/amavisd/clamd.sock"],
++  \&ask_daemon, ["CONTSCAN {}\n", "$clamdsock"],
+   qr/\bOK\$/m, qr/\bFOUND\$/m,
+   qr/^.*?: (?!Infected Archive)(.*) FOUND\$/m ],
+ # # NOTE: run clamd under the same user as amavisd, or run it under its own
+-- 
+1.8.3.1
+
