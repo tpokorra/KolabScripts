@@ -165,6 +165,10 @@ pythonDistPackages=/usr/lib/python2.7/dist-packages
 if [ ! -d $pythonDistPackages ]; then
   # centOS
   pythonDistPackages=/usr/lib/python2.6/site-packages
+  if [ ! -d $pythonDistPackages ]; then
+    # centOS7
+    pythonDistPackages=/usr/lib/python2.7/site-packages
+  fi
 fi
 
 patch -p1 -i `pwd`/patches/validateAliasDomainPostfixVirtualFileBug2658.patch -d /usr/share/kolab-webadmin || exit -1
