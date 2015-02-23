@@ -20,6 +20,7 @@ else
     then
       ./reinstallDebianUbuntu.sh Ubuntu_12.04
     elif [ $DISTRIB_ID == "Ubuntu" -a $DISTRIB_CODENAME == "trusty" ]
+    then
       ./reinstallDebianUbuntu.sh Ubuntu_14.04
     fi
   else
