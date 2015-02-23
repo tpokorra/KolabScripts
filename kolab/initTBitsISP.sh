@@ -69,9 +69,13 @@ do
   cp patches/99tbits.ldif $d/schema/
 done
 
-#service dirsrv restart
-# wait a few seconds, on Debian we need to wait for dirsrv to restart
-service dirsrv stop && sleep 10 && service dirsrv start && sleep 10
+if [ -f /bin/systemctl ]
+then
+  /bin/systemctl restart dirsrv.target
+else
+  # wait a few seconds, on Debian we need to wait for dirsrv to restart
+  service dirsrv stop && sleep 10 && service dirsrv start && sleep 10
+fi
 
 #####################################################################################
 #create new user_type domainadmin
