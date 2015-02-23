@@ -71,7 +71,7 @@ done
 
 if [ -f /bin/systemctl ]
 then
-  /bin/systemctl restart dirsrv.target
+  /bin/systemctl restart dirsrv.target && sleep 10
 else
   # wait a few seconds, on Debian we need to wait for dirsrv to restart
   service dirsrv stop && sleep 10 && service dirsrv start && sleep 10
@@ -83,15 +83,17 @@ fi
 #####################################################################################
 php initTBitsUserTypes.php
 
-service kolab-saslauthd restart
 
 if [ -f /bin/systemctl ]
 then
+  /bin/systemctl restart kolab-saslauthd
   /bin/systemctl restart kolabd.service
 elif [ -f /sbin/service ]
 then
+  service kolab-saslauthd restart
   service kolabd restart
 elif [ -f /usr/sbin/service ]
 then
+  service kolab-saslauthd restart
   service kolab-server restart
 fi
