@@ -16,9 +16,12 @@ else
   if [ -f /etc/lsb-release ]
   then
     . /etc/lsb-release
-    if [ $DISTRIB_ID == "Ubuntu" -a $DISTRIB_CODENAME="precise" ]
+    if [ $DISTRIB_ID == "Ubuntu" -a $DISTRIB_CODENAME == "precise" ]
     then
       ./reinstallDebianUbuntu.sh Ubuntu_12.04
+    elif [ $DISTRIB_ID == "Ubuntu" -a $DISTRIB_CODENAME == "trusty" ]
+    then
+      ./reinstallDebianUbuntu.sh Ubuntu_14.04
     fi
   else
     if [ -f /etc/debian_version ]
