@@ -34,7 +34,7 @@ systemctl stop wallace
 systemctl stop httpd
 systemctl stop mariadb
 
-yum -y remove 389\* cyrus-imapd\* postfix\* mariadb-server\* roundcube\* pykolab\* kolab\* libkolab\* libcalendaring\* kolab-3\* httpd
+yum -y remove 389\* cyrus-imapd\* postfix\* mariadb-server\* roundcube\* pykolab\* kolab\* libkolab\* libcalendaring\* kolab-3\* httpd php-Net-LDAP3
 
 echo "deleting files..."
 rm -Rf \
@@ -67,10 +67,7 @@ rm -Rf \
 
 /etc/init.d/rsyslog restart
 
-rm -f epel*rpm
-wget http://mirror.de.leaseweb.net/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
-yum -y localinstall --nogpgcheck epel-release-7-5.noarch.rpm
-rm -f epel*rpm
+yum -y install epel-release
 
 # could use environment variable obs=http://my.proxy.org/obs.kolabsys.com 
 # see http://kolab.org/blog/timotheus-pokorra/2013/11/26/downloading-obs-repo-php-proxy-file
@@ -79,25 +76,30 @@ then
   export obs=http://obs.kolabsys.com/repositories/
 fi
 
-cd /etc/yum.repos.d
-rm -Rf kolab-*.repo
-wget $obs/Kolab:/3.3/$OBS_repo_OS/Kolab:3.3.repo -O kolab-3.3.repo
-wget $obs/Kolab:/3.3:/Updates/$OBS_repo_OS/Kolab:3.3:Updates.repo -O kolab-3.3-updates.repo
-wget $obs/Kolab:/Development/$OBS_repo_OS/Kolab:Development.repo -O kolab-3-development.repo
-cd -
+yum -y install yum-utils gnupg2
 
-yum install gnupg2
+yum-config-manager --add-repo $obs/Kolab:/3.4/$OBS_repo_OS
+yum-config-manager --add-repo $obs/Kolab:/3.4:/Updates/$OBS_repo_OS
+yum-config-manager --add-repo $obs/Kolab:/Development/$OBS_repo_OS
+yum-config-manager --add-repo https://download.solidcharity.com/repos/tbits.net/kolab-nightly/centos/7/
+
 # manually: gpg --search devel@lists.kolab.org
 gpg --import key/devel\@lists.kolab.org.asc
 rpm --import key/devel\@lists.kolab.org.asc
 
 # add priority = 0 to kolab repo files
-for f in /etc/yum.repos.d/kolab-3*.repo
+for f in /etc/yum.repos.d/kolab*.repo
 do
     sed -i "s#enabled=1#enabled=1\npriority=0#g" $f
     sed -i "s#http://obs.kolabsys.com:82/#$obs/#g" $f
 done
 
 yum clean metadata
-yum -y install kolab kolab-freebusy patch unzip
+
+tryagain=0
+yum -y install kolab kolab-freebusy patch unzip || tryagain=1
+if [ $tryagain -eq 1 ]; then
+  yum clean metadata
+  yum -y install kolab kolab-freebusy patch unzip
+fi
 

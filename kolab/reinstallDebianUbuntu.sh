@@ -56,7 +56,7 @@ then
   /usr/sbin/remove-ds-admin -f -a -y
 fi
 
-apt-get -y purge apache2\* 389\* cyrus-imapd\* postfix\* mysql-server\* roundcube\* pykolab\* kolab\* libkolab\* kolab-3\*
+apt-get -y purge apache2\* 389\* cyrus-imapd\* postfix\* mysql-server\* roundcube\* pykolab\* kolab\* libkolab\* kolab-3\* php-net-ldap3
 
 echo "deleting files..."
 rm -Rf \
@@ -93,15 +93,15 @@ then
 fi
 
 cat > /etc/apt/sources.list.d/kolab.list <<FINISH
-deb $obs/Kolab:/3.3/$OBS_repo_OS/ ./
-deb $obs/Kolab:/3.3:/Updates/$OBS_repo_OS/ ./
+deb $obs/Kolab:/3.4/$OBS_repo_OS/ ./
+deb $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/ ./
 deb $obs/Kolab:/Development/$OBS_repo_OS/ ./
 deb $obs/home:/tpokorra:/branches:/Kolab:/Development/$OBS_repo_OS/ ./
 FINISH
 
-wget $obs/Kolab:/3.3/$OBS_repo_OS/Release.key
+wget $obs/Kolab:/3.4/$OBS_repo_OS/Release.key
 apt-key add Release.key; rm -rf Release.key
-wget $obs/Kolab:/3.3:/Updates/$OBS_repo_OS/Release.key
+wget $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/Release.key
 apt-key add Release.key; rm -rf Release.key
 wget $obs/home:/tpokorra:/branches:/Kolab:/Development/$OBS_repo_OS/Release.key
 apt-key add Release.key; rm -rf Release.key
