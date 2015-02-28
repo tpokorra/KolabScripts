@@ -94,13 +94,13 @@ fi
 
 cat > /etc/apt/sources.list.d/kolab.list <<FINISH
 deb $obs/Kolab:/3.4/$OBS_repo_OS/ ./
-#deb $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/ ./
+deb $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/ ./
 FINISH
 
 wget $obs/Kolab:/3.4/$OBS_repo_OS/Release.key
 apt-key add Release.key; rm -rf Release.key
-#wget $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/Release.key
-#apt-key add Release.key; rm -rf Release.key
+wget $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/Release.key
+apt-key add Release.key; rm -rf Release.key
 
 cat > /etc/apt/preferences.d/kolab <<FINISH
 Package: *
