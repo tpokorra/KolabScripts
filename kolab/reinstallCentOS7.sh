@@ -87,6 +87,9 @@ yum-config-manager --add-repo https://download.solidcharity.com/repos/tbits.net/
 gpg --import key/devel\@lists.kolab.org.asc
 rpm --import key/devel\@lists.kolab.org.asc
 
+# install the key for the nightly packages built on LBS
+rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&fingerprint=on&search=0x4796B710919684AC"
+
 # add priority = 0 to kolab repo files
 for f in /etc/yum.repos.d/kolab*.repo
 do
