@@ -67,7 +67,7 @@ rm -Rf \
 
 /etc/init.d/rsyslog restart
 
-yum -y install epel-release
+yum -y install epel-release yum-utils gnupg2
 
 # could use environment variable obs=http://my.proxy.org/obs.kolabsys.com 
 # see http://kolab.org/blog/timotheus-pokorra/2013/11/26/downloading-obs-repo-php-proxy-file
@@ -76,12 +76,11 @@ then
   export obs=http://obs.kolabsys.com/repositories/
 fi
 
-yum -y install yum-utils gnupg2
-
-yum-config-manager --add-repo $obs/Kolab:/3.4/$OBS_repo_OS
-yum-config-manager --add-repo $obs/Kolab:/3.4:/Updates/$OBS_repo_OS
-yum-config-manager --add-repo $obs/Kolab:/Development/$OBS_repo_OS
-yum-config-manager --add-repo https://download.solidcharity.com/repos/tbits.net/kolab-nightly/centos/7/
+rm -f /etc/yum.repos.d/Kolab*.repo /etc/yum.repos.d/lbs-tbits.net-kolab-nightly.repo
+yum-config-manager --add-repo $obs/Kolab:/3.4/$OBS_repo_OS/Kolab:3.4.repo
+yum-config-manager --add-repo $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/Kolab:3.4:Updates.repo
+yum-config-manager --add-repo $obs/Kolab:/Development/$OBS_repo_OS/Kolab:Development.repo
+yum-config-manager --add-repo https://download.solidcharity.com/repos/tbits.net/kolab-nightly/centos/7/lbs-tbits.net-kolab-nightly.repo
 
 # manually: gpg --search devel@lists.kolab.org
 gpg --import key/devel\@lists.kolab.org.asc
@@ -91,7 +90,7 @@ rpm --import key/devel\@lists.kolab.org.asc
 rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&fingerprint=on&search=0x4796B710919684AC"
 
 # add priority = 0 to kolab repo files
-for f in /etc/yum.repos.d/kolab*.repo
+for f in /etc/yum.repos.d/Kolab*.repo /etc/yum.repos.d/lbs-tbits.net-kolab-nightly.repo
 do
     sed -i "s#enabled=1#enabled=1\npriority=0#g" $f
     sed -i "s#http://obs.kolabsys.com:82/#$obs/#g" $f

@@ -66,10 +66,7 @@ rm -Rf \
 
 /etc/init.d/rsyslog restart
 
-rm -f epel*rpm
-wget http://ftp.uni-kl.de/pub/linux/fedora-epel/6/i386/epel-release-6-8.noarch.rpm
-yum -y localinstall --nogpgcheck epel-release-6-8.noarch.rpm
-rm -f epel*rpm
+yum -y install epel-release yum-utils gnupg2
 
 # could use environment variable obs=http://my.proxy.org/obs.kolabsys.com 
 # see http://kolab.org/blog/timotheus-pokorra/2013/11/26/downloading-obs-repo-php-proxy-file
@@ -78,15 +75,12 @@ then
   export obs=http://obs.kolabsys.com/repositories/
 fi
 
-cd /etc/yum.repos.d
-rm -Rf kolab-*.repo
-wget $obs/Kolab:/3.4/$OBS_repo_OS/Kolab:3.4.repo -O kolab-3.4.repo
-wget $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/Kolab:3.4:Updates.repo -O kolab-3.4-updates.repo
-wget $obs/Kolab:/Development/$OBS_repo_OS/Kolab:Development.repo -O kolab-3-development.repo
-wget $obs/home:/tpokorra:/branches:/Kolab:/Development/$OBS_repo_OS/home:tpokorra:branches:Kolab:Development.repo -O kolab-3-obs-tpokorra-nightly.repo
-cd -
+rm -f /etc/yum.repos.d/Kolab*.repo /etc/yum.repos.d/lbs-tbits.net-kolab-nightly.repo
+yum-config-manager --add-repo $obs/Kolab:/3.4/$OBS_repo_OS/Kolab:3.4.repo
+yum-config-manager --add-repo $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/Kolab:3.4:Updates.repo
+yum-config-manager --add-repo $obs/Kolab:/Development/$OBS_repo_OS/Kolab:Development.repo
+yum-config-manager --add-repo https://download.solidcharity.com/repos/tbits.net/kolab-nightly/centos/6/lbs-tbits.net-kolab-nightly.repo
 
-yum install gnupg2
 # manually: gpg --search devel@lists.kolab.org
 gpg --import key/devel\@lists.kolab.org.asc
 rpm --import key/devel\@lists.kolab.org.asc
@@ -95,7 +89,7 @@ rpm --import key/devel\@lists.kolab.org.asc
 rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&fingerprint=on&search=0x4796B710919684AC"
 
 # add priority = 0 to kolab repo files
-for f in /etc/yum.repos.d/kolab-3*.repo
+for f in /etc/yum.repos.d/Kolab*.repo /etc/yum.repos.d/lbs-tbits.net-kolab-nightly.repo
 do
     sed -i "s#enabled=1#enabled=1\npriority=0#g" $f
     sed -i "s#http://obs.kolabsys.com:82/#$obs/#g" $f
