@@ -86,19 +86,15 @@ index 0c03be0..6ad01c3 100644
          // We should start throwing stuff over the fence here.
          return $this->modify_entry($domain_dn, $domain[$domain_dn], $attributes);
      }
-@@ -428,6 +461,36 @@
+@@ -428,6 +461,32 @@
              $result = $this->_read($domain_dn, $attributes);
          }
  
 +        if ($result) {
-+            if (!$domain_dn) {
-+                $domain_dn=array_shift(array_keys($result));
-+            }
-+
-+            if (isset($result[$domain_dn]["associateddomain"])) {
-+                $currentdomain_dn = $this->_standard_root_dn($result[$domain_dn]["associateddomain"]);
++            if (isset($result["associateddomain"])) {
++                $currentdomain_dn = $this->_standard_root_dn($result["associateddomain"]);
 +            } else {
-+                $currentdomain_dn = $domain_dn;
++                $currentdomain_dn = $domain;
 +            }
 +
 +            $currentdomain_da_dn = "cn=Directory Administrators,".$currentdomain_dn;
@@ -109,14 +105,14 @@ index 0c03be0..6ad01c3 100644
 +            }
 +
 +            // read domain admins from LDAP, uniqueMembers of Directory Administrators of domain
-+            $result[$domain_dn]["domainadmin"] = array();
++            $result["domainadmin"] = array();
 +            if (is_array($domain_admins[$currentdomain_da_dn]["uniquemember"])) {
 +                foreach ($domain_admins[$currentdomain_da_dn]["uniquemember"] as $domainadmin) {
-+                    $result[$domain_dn]["domainadmin"][] = $domainadmin;
++                    $result["domainadmin"][] = $domainadmin;
 +                }
 +            }
 +            else {
-+                $result[$domain_dn]["domainadmin"][] = $domain_admins[$currentdomain_da_dn]["uniquemember"];
++                $result["domainadmin"][] = $domain_admins[$currentdomain_da_dn]["uniquemember"];
 +            }
 +        }
 +
