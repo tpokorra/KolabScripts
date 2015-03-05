@@ -65,12 +65,10 @@ rm -Rf \
     /var/spool/imap \
     /var/spool/postfix
 
-/etc/init.d/rsyslog restart
-
-rm -f epel*rpm
-wget http://mirror.de.leaseweb.net/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
-yum -y localinstall --nogpgcheck epel-release-7-5.noarch.rpm
-rm -f epel*rpm
+if [[ ! $OBS_repo_OS == Fedora* ]]
+then
+  yum -y install epel-release
+fi
 
 # could use environment variable obs=http://my.proxy.org/obs.kolabsys.com 
 # see http://kolab.org/blog/timotheus-pokorra/2013/11/26/downloading-obs-repo-php-proxy-file
@@ -85,9 +83,6 @@ wget $obs/Kolab:/3.4/$OBS_repo_OS/Kolab:3.4.repo -O kolab-3.4.repo
 wget $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/Kolab:3.4:Updates.repo -O kolab-3.4-updates.repo
 cd -
 
-yum install gnupg2
-# manually: gpg --search devel@lists.kolab.org
-gpg --import key/devel\@lists.kolab.org.asc
 rpm --import key/devel\@lists.kolab.org.asc
 
 # add priority = 0 to kolab repo files
