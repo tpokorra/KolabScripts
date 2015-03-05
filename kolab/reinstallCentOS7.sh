@@ -65,9 +65,12 @@ rm -Rf \
     /var/spool/imap \
     /var/spool/postfix
 
-/etc/init.d/rsyslog restart
-
-yum -y install epel-release yum-utils gnupg2
+if [[ ! $OBS_repo_OS == Fedora* ]]
+then
+  yum -y install epel-release yum-utils
+else
+  yum -y install yum-utils
+fi
 
 # could use environment variable obs=http://my.proxy.org/obs.kolabsys.com 
 # see http://kolab.org/blog/timotheus-pokorra/2013/11/26/downloading-obs-repo-php-proxy-file
@@ -82,8 +85,6 @@ yum-config-manager --add-repo $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/Kolab:3.4:Up
 yum-config-manager --add-repo $obs/Kolab:/Development/$OBS_repo_OS/Kolab:Development.repo
 yum-config-manager --add-repo https://download.solidcharity.com/repos/tbits.net/kolab-nightly/centos/7/lbs-tbits.net-kolab-nightly.repo
 
-# manually: gpg --search devel@lists.kolab.org
-gpg --import key/devel\@lists.kolab.org.asc
 rpm --import key/devel\@lists.kolab.org.asc
 
 # install the key for the nightly packages built on LBS

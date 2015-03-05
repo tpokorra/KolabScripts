@@ -12,23 +12,29 @@ then
   else
     ./reinstallCentOS.sh CentOS_6
   fi
-else
-  if [ -f /etc/lsb-release ]
+elif [ -f /etc/redhat-release ]
+then
+  release=`cat /etc/redhat-release`
+  if [[ $release == Fedora\ release\ 21\ * ]]
   then
-    . /etc/lsb-release
-    if [ $DISTRIB_ID == "Ubuntu" -a $DISTRIB_CODENAME == "precise" ]
-    then
-      ./reinstallDebianUbuntu.sh Ubuntu_12.04
-    elif [ $DISTRIB_ID == "Ubuntu" -a $DISTRIB_CODENAME == "trusty" ]
-    then
-      ./reinstallDebianUbuntu.sh Ubuntu_14.04
-    fi
-  else
-    if [ -f /etc/debian_version ]
-    then
-      ./reinstallDebianUbuntu.sh Debian_7.0
-    fi
-  fi 
+    ./reinstallCentOS7.sh Fedora_21
+  elif [[ $release == Fedora\ release\ 20\ * ]]
+  then
+    ./reinstallCentOS7.sh Fedora_20
+  fi
+elif [ -f /etc/lsb-release ]
+then
+  . /etc/lsb-release
+  if [ $DISTRIB_ID == "Ubuntu" -a $DISTRIB_CODENAME == "precise" ]
+  then
+    ./reinstallDebianUbuntu.sh Ubuntu_12.04
+  elif [ $DISTRIB_ID == "Ubuntu" -a $DISTRIB_CODENAME == "trusty" ]
+  then
+    ./reinstallDebianUbuntu.sh Ubuntu_14.04
+  fi
+elif [ -f /etc/debian_version ]
+then
+    ./reinstallDebianUbuntu.sh Debian_7.0
 fi
 
 if [ $? -ne 0 ]
