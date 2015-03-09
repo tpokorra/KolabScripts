@@ -112,3 +112,7 @@ apt-get update
 apt-get -y install aptitude
 aptitude -y install kolab kolab-freebusy
 
+# somehow apache has died and would not restart. probably related to https://issues.kolab.org/show_bug.cgi?id=2050
+service apache2 stop
+killall -9 apache2.prefork
+service apache2 start
