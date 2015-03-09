@@ -18,7 +18,7 @@ diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
 index 5f3f406..aafe618 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -417,6 +417,35 @@ class LDAP extends Net_LDAP3 {
+@@ -417,6 +417,33 @@ class LDAP extends Net_LDAP3 {
          return $quota;
      }
  
@@ -31,8 +31,7 @@ index 5f3f406..aafe618 100644
 +            // get all users that are part of this domain
 +            $users_result = $this->search(
 +                               $this->_standard_root_dn($domain),
-+                               "objectclass=kolabinetorgperson",
-+                               array($this->conf->get("quota_attribute")));
++                               "objectclass=kolabinetorgperson");
 +            if ($users_result != null && count($users_result) > 0) {
 +               $users = $users_result->entries(true);
 +               $numberOfAccounts += count($users);
@@ -40,8 +39,7 @@ index 5f3f406..aafe618 100644
 +            // substract the domainadmin users
 +            $users_result = $this->search(
 +                               $this->_standard_root_dn($domain),
-+                               "objectclass=tbitskolabdomainadmin",
-+                               array($this->conf->get("quota_attribute")));
++                               "objectclass=tbitskolabdomainadmin");
 +            if ($users_result != null && count($users_result) > 0) {
 +               $users = $users_result->entries(true);
 +               $numberOfAccounts -= count($users);
@@ -73,7 +71,7 @@ index 79dcb59..1cbce61 100644
 +        $conf = Conf::get_instance();
 +
 +        // get domain admin for the current domain, and the mailquota of the domain admin
-+        $domaindetails = array_shift(array_values($auth->domain_info($_SESSION['user']->get_domain(), array('domainadmin'))));
++        $domaindetails = array_shift(array_values($auth->domain_info($_SESSION['user']->get_domain())));
 +        $domainadmins = $domaindetails['domainadmin'];
 +        unset($domainadminmaxaccounts);
 +        if (isset($domaindetails['domainadmin'])) {
