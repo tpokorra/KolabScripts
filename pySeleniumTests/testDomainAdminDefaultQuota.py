@@ -45,7 +45,7 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         # write current page for debugging purposes
         self.kolabWAPhelper.log_current_page()
         
-        self.driver.close()
+        self.driver.quit()
 
 if __name__ == "__main__":
     unittest.main()
