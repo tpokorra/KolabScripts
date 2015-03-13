@@ -46,4 +46,35 @@ if [[ "$tests" == "all" || "$tests" == "domainadmin" ]]; then
   ./testLastLogin.py || hasError=1
 fi
 
+# check if kolab sync runs without error
+if [[ "$tests" == "all" || "$tests" == "kolabsync" ]]; then
+  if [ -f /bin/systemctl ]
+  then
+    /bin/systemctl stop kolabd.service
+  elif [ -f /sbin/service ]
+  then
+    service kolabd stop
+  elif [ -f /usr/sbin/service ]
+  then
+    service kolab-server stop
+  fi
+
+  kolab -d 9 sync 2>&1 | tee kolab-sync.log
+  if [[ "`cat kolab-sync.log | grep UnicodeDecodeError`" != "" ]]
+  then
+    hasError=1
+  fi
+
+  if [ -f /bin/systemctl ]
+  then
+    /bin/systemctl start kolabd.service
+  elif [ -f /sbin/service ]
+  then
+    service kolabd start
+  elif [ -f /usr/sbin/service ]
+  then
+    service kolab-server start
+  fi
+fi
+
 exit $hasError
