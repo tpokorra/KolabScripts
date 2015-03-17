@@ -17,7 +17,12 @@ sed -r -i -e "s#\[ldap\]#[ldap]\nmodifytimestamp_format = %%Y%%m%%d%%H%%M%%SZ#g"
 
 # set in /etc/sysconfig/dirsrv: ulimit -n 32192, to avoid dirsrv crashing because of too many open files
 sed -r -i -e "s/# ulimit -n 8192/ulimit -n 32192/g" /etc/sysconfig/dirsrv
-service dirsrv restart
+if [ -f /bin/systemctl ]
+then
+  /bin/systemctl restart dirsrv.target && sleep 10
+else
+  service dirsrv restart
+fi
 
 # disable debug mode in LDAP.php to avoid too much output
 sed -r -i -e 's/config_set\("debug", true\)/config_set("debug", false)/g' /usr/share/kolab-webadmin/lib/Auth/LDAP.php
