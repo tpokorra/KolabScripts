@@ -85,7 +85,8 @@ yum-config-manager --add-repo $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/Kolab:3.4:Up
 yum-config-manager --add-repo $obs/Kolab:/Development/$OBS_repo_OS/Kolab:Development.repo
 yum-config-manager --add-repo https://download.solidcharity.com/repos/tbits.net/kolab-nightly/centos/7/lbs-tbits.net-kolab-nightly.repo
 
-rpm --import key/devel\@lists.kolab.org.asc
+# install key http://keyserver.ubuntu.com/pks/lookup?op=vindex&search=devel%40lists.kolab.org&fingerprint=on
+rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x830C2BCF446D5A45"
 
 # install the key for the nightly packages built on LBS
 rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&fingerprint=on&search=0x4796B710919684AC"
