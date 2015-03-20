@@ -59,6 +59,7 @@ fi
 echo "    or unattended: echo 2 | setup-kolab --default --timezone=$ZONE --directory-manager-pwd=test"
 h=`hostname`
 echo "   ./initHttpTunnel.sh"
+#echo "   ./initIMAPProxy.sh"
 echo "   ./initSSL.sh "${h:`expr index $h .`}
 #echo "   ./initRoundcubePlugins.sh"
 echo "   ./initMultiDomain.sh"
