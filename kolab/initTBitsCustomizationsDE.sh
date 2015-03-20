@@ -63,6 +63,9 @@ sed -r -i -e "s#// Re-apply mandatory settings here.#// Re-apply mandatory setti
 # disable files component for all users
 # sed -r -i -e "s/'kolab_files',/#'kolab_files',/g" /etc/roundcubemail/config.inc.php
 
+# change default sorting order in Roundcube Mail list: sort by emails on arrival time
+sed -r -i -e "s/config\['message_sort_col'\] = 'date'/config['message_sort_col'] = 'arrival'/g" /etc/roundcubemail/config.inc.php
+
 # remove personal calender from kolab.conf
 rm -f /etc/kolab/kolab.conf.new
 skip=0
