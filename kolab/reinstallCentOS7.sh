@@ -1,6 +1,6 @@
 #!/bin/bash
 # this script will remove Kolab, and DELETE all YOUR data!!!
-# it will reinstall Kolab, from Kolab 3.3 Updates
+# it will reinstall Kolab, from Kolab Development
 # you can optionally install the patches from TBits, see bottom of script reinstall.sh
 
 #check that dirsrv will have write permissions to /dev/shm
@@ -34,7 +34,7 @@ systemctl stop wallace
 systemctl stop httpd
 systemctl stop mariadb
 
-yum -y remove 389\* cyrus-imapd\* postfix\* mariadb-server\* roundcube\* pykolab\* kolab\* libkolab\* libcalendaring\* kolab-3\* httpd php-Net-LDAP3
+yum -y remove 389\* cyrus-imapd\* postfix\* mariadb-server\* roundcube\* pykolab\* kolab\* libkolab\* libcalendaring\* kolab-3\* httpd php-Net-LDAP3 up-imapproxy nginx stunnel
 
 echo "deleting files..."
 rm -Rf \
