@@ -54,6 +54,9 @@ sed -r -i -e "s#'Notes'#'Notizen'#g" /etc/kolab/kolab.conf
 # change default language
 sed -r -i -e "s#// Re-apply mandatory settings here.#// Re-apply mandatory settings here.\n    \$config['locale_string'] = 'de';#g" /etc/roundcubemail/config.inc.php
 
+# don't allow the user to change the skin
+sed -r -i -e "s#// Re-apply mandatory settings here.#// Re-apply mandatory settings here.\n    \$config['dont_override'] = 'skin';#g" /etc/roundcubemail/config.inc.php
+
 # make Kalender and Kontakte default folders in roundcube, so that they get subscribed automatically
 #sed -r -i -e "s#'INBOX', 'Drafts', 'Sent', 'Spam', 'Trash'#'INBOX', 'Drafts', 'Sent', 'Spam', 'Trash', 'Kalender', 'Kontakte'#g" /etc/roundcubemail/config.inc.php
 # enable plugin subscriptions_options (disabled, it does not seem to exist anymore)
