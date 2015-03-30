@@ -11,6 +11,12 @@ then
 	exit 1
 fi
 
+if [[ "`sestatus | grep disabled`" == "" ]];
+then
+	echo "SELinux is active, please disable SELinux first"
+        exit 1
+fi
+
 echo "this script will remove Kolab, and DELETE all YOUR data!!!"
 read -p "Are you sure? Type y or Ctrl-C " -r
 echo 
