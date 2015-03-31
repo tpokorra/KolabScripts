@@ -483,12 +483,14 @@ index a48d44a..16475db 100644
      private function validate_mailalternateaddress($value, $postdata = array(), $validation_type = null)
      {
          $conf = Conf::get_instance();
-@@ -1507,6 +1556,19 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1507,6 +1556,21 @@ class kolab_api_service_form_value extends kolab_api_service
          if (in_array($email_domain, $valid_domains)) {
              $valid = true;
          }
 +        
 +        if (!$valid) {
++            $auth = Auth::get_instance();
++
 +            // check if domain of the email address is maintained by the same domain admin as the currently selected domain
 +            // get the domain admin of the currently selected domain
 +            $result = $auth->domainadmin_get_configuration($_SESSION['user']->get_domain(), 'uid');
