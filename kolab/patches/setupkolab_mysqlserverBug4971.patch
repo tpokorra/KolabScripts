@@ -1,0 +1,51 @@
+From e008709c6abf514b4e4e4e0775a179edcf911589 Mon Sep 17 00:00:00 2001
+From: Timotheus Pokorra <tp@tbits.net>
+Date: Mon, 13 Apr 2015 11:30:37 +0200
+Subject: [PATCH 2/2] implementing --mysqlserver parameter for setup-kolab to
+ specify if a new or existing MySQL server should be
+ used (#4971) this is useful for silent/unattended
+ installs
+
+---
+ pykolab/setup/setup_mysql.py |   18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
+
+diff --git a/pykolab/setup/setup_mysql.py b/pykolab/setup/setup_mysql.py
+index 174cbc7..460a4d5 100644
+--- a/pykolab/setup/setup_mysql.py
++++ b/pykolab/setup/setup_mysql.py
+@@ -35,6 +35,16 @@ conf = pykolab.getConf()
+ def __init__():
+     components.register('mysql', execute, description=description())
+ 
++def cli_options():
++    ldap_group = conf.add_cli_parser_option_group(_("MySQL Options"))
++
++    ldap_group.add_option(
++            "--mysqlserver",
++            dest    = "mysqlserver",
++            action  = "store",
++            help    = _("Specify whether to use an (existing) or (new) MySQL server.")
++        )
++
+ def description():
+     return _("Setup MySQL.")
+ 
+@@ -73,7 +83,13 @@ def execute(*args, **kw):
+             os.path.exists('/var/run/mysqld/mysqld.sock') or \
+             os.path.exists('/var/run/mysql/mysql.sock') or \
+             os.path.exists('/var/run/mysqld/mysqld.pid'):
+-        answer = utils.ask_menu(_("What MySQL server are we setting up?"), options)
++        if conf.mysqlserver:
++            if conf.mysqlserver == 'existing':
++                answer = 1
++            elif conf.mysqlserver == 'new':
++                answer = 2
++        if answer == 0:
++            answer = utils.ask_menu(_("What MySQL server are we setting up?"), options)
+ 
+     if answer == "1" or answer == 1:
+         print >> sys.stderr, utils.multiline_message(
+-- 
+1.7.9.5
+
