@@ -12,8 +12,8 @@ Subject: [PATCH 2/2] implementing --mysqlserver parameter for setup-kolab to
 
 diff --git a/pykolab/setup/setup_mysql.py b/pykolab/setup/setup_mysql.py
 index 174cbc7..460a4d5 100644
---- a/pykolab/setup/setup_mysql.py
-+++ b/pykolab/setup/setup_mysql.py
+--- a/setup/setup_mysql.py
++++ b/setup/setup_mysql.py
 @@ -35,6 +35,16 @@ conf = pykolab.getConf()
  def __init__():
      components.register('mysql', execute, description=description())
