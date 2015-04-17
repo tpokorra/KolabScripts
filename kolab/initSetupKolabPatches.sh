@@ -55,3 +55,8 @@ then
 
 #      sed -i -e "s~</VirtualHost>~$newConfigLines</VirtualHost>~" /etc/apache2/sites-enabled/000-default
 fi
+
+
+# will go soon upstream:
+echo "applying wap-password-complexity-policy-bug4988.patch"
+patch -p1 -i `pwd`/patches/wap-password-complexity-policy-bug4988.patch -d /usr/share/kolab-webadmin

@@ -95,6 +95,9 @@ done < /etc/kolab/kolab.conf
 IFS=$OIFS
 mv /etc/kolab/kolab.conf.new /etc/kolab/kolab.conf
 
+# enable password complexity policy
+sed -r -i -e 's#\[kolab\]#[kolab]\npassword_policy = {"minLength" : 15, "minUpper"  : 3, "minLower"  : 1, "minNumeric" : 1, "minSpecial" : 1, "specialChars" : "<>\#\&%!?.,;*/+-=[]{}()"}#g' /etc/kolab/kolab.conf
+
 service kolabd start
 service kolab-saslauthd start
 
