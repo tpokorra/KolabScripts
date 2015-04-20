@@ -49,6 +49,10 @@ patch -p2 -i `pwd`/patches/kolabsyncBug3975.patch -d $pythonDistPackages/pykolab
 echo "applying patch for waiting after restart of dirsrv (necessary on Debian)"
 patch -p1 -i `pwd`/patches/setupKolabSleepDirSrv.patch -d $pythonDistPackages || exit -1
 
+# backported from upstream master:
+echo "applying wap-password-complexity-policy-bug4988.patch"
+patch -p1 -i `pwd`/patches/wap-password-complexity-policy-bug4988.patch -d /usr/share/kolab-webadmin
+
 # TODO on Debian, we need to install the rewrite for the csrf token
 if [ -f /etc/apache2/sites-enabled/000-default ]
 then
