@@ -32,18 +32,11 @@ if [ ! -d $pythonDistPackages ]; then
   fi
 fi
 
-echo "applying setupkolab_directory_manager_pwdBug2645.patch"
-patch -p1 -i `pwd`/patches/setupkolab_directory_manager_pwdBug2645.patch -d $pythonDistPackages || exit -1
-
-if [ -f /usr/lib/cyrus-imapd/cvt_cyrusdb_all ]
-then
-  echo "temporary fixes for Cyrus stop script"
-  patch -p1 -d /usr/lib/cyrus-imapd -i `pwd`/patches/fixcyrusstop.patch || exit -1
-fi
-echo "applying kolabsyncBug3975.patch to $pythonDistPackages/pykolab"
-patch -p2 -i `pwd`/patches/kolabsyncBug3975.patch -d $pythonDistPackages/pykolab || exit -1
-echo "applying patch for waiting after restart of dirsrv (necessary on Debian)"
-patch -p1 -i `pwd`/patches/setupKolabSleepDirSrv.patch -d $pythonDistPackages || exit -1
+# TODO: see if we still need these patches
+#echo "applying kolabsyncBug3975.patch to $pythonDistPackages/pykolab"
+#patch -p2 -i `pwd`/patches/kolabsyncBug3975.patch -d $pythonDistPackages/pykolab || exit -1
+#echo "applying patch for waiting after restart of dirsrv (necessary on Debian)"
+#patch -p1 -i `pwd`/patches/setupKolabSleepDirSrv.patch -d $pythonDistPackages || exit -1
 
 # TODO on Debian, we need to install the rewrite for the csrf token
 if [ -f /etc/apache2/sites-enabled/000-default ]
