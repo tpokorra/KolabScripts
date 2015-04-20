@@ -155,8 +155,6 @@ then
   mkdir -p patches
   echo Downloading patch validateAliasDomainPostfixVirtualFileBug2658.patch
   wget $patchesurl/validateAliasDomainPostfixVirtualFileBug2658.patch -O patches/validateAliasDomainPostfixVirtualFileBug2658.patch
-  echo Downloading patch problemSyncMultiDomainBug3197.patch
-  wget $patchesurl/problemSyncMultiDomainBug3197.patch -O patches/problemSyncMultiDomainBug3197.patch
 fi
 
 # different paths in debian and centOS
