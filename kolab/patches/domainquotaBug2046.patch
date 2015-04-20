@@ -1,8 +1,8 @@
 diff --git a/lib/Auth.php b/lib/Auth.php
-index 37885be..53c1d8d 100644
+index 443cabd..f68f32f 100644
 --- a/lib/Auth.php
 +++ b/lib/Auth.php
-@@ -231,6 +231,11 @@ class Auth {
+@@ -233,6 +233,11 @@ class Auth {
          return $this->auth_instance()->domainadmin_get_configuration($domain, $variablename);
      }
  
@@ -15,10 +15,10 @@ index 37885be..53c1d8d 100644
      {
          return $this->auth_instance()->find_recipient($address);
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index 6ad01c3..5f3f406 100644
+index 4e3dbdd..08b732b 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -392,6 +392,31 @@ class LDAP extends Net_LDAP3 {
+@@ -397,6 +397,31 @@ class LDAP extends Net_LDAP3 {
          return $domain_dn;
      }
  
@@ -51,10 +51,10 @@ index 6ad01c3..5f3f406 100644
      {
          $domain = $this->domain_info($domain, array_keys($attributes));
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
-index 16475db..660c6eb 100644
+index 0d47610..aeba937 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1239,7 +1239,72 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1372,7 +1372,72 @@ class kolab_api_service_form_value extends kolab_api_service
  
      private function validate_mailquota($value, $postdata = array(), $validation_type = null)
      {
@@ -128,9 +128,11 @@ index 16475db..660c6eb 100644
      }
  
      private function validate_tbitskolaboverallquota($value, $postdata = array(), $validation_type = null)
---- a/public_html/js/kolab_admin.js	2014-02-11 11:37:44.000000000 +0100
-+++ b/public_html/js/kolab_admin.js	2014-07-11 14:44:12.623960515 +0200
-@@ -819,6 +819,8 @@
+diff --git a/public_html/js/kolab_admin.js b/public_html/js/kolab_admin.js
+index c7af191..fe98689 100644
+--- a/public_html/js/kolab_admin.js
++++ b/public_html/js/kolab_admin.js
+@@ -819,6 +819,8 @@ function kolab_admin()
        var unit = $('select[name="' + this.name + '-unit"]').val();
        if (unit && this.value)
          data.json[this.name] = this.value + unit;

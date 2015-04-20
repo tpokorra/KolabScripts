@@ -1,10 +1,10 @@
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index aafe618..abd33eb 100644
+index 96bda9f..ae8642b 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -251,6 +251,10 @@ class LDAP extends Net_LDAP3 {
-              $self_attrs = array_merge($self_attrs, array('kolabDelegate', 'kolabInvitationPolicy', 'kolabAllowSMTPSender'));
+@@ -252,6 +252,10 @@ class LDAP extends Net_LDAP3 {
          }
+         $admin_readonly_attrs = array("tbitsKolabMaxAccounts", "tbitsKolabOverallQuota");
  
 +        if (in_array('tbitsKolabUser', $this->classes_allowed())) {
 +            $self_attrs = array_merge($self_attrs, array('tbitsKolabLastLogin'));
@@ -14,19 +14,19 @@ index aafe618..abd33eb 100644
          $dn      = $inetdomainbasedn;
          $cn      = str_replace(array(',', '='), array('\2C', '\3D'), $dn);
 diff --git a/lib/client/kolab_client_task_settings.php b/lib/client/kolab_client_task_settings.php
-index 9a23161..1f16029 100644
+index 19b23e6..18c8f96 100644
 --- a/lib/client/kolab_client_task_settings.php
 +++ b/lib/client/kolab_client_task_settings.php
-@@ -34,6 +34,7 @@ class kolab_client_task_settings extends kolab_client_task
+@@ -33,6 +33,7 @@ class kolab_client_task_settings extends kolab_client_task
+ 
      protected $form_element_types = array(
          'text', 'text-separated', 'text-quota', 'text-autocomplete',
 +        'text-unixtimestamp',
          'select', 'multiselect',
          'list', 'list-autocomplete', 'checkbox', 'password', 'ldap_url',
          'aci', 'imap_acl',
-     );
 diff --git a/lib/client/kolab_client_task_user.php b/lib/client/kolab_client_task_user.php
-index c5d71d9..4739dcd 100644
+index 1155ebd..2976637 100644
 --- a/lib/client/kolab_client_task_user.php
 +++ b/lib/client/kolab_client_task_user.php
 @@ -89,6 +89,7 @@ class kolab_client_task_user extends kolab_client_task
@@ -47,10 +47,10 @@ index c5d71d9..4739dcd 100644
              'uid'                       => 'system',
              'userpassword'              => 'system',
 diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
-index 813fa02..e8f4d0f 100644
+index 5206a50..dfd51e1 100644
 --- a/lib/kolab_client_task.php
 +++ b/lib/kolab_client_task.php
-@@ -892,6 +892,10 @@ class kolab_client_task
+@@ -877,6 +877,10 @@ class kolab_client_task
              }
              break;
  
@@ -62,17 +62,18 @@ index 813fa02..e8f4d0f 100644
              $result['type']    = kolab_form::INPUT_TEXTQUOTA;
              $result['default'] = $field['default'];
 diff --git a/lib/kolab_form.php b/lib/kolab_form.php
-index 1c26be7..7fb2bf7 100644
+index 9ebf900..19dd653 100644
 --- a/lib/kolab_form.php
 +++ b/lib/kolab_form.php
-@@ -40,5 +40,6 @@ class kolab_form
+@@ -39,6 +39,7 @@ class kolab_form
+     const INPUT_CUSTOM   = 10;
      const INPUT_CONTENT  = 20;
      const INPUT_TEXTQUOTA = 30;
 +    const INPUT_TEXTUNIXTIMESTAMP = 40;
  
      private $attribs  = array();
      private $elements = array();
-@@ -282,6 +283,11 @@ class kolab_form
+@@ -281,6 +282,11 @@ class kolab_form
              $content = kolab_html::inputquota($attribs);
              break;
  
@@ -85,10 +86,10 @@ index 1c26be7..7fb2bf7 100644
              $attribs['type'] = 'checkbox';
              $content = kolab_html::input($attribs);
 diff --git a/lib/kolab_html.php b/lib/kolab_html.php
-index 8a9243f..1585111 100644
+index 2317bd0..0438b96 100644
 --- a/lib/kolab_html.php
 +++ b/lib/kolab_html.php
-@@ -206,6 +206,28 @@ class kolab_html
+@@ -205,6 +205,28 @@ class kolab_html
      }
  
      /**
@@ -118,22 +119,21 @@ index 8a9243f..1585111 100644
       *
       * @param array $attribs  Element attributes
 diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
-index 1609cc3..e806293 100644
+index 46bc48e..314058d 100644
 --- a/lib/locale/de_DE.php
 +++ b/lib/locale/de_DE.php
-@@ -448,5 +448,7 @@
- $LANG['domain.domainadmin'] = 'Administratoren für diese Domain';
+@@ -455,4 +455,6 @@ $LANG['domain.domainadmin'] = 'Administratoren für diese Domain';
  $LANG['user.tbitskolabmaxaccounts'] = 'Maximale Anzahl von Benutzerkonten';
  $LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
  $LANG['user.tbitskolabdefaultquota'] = 'Voreinstellung Quota für Benutzerkonten';
 +$LANG['user.statistics'] = 'Info';
 +$LANG['user.tbitskolablastlogin'] = 'Letzte erfolgreiche Anmeldung';
-
+ 
 diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
-index fbb51c9..4bf06d3 100644
+index c8f30f4..40feaba 100644
 --- a/lib/locale/en_US.php
 +++ b/lib/locale/en_US.php
-@@ -424,12 +424,14 @@ $LANG['user.postcode'] = 'Postal code';
+@@ -436,12 +436,14 @@ $LANG['user.postcode'] = 'Postal code';
  $LANG['user.preferredlanguage'] = 'Native tongue';
  $LANG['user.room'] = 'Room number';
  $LANG['user.sn'] = 'Surname';
