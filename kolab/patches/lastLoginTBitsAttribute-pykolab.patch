@@ -1,7 +1,7 @@
-diff --git a/pykolab/auth/ldap/__init__.py b/pykolab/auth/ldap/__init__.py
-index c0c3297..0bfcac7 100644
---- a/pykolab/auth/ldap/__init__.py
-+++ b/pykolab/auth/ldap/__init__.py
+diff --git a/auth/ldap/__init__.py b/auth/ldap/__init__.py
+index dd477ef..535d360 100644
+--- a/auth/ldap/__init__.py
++++ b/auth/ldap/__init__.py
 @@ -220,6 +220,12 @@ class LDAP(pykolab.base.Base):
                  # to True!!
                  self.ldap.simple_bind_s(entry_dn, login[1])
@@ -15,10 +15,10 @@ index c0c3297..0bfcac7 100644
                  try:
                      auth_cache.set_entry(_filter, entry_dn)
                  except Exception, errmsg:
-diff --git a/pykolab/auth/ldap/auth_cache.py b/pykolab/auth/ldap/auth_cache.py
-index 831e444..d1c6057 100644
---- a/pykolab/auth/ldap/auth_cache.py
-+++ b/pykolab/auth/ldap/auth_cache.py
+diff --git a/auth/ldap/auth_cache.py b/auth/ldap/auth_cache.py
+index 8c14592..58375df 100644
+--- a/auth/ldap/auth_cache.py
++++ b/auth/ldap/auth_cache.py
 @@ -53,6 +53,7 @@ log = pykolab.getLogger('pykolab.auth_cache')
  metadata = MetaData()
  

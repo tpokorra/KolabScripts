@@ -1,6 +1,8 @@
---- a/pykolab/auth/ldap/cache.py	2014-07-15 16:31:04.639728896 +0200
-+++ b/pykolab/auth/ldap/cache.py	2014-07-15 16:35:48.239728529 +0200
-@@ -52,7 +52,7 @@
+diff --git a/auth/ldap/cache.py b/auth/ldap/cache.py
+index 07c3d28..02c3831 100644
+--- a/auth/ldap/cache.py
++++ b/auth/ldap/cache.py
+@@ -52,7 +52,7 @@ log = pykolab.getLogger('pykolab.auth_cache')
  
  metadata = MetaData()
  
@@ -9,7 +11,7 @@
  
  ##
  ## Classes
-@@ -165,8 +165,8 @@
+@@ -165,8 +165,8 @@ def init_db(domain,reinit=False):
      """
      global db
  
@@ -20,8 +22,8 @@
  
      if reinit:
          import os
-@@ -180,9 +180,9 @@
-     metadata.create_all(engine)
+@@ -184,9 +184,9 @@ def init_db(domain,reinit=False):
+         metadata.create_all(engine)
  
      Session = sessionmaker(bind=engine)
 -    db = Session()
@@ -31,4 +33,4 @@
 +    return db[domain]
  
  def last_modify_timestamp(domain):
-     db = init_db(domain)
+     modifytimestamp_format = conf.get_raw('ldap', 'modifytimestamp_format')
