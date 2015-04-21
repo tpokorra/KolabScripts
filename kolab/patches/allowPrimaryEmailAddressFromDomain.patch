@@ -1,7 +1,7 @@
-diff --git a/auth/ldap/__init__.py b/auth/ldap/__init__.py
+diff --git a/pykolab/auth/ldap/__init__.py b/pykolab/auth/ldap/__init__.py
 index 535d360..1b6a5a8 100644
---- a/auth/ldap/__init__.py
-+++ b/auth/ldap/__init__.py
+--- a/pykolab/auth/ldap/__init__.py
++++ b/pykolab/auth/ldap/__init__.py
 @@ -727,7 +727,10 @@ class LDAP(pykolab.base.Base):
              entry['preferredlanguage'] = conf.get('kolab', 'default_locale')
  
