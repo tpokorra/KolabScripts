@@ -1,7 +1,7 @@
-diff --git a/auth/ldap/cache.py b/auth/ldap/cache.py
+diff --git a/pykolab/auth/ldap/cache.py b/pykolab/auth/ldap/cache.py
 index 07c3d28..02c3831 100644
---- a/auth/ldap/cache.py
-+++ b/auth/ldap/cache.py
+--- a/pykolab/auth/ldap/cache.py
++++ b/pykolab/auth/ldap/cache.py
 @@ -52,7 +52,7 @@ log = pykolab.getLogger('pykolab.auth_cache')
  
  metadata = MetaData()
