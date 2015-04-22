@@ -95,6 +95,12 @@ done < /etc/kolab/kolab.conf
 IFS=$OIFS
 mv /etc/kolab/kolab.conf.new /etc/kolab/kolab.conf
 
+# enable password complexity policy
+sed -r -i -e 's#\[kolab\]#[kolab]\npassword_policy = {"minLength" : 10, "minUpper"  : 1, "minLower"  : 1, "minNumeric" : 1, "minSpecial" : 1, "specialChars" : "<>\#\&%!?.,;*/+-=[]{}()"}#g' /etc/kolab/kolab.conf
+sed -r -i -e "s#config\['password_confirm_current'\].*#config['password_confirm_current'] = true;#g" /usr/share/roundcubemail/plugins/password/config.inc.php
+sed -r -i -e "s#config\['password_minimum_length'\].*#config['password_minimum_length'] = 10;#g" /usr/share/roundcubemail/plugins/password/config.inc.php
+sed -r -i -e "s#config\['password_require_nonalpha'\].*#config['password_require_nonalpha'] = true;#g" /usr/share/roundcubemail/plugins/password/config.inc.php
+
 service kolabd start
 service kolab-saslauthd start
 
