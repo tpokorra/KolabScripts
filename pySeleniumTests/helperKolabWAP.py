@@ -624,7 +624,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.wait_loading(5)
         if emailSubjectLine is not None:
            elem = wait.until(EC.visibility_of_element_located(
-                      (By.XPATH, "//h2[@class='subject'][text()='" + emailSubjectLine + "']")),
+                      (By.XPATH, "//td[@class='subject']/a/span[text()='" + emailSubjectLine + "']")),
                    "the first email does not have the subject " + emailSubjectLine)
         if emailSubjectLineDoesNotContain is not None:
            try:
