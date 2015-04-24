@@ -366,13 +366,13 @@ diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_servic
 index a48d44a..16475db 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1031,6 +1031,81 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1031,6 +1031,82 @@ class kolab_api_service_form_value extends kolab_api_service
          );
      }
  
 +    /**
 +     * get the users that are domainadmins.
-+     * We assume: all users of type Domain Administrator, plus the Directory Manager
++     * We assume: all users with attribute tbitskolabisdomainadmin set, plus the Directory Manager
 +     */
 +    private function list_options_domainadmin($postdata, $attribs = array())
 +    {
@@ -382,6 +382,7 @@ index a48d44a..16475db 100644
 +        $all_domains   = $all_domains['list'];
 +        $dna           = $conf->get('domain_name_attribute');
 +        $_domainadmins = array();
++        $domainAdminFilter = '(&(objectclass=tbitsKolabUser)(tbitskolabisdomainadmin=True))';
 +
 +        if (!empty($postdata['list'])) {
 +            foreach ($all_domains as $domain_id => $domain_attrs) {
@@ -398,7 +399,7 @@ index a48d44a..16475db 100644
 +                $domainadmin_dn = "dc=" . implode(',dc=', explode('.', $domain_attrs[$dna][0]));
 +                $auth = Auth::get_instance($domainadmin_dn);
 +
-+                if ($domainadmins = $auth->search($domainadmin_dn, '(objectclass=tbitsKolabDomainAdmin)', 'sub', array('dn', 'displayname', 'mail'))) {
++                if ($domainadmins = $auth->search($domainadmin_dn, $domainAdminFilter, 'sub', array('dn', 'displayname', 'mail'))) {
 +                    foreach ($domainadmins->entries(true) as $domainadmin_dn => $domainadmin_attrs) {
 +                        $ret = $domainadmin_attrs['displayname'];
 +                        if (!empty($domainadmin_attrs['mail'])) {
@@ -427,7 +428,7 @@ index a48d44a..16475db 100644
 +            $domainadmin_dn = "dc=" . implode(',dc=', explode('.', $domain_attrs[$dna][0]));
 +            $auth = Auth::get_instance($domainadmin_dn);
 +
-+            if ($domainadmins = $auth->search($domainadmin_dn, '(objectclass=tbitsKolabDomainAdmin)', 'sub', array('dn', 'displayname', 'mail'))) {
++            if ($domainadmins = $auth->search($domainadmin_dn, $domainAdminFilter, 'sub', array('dn', 'displayname', 'mail'))) {
 +                foreach ($domainadmins->entries(true) as $domainadmin_dn => $domainadmin_attrs) {
 +                    $ret = $domainadmin_attrs['displayname'];
 +                    if (!empty($domainadmin_attrs['mail'])) {
@@ -529,7 +530,7 @@ index 5c23e8a..d424801 100644
              );
          }
  
-+        // load all domain admins, ie. all users from the default domain
++        // load all domain admins
 +        $param = array();
 +        $param['attributes'] = array('domainadmin');
 +        $resp = $this->api_post('form_value.select_options', null, $param);
@@ -565,10 +566,11 @@ index 6d51754..c5d71d9 100644
              'asterisk'      => 'user.asterisk',
              'other'         => 'user.other',
          );
-@@ -143,6 +144,9 @@ class kolab_client_task_user extends kolab_client_task
+@@ -143,6 +144,10 @@ class kolab_client_task_user extends kolab_client_task
              'kolabhomeserver'           => 'config',
              'mailhost'                  => 'config',
              'mailquota'                 => 'config',
++            'tbitskolabisdomainadmin'   => 'domainadmin',
 +            'tbitskolabmaxaccounts'     => 'domainadmin',
 +            'tbitskolaboverallquota'    => 'domainadmin',
 +            'tbitskolabdefaultquota'    => 'domainadmin',
@@ -609,7 +611,7 @@ diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
 index b88e520..1609cc3 100644
 --- a/lib/locale/de_DE.php
 +++ b/lib/locale/de_DE.php
-@@ -442,3 +442,11 @@
+@@ -442,3 +442,12 @@
  $LANG['welcome'] = 'Willkommen bei der Kolab Groupware Server-Wartung';
  
  $LANG['yes'] = 'ja';
@@ -617,6 +619,7 @@ index b88e520..1609cc3 100644
 +$LANG['user.domainadmin'] = 'Domain Administrator';
 +$LANG['domain.admins'] = 'Domain Administratoren';
 +$LANG['domain.domainadmin'] = 'Administratoren für diese Domain';
++$LANG['user.tbitskolabisdomainadmin'] = 'Ist Domain Administrator';
 +$LANG['user.tbitskolabmaxaccounts'] = 'Maximale Anzahl von Benutzerkonten';
 +$LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
 +$LANG['user.tbitskolabdefaultquota'] = 'Voreinstellung Quota für Benutzerkonten';
@@ -646,10 +649,11 @@ index e36977d..fbb51c9 100644
  $LANG['user.edit.success'] = 'User updated successfully.';
  $LANG['user.fax'] = 'Fax number';
  $LANG['user.fbinterval'] = 'Free-Busy interval';
-@@ -424,6 +427,9 @@ $LANG['user.sn'] = 'Surname';
+@@ -424,6 +427,10 @@ $LANG['user.sn'] = 'Surname';
  $LANG['user.street'] = 'Street';
  $LANG['user.system'] = 'System';
  $LANG['user.telephonenumber'] = 'Phone Number';
++$LANG['user.tbitskolabisdomainadmin'] = 'Is Domain Administrator';
 +$LANG['user.tbitskolabmaxaccounts'] = 'Maximum number of accounts';
 +$LANG['user.tbitskolaboverallquota'] = 'Overall Quota assigned';
 +$LANG['user.tbitskolabdefaultquota'] = 'Default Quota for user accounts';
