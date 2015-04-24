@@ -53,7 +53,7 @@ diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_servic
 index 16475db..660c6eb 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1239,7 +1239,72 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1239,7 +1239,71 @@ class kolab_api_service_form_value extends kolab_api_service
  
      private function validate_mailquota($value, $postdata = array(), $validation_type = null)
      {
@@ -75,51 +75,50 @@ index 16475db..660c6eb 100644
 +        if ($quota_attribute == null || strlen($quota_attribute) == 0) {
 +          $quota_attribute = $conf->get('quota_attribute');
 +        }
-+        // check domain admin quota, only for users that are not part of the default domain
-+        if (strtolower($postdata['ou']) != strtolower($conf->get('kolab_user_base_dn'))) {
-+            $auth = Auth::get_instance();
++        // check domain admin quota
++
++        $auth = Auth::get_instance();
 +            
-+            // get the mailquota of the domain admin for the current domain
-+            $result = $auth->domainadmin_get_configuration($_SESSION['user']->get_domain(), $quota_attribute);
++        // get the mailquota of the domain admin for the current domain
++        $result = $auth->domainadmin_get_configuration($_SESSION['user']->get_domain(), $quota_attribute);
 +
-+            if (isset($result)) {
-+                $domainadminquota = $result[$quota_attribute];
++        if (isset($result)) {
++            $domainadminquota = $result[$quota_attribute];
 +
-+                if ($value == 0 && $domainadminquota != 0) {
-+                    throw new Exception('error: You must specify a mailquota for the user. <br/>'.
-+                           'An unlimited mailquota is not permitted for your user because you have a limited overall mailquota.');
++            if ($value == 0 && $domainadminquota != 0) {
++                throw new Exception('error: You must specify a mailquota for the user. <br/>'.
++                      'An unlimited mailquota is not permitted for your user because you have a limited overall mailquota.');
++            }
++
++            $domainadmin = $result['domainadmin'];
++            // get all quotas from all users of that domain admin, excluding this user
++            $quota_used = $auth->domainadmin_get_user_quota($domainadmin, 'uid='.$postdata['uid'].','.$postdata['ou']);
++
++            // check if existing quota plus this new quota would still fit the quota of the domain admin
++            if ($quota_used + $value > $domainadminquota) {
++                $available = $domainadminquota - $quota_used;
++                $domainadminquotaunit = "KB";
++                if ($domainadminquota > 1024) {
++                    $domainadminquota = $domainadminquota / 1024;
++                    $domainadminquotaunit = "MB";
++                }
++                if ($domainadminquota > 1024) {
++                    $domainadminquota = $domainadminquota / 1024;
++                    $domainadminquotaunit = "GB";
++                }
++                $availableunit = "KB";
++                if ($available > 1024) {
++                    $available = $available / 1024;
++                    $availableunit = "MB";
++                }
++                if ($available > 1024) {
++                    $available = $available / 1024;
++                    $availableunit = "GB";
 +                }
 +
-+                $domainadmin = $result['domainadmin'];
-+                // get all quotas from all users of that domain admin, excluding this user
-+                $quota_used = $auth->domainadmin_get_user_quota($domainadmin, 'uid='.$postdata['uid'].','.$postdata['ou']);
-+
-+                // check if existing quota plus this new quota would still fit the quota of the domain admin
-+                if ($quota_used + $value > $domainadminquota) {
-+                    $available = $domainadminquota - $quota_used;
-+                    $domainadminquotaunit = "KB";
-+                    if ($domainadminquota > 1024) {
-+                        $domainadminquota = $domainadminquota / 1024;
-+                        $domainadminquotaunit = "MB";
-+                    }
-+                    if ($domainadminquota > 1024) {
-+                        $domainadminquota = $domainadminquota / 1024;
-+                        $domainadminquotaunit = "GB";
-+                    }
-+                    $availableunit = "KB";
-+                    if ($available > 1024) {
-+                        $available = $available / 1024;
-+                        $availableunit = "MB";
-+                    }
-+                    if ($available > 1024) {
-+                        $available = $available / 1024;
-+                        $availableunit = "GB";
-+                    }
-+
-+                    throw new Exception('error: mailquota of the domain admin has been exceeded. <br/>'.
-+                         'max available: '.$domainadminquota.' '.$domainadminquotaunit.';<br/> '.
-+                         'max available for this user: '.$available.' '.$availableunit);
-+                }
++                throw new Exception('error: mailquota of the domain admin has been exceeded. <br/>'.
++                     'max available: '.$domainadminquota.' '.$domainadminquotaunit.';<br/> '.
++                     'max available for this user: '.$available.' '.$availableunit);
 +            }
 +        }
 +
