@@ -52,6 +52,8 @@ patch -p1 -i `pwd`/patches/setupKolabSleepDirSrv.patch -d $pythonDistPackages ||
 # backported from upstream master:
 echo "applying wap-password-complexity-policy-bug4988.patch"
 patch -p1 -i `pwd`/patches/wap-password-complexity-policy-bug4988.patch -d /usr/share/kolab-webadmin
+echo "applying backport_checkbox_value_bug4815.patch"
+patch -p1 -i `pwd`/patches/backport_checkbox_value_bug4815.patch -d /usr/share/kolab-webadmin
 
 # TODO on Debian, we need to install the rewrite for the csrf token
 if [ -f /etc/apache2/sites-enabled/000-default ]

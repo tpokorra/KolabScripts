@@ -1,0 +1,12 @@
+diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
+index f521d17..4425303 100644
+--- a/lib/kolab_client_task.php
++++ b/lib/kolab_client_task.php
+@@ -1413,6 +1413,7 @@ class kolab_client_task
+ 
+                 if ($field['type'] == kolab_form::INPUT_CHECKBOX && !isset($field['checked'])) {
+                     $field['checked'] = $field['value'] == 'TRUE';
++                    $field['value'] = 'TRUE';
+                 }
+ /*
+                 if (!empty($field['suffix'])) {
