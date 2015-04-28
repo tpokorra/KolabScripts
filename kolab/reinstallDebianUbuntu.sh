@@ -106,6 +106,10 @@ apt-key add Release.key; rm -rf Release.key
 wget $obs/home:/tpokorra:/branches:/Kolab:/Development/$OBS_repo_OS/Release.key
 apt-key add Release.key; rm -rf Release.key
 
+# install the key for the nightly packages from lbs.solidcharity.com
+wget "http://keyserver.ubuntu.com/pks/lookup?op=get&fingerprint=on&search=0x4796B710919684AC" -O Release.key
+apt-key add Release.key; rm -rf Release.key
+
 cat > /etc/apt/preferences.d/kolab <<FINISH
 Package: *
 Pin: origin obs.kolabsys.com
