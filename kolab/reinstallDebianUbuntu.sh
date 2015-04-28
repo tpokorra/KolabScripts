@@ -110,6 +110,9 @@ cat > /etc/apt/preferences.d/kolab <<FINISH
 Package: *
 Pin: origin obs.kolabsys.com
 Pin-Priority: 501
+Package: *
+Pin: origin lbs.solidcharity.com
+Pin-Priority: 501
 FINISH
 
 apt-get -y install apt-transport-https
