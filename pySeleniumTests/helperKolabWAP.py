@@ -212,7 +212,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
     def startKolabSync(self):
         # first one run that waits for the sync to finish
-        os.system("kolab sync > /dev/null 2>&1")
+        os.system("su - kolab -s /bin/bash -c 'kolab sync > /dev/null 2>&1'")
         # now start the service again
         self.startKolabServer()
 
