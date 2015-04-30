@@ -19,6 +19,17 @@ fi
 
 OBS_repo_OS=$1
 
+if [[ $OBS_repo_OS == "Debian_7.0" ]]
+then
+  LBS_repo_OS="debian/wheezy wheezy"
+elif [[ $OBS_repo_OS == "Debian_8.0" ]]
+then
+  LBS_repo_OS="debian/jessie jessie"
+elif [[ $OBS_repo_OS == "Ubuntu_14.04" ]]
+then
+  LBS_repo_OS="ubuntu/trusty trusty"
+fi
+
 if [ -z `hostname -f | awk -F "." '{ print $2 }'` ]
 then
   echo "FAILURE: please make sure you have configured a FQDN"
@@ -96,7 +107,7 @@ cat > /etc/apt/sources.list.d/kolab.list <<FINISH
 deb $obs/Kolab:/3.4/$OBS_repo_OS/ ./
 deb $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/ ./
 deb $obs/Kolab:/Development/$OBS_repo_OS/ ./
-deb https://download.solidcharity.com/repos/tbits.net/kolab-nightly/debian/wheezy/ wheezy main
+deb https://download.solidcharity.com/repos/tbits.net/kolab-nightly/$LBS_repo_OS main
 FINISH
 
 wget $obs/Kolab:/3.4/$OBS_repo_OS/Release.key
