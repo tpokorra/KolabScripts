@@ -34,7 +34,13 @@ then
   fi
 elif [ -f /etc/debian_version ]
 then
+  release=`cat /etc/debian_version`
+  if [[ $release == 8* ]]
+  then
+    ./reinstallDebianUbuntu.sh Debian_8.0
+  else
     ./reinstallDebianUbuntu.sh Debian_7.0
+  fi
 fi
 
 if [ $? -ne 0 ]
