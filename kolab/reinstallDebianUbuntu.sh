@@ -110,6 +110,13 @@ FINISH
 
 apt-get update
 apt-get -y install aptitude
+
+if [[ $OBS_repo_OS == "Debian_8.0" ]]
+then
+  # we do not want apache2 2.2 from KolabSys OBS
+  apt-get -y install -t stable apache2
+fi
+
 aptitude -y install kolab kolab-freebusy
 
 # somehow apache has died and would not restart. probably related to https://issues.kolab.org/show_bug.cgi?id=2050
