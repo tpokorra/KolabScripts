@@ -34,7 +34,12 @@ answersCreateKey() {
     echo SomeCity
     echo SomeOrganization
     echo SomeOrganizationalUnit
-    echo localhost.localdomain
+    if [ -f /etc/debian_version ]
+    then
+      echo localhost
+    else
+      echo localhost.localdomain
+    fi
     echo root@localhost.localdomain
 }
 
@@ -164,24 +169,30 @@ else
 
     sed -i -e "s/NameVirtualHost \*:80/NameVirtualHost *:443/g" /etc/apache2/ports.conf
 
-    sed -i -e "s/VirtualHost \*:80/VirtualHost \*:443/g" /etc/apache2/sites-enabled/000-default
+    defaultFile=/etc/apache2/sites-enabled/000-default
+    if [ -f /etc/apache2/sites-enabled/000-default.conf ]
+    then
+      defaultFile=/etc/apache2/sites-enabled/000-default.conf
+    fi
 
-    sed -i -e "s/^SSL/#SSL/g" /etc/apache2/sites-enabled/000-default
+    sed -i -e "s/VirtualHost \*:80/VirtualHost \*:443/g" $defaultFile
+
+    sed -i -e "s/^SSL/#SSL/g" $defaultFile
     newConfigLines="SSLEngine On\n\
 SSLCertificateKeyFile $key_directory/private/$server_name.key\n\
 SSLCertificateFile $key_directory/certs/$server_name.crt\n\
 SSLCACertificateFile $key_directory/certs/$server_name.ca-chain.pem\n"
 
-    sed -i -e "s#</VirtualHost>#$newConfigLines</VirtualHost>#" /etc/apache2/sites-enabled/000-default
+    sed -i -e "s#</VirtualHost>#$newConfigLines</VirtualHost>#" $defaultFile
 
-    if [[ "`cat /etc/apache2/sites-enabled/000-default | grep "RewriteEngine On"`" == "" ]]
+    if [[ "`cat $defaultFile | grep "RewriteEngine On"`" == "" ]]
     then
       newConfigLines="\tRewriteEngine On\n \
 \tRewriteRule ^/roundcubemail/[a-f0-9]{16}/(.*) /roundcubemail/\$1 [PT,L]\n \
 \tRewriteRule ^/webmail/[a-f0-9]{16}/(.*) /webmail/\$1 [PT,L]\n \
 \tRedirectMatch ^/$ /roundcubemail/\n"
 
-      sed -i -e "s#</VirtualHost>#$newConfigLines</VirtualHost>#" /etc/apache2/sites-enabled/000-default
+      sed -i -e "s#</VirtualHost>#$newConfigLines</VirtualHost>#" $defaultFile
     fi
     service apache2 restart
 fi
