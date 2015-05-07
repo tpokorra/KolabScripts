@@ -195,6 +195,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.log("User has logged out from Roundcube")
 
     def startKolabServer(self, cmd = 'start'):
+        if os.path.isfile('/bin/systemctl') and os.path.isfile('/etc/debian_version'):
+            subprocess.call(['/bin/systemctl', cmd, 'kolab-server'])
         if os.path.isfile('/bin/systemctl'):
             subprocess.call(['/bin/systemctl', cmd, 'kolabd.service'])
         elif os.path.isfile('/sbin/service'):
