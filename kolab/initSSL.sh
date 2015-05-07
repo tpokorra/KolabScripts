@@ -91,6 +91,8 @@ sed -r -i \
     -e "s|^tls_cert_file:.*|tls_cert_file: $key_directory/certs/$server_name.crt|g" \
     -e "s|^tls_key_file:.*|tls_key_file: $key_directory/private/$server_name.key|g" \
     -e "s|^tls_ca_file:.*|tls_ca_file: $key_directory/certs/$server_name.ca-chain.pem|g" \
+    -e "s|^tls_server_cert:.*|tls_server_cert: $key_directory/certs/$server_name.crt|g" \
+    -e "s|^tls_server_key:.*|tls_server_key: $key_directory/private/$server_name.key|g" \
     /etc/imapd.conf
 echo "test\
 test" | saslpasswd2 /etc/sasldb2
@@ -209,6 +211,11 @@ sed -r -i \
 # configure Kolab webclient
 #####################################################################################
 replace="s#\?>#\$config['kolab_http_request']=array(\n'ssl_verify_peer'=>true,\n'ssl_verify_host'=>true,\n'ssl_cafile'=>'$key_directory/certs/ca-bundle.crt'\n);\n?>#g"
+
+sed -r -i -e $replace /etc/roundcubemail/config.inc.php
+
+# see https://bbs.archlinux.org/viewtopic.php?id=193012
+replace="s#\?>#\$config['imap_conn_options']=array(\n'ssl'=>array(\n'verify_peer'=>false,\n'allow_self_signed'=>true,\n'peer_name'=>'localhost',\n'ciphers'=>'TLSv1+HIGH:!aNull:@STRENGTH',\n'cafile'=>'/etc/ssl/certs/ca-bundle.crt'));\n?>#g"
 
 sed -r -i -e $replace /etc/roundcubemail/config.inc.php
 
