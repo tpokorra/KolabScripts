@@ -173,7 +173,7 @@ patch -p1 -i `pwd`/patches/validateAliasDomainPostfixVirtualFileBug2658.patch -d
 
 service kolab-saslauthd restart
 
-if [ -f /bin/systemctl -a -f /etc/debian_release ]
+if [ -f /bin/systemctl -a -f /etc/debian_version ]
 then
   /bin/systemctl restart kolab-server
 elif [ -f /bin/systemctl ]
