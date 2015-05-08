@@ -176,7 +176,10 @@ patch -p1 -i `pwd`/patches/problemSyncMultiDomainBug3197.patch -d $pythonDistPac
 
 service kolab-saslauthd restart
 
-if [ -f /bin/systemctl ]
+if [ -f /bin/systemctl -a -f /etc/debian_release ]
+then
+  /bin/systemctl restart kolab-server
+elif [ -f /bin/systemctl ]
 then
   /bin/systemctl restart kolabd.service
 elif [ -f /sbin/service ]
