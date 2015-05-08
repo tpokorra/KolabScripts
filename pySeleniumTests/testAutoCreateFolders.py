@@ -40,8 +40,7 @@ class KolabAutoCreateFolders(unittest.TestCase):
         fo.close()
 
         # restart kolabd to pickup the changed kolab.conf file
-        p = subprocess.Popen("service kolabd restart > /dev/null 2>&1", shell=True, stdout=subprocess.PIPE)
-        out, err = p.communicate()
+        self.kolabWAPhelper.startKolabServer("restart")
         
         self.kolabWAPhelper.log("kolab.conf has been changed, autocreate_folders now contains " + newContactsFolderName)
         
