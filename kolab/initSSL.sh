@@ -34,12 +34,7 @@ answersCreateKey() {
     echo SomeCity
     echo SomeOrganization
     echo SomeOrganizationalUnit
-    if [ -f /etc/debian_version ]
-    then
-      echo localhost
-    else
-      echo localhost.localdomain
-    fi
+    echo localhost.localdomain
     echo root@localhost.localdomain
 }
 
@@ -215,7 +210,7 @@ replace="s#\?>#\$config['kolab_http_request']=array(\n'ssl_verify_peer'=>true,\n
 sed -r -i -e $replace /etc/roundcubemail/config.inc.php
 
 # see https://bbs.archlinux.org/viewtopic.php?id=193012
-replace="s#\?>#\$config['imap_conn_options']=array(\n'ssl'=>array(\n'verify_peer'=>false,\n'allow_self_signed'=>true,\n'peer_name'=>'localhost',\n'ciphers'=>'TLSv1+HIGH:!aNull:@STRENGTH',\n'cafile'=>'/etc/ssl/certs/ca-bundle.crt'));\n?>#g"
+replace="s#\?>#\$config['imap_conn_options']=array(\n'ssl'=>array(\n'verify_peer'=>false,\n'allow_self_signed'=>true,\n'peer_name'=>'localhost.localdomain',\n'ciphers'=>'TLSv1+HIGH:!aNull:@STRENGTH',\n'cafile'=>'/etc/ssl/certs/ca-bundle.crt'));\n?>#g"
 
 sed -r -i -e $replace /etc/roundcubemail/config.inc.php
 
