@@ -61,6 +61,12 @@ apt-get -y purge apache2\* 389\* cyrus-imapd\* postfix\* mysql-server\* roundcub
 echo "deleting files..."
 rm -Rf \
     /etc/postfix \
+    /etc/apache2 \
+    /etc/roundcubemail \
+    /etc/kolab* \
+    /etc/cyrus.conf \
+    /etc/imapd.conf \
+    /etc/dirsrv \
     /etc/ssl/private/example* \
     /etc/ssl/certs/example* \
     /etc/dirsrv/slapd-* \
