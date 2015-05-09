@@ -47,7 +47,8 @@ if [[ "$tests" == "all" || "$tests" == "domainadmin" ]]; then
 fi
 
 # check if kolab sync runs without error
-if [[ "$tests" == "all" || "$tests" == "kolabsync" ]]; then
+if [ $hasError -ne 1 ]; then
+ if [[ "$tests" == "all" || "$tests" == "kolabsync" ]]; then
   if [ -f /bin/systemctl ]
   then
     /bin/systemctl stop kolabd.service
@@ -75,6 +76,7 @@ if [[ "$tests" == "all" || "$tests" == "kolabsync" ]]; then
   then
     service kolab-server start
   fi
+ fi
 fi
 
 exit $hasError
