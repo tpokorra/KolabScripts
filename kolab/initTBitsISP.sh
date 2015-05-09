@@ -83,8 +83,11 @@ fi
 #####################################################################################
 php initTBitsUserTypes.php
 
-
-if [ -f /bin/systemctl ]
+if [ -f /bin/systemctl -a -f /etc/debian_version ]
+then
+  /bin/systemctl restart kolab-saslauthd
+  /bin/systemctl restart kolab-server
+elif [ -f /bin/systemctl ]
 then
   /bin/systemctl restart kolab-saslauthd
   /bin/systemctl restart kolabd.service
