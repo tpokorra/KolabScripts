@@ -35,7 +35,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         webdriver.DesiredCapabilities.PHANTOMJS['phantomjs.page.customHeaders.Accept-Language'] = 'en-US'
         # support self signed ssl certificate: see also https://github.com/detro/ghostdriver/issues/233
         #webdriver.DesiredCapabilities.PHANTOMJS['ACCEPT_SSL_CERTS'] = 'true'
-        self.driver = webdriver.PhantomJS('phantomjs', port=50000, service_args=['--ignore-ssl-errors=true'])
+        self.driver = webdriver.PhantomJS('phantomjs', port=50000, service_args=['--ignore-ssl-errors=true', '--ssl-protocol=tlsv1'])
         self.driver.maximize_window()
         
         #self.driver = webdriver.Firefox()
