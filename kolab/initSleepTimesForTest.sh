@@ -34,7 +34,10 @@ fi
 
 patch -p1 -i `pwd`/patches/sleepTimeDomainTests.patch -d $pythonDistPackages
 
-if [ -f /bin/systemctl ]
+if [ -f /bin/systemctl -a -f /etc/debian_version ]
+then
+  /bin/systemctl restart kolab-server
+elif [ -f /bin/systemctl ]
 then
   /bin/systemctl restart kolabd.service
 elif [ -f /sbin/service ]
