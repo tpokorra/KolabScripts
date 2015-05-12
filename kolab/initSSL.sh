@@ -192,6 +192,12 @@ SSLCACertificateFile $key_directory/certs/$server_name.ca-chain.pem\n"
       sed -i -e "s#</VirtualHost>#$newConfigLines</VirtualHost>#" $defaultFile
     fi
     service apache2 restart
+
+    # make sure that kolab list-domains works for Debian Jessie with a self signed certificate
+    # error: ssl.SSLError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:581)
+    # see also https://www.python.org/dev/peps/pep-0476/
+    pythonDistPackages=/usr/lib/python2.7/dist-packages
+    patch -p1 -i `pwd`/patches/fixSelfSignedCertJessie.patch -d $pythonDistPackages || exit -1
 fi
 
 #####################################################################################
