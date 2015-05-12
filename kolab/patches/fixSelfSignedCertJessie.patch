@@ -1,0 +1,19 @@
+--- a/pykolab/wap_client/__init__.py	2015-05-12 10:42:16.980500436 +0200
++++ b/pykolab/wap_client/__init__.py	2015-05-12 10:41:47.592501809 +0200
+@@ -3,6 +3,7 @@
+ import httplib
+ import urllib
+ import sys
++import ssl
+ from urlparse import urlparse
+ 
+ import pykolab
+@@ -95,7 +96,7 @@
+ 
+     if conn == None:
+         if API_SSL:
+-            conn = httplib.HTTPSConnection(API_HOSTNAME, API_PORT)
++            conn = httplib.HTTPSConnection(API_HOSTNAME, API_PORT, context=ssl._create_unverified_context())
+         else:
+             conn = httplib.HTTPConnection(API_HOSTNAME, API_PORT)
+         conn.connect()
