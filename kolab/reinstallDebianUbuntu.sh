@@ -1,6 +1,6 @@
 #!/bin/bash
 # this script will remove Kolab, and DELETE all YOUR data!!!
-# it will reinstall Kolab, from Kolab 3.3 Updates
+# it will reinstall Kolab, from Kolab 3.4 Updates and Kolab Development and the nightly builds
 # you can optionally install the patches from TBits, see bottom of script reinstall.sh
 
 echo "this script will remove Kolab, and DELETE all YOUR data!!!"
