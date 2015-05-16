@@ -200,6 +200,7 @@ SSLCACertificateFile $key_directory/certs/$server_name.ca-chain.pem\n"
     release=`cat /etc/debian_version`
     if [[ $release == 8* ]]
     then
+      pythonDistPackages=/usr/lib/python2.7/dist-packages
       patch -p1 -i `pwd`/patches/fixSelfSignedCertJessie.patch -d $pythonDistPackages || exit -1
     fi
 fi
