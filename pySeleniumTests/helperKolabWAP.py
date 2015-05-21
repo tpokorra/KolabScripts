@@ -391,12 +391,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem = driver.find_element_by_xpath("//span[@class=\"formtitle\"]")
         self.assertEquals("Add User", elem.text, "form should have title Add User, but was: " + elem.text)
 
-        if prefix=="admin":
-            driver.find_element_by_xpath("//select[@name='type_id']/option[text()='Domain Administrator']").click()
-            self.wait_loading(2.0)
-        else:
-            elem = driver.find_element_by_xpath("//select[@name='type_id']/option[@selected='selected']")
-            self.assertEquals("Kolab User", elem.text, "Expected that Kolab User would be the default user type")
+        elem = driver.find_element_by_xpath("//select[@name='type_id']/option[@selected='selected']")
+        self.assertEquals("Kolab User", elem.text, "Expected that Kolab User would be the default user type")
 
         elem = driver.find_element_by_name("givenname")
         if username is None:
@@ -415,6 +411,11 @@ class KolabWAPTestHelpers(unittest.TestCase):
             self.wait_loading(1.0)
             elem = driver.find_element_by_name("mailforwardingaddress[0]")
             elem.send_keys(forward_to)
+
+        if prefix=="admin":
+            elem = driver.find_element_by_link_text("Domain Administrator")
+            elem.click()
+            driver.find_element_by_xpath("//input[@name='tbitskolabisdomainadmin']").click()
 
         if overall_quota is not None or default_quota is not None or max_accounts is not None or allow_groupware is not None:
             elem = driver.find_element_by_link_text("Domain Administrator")

@@ -303,7 +303,7 @@ index 0c03be0..6ad01c3 100644
          if (in_array('tbitsKolabUser', $this->classes_allowed())) {
              $self_attrs = array_merge($self_attrs, array('tbitsKolabLastLogin'));
          }
-+        $admin_readonly_attrs = array("tbitsKolabMaxAccounts", "tbitsKolabOverallQuota");
++        $admin_readonly_attrs = array("tbitsKolabMaxAccounts", "tbitsKolabOverallQuota", "tbitsKolabIsDomainAdmin");
  
          $_domain = str_replace('.', '_', $domain);
          $dn      = $inetdomainbasedn;
