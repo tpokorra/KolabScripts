@@ -69,9 +69,13 @@ class KolabWAPDomainAdmin(unittest.TestCase):
 
         kolabWAPhelper.wait_loading(initialwait = 1)
 
-        # check if the user type is actually a domain admin user
+        # check if the user type is a Kolab user with domain admin permissions
         elem = self.driver.find_element_by_xpath("//form[@id='user-form']/fieldset/table/tbody/tr/td[@class='value']")
-        self.assertEquals("Domain Administrator", elem.text, "user type should be Domain Administrator, but was " + elem.text)
+        self.assertEquals("Kolab User", elem.text, "user type should be Kolab user, but was " + elem.text)
+        elem = self.driver.find_element_by_link_text("Domain Administrator")
+        elem.click()
+        if not self.driver.find_element_by_xpath("//input[@name='tbitskolabisdomainadmin']").is_selected():
+            self.assertTrue(False, "isDomainAdmin should be checked")
 
         kolabWAPhelper.logout_kolab_wap()
 
