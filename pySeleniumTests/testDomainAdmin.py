@@ -112,6 +112,24 @@ class KolabWAPDomainAdmin(unittest.TestCase):
 
         kolabWAPhelper.logout_kolab_wap()
 
+    # test if the domain admin can add users to his domain
+    def test_domain_admin_create_user(self):
+        kolabWAPhelper = self.kolabWAPhelper
+        kolabWAPhelper.log("Running test: test_domain_admin_edit_create_user")
+
+        # login Directory Manager
+        kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
+
+        username, emailLogin, password, domainname = kolabWAPhelper.create_domainadmin()
+        kolabWAPhelper.logout_kolab_wap()
+
+        kolabWAPhelper.login_kolab_wap("/kolab-webadmin", emailLogin, password)
+        # check selected domain is correct
+        currentdomain=kolabWAPhelper.get_selected_domain()
+        self.assertEquals(domainname, currentdomain, "should have selected domain " + domainname)
+        kolabWAPhelper.create_user()
+        kolabWAPhelper.logout_kolab_wap()
+
     def tearDown(self):
         
         # write current page for debugging purposes
