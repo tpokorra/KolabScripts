@@ -19,6 +19,8 @@ from pykolab import utils
 from pykolab.constants import *
 from pykolab.errors import *
 from pykolab.translate import _
+from pykolab.imap import IMAP
+from pykolab import wap_client
 
 conf = pykolab.getConf()
 conf.finalize_conf()
@@ -29,7 +31,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
     def __init__(self):
         unittest.TestCase.__init__(self, '__init__')
-        return
+        self.imap = None
+        self.conf = pykolab.getConf()
 
     def init_driver(self):
         webdriver.DesiredCapabilities.PHANTOMJS['phantomjs.page.customHeaders.Accept-Language'] = 'en-US'
@@ -256,15 +259,25 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.assertEquals("Domain created successfully.", elem.text, "domain was not created successfully, message: " + elem.text)
 
         self.startKolabSync()
+        wap_client.authenticate()
+        dna = self.conf.get('ldap', 'domain_name_attribute')
         # wait a couple of seconds until the sync script has been run
-        out = ""
         starttime=datetime.datetime.now()
-        while domainname not in out and (datetime.datetime.now()-starttime).seconds < 30:
-          self.wait_loading(1)
-          p = subprocess.Popen("kolab list-domains | grep " + domainname, shell=True, stdout=subprocess.PIPE)
-          out, err = p.communicate()
+        domain_created=False
+        while not domain_created and (datetime.datetime.now()-starttime).seconds < 30:
+          time.sleep(1)
+          domains = wap_client.domains_list()
 
-        if domainname not in out:
+          if isinstance(domains['list'], dict):
+            for domain_dn in domains['list'].keys():
+              if isinstance(domains['list'][domain_dn][dna], list):
+                if domains['list'][domain_dn][dna][0] == domainname:
+                  domain_created=True
+              else:
+                if domains['list'][domain_dn][dna] == domainname:
+                  domain_created=True
+
+        if not domain_created:
             self.assertTrue(False, "kolab list-domains cannot find domain " + domainname)
   
         self.log("Domain " + domainname + " has been created")
@@ -568,7 +581,23 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.assertEquals("Domain updated successfully.", elem.text, "domain was not updated successfully, message: " + elem.text)
  
         return username, emailLogin, password, domainname
-         
+
+    def load_user(self, username):
+
+        self.driver.get(self.driver.current_url)
+        self.driver.find_element_by_link_text("Users").click()
+        self.wait_loading() 
+
+        elem = self.driver.find_element_by_id("searchinput")
+        elem.send_keys(username)
+        elem.send_keys(Keys.ENTER)
+        self.wait_loading(initialwait = 2)
+
+        elem = self.driver.find_element_by_xpath("//table[@id='userlist']/tbody/tr/td")
+        self.assertEquals(username + ", " + username, elem.text, "Expected to select user " + username + " but was " + elem.text)
+        elem.click()
+
+        self.wait_loading(initialwait = 1)
 
     def send_email(self, recipientEmailAddress):
         driver = self.driver
@@ -643,4 +672,11 @@ class KolabWAPTestHelpers(unittest.TestCase):
         fo.write(self.driver.page_source.encode('utf-8'))
         fo.close()
         self.log("self.driver.page_source has been written to " + filename)
-        print 
+        print
+
+    def tear_down(self):
+        # write current page for debugging purposes
+        self.log_current_page()
+
+        if self.imap:
+          self.imap.disconnect()
