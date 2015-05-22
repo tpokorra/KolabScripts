@@ -724,4 +724,27 @@ index e36977d..fbb51c9 100644
    };
  
    // Form serialization
+--- a/lib/Auth/LDAP.php	2015-05-22 14:39:06.587497437 +0200
++++ b/lib/Auth/LDAP.php	2015-05-22 14:51:58.331461375 +0200
+@@ -1112,6 +1112,20 @@
+             $domain_dn = key($result);
+         }
+ 
++        if (!empty($result) && !empty($result['replace']) && !empty($result['replace']['tbitskolabisdomainadmin']) 
++                && $attributes['tbitskolabisdomainadmin'] == 'FALSE') {
++            // drop the permissions on the domains
++            $domains = $this->domainadmin_get_domains($user_dn);
++            foreach ($domains as $domainname) {
++                $domain = $this->domain_info($domainname);
++                $domainadmins = $domain[key($domain)]['domainadmin'];
++                if(($key = array_search($user_dn, $domainadmins)) !== false) {
++                    unset($domainadmins[$key]);
++                }
++                $this->domain_admin_save($domain, key($domain), $domainadmins);
++            }
++        }
++
+         return $result;
+     }
+ 
 
