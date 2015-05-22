@@ -660,3 +660,32 @@ index e36977d..fbb51c9 100644
  $LANG['user.title'] = 'Job Title';
  $LANG['user.type_id'] = 'Account type';
  $LANG['user.uid'] = 'Unique identity (UID)';
+--- lib/kolab_form.php	2015-04-17 16:09:04.633350197 +0200
++++ /usr/share/kolab-webadmin/lib/kolab_form.php	2015-05-22 11:47:10.139979510 +0200
+@@ -126,6 +126,8 @@
+         $hidden  = array();
+ 
+         if (!empty($this->sections)) {
++            $hideDomainAdminValues = false;
++
+             foreach ($this->sections as $set_idx => $set) {
+                 $rows = array();
+ 
+@@ -134,6 +134,17 @@
+                         continue;
+                     }
+ 
++                    if ($element['section'] == 'domainadmin') {
++                        if ($element['name'] == 'tbitskolabisdomainadmin') {
++                            if ($element['readonly'] == 1 && $element['checked'] != 1) {
++                                $hideDomainAdminValues = true;
++                            }
++                        }
++                        if ($hideDomainAdminValues) {
++                            continue;
++                        }
++                    }
++
+                     if ($element['type'] == self::INPUT_HIDDEN) {
+                         $hidden[] = self::get_element($element);
+                         continue;
