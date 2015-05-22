@@ -660,8 +660,8 @@ index e36977d..fbb51c9 100644
  $LANG['user.title'] = 'Job Title';
  $LANG['user.type_id'] = 'Account type';
  $LANG['user.uid'] = 'Unique identity (UID)';
---- lib/kolab_form.php	2015-04-17 16:09:04.633350197 +0200
-+++ /usr/share/kolab-webadmin/lib/kolab_form.php	2015-05-22 11:47:10.139979510 +0200
+--- a/lib/kolab_form.php	2015-04-17 16:09:04.633350197 +0200
++++ b/lib/kolab_form.php	2015-05-22 11:47:10.139979510 +0200
 @@ -126,6 +126,8 @@
          $hidden  = array();
  
@@ -689,3 +689,39 @@ index e36977d..fbb51c9 100644
                      if ($element['type'] == self::INPUT_HIDDEN) {
                          $hidden[] = self::get_element($element);
                          continue;
+--- a/public_html/js/kolab_admin.js	2015-04-17 16:20:05.573319312 +0200
++++ b/public_html/js/kolab_admin.js	2015-05-22 12:15:00.691901448 +0200
+@@ -733,6 +733,19 @@
+   /*********            Forms widgets              *********/
+   /*********************************************************/
+ 
++  function disableDomainAdminAttributes()
++  {
++      disable = false;
++      if (!isdomainadmin.is(":checked")) {
++        disable = 'disabled';
++      }
++      $('input[name="tbitskolabmaxaccounts"]').prop('disabled', disable);
++      $('input[name="tbitskolaboverallquota"]').prop('disabled', disable);
++      $('select[name="tbitskolaboverallquota-unit"]').prop('disabled', disable);
++      $('input[name="tbitskolabdefaultquota"]').prop('disabled', disable);
++      $('select[name="tbitskolabdefaultquota-unit"]').prop('disabled', disable);
++  }
++
+   // Form initialization
+   this.form_init = function(id)
+   {
+@@ -759,6 +772,12 @@
+     aci_fields.each(function() { kadm.form_aci_element_wrapper(this); });
+     if (aci_fields.length)
+       this.form_aci_init();
++
++    isdomainadmin = $('input[name="tbitskolabisdomainadmin"]');
++    if (isdomainadmin) {
++        disableDomainAdminAttributes();
++        isdomainadmin.change(disableDomainAdminAttributes);
++    }
+   };
+ 
+   // Form serialization
+
