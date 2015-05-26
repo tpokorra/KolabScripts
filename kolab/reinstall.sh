@@ -3,44 +3,29 @@
 # it will reinstall Kolab, from Kolab 3.4 Updates and Kolab Development and the nightly builds
 # you can optionally install the patches from TBits, see bottom of script
 
-if [ -f /etc/centos-release ]
+SCRIPTSPATH=`dirname ${BASH_SOURCE[0]}`
+source $SCRIPTSPATH/lib.sh
+
+DetermineOS
+
+if [ -z $OS ]
 then
-  release=`cat /etc/centos-release`
-  if [[ $release == CentOS\ Linux\ release\ 7* ]]
-  then
-    ./reinstallCentOS7.sh CentOS_7
-  else
-    ./reinstallCentOS.sh CentOS_6
-  fi
-elif [ -f /etc/redhat-release ]
+  echo Your Operating System is currently not supported
+  exit 1
+elif [ $OS == CentOS_6 
+  ./reinstallCentOS.sh $OS
+elif [ $OS == CentOS_* ]
 then
-  release=`cat /etc/redhat-release`
-  if [[ $release == Fedora\ release\ 21\ * ]]
-  then
-    ./reinstallCentOS7.sh Fedora_21
-  elif [[ $release == Fedora\ release\ 20\ * ]]
-  then
-    ./reinstallCentOS7.sh Fedora_20
-  fi
-elif [ -f /etc/lsb-release ]
+  ./reinstallCentOS7.sh $OS
+elif [ $OS == Fedora_* ]
 then
-  . /etc/lsb-release
-  if [ $DISTRIB_ID == "Ubuntu" -a $DISTRIB_CODENAME == "precise" ]
-  then
-    ./reinstallDebianUbuntu.sh Ubuntu_12.04
-  elif [ $DISTRIB_ID == "Ubuntu" -a $DISTRIB_CODENAME == "trusty" ]
-  then
-    ./reinstallDebianUbuntu.sh Ubuntu_14.04
-  fi
-elif [ -f /etc/debian_version ]
+  ./reinstallCentOS7.sh $OS
+elif [ $OS == Ubuntu_* ]
 then
-  release=`cat /etc/debian_version`
-  if [[ $release == 8* ]]
-  then
-    ./reinstallDebianUbuntu.sh Debian_8.0
-  else
-    ./reinstallDebianUbuntu.sh Debian_7.0
-  fi
+  ./reinstallDebianUbuntu.sh $OS
+elif [ $OS == Debian_* ]
+then
+  ./reinstallDebianUbuntu.sh $OS
 fi
 
 if [ $? -ne 0 ]

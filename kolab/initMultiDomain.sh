@@ -1,19 +1,11 @@
 #!/bin/bash
 
-if [ `which yum` ]; then
-  if [[ ! `which wget` || ! `which patch` ]]; then
-    yum -y install wget patch
-  fi
-else
-  if [ `which apt-get` ]; then
-    if [[ ! `which wget` || ! `which patch` ]]; then
-      apt-get -y install wget patch;
-    fi
-  else echo "Neither yum nor apt-get available. On which platform are you?";
-  exit 0
-  fi
-fi
-patchesurl=https://raw.github.com/TBits/KolabScripts/master/kolab/patches
+SCRIPTSPATH=`dirname ${BASH_SOURCE[0]}`
+source $SCRIPTSPATH/lib.sh
+
+DetermineOS
+InstallWgetAndPatch
+DeterminePythonPath
 
 #####################################################################################
 #Removing Canonification from Cyrus IMAP
@@ -147,6 +139,21 @@ sed -r -i -e "s#\[ldap\]#[ldap]\nmodifytimestamp_format = %%Y%%m%%d%%H%%M%%SZ#g"
 sed -r -i -e "s/\[cyrus-imap\]/[imap]\nvirtual_domains = userid\n\n[cyrus-imap]/g" /etc/kolab/kolab.conf
 
 #####################################################################################
+# install memcache to improve WAP login speed if many domains are present
+#####################################################################################
+if [ $OS == CentOS* -o $OS == Fedora* ]
+then
+  yum -y install php-pecl-memcache memcached
+elif [ $OS == Debian* -o $OS == Ubuntu* ]
+then
+  apt-get -y install php5-memcache memcached
+fi
+
+systemctl start memcached
+systemctl enable memcached
+sed -r -i -e "s#\[kolab_wap\]#[kolab_wap]\nmemcache_hosts = [ '127.0.0.1:11211' ]\nmemcache_pconnect = true#g" /etc/kolab/kolab.conf
+
+#####################################################################################
 # apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=1869
 #####################################################################################
 
@@ -157,32 +164,8 @@ then
   wget $patchesurl/validateAliasDomainPostfixVirtualFileBug2658.patch -O patches/validateAliasDomainPostfixVirtualFileBug2658.patch
 fi
 
-# different paths in debian and centOS
-pythonDistPackages=/usr/lib/python2.7/dist-packages
-# Debian
-if [ ! -d $pythonDistPackages ]; then
-  # centOS
-  pythonDistPackages=/usr/lib/python2.6/site-packages
-  if [ ! -d $pythonDistPackages ]; then
-    # centOS7
-    pythonDistPackages=/usr/lib/python2.7/site-packages
-  fi
-fi
-
 patch -p1 -i `pwd`/patches/validateAliasDomainPostfixVirtualFileBug2658.patch -d /usr/share/kolab-webadmin || exit -1
 
 service kolab-saslauthd restart
 
-if [ -f /bin/systemctl -a -f /etc/debian_version ]
-then
-  /bin/systemctl restart kolab-server
-elif [ -f /bin/systemctl ]
-then
-  /bin/systemctl restart kolabd.service
-elif [ -f /sbin/service ]
-then
-  service kolabd restart
-elif [ -f /usr/sbin/service ]
-then
-  service kolab-server restart
-fi
+KolabService restart
