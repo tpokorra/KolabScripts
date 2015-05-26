@@ -522,17 +522,20 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         self.startKolabSync() 
         if forward_to is None:
-            # restart kolabd service, otherwise we need to wait up to 10 minutes for the mailbox to be created
-            self.restartKolabServer()
+            wap_client.authenticate()
             # wait a couple of seconds until the sync script has been run (perhaps even the domain still needs to be created?)
-            out = ""
             starttime=datetime.datetime.now()
-            while username not in out and (datetime.datetime.now()-starttime).seconds < 60:
-                self.wait_loading(1)
-                p = subprocess.Popen("kolab list-mailboxes | grep " + username, shell=True, stdout=subprocess.PIPE)
-                out, err = p.communicate()
+            user_created=False
+            while not user_created and (datetime.datetime.now()-starttime).seconds < 60:
+              time.sleep(1)
+              users = wap_client.users_list()
 
-            if username not in out:
+              if isinstance(users['list'], dict):
+                for user_dn in users['list'].keys():
+                  if username in user_dn:
+                    user_created=True
+
+            if not user_created:
                 self.assertTrue(False, "kolab list-mailboxes cannot find mailbox for new user " + username)
 
         self.log("User " + username + " has been created. Login with " + emailLogin + " and password " + password)
