@@ -141,10 +141,10 @@ sed -r -i -e "s/\[cyrus-imap\]/[imap]\nvirtual_domains = userid\n\n[cyrus-imap]/
 #####################################################################################
 # install memcache to improve WAP login speed if many domains are present
 #####################################################################################
-if [ $OS == CentOS* -o $OS == Fedora* ]
+if [[ $OS == CentOS* || $OS == Fedora* ]]
 then
   yum -y install php-pecl-memcache memcached
-elif [ $OS == Debian* -o $OS == Ubuntu* ]
+elif [[ $OS == Debian* || $OS == Ubuntu* ]]
 then
   apt-get -y install php5-memcache memcached
 fi

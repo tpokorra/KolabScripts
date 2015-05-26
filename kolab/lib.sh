@@ -12,6 +12,7 @@ function DetermineOS
     then
       export OS=CentOS_6
     elif [[ $release == CentOS\ Linux\ release\ 7* ]]
+    then
       export OS=CentOS_7
     fi
   elif [ -f /etc/redhat-release ]
@@ -44,6 +45,7 @@ function DetermineOS
     then
       export OS=Debian_7.0
     elif [[ $release == 8* ]]
+    then
       export OS=Debian_8.0
     fi
   fi
@@ -51,12 +53,12 @@ function DetermineOS
 
 function InstallWgetAndPatch()
 {
-  if [ $OS == CentOS* -o $OS == Fedora* ]
+  if [[ $OS == CentOS* || $OS == Fedora* ]]
   then
     if [[ ! `which wget` || ! `which patch` ]]; then
       yum -y install wget patch
     fi
-  elif [ $OS == Ubuntu* -o $OS == Debian* ]
+  elif [[ $OS == Ubuntu* || $OS == Debian* ]]; then
     if [[ ! `which wget` || ! `which patch` ]]; then
       apt-get -y install wget patch;
     fi
@@ -80,6 +82,7 @@ DeterminePythonPath()
 
 # function to start/stop/restart the Kolab Service, define action as first parameter!
 function KolabService()
+{
   action=$1
   if [ -f /bin/systemctl -a -f /etc/debian_version ]
   then

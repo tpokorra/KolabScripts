@@ -12,18 +12,19 @@ if [ -z $OS ]
 then
   echo Your Operating System is currently not supported
   exit 1
-elif [ $OS == CentOS_6 
+elif [[ $OS == CentOS_6 ]]
+then
   ./reinstallCentOS.sh $OS
-elif [ $OS == CentOS_* ]
+elif [[ $OS == CentOS_* ]]
 then
   ./reinstallCentOS7.sh $OS
-elif [ $OS == Fedora_* ]
+elif [[ $OS == Fedora_* ]]
 then
   ./reinstallCentOS7.sh $OS
-elif [ $OS == Ubuntu_* ]
+elif [[ $OS == Ubuntu_* ]]
 then
   ./reinstallDebianUbuntu.sh $OS
-elif [ $OS == Debian_* ]
+elif [[ $OS == Debian_* ]]
 then
   ./reinstallDebianUbuntu.sh $OS
 fi
