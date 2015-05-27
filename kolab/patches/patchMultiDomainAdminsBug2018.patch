@@ -316,6 +316,19 @@ index 0c03be0..6ad01c3 100644
                      // Configuration Administrators
                      "(targetattr = \"*\")(version 3.0; acl \"Configuration Administrators Group\"; allow (all) groupdn=\"ldap:///cn=Configuration Administrators,ou=Groups,ou=TopologyManagement,o=NetscapeRoot\";)",
                      // Administrator users
+--- a/lib/Auth/LDAP.php	2015-05-27 15:28:50.456667015 +0200
++++ b/lib/Auth/LDAP.php	2015-05-27 15:27:20.912671200 +0200
+@@ -1098,6 +1098,10 @@
+ 
+         $user_dn = key($user);
+ 
++	if (empty($attributes['tbitskolabisdomainadmin'])) {
++            $attributes['tbitskolabisdomainadmin'] = $user[$user_dn]['tbitskolabisdomainadmin'];
++        }
++
+         // We should start throwing stuff over the fence here.
+         $result = $this->modify_entry($user_dn, $user[$user_dn], $attributes);
+ 
 diff --git a/lib/api/kolab_api_service_domain.php b/lib/api/kolab_api_service_domain.php
 index 16b1908..625b696 100644
 --- a/lib/api/kolab_api_service_domain.php
