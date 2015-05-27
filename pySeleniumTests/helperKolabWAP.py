@@ -19,6 +19,7 @@ from pykolab import utils
 from pykolab.constants import *
 from pykolab.errors import *
 from pykolab.translate import _
+from pykolab import imap_utf7
 from pykolab.imap import IMAP
 from pykolab import wap_client
 
@@ -32,7 +33,6 @@ class KolabWAPTestHelpers(unittest.TestCase):
     def __init__(self):
         unittest.TestCase.__init__(self, '__init__')
         self.imap = None
-        self.conf = pykolab.getConf()
 
     def init_driver(self):
         webdriver.DesiredCapabilities.PHANTOMJS['phantomjs.page.customHeaders.Accept-Language'] = 'en-US'
@@ -260,7 +260,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         self.startKolabSync()
         wap_client.authenticate()
-        dna = self.conf.get('ldap', 'domain_name_attribute')
+        dna = conf.get('ldap', 'domain_name_attribute')
         # wait a couple of seconds until the sync script has been run
         starttime=datetime.datetime.now()
         domain_created=False
@@ -522,18 +522,21 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         self.startKolabSync() 
         if forward_to is None:
+            if self.imap is None:
+              self.imap = IMAP()
+              self.imap.connect()
             wap_client.authenticate()
             # wait a couple of seconds until the sync script has been run (perhaps even the domain still needs to be created?)
             starttime=datetime.datetime.now()
             user_created=False
             while not user_created and (datetime.datetime.now()-starttime).seconds < 60:
               time.sleep(1)
-              users = wap_client.users_list()
+              folders = []
+              folders.extend(self.imap.lm(imap_utf7.encode('*')))
 
-              if isinstance(users['list'], dict):
-                for user_dn in users['list'].keys():
-                  if username in user_dn:
-                    user_created=True
+              for folder in folders:
+                if username in folder or username in imap_utf7.decode(folder):
+                  user_created=True
 
             if not user_created:
                 self.assertTrue(False, "kolab list-mailboxes cannot find mailbox for new user " + username)
@@ -683,3 +686,6 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         if self.imap:
           self.imap.disconnect()
+
+        self.driver.quit()
+

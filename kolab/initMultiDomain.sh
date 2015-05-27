@@ -151,7 +151,7 @@ fi
 
 systemctl start memcached
 systemctl enable memcached
-sed -r -i -e "s#\[kolab_wap\]#[kolab_wap]\nmemcache_hosts = [ '127.0.0.1:11211' ]\nmemcache_pconnect = true#g" /etc/kolab/kolab.conf
+sed -r -i -e "s#\[kolab_wap\]#[kolab_wap]\nmemcache_hosts = 127.0.0.1:11211\nmemcache_pconnect = true#g" /etc/kolab/kolab.conf
 
 #####################################################################################
 # apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=1869

@@ -44,11 +44,7 @@ class KolabEmailCatchAll(unittest.TestCase):
         kolabWAPhelper.logout_roundcube()
 
     def tearDown(self):
-        
-        # write current page for debugging purposes
-        self.kolabWAPhelper.log_current_page()
-        
-        self.driver.quit()
+        self.kolabWAPhelper.tear_down()
 
 if __name__ == "__main__":
     unittest.main()
