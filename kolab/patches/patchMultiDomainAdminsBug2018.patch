@@ -60,7 +60,7 @@ index a2d0ba3..4e3dbdd 100644
          if (in_array('kolabInetOrgPerson', $this->classes_allowed())) {
               $self_attrs = array_merge($self_attrs, array('kolabDelegate', 'kolabInvitationPolicy', 'kolabAllowSMTPSender'));
          }
-+        $admin_readonly_attrs = array("tbitsKolabMaxAccounts", "tbitsKolabOverallQuota");
++        $admin_readonly_attrs = array("tbitsKolabMaxAccounts", "tbitsKolabOverallQuota", "tbitsKolabIsDomainAdmin");
  
          $_domain = str_replace('.', '_', $domain);
          $dn      = $inetdomainbasedn;
@@ -314,6 +314,19 @@ index a2d0ba3..4e3dbdd 100644
 +        return array('domainadmin' => $maindomainadmin, $config_flag => $resultvalue);
 +    }
  }
+--- a/lib/Auth/LDAP.php        2015-05-27 15:28:50.456667015 +0200
++++ b/lib/Auth/LDAP.php        2015-05-27 15:27:20.912671200 +0200
+@@ -1098,6 +1098,10 @@
+ 
+         $user_dn = key($user);
+ 
++      if (empty($attributes['tbitskolabisdomainadmin'])) {
++            $attributes['tbitskolabisdomainadmin'] = $user[$user_dn]['tbitskolabisdomainadmin'];
++        }
++
+         // We should start throwing stuff over the fence here.
+         $result = $this->modify_entry($user_dn, $user[$user_dn], $attributes);
+ 
 diff --git a/lib/api/kolab_api_service_domain.php b/lib/api/kolab_api_service_domain.php
 index dcc8778..eda40d5 100644
 --- a/lib/api/kolab_api_service_domain.php
@@ -364,13 +377,13 @@ diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_servic
 index d2ccbad..0d47610 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1124,6 +1124,81 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1124,6 +1124,82 @@ class kolab_api_service_form_value extends kolab_api_service
          );
      }
  
 +    /**
 +     * get the users that are domainadmins.
-+     * We assume: all users of type Domain Administrator, plus the Directory Manager
++     * We assume: all users with attribute tbitskolabisdomainadmin set, plus the Directory Manager
 +     */
 +    private function list_options_domainadmin($postdata, $attribs = array())
 +    {
@@ -380,6 +393,7 @@ index d2ccbad..0d47610 100644
 +        $all_domains   = $all_domains['list'];
 +        $dna           = $conf->get('domain_name_attribute');
 +        $_domainadmins = array();
++        $domainAdminFilter = '(&(objectclass=tbitsKolabUser)(tbitskolabisdomainadmin=True))';
 +
 +        if (!empty($postdata['list'])) {
 +            foreach ($all_domains as $domain_id => $domain_attrs) {
@@ -396,7 +410,7 @@ index d2ccbad..0d47610 100644
 +                $domainadmin_dn = "dc=" . implode(',dc=', explode('.', $domain_attrs[$dna][0]));
 +                $auth = Auth::get_instance($domainadmin_dn);
 +
-+                if ($domainadmins = $auth->search($domainadmin_dn, '(objectclass=tbitsKolabDomainAdmin)', 'sub', array('dn', 'displayname', 'mail'))) {
++                if ($domainadmins = $auth->search($domainadmin_dn, $domainAdminFilter, 'sub', array('dn', 'displayname', 'mail'))) {
 +                    foreach ($domainadmins->entries(true) as $domainadmin_dn => $domainadmin_attrs) {
 +                        $ret = $domainadmin_attrs['displayname'];
 +                        if (!empty($domainadmin_attrs['mail'])) {
@@ -425,7 +439,7 @@ index d2ccbad..0d47610 100644
 +            $domainadmin_dn = "dc=" . implode(',dc=', explode('.', $domain_attrs[$dna][0]));
 +            $auth = Auth::get_instance($domainadmin_dn);
 +
-+            if ($domainadmins = $auth->search($domainadmin_dn, '(objectclass=tbitsKolabDomainAdmin)', 'sub', array('dn', 'displayname', 'mail'))) {
++            if ($domainadmins = $auth->search($domainadmin_dn, $domainAdminFilter, 'sub', array('dn', 'displayname', 'mail'))) {
 +                foreach ($domainadmins->entries(true) as $domainadmin_dn => $domainadmin_attrs) {
 +                    $ret = $domainadmin_attrs['displayname'];
 +                    if (!empty($domainadmin_attrs['mail'])) {
@@ -527,7 +541,7 @@ index 22cce3d..fce4239 100644
              }
          }
  
-+        // load all domain admins, ie. all users from the default domain
++        // load all domain admins
 +        $param = array();
 +        $param['attributes'] = array('domainadmin');
 +        $resp = $this->api_post('form_value.select_options', null, $param);
@@ -551,10 +565,11 @@ index 357d7c6..1155ebd 100644
              'asterisk'      => 'user.asterisk',
              'other'         => 'user.other',
          );
-@@ -143,6 +144,9 @@ class kolab_client_task_user extends kolab_client_task
+@@ -143,6 +144,10 @@ class kolab_client_task_user extends kolab_client_task
              'kolabhomeserver'           => 'config',
              'mailhost'                  => 'config',
              'mailquota'                 => 'config',
++            'tbitskolabisdomainadmin'   => 'domainadmin',
 +            'tbitskolabmaxaccounts'     => 'domainadmin',
 +            'tbitskolaboverallquota'    => 'domainadmin',
 +            'tbitskolabdefaultquota'    => 'domainadmin',
@@ -609,7 +624,7 @@ diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
 index 1727518..46bc48e 100644
 --- a/lib/locale/de_DE.php
 +++ b/lib/locale/de_DE.php
-@@ -448,3 +448,11 @@ $LANG['user.uidnumber'] = 'Benutzer ID Nummer';
+@@ -448,3 +448,12 @@ $LANG['user.uidnumber'] = 'Benutzer ID Nummer';
  $LANG['welcome'] = 'Willkommen bei der Kolab Groupware Server-Wartung';
  
  $LANG['yes'] = 'ja';
@@ -617,6 +632,7 @@ index 1727518..46bc48e 100644
 +$LANG['user.domainadmin'] = 'Domain Administrator';
 +$LANG['domain.admins'] = 'Domain Administratoren';
 +$LANG['domain.domainadmin'] = 'Administratoren für diese Domain';
++$LANG['user.tbitskolabisdomainadmin'] = 'Ist Domain Administrator';
 +$LANG['user.tbitskolabmaxaccounts'] = 'Maximale Anzahl von Benutzerkonten';
 +$LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
 +$LANG['user.tbitskolabdefaultquota'] = 'Voreinstellung Quota für Benutzerkonten';
@@ -646,13 +662,101 @@ index 620843a..c8f30f4 100644
  $LANG['user.edit.success'] = 'User updated successfully.';
  $LANG['user.fax'] = 'Fax number';
  $LANG['user.fbinterval'] = 'Free-Busy interval';
-@@ -436,6 +439,9 @@ $LANG['user.sn'] = 'Surname';
+@@ -436,6 +439,10 @@ $LANG['user.sn'] = 'Surname';
  $LANG['user.street'] = 'Street';
  $LANG['user.system'] = 'System';
  $LANG['user.telephonenumber'] = 'Phone Number';
++$LANG['user.tbitskolabisdomainadmin'] = 'Is Domain Administrator';
 +$LANG['user.tbitskolabmaxaccounts'] = 'Maximum number of accounts';
 +$LANG['user.tbitskolaboverallquota'] = 'Overall Quota assigned';
 +$LANG['user.tbitskolabdefaultquota'] = 'Default Quota for user accounts';
  $LANG['user.title'] = 'Job Title';
  $LANG['user.type_id'] = 'Account type';
  $LANG['user.uid'] = 'Unique identity (UID)';
+--- b/lib/kolab_form.php	2015-04-17 16:09:04.633350197 +0200
++++ a/lib/kolab_form.php	2015-05-22 11:47:10.139979510 +0200
+@@ -126,6 +126,8 @@
+         $hidden  = array();
+ 
+         if (!empty($this->sections)) {
++            $hideDomainAdminValues = false;
++
+             foreach ($this->sections as $set_idx => $set) {
+                 $rows = array();
+ 
+@@ -134,6 +134,17 @@
+                         continue;
+                     }
+ 
++                    if ($element['section'] == 'domainadmin') {
++                        if ($element['name'] == 'tbitskolabisdomainadmin') {
++                            if ($element['readonly'] == 1 && $element['checked'] != 1) {
++                                $hideDomainAdminValues = true;
++                            }
++                        }
++                        if ($hideDomainAdminValues) {
++                            continue;
++                        }
++                    }
++
+                     if ($element['type'] == self::INPUT_HIDDEN) {
+                         $hidden[] = self::get_element($element);
+                         continue;
+--- a/public_html/js/kolab_admin.js	2015-04-17 16:20:05.573319312 +0200
++++ b/public_html/js/kolab_admin.js	2015-05-22 12:15:00.691901448 +0200
+@@ -733,6 +733,19 @@
+   /*********            Forms widgets              *********/
+   /*********************************************************/
+ 
++  function disableDomainAdminAttributes()
++  {
++      disable = false;
++      if (!isdomainadmin.is(":checked")) {
++        disable = 'disabled';
++      }
++      $('input[name="tbitskolabmaxaccounts"]').prop('disabled', disable);
++      $('input[name="tbitskolaboverallquota"]').prop('disabled', disable);
++      $('select[name="tbitskolaboverallquota-unit"]').prop('disabled', disable);
++      $('input[name="tbitskolabdefaultquota"]').prop('disabled', disable);
++      $('select[name="tbitskolabdefaultquota-unit"]').prop('disabled', disable);
++  }
++
+   // Form initialization
+   this.form_init = function(id)
+   {
+@@ -759,6 +772,12 @@
+     aci_fields.each(function() { kadm.form_aci_element_wrapper(this); });
+     if (aci_fields.length)
+       this.form_aci_init();
++
++    isdomainadmin = $('input[name="tbitskolabisdomainadmin"]');
++    if (isdomainadmin) {
++        disableDomainAdminAttributes();
++        isdomainadmin.change(disableDomainAdminAttributes);
++    }
+   };
+ 
+   // Form serialization
+--- a/lib/Auth/LDAP.php	2015-05-22 14:39:06.587497437 +0200
++++ b/lib/Auth/LDAP.php	2015-05-22 14:51:58.331461375 +0200
+@@ -1112,6 +1112,20 @@
+             $domain_dn = key($result);
+         }
+ 
++        if (!empty($result) && !empty($result['replace']) && !empty($result['replace']['tbitskolabisdomainadmin']) 
++                && $attributes['tbitskolabisdomainadmin'] == 'FALSE') {
++            // drop the permissions on the domains
++            $domains = $this->domainadmin_get_domains($user_dn);
++            foreach ($domains as $domainname) {
++                $domain = $this->domain_info($domainname);
++                $domainadmins = $domain[key($domain)]['domainadmin'];
++                if(($key = array_search($user_dn, $domainadmins)) !== false) {
++                    unset($domainadmins[$key]);
++                }
++                $this->domain_admin_save($domain, key($domain), $domainadmins);
++            }
++        }
++
+         return $result;
+     }
+ 

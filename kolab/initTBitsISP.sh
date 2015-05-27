@@ -78,8 +78,7 @@ else
 fi
 
 #####################################################################################
-#create new user_type domainadmin
-#add tbitsKolabUser objectclass to Kolab user, for last login time
+#add tbitsKolabUser objectclass to Kolab user, for last login time and the DomainAdmin attributes
 #####################################################################################
 php initTBitsUserTypes.php
 

@@ -19,6 +19,9 @@ from pykolab import utils
 from pykolab.constants import *
 from pykolab.errors import *
 from pykolab.translate import _
+from pykolab import imap_utf7
+from pykolab.imap import IMAP
+from pykolab import wap_client
 
 conf = pykolab.getConf()
 conf.finalize_conf()
@@ -29,13 +32,13 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
     def __init__(self):
         unittest.TestCase.__init__(self, '__init__')
-        return
+        self.imap = None
 
     def init_driver(self):
         webdriver.DesiredCapabilities.PHANTOMJS['phantomjs.page.customHeaders.Accept-Language'] = 'en-US'
         # support self signed ssl certificate: see also https://github.com/detro/ghostdriver/issues/233
         #webdriver.DesiredCapabilities.PHANTOMJS['ACCEPT_SSL_CERTS'] = 'true'
-        self.driver = webdriver.PhantomJS('phantomjs', service_args=['--ignore-ssl-errors=true', '--ssl-protocol=tlsv1'])
+        self.driver = webdriver.PhantomJS('phantomjs', port=50000, service_args=['--ignore-ssl-errors=true', '--ssl-protocol=tlsv1'])
         self.driver.maximize_window()
         
         #self.driver = webdriver.Firefox()
@@ -214,7 +217,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
     def startKolabSync(self):
         # first one run that waits for the sync to finish
-        os.system("kolab sync > /dev/null 2>&1")
+        os.system("su - kolab -s /bin/bash -c 'kolab sync > /dev/null 2>&1'")
         # now start the service again
         self.startKolabServer()
 
@@ -391,12 +394,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem = driver.find_element_by_xpath("//span[@class=\"formtitle\"]")
         self.assertEquals("Add User", elem.text, "form should have title Add User, but was: " + elem.text)
 
-        if prefix=="admin":
-            driver.find_element_by_xpath("//select[@name='type_id']/option[text()='Domain Administrator']").click()
-            self.wait_loading(2.0)
-        else:
-            elem = driver.find_element_by_xpath("//select[@name='type_id']/option[@selected='selected']")
-            self.assertEquals("Kolab User", elem.text, "Expected that Kolab User would be the default user type")
+        elem = driver.find_element_by_xpath("//select[@name='type_id']/option[@selected='selected']")
+        self.assertEquals("Kolab User", elem.text, "Expected that Kolab User would be the default user type")
 
         elem = driver.find_element_by_name("givenname")
         if username is None:
@@ -415,6 +414,11 @@ class KolabWAPTestHelpers(unittest.TestCase):
             self.wait_loading(1.0)
             elem = driver.find_element_by_name("mailforwardingaddress[0]")
             elem.send_keys(forward_to)
+
+        if prefix=="admin":
+            elem = driver.find_element_by_link_text("Domain Administrator")
+            elem.click()
+            driver.find_element_by_xpath("//input[@name='tbitskolabisdomainadmin']").click()
 
         if overall_quota is not None or default_quota is not None or max_accounts is not None or allow_groupware is not None:
             elem = driver.find_element_by_link_text("Domain Administrator")
@@ -508,8 +512,6 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         self.startKolabSync() 
         if forward_to is None:
-            # restart kolabd service, otherwise we need to wait up to 10 minutes for the mailbox to be created
-            self.restartKolabServer()
             # wait a couple of seconds until the sync script has been run (perhaps even the domain still needs to be created?)
             out = ""
             starttime=datetime.datetime.now()
@@ -567,7 +569,23 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.assertEquals("Domain updated successfully.", elem.text, "domain was not updated successfully, message: " + elem.text)
  
         return username, emailLogin, password, domainname
-         
+
+    def load_user(self, username):
+
+        self.driver.get(self.driver.current_url)
+        self.driver.find_element_by_link_text("Users").click()
+        self.wait_loading() 
+
+        elem = self.driver.find_element_by_id("searchinput")
+        elem.send_keys(username)
+        elem.send_keys(Keys.ENTER)
+        self.wait_loading(initialwait = 2)
+
+        elem = self.driver.find_element_by_xpath("//table[@id='userlist']/tbody/tr/td")
+        self.assertEquals(username + ", " + username, elem.text, "Expected to select user " + username + " but was " + elem.text)
+        elem.click()
+
+        self.wait_loading(initialwait = 1)
 
     def send_email(self, recipientEmailAddress):
         driver = self.driver
@@ -642,4 +660,14 @@ class KolabWAPTestHelpers(unittest.TestCase):
         fo.write(self.driver.page_source.encode('utf-8'))
         fo.close()
         self.log("self.driver.page_source has been written to " + filename)
-        print 
+        print
+
+    def tear_down(self):
+        # write current page for debugging purposes
+        self.log_current_page()
+
+        if self.imap:
+          self.imap.disconnect()
+
+        self.driver.quit()
+

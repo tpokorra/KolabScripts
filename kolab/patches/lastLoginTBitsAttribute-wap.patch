@@ -122,7 +122,7 @@ diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
 index 46bc48e..314058d 100644
 --- a/lib/locale/de_DE.php
 +++ b/lib/locale/de_DE.php
-@@ -455,4 +455,6 @@ $LANG['domain.domainadmin'] = 'Administratoren für diese Domain';
+@@ -456,4 +456,6 @@ $LANG['domain.domainadmin'] = 'Administratoren für diese Domain';
  $LANG['user.tbitskolabmaxaccounts'] = 'Maximale Anzahl von Benutzerkonten';
  $LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
  $LANG['user.tbitskolabdefaultquota'] = 'Voreinstellung Quota für Benutzerkonten';
@@ -133,7 +133,7 @@ diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
 index c8f30f4..40feaba 100644
 --- a/lib/locale/en_US.php
 +++ b/lib/locale/en_US.php
-@@ -436,12 +436,14 @@ $LANG['user.postcode'] = 'Postal code';
+@@ -436,13 +436,15 @@ $LANG['user.postcode'] = 'Postal code';
  $LANG['user.preferredlanguage'] = 'Native tongue';
  $LANG['user.room'] = 'Room number';
  $LANG['user.sn'] = 'Surname';
@@ -141,6 +141,7 @@ index c8f30f4..40feaba 100644
  $LANG['user.street'] = 'Street';
  $LANG['user.system'] = 'System';
  $LANG['user.telephonenumber'] = 'Phone Number';
+ $LANG['user.tbitskolabisdomainadmin'] = 'Is Domain Administrator';
  $LANG['user.tbitskolabmaxaccounts'] = 'Maximum number of accounts';
  $LANG['user.tbitskolaboverallquota'] = 'Overall Quota assigned';
  $LANG['user.tbitskolabdefaultquota'] = 'Default Quota for user accounts';
