@@ -166,8 +166,8 @@ then
   wget $patchesurl/problemSyncMultiDomainBug3197.patch -O patches/problemSyncMultiDomainBug3197.patch
 fi
 
-patch -p1 -i `pwd`/patches/validateAliasDomainPostfixVirtualFileBug2658.patch -d /usr/share/kolab-webadmin || exit -1
-patch -p1 -i `pwd`/patches/problemSyncMultiDomainBug3197.patch -d $pythonDistPackages || exit -1
+patch -p1 --fuzz=0 -i `pwd`/patches/validateAliasDomainPostfixVirtualFileBug2658.patch -d /usr/share/kolab-webadmin || exit -1
+patch -p1 --fuzz=0 -i `pwd`/patches/problemSyncMultiDomainBug3197.patch -d $pythonDistPackages || exit -1
 
 service kolab-saslauthd restart
 

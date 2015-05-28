@@ -30,18 +30,18 @@ if [ ! -d $pythonDistPackages ]; then
 fi
 
 echo "applying patchMultiDomainAdminsBug2018.patch"
-patch -p1 -i `pwd`/patches/patchMultiDomainAdminsBug2018.patch -d /usr/share/kolab-webadmin || exit -1
+patch -p1 --fuzz=0 -i `pwd`/patches/patchMultiDomainAdminsBug2018.patch -d /usr/share/kolab-webadmin || exit -1
 echo "applying domainquotaBug2046.patch"
-patch -p1 -i `pwd`/patches/domainquotaBug2046.patch -d /usr/share/kolab-webadmin || exit -1
+patch -p1 --fuzz=0 -i `pwd`/patches/domainquotaBug2046.patch -d /usr/share/kolab-webadmin || exit -1
 echo "applying domainAdminDefaultQuota.patch"
-patch -p1 -i `pwd`/patches/domainAdminDefaultQuota.patch -d /usr/share/kolab-webadmin || exit -1
+patch -p1 --fuzz=0 -i `pwd`/patches/domainAdminDefaultQuota.patch -d /usr/share/kolab-webadmin || exit -1
 echo "applying domainAdminMaxAccounts.patch"
-patch -p1 -i `pwd`/patches/domainAdminMaxAccounts.patch -d /usr/share/kolab-webadmin || exit -1
+patch -p1 --fuzz=0 -i `pwd`/patches/domainAdminMaxAccounts.patch -d /usr/share/kolab-webadmin || exit -1
 echo "applying lastLoginTBitsAttribute patch"
-patch -p1 -i `pwd`/patches/lastLoginTBitsAttribute-wap.patch -d /usr/share/kolab-webadmin || exit -1
-patch -p1 -i `pwd`/patches/lastLoginTBitsAttribute-pykolab.patch -d $pythonDistPackages || exit -1
+patch -p1 --fuzz=0 -i `pwd`/patches/lastLoginTBitsAttribute-wap.patch -d /usr/share/kolab-webadmin || exit -1
+patch -p1 --fuzz=0 -i `pwd`/patches/lastLoginTBitsAttribute-pykolab.patch -d $pythonDistPackages || exit -1
 echo "applying allowPrimaryEmailAddressFromDomain.patch"
-patch -p1 -i `pwd`/patches/allowPrimaryEmailAddressFromDomain.patch -d $pythonDistPackages || exit -1
+patch -p1 --fuzz=0 -i `pwd`/patches/allowPrimaryEmailAddressFromDomain.patch -d $pythonDistPackages || exit -1
 
 #####################################################################################
 #using specific ldap attribute for the domainadmin overall quota
