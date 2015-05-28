@@ -29,6 +29,8 @@ if [ ! -d $pythonDistPackages ]; then
   fi
 fi
 
+echo "applying backport_disabled_readonly_checkbox_bug5050.patch"
+patch -p1 --fuzz=0 -i `pwd`/patches/backport_disabled_readonly_checkbox_bug5050.patch -d /usr/share/kolab-webadmin || exit -1
 echo "applying patchMultiDomainAdminsBug2018.patch"
 patch -p1 --fuzz=0 -i `pwd`/patches/patchMultiDomainAdminsBug2018.patch -d /usr/share/kolab-webadmin || exit -1
 echo "applying domainquotaBug2046.patch"

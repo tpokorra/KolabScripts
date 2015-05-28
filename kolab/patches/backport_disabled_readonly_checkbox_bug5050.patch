@@ -1,0 +1,25 @@
+From 8faf6e1e95d434e759c890232bdc81daf45da943 Mon Sep 17 00:00:00 2001
+From: Timotheus Pokorra <tp@tbits.net>
+Date: Thu, 21 May 2015 14:06:16 +0200
+Subject: readonly checkbox should be displayed in disabled state (#5050)
+
+
+diff --git a/lib/kolab_html.php b/lib/kolab_html.php
+index 2317bd0..895647e 100644
+--- a/lib/kolab_html.php
++++ b/lib/kolab_html.php
+@@ -150,6 +150,11 @@ class kolab_html
+         $elem_attribs = array_merge(self::$input_attribs, self::$input_event_attribs,
+             self::$common_attribs, self::$event_attribs);
+ 
++        if ($attribs['type'] == 'checkbox' && $attribs['readonly']) {
++            // readonly checkbox should be disabled, otherwise the user could still check or uncheck the box
++            $attribs['disabled'] = 'disabled';
++        }
++
+         return sprintf('<input%s />', self::attrib_string($attribs, $elem_attribs));
+     }
+ 
+-- 
+cgit v0.10.2
+
