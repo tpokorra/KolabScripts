@@ -46,7 +46,7 @@ if [[ "$tests" == "all" || "$tests" == "domainadmin" ]]; then
   ./testLastLogin.py || hasError=1
 fi
 
-# check if kolab sync runs without error
+# check if kolab sync runs without error (see https://issues.kolab.org/show_bug.cgi?id=4847)
 if [ $hasError -ne 1 ]; then
  if [[ "$tests" == "all" || "$tests" == "kolabsync" ]]; then
   if [ -f /bin/systemctl ]
