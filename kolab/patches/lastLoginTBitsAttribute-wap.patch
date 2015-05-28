@@ -4,7 +4,7 @@ index 96bda9f..ae8642b 100644
 +++ b/lib/Auth/LDAP.php
 @@ -252,6 +252,10 @@ class LDAP extends Net_LDAP3 {
          }
-         $admin_readonly_attrs = array("tbitsKolabMaxAccounts", "tbitsKolabOverallQuota");
+         $admin_readonly_attrs = array("tbitsKolabMaxAccounts", "tbitsKolabOverallQuota", "tbitsKolabIsDomainAdmin");
  
 +        if (in_array('tbitsKolabUser', $this->classes_allowed())) {
 +            $self_attrs = array_merge($self_attrs, array('tbitsKolabLastLogin'));

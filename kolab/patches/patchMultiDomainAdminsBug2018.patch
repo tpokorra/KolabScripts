@@ -55,7 +55,7 @@ index b0027be..cc37e4a 100644
 +
          $domain_dn = $domain_name_attribute . '=' . $domain . ',' . $domain_base_dn;
  
-         $result = $this->add_entry($domain_dn, $attributes);
+         if (!empty($attributes['inetdomainbasedn'])) {
 @@ -225,6 +244,7 @@ class LDAP extends Net_LDAP3 {
          if (in_array('kolabInetOrgPerson', $this->classes_allowed())) {
               $self_attrs = array_merge($self_attrs, array('kolabDelegate', 'kolabInvitationPolicy', 'kolabAllowSMTPSender'));
