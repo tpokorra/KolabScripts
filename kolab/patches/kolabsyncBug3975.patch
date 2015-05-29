@@ -1,12 +1,37 @@
+From a6984e9e29a3cd6beca7f717ad3484e846358fbc Mon Sep 17 00:00:00 2001
+From: Timotheus Pokorra <tp@tbits.net>
+Date: Fri, 29 May 2015 14:52:56 +0200
+Subject: [PATCH] cli: kolab sync now properly creates mailboxes (#3975)
+
+value of entry was not assigned properly.
+and we need to wait for the creation to finish
+---
+ pykolab/cli/cmd_sync.py | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/pykolab/cli/cmd_sync.py b/pykolab/cli/cmd_sync.py
+index 3e2191a..b9c6c9e 100644
 --- a/pykolab/cli/cmd_sync.py
 +++ b/pykolab/cli/cmd_sync.py
-@@ -86,7 +86,7 @@ def execute(*args, **kw):
-         auth = Auth(primary_domain)
-         auth.connect(primary_domain)
-         start_time = time.time()
--        auth.synchronize(mode='_paged_search', callback=queue_add)
-+        auth.synchronize(mode='_paged_search')
-         end_time = time.time()
+@@ -100,7 +100,8 @@ def queue_add(*args, **kw):
+     global pool
+     for dn, entry in kw['entry']:
+         entry['dn'] = dn
+-        pool.apply_async(_synchronize, (), dict(**entry))
++        r = pool.apply_async(_synchronize, (), dict(**entry))
++        r.wait()
  
-         log.info(_("Synchronizing users for %s took %d seconds")
+ def worker_process(*args, **kw):
+     pass
+@@ -108,7 +109,7 @@ def worker_process(*args, **kw):
+ def _synchronize(*args, **kw):
+     log.info(_("Worker process %s handling %s") % (multiprocessing.current_process().name, kw['dn']))
+ 
+-    entry = utils.normalize(entry)
++    entry = utils.normalize(kw)
+ 
+     if not entry.has_key('mail'):
+         return
+-- 
+2.1.0
 

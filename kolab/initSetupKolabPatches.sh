@@ -44,12 +44,12 @@ then
   echo "temporary fixes for Cyrus stop script"
   patch -p1 -d /usr/lib/cyrus-imapd -i `pwd`/patches/fixcyrusstop.patch || exit -1
 fi
-echo "applying kolabsyncBug3975.patch to $pythonDistPackages/pykolab"
-patch -p2 -i `pwd`/patches/kolabsyncBug3975.patch -d $pythonDistPackages/pykolab || exit -1
 echo "applying patch for waiting after restart of dirsrv (necessary on Debian)"
 patch -p1 -i `pwd`/patches/setupKolabSleepDirSrv.patch -d $pythonDistPackages || exit -1
 
 # backported from upstream master:
+echo "applying kolabsyncBug3975.patch to $pythonDistPackages/pykolab"
+patch -p2 -i `pwd`/patches/kolabsyncBug3975.patch -d $pythonDistPackages/pykolab || exit -1
 echo "applying wap-password-complexity-policy-bug4988.patch"
 patch -p1 -i `pwd`/patches/wap-password-complexity-policy-bug4988.patch -d /usr/share/kolab-webadmin
 echo "applying backport_checkbox_value_bug4815.patch"
