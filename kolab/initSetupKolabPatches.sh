@@ -39,6 +39,9 @@ patch -p1 -i `pwd`/patches/setupkolab_mysqlserverBug4971.patch -d $pythonDistPac
 echo "applying setupkolab_directory_manager_pwdBug2645.patch"
 patch -p1 -i `pwd`/patches/setupkolab_directory_manager_pwdBug2645.patch -d $pythonDistPackages || exit -1
 
+echo "applying patch for Roundcube Kolab plugin for storage in MariaDB"
+patch -p1 -i `pwd`/patches/roundcubeStorageMariadbBug4883.patch -d /usr/share/roundcubemail || exit -1
+
 if [ -f /usr/lib/cyrus-imapd/cvt_cyrusdb_all ]
 then
   echo "temporary fixes for Cyrus stop script"
