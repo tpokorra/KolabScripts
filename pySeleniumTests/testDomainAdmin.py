@@ -96,10 +96,12 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         elem = self.driver.find_element_by_xpath("//input[@name=\"tbitskolaboverallquota\"]")
         if not "readonly" in elem.get_attribute('class'):
           self.assertTrue(False, "overallquota should be readonly for the domain admin")
-        # and the checkbox for domainadmin itself should be readonly
+        # and the checkbox for domainadmin itself should be readonly and disabled
         elem = self.driver.find_element_by_xpath("//input[@name=\"tbitskolabisdomainadmin\"]")
         if not "readonly" in elem.get_attribute('class'):
           self.assertTrue(False, "isdomainadmin should be readonly for the domain admin")
+        if not elem.get_attribute('disabled') == 'true':
+          self.assertTrue(False, "isdomainadmin should be disabled for the domain admin")
 
         kolabWAPhelper.logout_kolab_wap()
 
