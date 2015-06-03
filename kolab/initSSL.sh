@@ -226,6 +226,8 @@ then
 fi
 
 sed -i -e 's/http:/https:/' /etc/roundcubemail/kolab_files.inc.php
+sed -i -e 's/http:/https:/' /etc/roundcubemail/kolab_addressbook.inc.php
+sed -i -e 's/http:/https:/' /etc/roundcubemail/calendar.inc.php
 sed -i -e 's/http:/https:/' /etc/roundcubemail/config.inc.php
 
 #####################################################################################
