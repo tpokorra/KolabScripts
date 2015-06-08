@@ -375,7 +375,6 @@ class KolabWAPTestHelpers(unittest.TestCase):
                     overall_quota = None,
                     default_quota = None,
                     max_accounts = None,
-                    allow_groupware = None,
                     default_quota_verify = None,
                     default_role_verify = None,
                     mail_quota = None,
@@ -416,27 +415,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
             elem.send_keys(forward_to)
 
         if prefix=="admin":
-            elem = driver.find_element_by_link_text("Domain Administrator")
-            elem.click()
-            driver.find_element_by_xpath("//input[@name='tbitskolabisdomainadmin']").click()
-
-        if overall_quota is not None or default_quota is not None or max_accounts is not None or allow_groupware is not None:
-            elem = driver.find_element_by_link_text("Domain Administrator")
-            elem.click()
-            if overall_quota is not None:
-                elem = driver.find_element_by_name("tbitskolaboverallquota")
-                elem.send_keys(overall_quota[:-2])
-                driver.find_element_by_xpath("//select[@name='tbitskolaboverallquota-unit']/option[@value='" + overall_quota[-2:] + "']").click()
-            if default_quota is not None:
-                elem = driver.find_element_by_name("tbitskolabdefaultquota")
-                elem.send_keys(default_quota[:-2])
-                driver.find_element_by_xpath("//select[@name='tbitskolabdefaultquota-unit']/option[@value='" + default_quota[-2:] + "']").click()
-            if max_accounts is not None:
-                elem = driver.find_element_by_name("tbitskolabmaxaccounts")
-                elem.send_keys(max_accounts)
-            if allow_groupware is not None:
-                elem = driver.find_element_by_name("tbitskolaballowgroupware")
-                elem.click()
+            self.configure_domain_admin(overall_quota, default_quota, max_accounts)
 
         if mail_quota is not None or default_quota_verify is not None:
             elem = driver.find_element_by_link_text("Configuration")
@@ -527,12 +506,47 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         return username, emailLogin, password
 
+    def configure_domain_admin(self, overall_quota, default_quota, max_accounts):
+        driver = self.driver
+        elem = driver.find_element_by_link_text("Domain Administrator")
+        elem.click()
+        driver.find_element_by_xpath("//input[@name='tbitskolabisdomainadmin']").click()
+
+        elem = driver.find_element_by_link_text("Domain Administrator")
+        elem.click()
+        if overall_quota is not None:
+           elem = driver.find_element_by_name("tbitskolaboverallquota")
+           elem.send_keys(overall_quota[:-2])
+           driver.find_element_by_xpath("//select[@name='tbitskolaboverallquota-unit']/option[@value='" + overall_quota[-2:] + "']").click()
+        if default_quota is not None:
+           elem = driver.find_element_by_name("tbitskolabdefaultquota")
+           elem.send_keys(default_quota[:-2])
+           driver.find_element_by_xpath("//select[@name='tbitskolabdefaultquota-unit']/option[@value='" + default_quota[-2:] + "']").click()
+        if max_accounts is not None:
+           elem = driver.find_element_by_name("tbitskolabmaxaccounts")
+           elem.send_keys(max_accounts)
+
+    def upgrade_user_to_domainadmin(self, username, domainname,
+                    overall_quota = None,
+                    default_quota = None,
+                    max_accounts = None):
+        driver = self.driver
+        self.load_user(username)
+        self.configure_domain_admin(overall_quota, default_quota, max_accounts)
+        elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
+        elem.click()
+
+        self.wait_loading(1)
+        elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
+        self.assertEquals("User updated successfully.", elem.text, "User was not saved successfully, message: " + elem.text)
+
+        self.link_admin_to_domain(username, domainname)
+
     # create a new domain, and create a domain admin for that domain, inside that domain
     def create_domainadmin(self,
                     overall_quota = None,
                     default_quota = None,
                     max_accounts = None,
-                    allow_groupware = None,
                     default_quota_verify = None,
                     default_role_verify = None,
                     mail_quota = None,
@@ -543,11 +557,16 @@ class KolabWAPTestHelpers(unittest.TestCase):
         driver=self.driver
         domainname = self.create_domain()
         (username, emailLogin, password) = self.create_user("admin",
-              overall_quota, default_quota, max_accounts, allow_groupware, default_quota_verify, default_role_verify, mail_quota, username, alias, forward_to, expected_message_contains)
+              overall_quota, default_quota, max_accounts, default_quota_verify, default_role_verify, mail_quota, username, alias, forward_to, expected_message_contains)
+        self.link_admin_to_domain(username, domainname)
+        return username, emailLogin, password, domainname
+
+    def link_admin_to_domain(self, username, domainname):
+        driver = self.driver
+
         # now edit the domain and set the domainadmin
-        elem = driver.find_element_by_link_text("Domains")
-        elem.click()
-        self.wait_loading()
+        driver.find_element_by_link_text("Domains").click()
+        self.wait_loading(1.0)
         elem = self.driver.find_element_by_id("searchinput")
         elem.send_keys(domainname)
         elem.send_keys(Keys.ENTER)
@@ -567,14 +586,12 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.wait_loading()
         elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
         self.assertEquals("Domain updated successfully.", elem.text, "domain was not updated successfully, message: " + elem.text)
- 
-        return username, emailLogin, password, domainname
 
     def load_user(self, username):
 
         self.driver.get(self.driver.current_url)
         self.driver.find_element_by_link_text("Users").click()
-        self.wait_loading() 
+        self.wait_loading(1.0) 
 
         elem = self.driver.find_element_by_id("searchinput")
         elem.send_keys(username)
