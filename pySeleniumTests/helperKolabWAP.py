@@ -215,9 +215,11 @@ class KolabWAPTestHelpers(unittest.TestCase):
     def restartKolabServer(self):
         self.startKolabServer('restart')
 
-    def startKolabSync(self):
+    def startKolabSync(self, domainname = None):
         # first one run that waits for the sync to finish
-        os.system("su - kolab -s /bin/bash -c 'kolab sync > /dev/null 2>&1'")
+        if domainname is not None:
+          domainparam = "--domain=" + domainname + " "
+        os.system("su - kolab -s /bin/bash -c 'kolab sync " + domainname + "> /dev/null 2>&1'")
         # now start the service again
         self.startKolabServer()
 
@@ -258,7 +260,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
         self.assertEquals("Domain created successfully.", elem.text, "domain was not created successfully, message: " + elem.text)
 
-        self.startKolabSync()
+        self.startKolabSync(domainname)
         wap_client.authenticate()
         dna = conf.get('ldap', 'domain_name_attribute')
         # wait a couple of seconds until the sync script has been run
@@ -359,7 +361,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         self.assertEquals("Shared folder created successfully.", elem.text, "Shared Folder was not saved successfully, message: " + elem.text)
 
-        self.startKolabSync()
+        self.startKolabSync(self.get_selected_domain())
         # wait a couple of seconds until the sync script has been run
         out = ""
         starttime=datetime.datetime.now()
@@ -499,7 +501,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         self.assertEquals("User created successfully.", elem.text, "User was not saved successfully, message: " + elem.text)
 
-        self.startKolabSync() 
+        self.startKolabSync(self.get_selected_domain()) 
         if forward_to is None:
             if self.imap is None:
               self.imap = IMAP()
