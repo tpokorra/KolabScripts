@@ -681,15 +681,15 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.wait_loading(5)
         if emailSubjectLine is not None:
            elem = wait.until(EC.visibility_of_element_located(
-                      (By.XPATH, "//div[@id='mainscreen']/h1[text()='" + emailSubjectLine + "']")),
+                      (By.XPATH, "//div[@id='messageheader']/h2[text()='" + emailSubjectLine + "']")),
                    "the first email does not have the subject " + emailSubjectLine)
         if emailSubjectLineDoesNotContain is not None:
            try:
-             elem = wait.until(EC.visibility_of_element_located((By.XPATH, "//div[@id='mainscreen']/h1[text()='" + emailSubjectLineDoesNotContain + "']")),
+             elem = wait.until(EC.visibility_of_element_located((By.XPATH, "//div[@id='messageheader']/h2[text()='" + emailSubjectLineDoesNotContain + "']")),
                   "cannot find the email with subject " + emailSubjectLineDoesNotContain);
              self.assertTrue(False, "email subject should not contain " + emailSubjectLineDoesNotContain + " but was " + elem.text)
            except TimeoutException, e:
-             self.assertTrue(True, "we expect a timeout, since we don't want to find the email with this subject as the first email") 
+             self.assertTrue(True, "we expect a timeout, since we don't want to find the email with this subject as the first email")
 
     def log_current_page(self):
         filename = "/tmp/output" + datetime.datetime.now().strftime("%Y%m%d%H%M%S") + ".html"
