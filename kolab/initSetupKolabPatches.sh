@@ -38,6 +38,8 @@ echo "applying setupkolab_mysqlserverBug4971.patch"
 patch -p1 -i `pwd`/patches/setupkolab_mysqlserverBug4971.patch -d $pythonDistPackages/pykolab || exit -1
 echo "applying setupkolab_directory_manager_pwdBug2645.patch"
 patch -p1 -i `pwd`/patches/setupkolab_directory_manager_pwdBug2645.patch -d $pythonDistPackages || exit -1
+echo "applying cmdSyncSingleDomainBug5091.patch"
+patch -p1 -i `pwd`/patches/cmdSyncSingleDomainBug5091.patch -d $pythonDistPackages || exit -1
 
 echo "applying patch for Roundcube Kolab plugin for storage in MariaDB"
 patch -p1 -i `pwd`/patches/roundcubeStorageMariadbBug4883.patch -d /usr/share/roundcubemail || exit -1

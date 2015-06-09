@@ -1,0 +1,42 @@
+--- a/pykolab/cli/cmd_sync.py	2015-06-08 13:59:42.534281914 +0200
++++ b/pykolab/cli/cmd_sync.py	2015-06-08 14:11:41.470248319 +0200
+@@ -60,21 +60,34 @@
+             help    = _("Resync from the beginning")
+         )
+ 
++    my_option_group.add_option(
++           '--domain',
++           dest     = "domain",
++           action   = "store",
++           default  = "all",
++           help     = _("Only sync the specified domain")
++        )
++
+ def execute(*args, **kw):
+     global imap, pool
+ 
+     auth = Auth()
+-    log.debug(_("Listing domains..."), level=5)
+-    start_time = time.time()
+-    domains = auth.list_domains()
+-    end_time = time.time()
+-    log.debug(
++
++    if conf.domain == "all":
++      log.debug(_("Listing domains..."), level=5)
++      start_time = time.time()
++      domains = auth.list_domains()
++      end_time = time.time()
++      log.debug(
+             _("Found %d domains in %d seconds") % (
+                     len(domains),
+                     (end_time-start_time)
+                 ),
+             level=8
+         )
++    else:
++      domains = {}
++      domains[conf.domain] = conf.domain
+ 
+     if version.StrictVersion(sys.version[:3]) >= version.StrictVersion("2.7"):
+         pool = multiprocessing.Pool(conf.threads, worker_process, (), 1)
