@@ -32,6 +32,8 @@ class KolabEmailMailForwarding(unittest.TestCase):
         
         # create a forward address
         username2, emailForwardAddress, password2 = kolabWAPhelper.create_user(forward_to=emailLogin)
+        # wait a few seconds for the change to take effect
+        time.sleep(2)
         
         kolabWAPhelper.logout_kolab_wap()
 
@@ -64,6 +66,7 @@ class KolabEmailMailForwarding(unittest.TestCase):
         # create a forward address
         # using an external echo address (see https://de.wikipedia.org/wiki/Echo-Mailer)
         username2, emailForwardAddress, password2 = kolabWAPhelper.create_user(forward_to="echo@tu-berlin.de")
+        time.sleep(2)
 
         kolabWAPhelper.logout_kolab_wap()
 
