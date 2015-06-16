@@ -1,0 +1,17 @@
+diff --git a/bin/domain_delete.php b/bin/domain_delete.php
+index 4dbe729..8c30dfd 100644
+--- a/bin/domain_delete.php
++++ b/bin/domain_delete.php
+@@ -112,6 +112,12 @@ function delete_domain($domain_dn, $domain)
+     }
+ 
+     $entries   = array();
++
++    // for unknown reasons, this will not be deleted recursively when deleting the domain.
++    // resulting in "Operation not allowed on non-leaf"
++    // so we specifically delete the leaf here
++    $entries[] = "cn=kolab-admin,".$inetdomainbasedn;
++
+     $entries[] = $inetdomainbasedn;
+ 
+     $cn        = str_replace('.', '_', $domain_name);

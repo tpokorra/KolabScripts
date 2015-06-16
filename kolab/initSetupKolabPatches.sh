@@ -40,6 +40,10 @@ echo "applying setupkolab_directory_manager_pwdBug2645.patch"
 patch -p1 -i `pwd`/patches/setupkolab_directory_manager_pwdBug2645.patch -d $pythonDistPackages || exit -1
 echo "applying cmdSyncSingleDomainBug5091.patch"
 patch -p1 -i `pwd`/patches/cmdSyncSingleDomainBug5091.patch -d $pythonDistPackages || exit -1
+echo "installing domain delete script"
+mkdir -p /usr/share/kolab-webadmin/bin
+touch /usr/share/kolab-webadmin/bin/domain_delete.php
+patch p1 -i `pwd`/patches/fixDomainDeleteBug5100.patch -d /usr/share/kolab-webadmin
 
 echo "applying patch for Roundcube Kolab plugin for storage in MariaDB"
 patch -p1 -i `pwd`/patches/roundcubeStorageMariadbBug4883.patch -d /usr/share/roundcubemail || exit -1
