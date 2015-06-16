@@ -15,6 +15,9 @@ sed -r -i -e "s#default_locale = en_US#default_locale = de_DE#g" /etc/kolab/kola
 # set in kolab.conf, ldap section: modifytimestamp_format = %%Y%%m%%d%%H%%M%%SZ, to avoid warning on console
 sed -r -i -e "s#\[ldap\]#[ldap]\nmodifytimestamp_format = %%Y%%m%%d%%H%%M%%SZ#g" /etc/kolab/kolab.conf
 
+# do not add secondary emails by default
+sed -r -i -e "s#autocreate_folders#secondary_mail = { }\nautocreate_folders#g" /etc/kolab/kolab.conf
+
 # set in /etc/sysconfig/dirsrv: ulimit -n 32192, to avoid dirsrv crashing because of too many open files
 sed -r -i -e "s/# ulimit -n 8192/ulimit -n 32192/g" /etc/sysconfig/dirsrv
 if [ -f /bin/systemctl ]
