@@ -33,7 +33,7 @@ class KolabEmailMailForwarding(unittest.TestCase):
         # create a forward address
         username2, emailForwardAddress, password2 = kolabWAPhelper.create_user(forward_to=emailLogin)
         # wait a few seconds for the change to take effect
-        time.sleep(2)
+        time.sleep(10)
         
         kolabWAPhelper.logout_kolab_wap()
 
@@ -41,7 +41,7 @@ class KolabEmailMailForwarding(unittest.TestCase):
         print "sending email to " + emailForwardAddress
         subject = 'for ' + username
         subprocess.call(['/bin/bash', '-c', 'echo "test" | mail -s "' + subject + '" ' + emailForwardAddress])
-        time.sleep(5)
+        time.sleep(10)
 
         # login user to roundcube and check for email
         kolabWAPhelper.login_roundcube("/roundcubemail", emailLogin, password)
@@ -66,7 +66,7 @@ class KolabEmailMailForwarding(unittest.TestCase):
         # create a forward address
         # using an external echo address (see https://de.wikipedia.org/wiki/Echo-Mailer)
         username2, emailForwardAddress, password2 = kolabWAPhelper.create_user(forward_to="echo@tu-berlin.de")
-        time.sleep(2)
+        time.sleep(10)
 
         kolabWAPhelper.logout_kolab_wap()
 
