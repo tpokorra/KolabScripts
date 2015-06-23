@@ -1,15 +1,26 @@
-diff --git a/bin/domain_delete.php b/bin/domain_delete.php
-index 4dbe729..8c30dfd 100644
---- a/bin/domain_delete.php
-+++ b/bin/domain_delete.php
-@@ -112,6 +112,12 @@ function delete_domain($domain_dn, $domain)
+--- a/bin/domain_delete.php	2015-06-23 17:11:12.307937002 +0200
++++ b/bin/domain_delete.php	2015-06-23 17:14:53.283926676 +0200
+@@ -34,7 +34,10 @@
+ $password = $CONF->get('ldap', 'bind_pw');
+ $domain   = $CONF->get('kolab', 'primary_domain');
+ 
+-$LDAP->authenticate($username, $password, $domain);
++// see https://cgit.kolab.org/webadmin/tree/lib/kolab_api_controller.php#n292
++session_start();
++$_SESSION['user'] = new User();
++$_SESSION['user']->authenticate($username, $password, $domain);
+ 
+ // get list of domains to delete
+ $domains = list_deleted_domains();
+@@ -109,6 +112,13 @@
      }
  
      $entries   = array();
 +
-+    // for unknown reasons, this will not be deleted recursively when deleting the domain.
-+    // resulting in "Operation not allowed on non-leaf"
-+    // so we specifically delete the leaf here
++    // for the moment, solve this here
++    // fix for recursively deleting the domain.
++    // we specifically delete the leaf here.
++    // will be properly solved in php-Net_LDAP3 see https://git.kolab.org/D23
 +    $entries[] = "cn=kolab-admin,".$inetdomainbasedn;
 +
      $entries[] = $inetdomainbasedn;
