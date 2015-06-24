@@ -9,7 +9,7 @@ index c0c3297..0bfcac7 100644
 +
 +                # store current unix time in last login
 +                self.bind = False
-+                if self.config_get('setlastlogin') == "True":
++                if self.config_get('setlastlogin') == "True" and not "uid=cyrus-admin" in entry_dn:
 +                    self.set_entry_attribute(entry_dn, "tbitsKolabLastLogin", str(int(time.time())))
 +
                  try:
