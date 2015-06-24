@@ -1,0 +1,23 @@
+--- a/lib/Auth/LDAP.php	2015-06-24 11:30:15.921316512 +0200
++++ b/lib/Auth/LDAP.php	2015-06-24 11:30:52.563316175 +0200
+@@ -1484,7 +1484,7 @@
+ 
+         $ckey = 'domain::' . $domain;
+ 
+-        if (isset($this->icache[$ckey])) {
++        if (!empty($this->icache[$ckey])) {
+             return $this->icache[$ckey];
+         }
+ 
+@@ -1513,7 +1513,10 @@
+ 
+         // Got cached domain DN, no need for searching, just read
+         if ($domain_dn) {
+-            return $this->icache[$ckey] = $this->_read($domain_dn, $attributes);
++            $result = $this->_read($domain_dn, $attributes);
++            if ($result) {
++               return $this->icache[$ckey] = $result;
++            }
+         }
+ 
+         $domain_base_dn        = $this->conf->get('ldap', 'domain_base_dn');
