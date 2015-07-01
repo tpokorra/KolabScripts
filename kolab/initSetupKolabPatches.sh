@@ -35,9 +35,6 @@ fi
 echo "applying patch for Roundcube Kolab plugin for storage in MariaDB"
 patch -p1 -i `pwd`/patches/roundcubeStorageMariadbBug4883.patch -d /usr/share/roundcubemail || exit -1
 
-echo "fix https://git.kolab.org/D23 for Delete Domain, it has not been integrated upstream yet"
-patch -p1 -i `pwd`/patches/fixDeleteDomainD23.patch -d /usr/share/php || exit -1
-
 # TODO: see if we still need these patches
 #echo "applying patch for waiting after restart of dirsrv (necessary on Debian)"
 #patch -p1 -i `pwd`/patches/setupKolabSleepDirSrv.patch -d $pythonDistPackages || exit -1
