@@ -1,0 +1,76 @@
+From 94d58ba529201de81f956fa8e868a9438bdd18c8 Mon Sep 17 00:00:00 2001
+From: Timotheus Pokorra <tp@tbits.net>
+Date: Fri, 12 Jun 2015 12:15:07 +0200
+Subject: cli: kolab delete-domain improved. (#5098) it now displays if the
+ command succeeded, or shows the error message from the Kolab API. new
+ parameter --force to delete a domain even if user accounts exist.
+
+
+diff --git a/pykolab/cli/cmd_delete_domain.py b/pykolab/cli/cmd_delete_domain.py
+index 78580d0..5204923 100644
+--- a/pykolab/cli/cmd_delete_domain.py
++++ b/pykolab/cli/cmd_delete_domain.py
+@@ -35,6 +35,17 @@ def __init__():
+ def description():
+     return _("Delete a domain.")
+ 
++def cli_options():
++    my_option_group = conf.add_cli_parser_option_group(_("CLI Options"))
++
++    my_option_group.add_option(
++            '--force',
++            dest    = "force",
++            action  = "store_true",
++            default = False,
++            help    = _("Force deleting the domain even if it contains user accounts")
++        )
++
+ def execute(*args, **kw):
+     from pykolab import wap_client
+ 
+@@ -55,4 +66,9 @@ def execute(*args, **kw):
+     except IndexError, errmsg:
+         domain = utils.ask_question(_("Domain name"))
+ 
+-    wap_client.domain_delete(domain)
++    if wap_client.domain_delete(domain, conf.force):
++        print("Domain %s has been marked as deleted." % domain)
++        print("Please run this command to actually delete the domain: ")
++        print("   php /usr/share/kolab-webadmin/bin/domain_delete.php")
++    else:
++        print("Domain %s has not been deleted." % domain)
+diff --git a/pykolab/wap_client/__init__.py b/pykolab/wap_client/__init__.py
+index ed96292..f625bd6 100644
+--- a/pykolab/wap_client/__init__.py
++++ b/pykolab/wap_client/__init__.py
+@@ -123,12 +123,15 @@ def domain_add(domain, aliases=[]):
+ 
+     return request('POST', 'domain.add', post=post)
+ 
+-def domain_delete(domain):
++def domain_delete(domain, force=False):
+     domain_id, domain_attrs = domain_find(domain).popitem()
+ 
+-    post = json.dumps({
+-            'id': domain_id
+-        })
++    param = {}
++    param['id'] = domain_id
++
++    if force:
++        param['force'] = force
++    post = json.dumps(param)
+ 
+     return request('POST', 'domain.delete', post=post)
+ 
+@@ -390,6 +393,7 @@ def request(method, api_uri, get=None, post=None, headers={}):
+         del response_data['status']
+         return response_data['result']
+     else:
++        print("%s: %s (code %s)" % (response_data['status'], response_data['reason'], response_data['code']))
+         return False
+ 
+ def request_raw(method, api_uri, get=None, post=None, headers={}, isretry=False):
+-- 
+cgit v0.10.2
+
