@@ -63,14 +63,14 @@ index ed96292..f625bd6 100644
  
      return request('POST', 'domain.delete', post=post)
  
-@@ -390,6 +393,7 @@ def request(method, api_uri, get=None, post=None, headers={}):
+@@ -378,6 +381,7 @@ def request(method, api_uri, get=None, post=None, headers={}):
          del response_data['status']
          return response_data['result']
      else:
 +        print("%s: %s (code %s)" % (response_data['status'], response_data['reason'], response_data['code']))
          return False
  
- def request_raw(method, api_uri, get=None, post=None, headers={}, isretry=False):
+ def request_raw(method, api_uri, get=None, post=None, headers={}):
 -- 
 cgit v0.10.2
 
