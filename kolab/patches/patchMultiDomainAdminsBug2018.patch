@@ -321,7 +321,7 @@ index b0027be..cc37e4a 100644
 +            // ignore cn=Directory Manager
 +            if ($domainadmin != $this->conf->get('bind_dn')) {
 +                $userinfo = array_shift(array_values($this->user_info($domainadmin, array($config_flag))));
-+                if (isset($userinfo[$config_flag])) {
++                if (!empty($userinfo[$config_flag])) {
 +                    // what about multiple domain admins of one domain?
 +                    if (isset($resultvalue) && $resultvalue != $userinfo[$config_flag]) {
 +                        throw new Exception('error: domainadmins have contradicting settings for '.$config_flag);
