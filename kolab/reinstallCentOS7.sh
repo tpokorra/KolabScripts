@@ -89,16 +89,12 @@ rm -f /etc/yum.repos.d/Kolab*.repo /etc/yum.repos.d/lbs-tbits.net-kolab-nightly.
 yum-config-manager --add-repo $obs/Kolab:/3.4/$OBS_repo_OS/Kolab:3.4.repo
 yum-config-manager --add-repo $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/Kolab:3.4:Updates.repo
 yum-config-manager --add-repo $obs/Kolab:/Development/$OBS_repo_OS/Kolab:Development.repo
-yum-config-manager --add-repo https://download.solidcharity.com/repos/tbits.net/kolab-nightly/centos/7/lbs-tbits.net-kolab-nightly.repo
 
 # install key http://keyserver.ubuntu.com/pks/lookup?op=vindex&search=devel%40lists.kolab.org&fingerprint=on
 rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x830C2BCF446D5A45"
 
-# install the key for the nightly packages built on LBS
-rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&fingerprint=on&search=0x4796B710919684AC"
-
 # add priority = 0 to kolab repo files
-for f in /etc/yum.repos.d/Kolab*.repo /etc/yum.repos.d/lbs-tbits.net-kolab-nightly.repo
+for f in /etc/yum.repos.d/Kolab*.repo
 do
     sed -i "s#enabled=1#enabled=1\npriority=0#g" $f
     sed -i "s#http://obs.kolabsys.com:82/#$obs/#g" $f
