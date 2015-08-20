@@ -1,0 +1,17 @@
+diff --git a/pykolab/auth/ldap/__init__.py b/pykolab/auth/ldap/__init__.py
+index 9d190ac..66ea72c 100644
+--- a/pykolab/auth/ldap/__init__.py
++++ b/pykolab/auth/ldap/__init__.py
+@@ -2101,8 +2101,9 @@ class LDAP(pykolab.base.Base):
+ 
+         # If we have a 1:1 match, continue as planned
+         for naming_context in naming_contexts:
+-            if self.domain_rootdns[domain].endswith(naming_context):
+-                return naming_context
++            if domain in self.domain_rootdns:
++                if self.domain_rootdns[domain].endswith(naming_context):
++                    return naming_context
+ 
+     def _primary_domain_for_naming_context(self, naming_context):
+         self._bind()
+
