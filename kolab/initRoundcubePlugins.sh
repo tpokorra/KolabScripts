@@ -1,18 +1,10 @@
 #!/bin/bash
 
-if [ `which yum` ]; then
-  if [[ ! `which wget` || ! `which patch` ]]; then
-    yum -y install wget patch
-  fi
-else
-  if [ `which apt-get` ]; then
-    if [[ ! `which wget` || ! `which patch` ]]; then
-      apt-get -y install wget patch;
-    fi
-  else echo "Neither yum nor apt-get available. On which platform are you?";
-  exit 0
-  fi
-fi
+SCRIPTSPATH=`dirname ${BASH_SOURCE[0]}`
+source $SCRIPTSPATH/lib.sh
+
+DetermineOS
+InstallWgetAndPatch
 
 # disable the message_label plugin, because Kolab 3.3 has tags for emails
 if [ 1 -eq 0 ];
