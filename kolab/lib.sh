@@ -55,11 +55,12 @@ function InstallWgetAndPatch()
 {
   if [[ $OS == CentOS* || $OS == Fedora* ]]
   then
-    if [[ ! `which wget` || ! `which patch` ]]; then
+    if [[ -z "`rpm -qa | grep wget`" || -z "`rpm -qa | grep patch`" ]]; then
       yum -y install wget patch
     fi
   elif [[ $OS == Ubuntu* || $OS == Debian* ]]; then
-    if [[ ! `which wget` || ! `which patch` ]]; then
+    dpkg -l wget patch
+    if [ $? -ne 0 ]; then
       apt-get -y install wget patch;
     fi
   fi
