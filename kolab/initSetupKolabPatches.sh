@@ -14,6 +14,9 @@ DeterminePythonPath
 echo "applying patch for Roundcube Kolab plugin for storage in MariaDB"
 patch -p1 -i `pwd`/patches/roundcubeStorageMariadbBug4883.patch -d /usr/share/roundcubemail || exit -1
 
+echo "backport: applying patch for pykolab wap client to avoid timeouts"
+patch -p1 -i `pwd`/patches/pykolab-wap_client-backported.patch -d $pythonDistPackages || exit -1
+
 # TODO: see if we still need these patches
 #echo "applying patch for waiting after restart of dirsrv (necessary on Debian)"
 #patch -p1 -i `pwd`/patches/setupKolabSleepDirSrv.patch -d $pythonDistPackages || exit -1
