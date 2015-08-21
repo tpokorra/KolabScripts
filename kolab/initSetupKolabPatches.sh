@@ -17,6 +17,9 @@ patch -p1 -i `pwd`/patches/roundcubeStorageMariadbBug4883.patch -d /usr/share/ro
 echo "backport: applying patch for pykolab wap client to avoid timeouts"
 patch -p1 -i `pwd`/patches/pykolab-wap_client-backported.patch -d $pythonDistPackages || exit -1
 
+echo "backport: applying patch for php-Net-LDAP3 to support login to roundcube in multidomain mode"
+patch -p2 -i `pwd`/patches/php-Net-LDAP3-roundcube_ldap_auth-backported.patch -d /usr/share/php/ || exit -1
+
 # TODO: see if we still need these patches
 #echo "applying patch for waiting after restart of dirsrv (necessary on Debian)"
 #patch -p1 -i `pwd`/patches/setupKolabSleepDirSrv.patch -d $pythonDistPackages || exit -1
