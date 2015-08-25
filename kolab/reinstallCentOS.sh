@@ -1,7 +1,7 @@
 #!/bin/bash
 # this script will remove Kolab, and DELETE all YOUR data!!!
 # it will reinstall Kolab, from Kolab Development
-# you can optionally install the patches from TBits, see bottom of script reinstall.sh
+# you can optionally install the patches from TBits.net, see bottom of script reinstall.sh
 
 #check that dirsrv will have write permissions to /dev/shm
 if [[ $(( `stat --format=%a /dev/shm` % 10 & 2 )) -eq 0 ]]
@@ -71,10 +71,10 @@ rm -Rf \
     /var/spool/imap \
     /var/spool/postfix
 
-if [[ ! $OBS_repo_OS == Fedora* ]]
+if [[ $OBS_repo_OS == CentOS* ]]
 then
   yum -y install epel-release yum-utils
-else
+elif [[ $OBS_repo_OS == Fedora* ]]
   dnf -y install 'dnf-command(config-manager)'
 fi
 
@@ -86,14 +86,14 @@ then
 fi
 
 rm -f /etc/yum.repos.d/Kolab*.repo /etc/yum.repos.d/lbs-tbits.net-kolab-nightly.repo
-if [[ ! $OBS_repo_OS == Fedora* ]]
+if [[ $OBS_repo_OS == CentOS* ]]
 then
   yum-config-manager --add-repo $obs/Kolab:/3.4/$OBS_repo_OS/Kolab:3.4.repo
   yum-config-manager --add-repo $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/Kolab:3.4:Updates.repo
   yum-config-manager --add-repo $obs/Kolab:/Development/$OBS_repo_OS/Kolab:Development.repo
   #yum-config-manager --add-repo https://download.solidcharity.com/repos/tbits.net/kolab-nightly/centos/7/lbs-tbits.net-kolab-nightly.repo
   yum-config-manager --add-repo $obs/home:/tpokorra:/branches:/Kolab:/Development/$OBS_repo_OS/home:tpokorra:branches:Kolab:Development.repo
-else
+elif [[ $OBS_repo_OS == Fedora* ]]
   dnf config-manager --add-repo $obs/Kolab:/3.4/$OBS_repo_OS/Kolab:3.4.repo
   dnf config-manager --add-repo $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/Kolab:3.4:Updates.repo
   dnf config-manager --add-repo $obs/Kolab:/Development/$OBS_repo_OS/Kolab:Development.repo
@@ -106,14 +106,23 @@ rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x830C2BCF446
 # install the key for the nightly packages built on LBS
 rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&fingerprint=on&search=0x4796B710919684AC"
 
-# add priority = 0 to kolab repo files
-for f in /etc/yum.repos.d/Kolab*.repo /etc/yum.repos.d/lbs-tbits.net-kolab-nightly.repo
+# add priority = 1 to kolab repo files
+for f in /etc/yum.repos.d/Kolab*.repo
 do
-    sed -i "s#enabled=1#enabled=1\npriority=0#g" $f
+    sed -i "s#enabled=1#enabled=1\npriority=1#g" $f
     sed -i "s#http://obs.kolabsys.com:82/#$obs/#g" $f
 done
+# add priority = 0 to nightly repo files
+for f in /etc/yum.repos.d/lbs-tbits.net-kolab-nightly.repo /etc/yum.repos.d/home:tpokorra:branches:Kolab:Development.repo
+do
+    if [ -f $f ]
+    then
+      sed -i "s#enabled=1#enabled=1\npriority=0#g" $f
+      sed -i "s#http://obs.kolabsys.com:82/#$obs/#g" $f
+    fi
+done
 
-if [[ ! $OBS_repo_OS == Fedora* ]]
+if [[ $OBS_repo_OS == CentOS* ]]
 then
   yum clean metadata
 
@@ -123,7 +132,7 @@ then
     yum clean metadata
     yum -y install kolab kolab-freebusy patch unzip
   fi
-else
+elif [[ $OBS_repo_OS == Fedora* ]]
   dnf clean metadata
   dnf -y install  kolab kolab-freebusy patch unzip || exit -1
 fi
