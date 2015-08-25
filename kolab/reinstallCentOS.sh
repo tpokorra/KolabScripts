@@ -1,7 +1,7 @@
 #!/bin/bash
 # this script will remove Kolab, and DELETE all YOUR data!!!
 # it will reinstall Kolab, from Kolab Development
-# you can optionally install the patches from TBits, see bottom of script reinstall.sh
+# you can optionally install the patches from TBits.net, see bottom of script reinstall.sh
 
 #check that dirsrv will have write permissions to /dev/shm
 if [[ $(( `stat --format=%a /dev/shm` % 10 & 2 )) -eq 0 ]]
@@ -71,11 +71,11 @@ rm -Rf \
     /var/spool/imap \
     /var/spool/postfix
 
-if [[ ! $OBS_repo_OS == Fedora* ]]
+if [[ $OBS_repo_OS == CentOS* ]]
 then
   yum -y install epel-release yum-utils
-else
-  yum -y install yum-utils
+elif [[ $OBS_repo_OS == Fedora* ]]
+  dnf -y install 'dnf-command(config-manager)'
 fi
 
 # could use environment variable obs=http://my.proxy.org/obs.kolabsys.com 
@@ -86,9 +86,16 @@ then
 fi
 
 rm -f /etc/yum.repos.d/Kolab*.repo /etc/yum.repos.d/lbs-tbits.net-kolab-nightly.repo
-yum-config-manager --add-repo $obs/Kolab:/3.4/$OBS_repo_OS/Kolab:3.4.repo
-yum-config-manager --add-repo $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/Kolab:3.4:Updates.repo
-yum-config-manager --add-repo $obs/Kolab:/Development/$OBS_repo_OS/Kolab:Development.repo
+if [[ $OBS_repo_OS == CentOS* ]]
+then
+  yum-config-manager --add-repo $obs/Kolab:/3.4/$OBS_repo_OS/Kolab:3.4.repo
+  yum-config-manager --add-repo $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/Kolab:3.4:Updates.repo
+  yum-config-manager --add-repo $obs/Kolab:/Development/$OBS_repo_OS/Kolab:Development.repo
+elif [[ $OBS_repo_OS == Fedora* ]]
+  dnf config-manager --add-repo $obs/Kolab:/3.4/$OBS_repo_OS/Kolab:3.4.repo
+  dnf config-manager --add-repo $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/Kolab:3.4:Updates.repo
+  dnf config-manager --add-repo $obs/Kolab:/Development/$OBS_repo_OS/Kolab:Development.repo
+fi
 
 # install key http://keyserver.ubuntu.com/pks/lookup?op=vindex&search=devel%40lists.kolab.org&fingerprint=on
 rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x830C2BCF446D5A45"
@@ -100,12 +107,17 @@ do
     sed -i "s#http://obs.kolabsys.com:82/#$obs/#g" $f
 done
 
-yum clean metadata
-
-tryagain=0
-yum -y install kolab kolab-freebusy patch unzip || tryagain=1
-if [ $tryagain -eq 1 ]; then
+if [[ $OBS_repo_OS == CentOS* ]]
+then
   yum clean metadata
-  yum -y install kolab kolab-freebusy patch unzip
-fi
 
+  tryagain=0
+  yum -y install kolab kolab-freebusy patch unzip || tryagain=1
+  if [ $tryagain -eq 1 ]; then
+    yum clean metadata
+    yum -y install kolab kolab-freebusy patch unzip
+  fi
+elif [[ $OBS_repo_OS == Fedora* ]]
+  dnf clean metadata
+  dnf -y install  kolab kolab-freebusy patch unzip || exit -1
+fi
