@@ -14,7 +14,7 @@ then
   exit 1
 elif [[ $OS == CentOS_* ]]
 then
-  ./reinstallCentOS7.sh $OS
+  ./reinstallCentOS.sh $OS
 elif [[ $OS == Fedora_* ]]
 then
   ./reinstallCentOS.sh $OS
