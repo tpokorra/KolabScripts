@@ -8,13 +8,10 @@ source $SCRIPTSPATH/lib.sh
 
 DetermineOS
 
-if [ -z $OS ]
+if [[ $OS == CentOS_6 ]]
 then
-  echo Your Operating System is currently not supported
+  echo "CentOS6 not supported since Kolab 3.5"
   exit 1
-elif [[ $OS == CentOS_6 ]]
-then
-  ./reinstallCentOS.sh $OS
 elif [[ $OS == CentOS_* ]]
 then
   ./reinstallCentOS7.sh $OS
@@ -27,6 +24,9 @@ then
 elif [[ $OS == Debian_* ]]
 then
   ./reinstallDebianUbuntu.sh $OS
+else
+  echo Your Operating System is currently not supported
+  exit 1
 fi
 
 if [ $? -ne 0 ]

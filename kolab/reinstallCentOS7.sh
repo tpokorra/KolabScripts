@@ -91,12 +91,13 @@ then
   yum-config-manager --add-repo $obs/Kolab:/3.4/$OBS_repo_OS/Kolab:3.4.repo
   yum-config-manager --add-repo $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/Kolab:3.4:Updates.repo
   yum-config-manager --add-repo $obs/Kolab:/Development/$OBS_repo_OS/Kolab:Development.repo
-  yum-config-manager --add-repo https://download.solidcharity.com/repos/tbits.net/kolab-nightly/centos/7/lbs-tbits.net-kolab-nightly.repo
+  #yum-config-manager --add-repo https://download.solidcharity.com/repos/tbits.net/kolab-nightly/centos/7/lbs-tbits.net-kolab-nightly.repo
+  yum-config-manager --add-repo $obs/home:/tpokorra:/branches:/Kolab:/Development/$OBS_repo_OS/home:tpokorra:branches:Kolab:Development.repo
 else
   dnf config-manager --add-repo $obs/Kolab:/3.4/$OBS_repo_OS/Kolab:3.4.repo
   dnf config-manager --add-repo $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/Kolab:3.4:Updates.repo
   dnf config-manager --add-repo $obs/Kolab:/Development/$OBS_repo_OS/Kolab:Development.repo
-  # TODO dnf config-manager --add-repo nightly packages
+  yum-config-manager --add-repo $obs/home:/tpokorra:/branches:/Kolab:/Development/$OBS_repo_OS/home:tpokorra:branches:Kolab:Development.repo
 fi
 
 # install key http://keyserver.ubuntu.com/pks/lookup?op=vindex&search=devel%40lists.kolab.org&fingerprint=on
