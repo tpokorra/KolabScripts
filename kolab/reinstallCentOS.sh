@@ -75,6 +75,7 @@ if [[ $OBS_repo_OS == CentOS* ]]
 then
   yum -y install epel-release yum-utils
 elif [[ $OBS_repo_OS == Fedora* ]]
+then
   dnf -y install 'dnf-command(config-manager)'
 fi
 
@@ -94,6 +95,7 @@ then
   #yum-config-manager --add-repo https://download.solidcharity.com/repos/tbits.net/kolab-nightly/centos/7/lbs-tbits.net-kolab-nightly.repo
   yum-config-manager --add-repo $obs/home:/tpokorra:/branches:/Kolab:/Development/$OBS_repo_OS/home:tpokorra:branches:Kolab:Development.repo
 elif [[ $OBS_repo_OS == Fedora* ]]
+then
   dnf config-manager --add-repo $obs/Kolab:/3.4/$OBS_repo_OS/Kolab:3.4.repo
   dnf config-manager --add-repo $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/Kolab:3.4:Updates.repo
   dnf config-manager --add-repo $obs/Kolab:/Development/$OBS_repo_OS/Kolab:Development.repo
@@ -133,6 +135,7 @@ then
     yum -y install kolab kolab-freebusy patch unzip
   fi
 elif [[ $OBS_repo_OS == Fedora* ]]
+then
   dnf clean metadata
   dnf -y install  kolab kolab-freebusy patch unzip || exit -1
 fi
