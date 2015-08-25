@@ -11,9 +11,11 @@ function DetermineOS
     if [[ $release == CentOS\ Linux\ release\ 6* ]]
     then
       export OS=CentOS_6
+      export RELEASE=6
     elif [[ $release == CentOS\ Linux\ release\ 7* ]]
     then
       export OS=CentOS_7
+      export RELEASE=7
     fi
   elif [ -f /etc/redhat-release ]
   then
@@ -21,12 +23,19 @@ function DetermineOS
     if [[ $release == Fedora\ release\ 20\ * ]]
     then
       export OS=Fedora_20
+      export RELEASE=22
     elif [[ $release == Fedora\ release\ 21\ * ]]
     then
       export OS=Fedora_21
+      export RELEASE=21
     elif [[ $release == Fedora\ release\ 22\ * ]]
     then
       export OS=Fedora_22
+      export RELEASE=22
+    elif [[ $release == Fedora\ release\ 23\ * ]]
+    then
+      export OS=Fedora_23
+      export RELEASE=23
     fi
   elif [ -f /etc/lsb-release ]
   then
@@ -34,9 +43,11 @@ function DetermineOS
     if [ $DISTRIB_ID == "Ubuntu" -a $DISTRIB_CODENAME == "precise" ]
     then
       export OS=Ubuntu_12.04
+      export RELEASE=1204
     elif [ $DISTRIB_ID == "Ubuntu" -a $DISTRIB_CODENAME == "trusty" ]
     then
       export OS=Ubuntu_14.04
+      export RELEASE=1404
     fi
   elif [ -f /etc/debian_version ]
   then
@@ -44,9 +55,11 @@ function DetermineOS
     if [[ $release == 7* ]]
     then
       export OS=Debian_7.0
+      export RELEASE=7
     elif [[ $release == 8* ]]
     then
       export OS=Debian_8.0
+      export RELEASE=8
     fi
   fi
 }

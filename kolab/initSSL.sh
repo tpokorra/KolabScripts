@@ -8,6 +8,12 @@ then
 fi
 export server_name=$1
 
+SCRIPTSPATH=`dirname ${BASH_SOURCE[0]}`
+source $SCRIPTSPATH/lib.sh
+
+DetermineOS
+InstallWgetAndPatch
+DeterminePythonPath
 
 #####################################################################################
 # see also https://gist.github.com/dhoffend/7008915 with title: Simple SSL Configuration for Kolab 3.1
@@ -107,8 +113,8 @@ service postfix restart
 #####################################################################################
 # configure Apache mod_ssl
 #####################################################################################
-# for CentOS:
-if [ -d /etc/httpd ]
+# for CentOS and Fedora
+if [[ $OS == CentOS* || $OS == Fedora* ]]
 then
     yum -y install mod_ssl
 
@@ -159,8 +165,18 @@ then
     fi
 
     service httpd restart
-# for Debian
-else
+
+    # make sure that kolab list-domains works for Fedora 22 with a self signed certificate
+    # error: ssl.SSLError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:581)
+    # see also https://www.python.org/dev/peps/pep-0476/
+    # only fix this in Fedora 22 and higher
+    if [[ $OS == Fedora* && $RELEASE >= 22 ]
+    then
+      patch -p1 -i `pwd`/patches/fixSelfSignedCertPykolab.patch -d $pythonDistPackages || exit -1
+    fi
+# for Debian and Ubuntu
+elif [[ $OS == Ubuntu* || $OS == Debian* ]]
+then
     a2dismod nss
     a2enmod ssl
 
@@ -197,11 +213,9 @@ SSLCACertificateFile $key_directory/certs/$server_name.ca-chain.pem\n"
     # error: ssl.SSLError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:581)
     # see also https://www.python.org/dev/peps/pep-0476/
     # only fix this in Debian Jessie, in Debian Wheezy there is no such method: AttributeError: 'module' object has no attribute '_create_unverified_context'
-    release=`cat /etc/debian_version`
-    if [[ $release == 8* ]]
+    if [[ $OS == Debian* && $RELEASE >= 8 ]]
     then
-      pythonDistPackages=/usr/lib/python2.7/dist-packages
-      patch -p1 -i `pwd`/patches/fixSelfSignedCertJessie.patch -d $pythonDistPackages || exit -1
+      patch -p1 -i `pwd`/patches/fixSelfSignedCertPykolab.patch -d $pythonDistPackages || exit -1
     fi
 fi
 
