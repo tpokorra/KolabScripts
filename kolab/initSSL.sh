@@ -170,7 +170,7 @@ then
     # error: ssl.SSLError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:581)
     # see also https://www.python.org/dev/peps/pep-0476/
     # only fix this in Fedora 22 and higher
-    if [[ $OS == Fedora* && $RELEASE >= 22 ]
+    if [[ $OS == Fedora* && $RELEASE >= 22 ]]
     then
       patch -p1 -i `pwd`/patches/fixSelfSignedCertPykolab.patch -d $pythonDistPackages || exit -1
     fi
