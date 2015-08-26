@@ -170,7 +170,7 @@ then
     # error: ssl.SSLError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:581)
     # see also https://www.python.org/dev/peps/pep-0476/
     # only fix this in Fedora 22 and higher
-    if [[ $OS == Fedora* && $RELEASE >= 22 ]]
+    if [[ $OS == Fedora* && $RELEASE -ge 22 ]]
     then
       patch -p1 -i `pwd`/patches/fixSelfSignedCertPykolab.patch -d $pythonDistPackages || exit -1
     fi
@@ -213,7 +213,7 @@ SSLCACertificateFile $key_directory/certs/$server_name.ca-chain.pem\n"
     # error: ssl.SSLError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:581)
     # see also https://www.python.org/dev/peps/pep-0476/
     # only fix this in Debian Jessie, in Debian Wheezy there is no such method: AttributeError: 'module' object has no attribute '_create_unverified_context'
-    if [[ $OS == Debian* && $RELEASE >= 8 ]]
+    if [[ $OS == Debian* && $RELEASE -ge 8 ]]
     then
       patch -p1 -i `pwd`/patches/fixSelfSignedCertPykolab.patch -d $pythonDistPackages || exit -1
     fi
