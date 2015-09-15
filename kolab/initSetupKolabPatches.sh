@@ -43,10 +43,10 @@ patch -p1 -i `pwd`/patches/cmdSyncSingleDomainBug5091.patch -d $pythonDistPackag
 echo "installing domain delete script"
 mkdir -p /usr/share/kolab-webadmin/bin
 touch /usr/share/kolab-webadmin/bin/domain_delete.php
-patch p1 -i `pwd`/patches/fixDomainDeleteBug5100.patch -d /usr/share/kolab-webadmin
+patch -p1 -i `pwd`/patches/fixDomainDeleteBug5100.patch -d /usr/share/kolab-webadmin || exit -1
 
 echo "fixing problem with importing Domains from Kolab2"
-patch p1 -i `pwd`/patches/fixDomainImport.patch -d /usr/share/kolab-webadmin
+patch -p1 -i `pwd`/patches/fixDomainImport.patch -d /usr/share/kolab-webadmin || exit -1
 
 echo "applying patch for Roundcube Kolab plugin for storage in MariaDB"
 patch -p1 -i `pwd`/patches/roundcubeStorageMariadbBug4883.patch -d /usr/share/roundcubemail || exit -1
