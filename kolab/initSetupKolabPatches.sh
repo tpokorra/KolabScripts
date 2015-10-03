@@ -69,7 +69,7 @@ patch -p1 -i `pwd`/patches/backport_checkbox_value_bug4815.patch -d /usr/share/k
 echo "applying backport fix for deletion domain from cli"
 patch -p2 -i `pwd`/patches/domainDeleteForceBug5098.patch -d $pythonDistPackages/pykolab || exit -1
 echo "applying packport fix for timeout issues of pykolab wapclient"
-patch -p1 -i `pwd`/patches/backport_timeoutissue_wapclient.patch -d $pythonDistPackages/pykolab || exit -1
+patch -p2 -i `pwd`/patches/backport_timeoutissue_wapclient.patch -d $pythonDistPackages/pykolab || exit -1
 
 # TODO on Debian, we need to install the rewrite for the csrf token
 if [ -f /etc/apache2/sites-enabled/000-default ]
