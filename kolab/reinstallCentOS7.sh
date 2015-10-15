@@ -98,6 +98,11 @@ do
     sed -i "s#http://obs.kolabsys.com:82/#$obs/#g" $f
 done
 
+# do not install roundcube packages from epel. we need the kolab packages
+# epel has roundcubemail-1.1.3-1.el7.noarch
+# kolab has roundcubemail-core-1.1.2-4.8.el7.kolab_3.4.noarch
+sed -i "s#enabled=1#enabled=1\nexclude=roundcubemail*#g" /etc/yum.repos.d/epel.repo
+
 yum clean metadata
 yum -y install kolab kolab-freebusy patch unzip
 
