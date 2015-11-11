@@ -12,7 +12,7 @@ function deleteDomains() {
     for d in `kolab list-domains | grep -v "Primary Domain" | grep "^domain"`
     do
       kolab delete-domain --force $d
-      php /usr/share/kolab-webadmin/bin/domain_delete.php
+      php /usr/share/kolab-webadmin/bin/purge-deleted-domains
     done
 }
 
