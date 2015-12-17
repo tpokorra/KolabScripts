@@ -76,26 +76,22 @@ then
   yum -y install epel-release
 fi
 
-# could use environment variable obs=http://my.proxy.org/obs.kolabsys.com 
-# see http://kolab.org/blog/timotheus-pokorra/2013/11/26/downloading-obs-repo-php-proxy-file
-if [[ "$obs" = "" ]]
+# could use environment variable copr=https://copr.fedoraproject.org/coprs/myuser
+if [[ "$copr" = "" ]]
 then
-  export obs=http://obs.kolabsys.com/repositories/
+  export copr=https://copr.fedoraproject.org/coprs/tpokorra
 fi
 
 cd /etc/yum.repos.d
 rm -Rf kolab-*.repo
-wget $obs/Kolab:/3.4/$OBS_repo_OS/Kolab:3.4.repo -O kolab-3.4.repo
-wget $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/Kolab:3.4:Updates.repo -O kolab-3.4-updates.repo
+wget $copr/Kolab-3.4/repo/epel-7/tpokorra-Kolab-3.4-epel-7.repo -O kolab-3.4.repo
+wget $copr/Kolab-3.4-Updates/repo/epel-7/tpokorra-Kolab-3.4-Updates-epel-7.repo -O kolab-3.4-updates.repo
 cd -
-
-rpm --import key/devel\@lists.kolab.org.asc
 
 # add priority = 0 to kolab repo files
 for f in /etc/yum.repos.d/kolab-3*.repo
 do
     sed -i "s#enabled=1#enabled=1\npriority=0#g" $f
-    sed -i "s#http://obs.kolabsys.com:82/#$obs/#g" $f
 done
 
 # do not install roundcube packages from epel. we need the kolab packages
