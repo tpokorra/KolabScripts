@@ -99,9 +99,11 @@ For CentOS6:
     wget https://copr.fedoraproject.org/coprs/tpokorra/Kolab-3.4-Updates/repo/epel-6/tpokorra-Kolab-3.4-Updates-epel-6.repo -O Kolab-3.4-Updates.repo
 
     # Make sure that the packages from the Kolab repositories have a higher priority than eg. the Epel packages:
-    for f in /etc/yum.repos.d/Kolab*.repo; do sed -i "s#enabled=1#enabled=1npriority=1#g" $f; done
+    for f in /etc/yum.repos.d/Kolab*.repo; do sed -i "s#enabled=1#enabled=1\npriority=1#g" $f; done
     
     yum install kolab
+    
+    # now follow the instructions at https://docs.kolab.org/installation-guide/setup-kolab.html#install-setup-kolab
 
 
 For CentOS7:
@@ -112,9 +114,11 @@ For CentOS7:
     wget https://copr.fedoraproject.org/coprs/tpokorra/Kolab-3.4-Updates/repo/epel-7/tpokorra-Kolab-3.4-Updates-epel-7.repo -O Kolab-3.4-Updates.repo
 
     # Make sure that the packages from the Kolab repositories have a higher priority than eg. the Epel packages:
-    for f in /etc/yum.repos.d/Kolab*.repo; do sed -i "s#enabled=1#enabled=1npriority=1#g" $f; done
+    for f in /etc/yum.repos.d/Kolab*.repo; do sed -i "s#enabled=1#enabled=1\npriority=1#g" $f; done
     
     yum install kolab
+    
+    # now follow the instructions at https://docs.kolab.org/installation-guide/setup-kolab.html#install-setup-kolab
 
 I am still working to fix the packages for Fedora 23.
 
