@@ -166,3 +166,8 @@ It did not build on CentOS6, because the constant __python2 was not defined. I p
  * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 0.1.6-2
  - Mass rebuild 2013-12-27
 ```
+
+CentOS6: upgraded packages php-pear-Mail-Mime, php-Smarty and python-ldap
+--
+
+When installing kolab on CentOS6, I realised that the Kolab OBS also provided newer versions of php-pear-Mail-Mime, php-Smarty and python-ldap. Unfortunately the source rpms are not available for download, but the SPEC files and the tarballs and patches are. So I built the source rpms without any modification and uploaded them to my webspace at FedoraPeople.org.
