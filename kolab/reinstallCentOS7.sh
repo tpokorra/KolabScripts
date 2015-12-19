@@ -31,6 +31,13 @@ then
   exit 1
 fi
 OBS_repo_OS=$1
+if [[ "$OBS_repo_OS" == "CentOS_7" ]]
+then
+  COPR_repo_OS="epel-7"
+elif [["$OBS_repo_OS" == "Fedora_23" ]]
+then
+  COPR_repo_OS="fedora-23"
+fi
 
 systemctl stop kolabd
 systemctl stop kolab-saslauthd
@@ -84,8 +91,8 @@ fi
 
 cd /etc/yum.repos.d
 rm -Rf kolab-*.repo
-wget $copr/Kolab-3.4/repo/epel-7/tpokorra-Kolab-3.4-epel-7.repo -O kolab-3.4.repo
-wget $copr/Kolab-3.4-Updates/repo/epel-7/tpokorra-Kolab-3.4-Updates-epel-7.repo -O kolab-3.4-updates.repo
+wget $copr/Kolab-3.4/repo/${COPR_repo_OS}/tpokorra-Kolab-3.4-${COPR_repo_OS}.repo -O kolab-3.4.repo
+wget $copr/Kolab-3.4-Updates/repo/${COPR_repo_OS}/tpokorra-Kolab-3.4-Updates-${COPR_rep_OS}.repo -O kolab-3.4-updates.repo
 cd -
 
 # add priority = 0 to kolab repo files
@@ -97,7 +104,10 @@ done
 # do not install roundcube packages from epel. we need the kolab packages
 # epel has roundcubemail-1.1.3-1.el7.noarch
 # kolab has roundcubemail-core-1.1.2-4.8.el7.kolab_3.4.noarch
-sed -i "s#enabled=1#enabled=1\nexclude=roundcubemail*#g" /etc/yum.repos.d/epel.repo
+if [ -f /etc/yum.repos.d/epel.repo ]
+then
+  sed -i "s#enabled=1#enabled=1\nexclude=roundcubemail*#g" /etc/yum.repos.d/epel.repo
+fi
 
 yum clean metadata
 yum -y install kolab kolab-freebusy patch unzip

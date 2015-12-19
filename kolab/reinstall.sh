@@ -15,12 +15,9 @@ then
 elif [ -f /etc/redhat-release ]
 then
   release=`cat /etc/redhat-release`
-  if [[ $release == Fedora\ release\ 21\ * ]]
+  if [[ $release == Fedora\ release\ 23\ * ]]
   then
-    ./reinstallCentOS7.sh Fedora_21
-  elif [[ $release == Fedora\ release\ 20\ * ]]
-  then
-    ./reinstallCentOS7.sh Fedora_20
+    ./reinstallCentOS7.sh Fedora_23
   fi
 elif [ -f /etc/lsb-release ]
 then
