@@ -14,16 +14,16 @@ then
   exit 1
 elif [[ $OS == CentOS_* ]]
 then
-  ./reinstallCentOS.sh $OS
+  ./reinstallCentOS.sh $OS || exit 1
 elif [[ $OS == Fedora_* ]]
 then
-  ./reinstallCentOS.sh $OS
+  ./reinstallCentOS.sh $OS || exit 1
 elif [[ $OS == Ubuntu_* ]]
 then
-  ./reinstallDebianUbuntu.sh $OS
+  ./reinstallDebianUbuntu.sh $OS || exit 1
 elif [[ $OS == Debian_* ]]
 then
-  ./reinstallDebianUbuntu.sh $OS
+  ./reinstallDebianUbuntu.sh $OS || exit 1
 else
   echo Your Operating System is currently not supported
   exit 1

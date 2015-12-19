@@ -132,7 +132,7 @@ then
   yum -y install kolab kolab-freebusy patch unzip || tryagain=1
   if [ $tryagain -eq 1 ]; then
     yum clean metadata
-    yum -y install kolab kolab-freebusy patch unzip
+    yum -y install kolab kolab-freebusy patch unzip || exit -1
   fi
 elif [[ $OBS_repo_OS == Fedora* ]]
 then

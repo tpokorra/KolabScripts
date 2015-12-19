@@ -144,8 +144,8 @@ apt-get -y install aptitude
 if [[ $OBS_repo_OS == "Debian_8.0" ]]
 then
   # we do not want apache2 2.2 from KolabSys OBS
-  apt-get -y install -t stable apache2
+  apt-get -y install -t stable apache2 || exit 1
 fi
 
-aptitude -y install kolab kolab-freebusy
+aptitude -y install kolab kolab-freebusy || exit 1
 
