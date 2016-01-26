@@ -1,6 +1,6 @@
 #!/bin/bash
 # this script will remove Kolab, and DELETE all YOUR data!!!
-# it will reinstall Kolab, from Kolab Development
+# it will reinstall Kolab, from Kolab 16
 # you can optionally install the patches from TBits.net, see bottom of script reinstall.sh
 
 #check that dirsrv will have write permissions to /dev/shm
@@ -89,10 +89,10 @@ fi
 rm -f /etc/yum.repos.d/Kolab*.repo /etc/yum.repos.d/lbs-tbits.net-kolab-nightly.repo
 if [[ $OBS_repo_OS == CentOS* ]]
 then
-  yum-config-manager --add-repo $obs/Kolab:/Development/$OBS_repo_OS/Kolab:Development.repo
+  yum-config-manager --add-repo $obs/Kolab:/16/$OBS_repo_OS/Kolab:16.repo
 elif [[ $OBS_repo_OS == Fedora* ]]
 then
-  dnf config-manager --add-repo $obs/Kolab:/Development/$OBS_repo_OS/Kolab:Development.repo
+  dnf config-manager --add-repo $obs/Kolab:/16/$OBS_repo_OS/Kolab:16.repo
 fi
 
 rpm --import "https://ssl.kolabsys.com/community.asc"

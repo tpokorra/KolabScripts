@@ -1,6 +1,6 @@
 #!/bin/bash
 # this script will remove Kolab, and DELETE all YOUR data!!!
-# it will reinstall Kolab, from Kolab 3.4 Updates and Kolab Development and the nightly builds
+# it will reinstall Kolab, from Kolab 16
 # you can optionally install the patches from TBits, see bottom of script reinstall.sh
 
 echo "this script will remove Kolab, and DELETE all YOUR data!!!"
@@ -110,7 +110,7 @@ then
 fi
 
 cat > /etc/apt/sources.list.d/kolab.list <<FINISH
-deb $obs/Kolab:/Development/$OBS_repo_OS/ ./
+deb $obs/Kolab:/16/$OBS_repo_OS/ ./
 FINISH
 
 wget https://ssl.kolabsys.com/community.asc -O Release.key
