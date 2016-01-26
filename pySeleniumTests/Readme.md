@@ -4,17 +4,13 @@ Please also see http://kolab.org/blog/timotheus-pokorra/2013/11/19/kolab-integra
 
 Install Selenium:
 ```sh
-sudo yum install python-setuptools
-sudo easy_install selenium 
+yum install python-selenium
 ```
 
 You can use PhantomJS with Selenium to have a headless browser. It is based on Webkit.
-You need to download a binary once, from http://phantomjs.org/download.html:
 
 ```sh
-wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.7-linux-x86_64.tar.bz2
-tar xjf phantomjs-1.9.7-linux-x86_64.tar.bz2
-cp phantomjs-1.9.7-linux-x86_64/bin/phantomjs /usr/bin
+yum install phantomjs
 ```
 
 Please also install the mail package because it is required by some tests:
