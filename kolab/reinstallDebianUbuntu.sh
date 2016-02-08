@@ -1,6 +1,6 @@
 #!/bin/bash
 # this script will remove Kolab, and DELETE all YOUR data!!!
-# it will reinstall Kolab, from Kolab 3.4 Updates and Kolab Development and the nightly builds
+# it will reinstall Kolab Winterfell
 # you can optionally install the patches from TBits, see bottom of script reinstall.sh
 
 echo "this script will remove Kolab, and DELETE all YOUR data!!!"
@@ -110,7 +110,7 @@ then
 fi
 
 cat > /etc/apt/sources.list.d/kolab.list <<FINISH
-deb $obs/Kolab:/Development/$OBS_repo_OS/ ./
+deb $obs/Kolab:/Winterfell/$OBS_repo_OS/ ./
 FINISH
 
 wget https://ssl.kolabsys.com/community.asc -O Release.key
@@ -125,12 +125,6 @@ FINISH
 apt-get -y install apt-transport-https
 apt-get update
 apt-get -y install aptitude
-
-if [[ $OBS_repo_OS == "Debian_8.0" ]]
-then
-  # we do not want apache2 2.2 from KolabSys OBS
-  apt-get -y install -t stable apache2 || exit 1
-fi
 
 aptitude -y install kolab kolab-freebusy || exit 1
 
