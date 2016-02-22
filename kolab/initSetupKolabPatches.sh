@@ -34,3 +34,31 @@ then
 
 #      sed -i -e "s~</VirtualHost>~$newConfigLines</VirtualHost>~" /etc/apache2/sites-enabled/000-default
 fi
+
+# fixes for Guam
+if [ ! -f /usr/lib/systemd/system/guam.service ]
+then
+  cat > /usr/lib/systemd/system/guam.service <<FINISH
+[Unit]
+Description=Intelligent IMAP Reverse Proxy
+After=syslog.target
+
+[Service]
+ExecStart=/usr/sbin/guam foreground
+Restart=always
+StandardOutput=syslog
+SyslogIdentifier=guam
+Environment=HOME=/opt/kolab_guam/
+
+# No proper setuid/setgid in guam yet. See T971.
+#User=guam
+#Group=guam
+
+[Install]
+WantedBy=multi-user.target
+FINISH
+
+  systemctl enable guam
+  systemctl start guam
+fi
+
