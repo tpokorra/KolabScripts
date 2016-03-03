@@ -16,7 +16,7 @@ class KolabRoundcubeChangePassword(unittest.TestCase):
         self.kolabWAPhelper = KolabWAPTestHelpers()
         self.driver = self.kolabWAPhelper.init_driver()
 
-    def helper_user_change_password(self):
+    def helper_user_change_password(self, oldpassword):
         driver = self.driver
 
         url = driver.current_url[:driver.current_url.find("?")]
@@ -24,11 +24,11 @@ class KolabRoundcubeChangePassword(unittest.TestCase):
         self.kolabWAPhelper.wait_loading(0.5)
 
         elem = driver.find_element_by_id("curpasswd")
-        elem.send_keys("test")
+        elem.send_keys(oldpassword)
         elem = driver.find_element_by_id("newpasswd")
-        elem.send_keys("test1234")
+        elem.send_keys(oldpassword+"new")
         elem = driver.find_element_by_id("confpasswd")
-        elem.send_keys("test1234")
+        elem.send_keys(oldpassword+"new")
 
         elem = driver.find_element_by_xpath("//form[@id=\"password-form\"]//input[@class=\"button mainaction\"]")
         elem.click()
@@ -58,7 +58,7 @@ class KolabRoundcubeChangePassword(unittest.TestCase):
 
         # login the new user
         kolabWAPhelper.login_roundcube("/roundcubemail", emailLogin, password)
-        self.helper_user_change_password()
+        self.helper_user_change_password(password)
         kolabWAPhelper.logout_roundcube()
 
     def test_edit_user_password_multi_domain(self):
@@ -76,7 +76,7 @@ class KolabRoundcubeChangePassword(unittest.TestCase):
 
         # login the new user
         kolabWAPhelper.login_roundcube("/roundcubemail", emailLogin, password)
-        self.helper_user_change_password()
+        self.helper_user_change_password(password)
         kolabWAPhelper.logout_roundcube()
 
     def tearDown(self):
