@@ -487,7 +487,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem.click()
         elem = driver.find_element_by_name("userpassword")
         elem.clear()
-        password = "test"
+        password = "Test1234!."
         elem.send_keys(password)
         elem = driver.find_element_by_name("userpassword2")
         elem.clear()
