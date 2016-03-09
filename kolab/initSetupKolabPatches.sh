@@ -35,4 +35,4 @@ then
 #      sed -i -e "s~</VirtualHost>~$newConfigLines</VirtualHost>~" /etc/apache2/sites-enabled/000-default
 fi
 
-systemctl start guam
+systemctl start guam || exit -1
