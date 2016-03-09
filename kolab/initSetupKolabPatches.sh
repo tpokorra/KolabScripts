@@ -36,3 +36,6 @@ then
 fi
 
 systemctl start guam || exit -1
+
+echo "temporary patch until D97 lands... "
+patch -p1 -i `pwd`/patches/0001-remove-stray-line-that-would-reset-the-schema_files-.patch -d $pythonDistPackages || exit -1
