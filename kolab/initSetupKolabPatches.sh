@@ -35,12 +35,6 @@ then
 #      sed -i -e "s~</VirtualHost>~$newConfigLines</VirtualHost>~" /etc/apache2/sites-enabled/000-default
 fi
 
-systemctl start guam || exit -1
-
-# just check if the services are running
-systemctl status guam || exit -1
-systemctl status wallace || exit -1
-
 echo "temporary patch until D97 lands... "
 patch -p1 -i `pwd`/patches/0001-remove-stray-line-that-would-reset-the-schema_files-.patch -d $pythonDistPackages || exit -1
 
