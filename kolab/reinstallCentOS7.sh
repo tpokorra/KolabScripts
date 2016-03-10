@@ -89,10 +89,19 @@ then
   export copr=https://copr.fedoraproject.org/coprs/tpokorra
 fi
 
+# could use environment variable obs=http://my.proxy.org/obs.kolabsys.com
+# see http://kolab.org/blog/timotheus-pokorra/2013/11/26/downloading-obs-repo-php-proxy-file
+if [[ "$obs" = "" ]]
+then
+  export obs=http://obs.kolabsys.com/repositories/
+fi
+
 cd /etc/yum.repos.d
 rm -Rf kolab-*.repo
-wget $copr/Kolab-3.4/repo/${COPR_repo_OS}/tpokorra-Kolab-3.4-${COPR_repo_OS}.repo -O kolab-3.4.repo
-wget $copr/Kolab-3.4-Updates/repo/${COPR_repo_OS}/tpokorra-Kolab-3.4-Updates-${COPR_rep_OS}.repo -O kolab-3.4-updates.repo
+#wget $copr/Kolab-3.4/repo/${COPR_repo_OS}/tpokorra-Kolab-3.4-${COPR_repo_OS}.repo -O kolab-3.4.repo
+#wget $copr/Kolab-3.4-Updates/repo/${COPR_repo_OS}/tpokorra-Kolab-3.4-Updates-${COPR_rep_OS}.repo -O kolab-3.4-updates.repo
+wget $obs/Kolab:/3.4/$OBS_repo_OS/Kolab:3.4.repo -O kolab-3.4.repo
+wget $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/Kolab:3.4:Updates.repo -O kolab-3.4-updates.repo
 cd -
 
 # add priority = 0 to kolab repo files
