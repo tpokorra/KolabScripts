@@ -104,6 +104,11 @@ wget $obs/Kolab:/3.4/$OBS_repo_OS/Kolab:3.4.repo -O kolab-3.4.repo
 wget $obs/Kolab:/3.4:/Updates/$OBS_repo_OS/Kolab:3.4:Updates.repo -O kolab-3.4-updates.repo
 cd -
 
+yum -y install gnupg2
+# manually: gpg --search devel@lists.kolab.org
+gpg --import key/devel\@lists.kolab.org.asc
+rpm --import key/devel\@lists.kolab.org.asc
+
 # add priority = 0 to kolab repo files
 for f in /etc/yum.repos.d/kolab-3*.repo
 do
