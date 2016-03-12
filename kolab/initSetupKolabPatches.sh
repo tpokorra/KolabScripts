@@ -34,9 +34,3 @@ then
 
 #      sed -i -e "s~</VirtualHost>~$newConfigLines</VirtualHost>~" /etc/apache2/sites-enabled/000-default
 fi
-
-echo "temporary patch until D97 lands... "
-patch -p1 -i `pwd`/patches/0001-remove-stray-line-that-would-reset-the-schema_files-.patch -d $pythonDistPackages || exit -1
-
-echo "backporting patch for auto create folders... "
-patch -p1 -i `pwd`/patches/tmp_patch_pykolab_autocreate_folders.patch -d $pythonDistPackages || exit -1
