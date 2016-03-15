@@ -181,3 +181,35 @@ index 620843a..71fca97 100644
  $LANG['user.add.success'] = 'User created successfully.';
  $LANG['user.alias'] = 'Secondary Email Address(es)';
  $LANG['user.astaccountallowedcodec'] = 'Allowed codec(s)';
+diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
+index 43e5fea..c2470cf 100644
+--- a/lib/kolab_client_task.php
++++ b/lib/kolab_client_task.php
+@@ -210,6 +210,27 @@ class kolab_client_task
+                 $login['username'] = trim($login['username']);
+                 $login['domain']   = trim($login['domain']);
+ 
++                if ($this->config->get('kolab', 'unique_uid_across_domains') == "true") {
++                    $dirman = $this->config->get('ldap', 'bind_dn');
++                    if (strpos($login['username'], '@') === false && $login['username'] != $dirman) {
++                        $templogin = $this->api->login($dirman, $this->config->get('ldap', 'bind_pw'));
++
++                        if ($temptoken = $templogin->get('session_token')) {
++                            $this->api->set_session_token($temptoken);
++                        }
++
++                        if (($result = $this->api->get('user.get_domain', array('id' => $login['username']))) !== false) {
++                            $result = $result->get();
++                            if (array_key_exists('domain', $result)) {
++                                $login['domain'] = $result['domain'];
++                            }
++                        }
++
++                        // reset the api connection
++                        $this->api_init();
++                    }
++                }
++
+                 $result = $this->api->login($login['username'], $login['password'], $login['domain'], true);
+ 
+                 if ($token = $result->get('session_token')) {
