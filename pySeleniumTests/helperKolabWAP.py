@@ -51,6 +51,9 @@ class KolabWAPTestHelpers(unittest.TestCase):
     def getConf(self, section, attribute):
         return conf.get(section, attribute)
 
+    def getCmdListMailboxes(self):
+        return "kolab list-mailboxes --server='127.0.0.1:9993' "
+
     def getSiteUrl(self):
         api_url = self.getConf('kolab_wap', 'api_url')
         if api_url is None:
@@ -367,14 +370,14 @@ class KolabWAPTestHelpers(unittest.TestCase):
         starttime=datetime.datetime.now()
         while emailSharedFolder not in out and (datetime.datetime.now()-starttime).seconds < 60:
             self.wait_loading(1)
-            p = subprocess.Popen("kolab list-mailboxes | grep " + emailSharedFolder, shell=True, stdout=subprocess.PIPE)
+            p = subprocess.Popen(self.getCmdListMailboxes() + " | grep " + emailSharedFolder, shell=True, stdout=subprocess.PIPE)
             out, err = p.communicate()
 
         if emailSharedFolder not in out:
             self.assertTrue(False, "kolab list-mailboxes cannot find shared folder " + emailSharedFolder)
 
         self.wait_loading(2.0)
-        subprocess.call(['/bin/bash', '-c', "kolab list-mailboxes | grep " + emailSharedFolder])
+        subprocess.call(['/bin/bash', '-c', self.getCmdListMailboxes() + " | grep " + emailSharedFolder])
         subprocess.call(['/bin/bash', '-c', "kolab lam shared/" + emailSharedFolder])
 
         self.log("Shared Folder " + emailSharedFolder + " has been created")
