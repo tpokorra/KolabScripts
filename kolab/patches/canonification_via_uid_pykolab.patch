@@ -21,7 +21,7 @@ index f9e27ff..9d82f3d 100644
          """
  
 +        if conf.get('kolab', 'unique_uid_across_domains') == "true":
-+          if not "@" + self.domain in login[0] and login[0] != 'cyrus-admin':
++          if (not "@" in login[0]) and (login[0] != 'cyrus-admin') and (realm == conf.get('kolab', 'primary_domain')):
 +            wap_client.authenticate()
 +            userdomain = wap_client.user_get_domain(login[0])['domain']
 +            if not userdomain is None:
