@@ -6,9 +6,9 @@ index 88e9bb3..6276788 100644
          return $this->auth_instance()->user_find_by_attribute($attribute);
      }
  
-+    public function user_in_domain($domain, $uid)
++    public function user_find_by_attribute_per_domain($domain, $attribute)
 +    {
-+        return $this->auth_instance($domain)->user_find_by_attribute(array('uid' => $uid))?true:false;
++        return $this->auth_instance($domain)->user_find_by_attribute($attribute);
 +    }
 +
      public function user_info($userdata, $attributes = array('*'))
