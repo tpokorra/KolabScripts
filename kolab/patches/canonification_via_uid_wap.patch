@@ -1,17 +1,3 @@
-diff --git a/doc/sample-kolab.conf b/doc/sample-kolab.conf
-index 870dbc9..5264a9d 100644
---- a/doc/sample-kolab.conf
-+++ b/doc/sample-kolab.conf
-@@ -43,6 +43,9 @@ password_policy = {
-       "specialChars" : "<>#&%!?.,;*/+-=[]{}()",
-       "7bitPasswordEnforcement": 1
-        }
-+; should we enforce unique user identities (UID) across multiple domains? This is disabled by default (false).
-+; if it is enabled, it is possible to login just with the UID without using Cyrus canonification
-+unique_uid_across_domains = false
- 
- [ldap]
- uri = ldap://ldap.klab.cc
 diff --git a/lib/Auth.php b/lib/Auth.php
 index 88e9bb3..6276788 100644
 --- a/lib/Auth.php
