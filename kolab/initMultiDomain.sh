@@ -37,6 +37,9 @@ sed -i \
 fi
 service cyrus-imapd restart
 
+#enable unique ids across domains, to allow login with uid
+sed -r -i -e "s#\[kolab\]#[kolab]\nunique_uid_across_domains=true#g" /etc/kolab/kolab.conf
+
 #####################################################################################
 #Update Postfix LDAP Lookup Tables
 # support subdomains too, search_base = dc=%3,dc=%2,dc=%1
