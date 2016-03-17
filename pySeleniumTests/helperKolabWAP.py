@@ -115,7 +115,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
             time.sleep(0.5)
 
     # login any user to the kolab webadmin 
-    def login_kolab_wap(self, url, username, password):
+    def login_kolab_wap(self, url, username, password, expected_error = None):
         driver = self.driver
 
         if url[0] == '/':
@@ -131,9 +131,14 @@ class KolabWAPTestHelpers(unittest.TestCase):
         driver.find_element_by_id("login_submit").click()
         self.wait_loading()
 
-        # verify success of login
-        elem = driver.find_element_by_class_name("login")
-        self.log( "User is logged in to WAP: " + elem.text)
+        if expected_error is not None:
+            elem = driver.find_element_by_id("message")
+            self.assertEquals("Incorrect username or password!", elem.text, "Message after failed Login: " + elem.text)
+            return False
+        else:
+            # verify success of login
+            elem = driver.find_element_by_class_name("login")
+            self.log( "User is logged in to WAP: " + elem.text)
 
         return True
 
@@ -372,6 +377,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         return emailSharedFolder, foldername
 
     # create new user account in currently selected domain
+    # this is an overload of create_user_return_uid that does not return the uid
     def create_user(self,
                     prefix = "user",
                     overall_quota = None,
@@ -381,6 +387,35 @@ class KolabWAPTestHelpers(unittest.TestCase):
                     default_role_verify = None,
                     mail_quota = None,
                     username = None,
+                    uid = None,
+                    alias = None,
+                    forward_to = None,
+                    expected_message_contains = None):
+        username, emailLogin, password, uid = self.create_user_return_uid(prefix,
+                    overall_quota,
+                    default_quota,
+                    max_accounts,
+                    default_quota_verify,
+                    default_role_verify,
+                    mail_quota,
+                    username,
+                    uid,
+                    alias,
+                    forward_to,
+                    expected_message_contains)
+        return username, emailLogin, password
+
+    # create new user account in currently selected domain
+    def create_user_return_uid(self,
+                    prefix = "user",
+                    overall_quota = None,
+                    default_quota = None,
+                    max_accounts = None,
+                    default_quota_verify = None,
+                    default_role_verify = None,
+                    mail_quota = None,
+                    username = None,
+                    uid = None,
                     alias = None,
                     forward_to = None,
                     expected_message_contains = None):
@@ -480,6 +515,13 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem.clear()
         elem.send_keys(password)
 
+        elem = driver.find_element_by_name("uid")
+        if uid is not None:
+            elem.clear()
+            elem.send_keys(uid)
+        else:
+            uid = elem.get_attribute("value")
+
         elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
         elem.click()
 
@@ -506,7 +548,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         self.log("User " + username + " has been created. Login with " + emailLogin + " and password " + password)
 
-        return username, emailLogin, password
+        return username, emailLogin, password, uid
 
     def configure_domain_admin(self, overall_quota, default_quota, max_accounts):
         driver = self.driver
