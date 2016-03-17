@@ -37,6 +37,9 @@ sed -i \
 fi
 service cyrus-imapd restart
 
+#enable unique ids across domains, to allow login with uid
+sed -r -i -e "s#\[kolab\]#[kolab]\nunique_uid_across_domains=true#g" /etc/kolab/kolab.conf
+
 #####################################################################################
 #Update Postfix LDAP Lookup Tables
 # support subdomains too, search_base = dc=%3,dc=%2,dc=%1
@@ -162,9 +165,13 @@ then
   mkdir -p patches
   echo Downloading patch validateAliasDomainPostfixVirtualFileBug2658.patch
   wget $patchesurl/validateAliasDomainPostfixVirtualFileBug2658.patch -O patches/validateAliasDomainPostfixVirtualFileBug2658.patch
+  wget $patchesurl/canonification_via_uid_wap.patch -O patches/canonification_via_uid_wap.patch
+  wget $patchesurl/canonification_via_uid_pykolab -O patches/canonification_via_uid_pykolab.patch
 fi
 
 patch -p1 -i `pwd`/patches/validateAliasDomainPostfixVirtualFileBug2658.patch -d /usr/share/kolab-webadmin || exit -1
+patch -p1 --fuzz=0 -i `pwd`/patches/canonification_via_uid_wap.patch -d /usr/share/kolab-webadmin || exit -1
+patch -p1 --fuzz=0 -i `pwd`/patches/canonification_via_uid_pykolab.patch -d $pythonDistPackages || exit -1
 
 service kolab-saslauthd restart
 
