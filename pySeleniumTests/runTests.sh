@@ -44,6 +44,7 @@ if [[ "$tests" == "all" || "$tests" == "multidomain" ]]; then
   ./testCreateUserAndEditSelf.py || hasError=1
   ./testRoundcubeChangePassword.py || hasError=1
   ./testAutoCreateFolders.py || hasError=1
+  ./testUIDAcrossDomains.py || hasError=1
 
   ./testEmailCatchAllAcrossDomains.py || hasError=1
 fi
