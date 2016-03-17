@@ -1,5 +1,5 @@
 diff --git a/lib/Auth.php b/lib/Auth.php
-index 88e9bb3..6276788 100644
+index 88e9bb3..de98433 100644
 --- a/lib/Auth.php
 +++ b/lib/Auth.php
 @@ -451,6 +451,11 @@ class Auth {
@@ -157,30 +157,6 @@ index 43ab530..e1ed9d0 100644
 +        return array('domain' => $exists_in_domain);
 +    }
  }
-diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
-index 1727518..2e7d595 100644
---- a/lib/locale/de_DE.php
-+++ b/lib/locale/de_DE.php
-@@ -353,6 +353,7 @@ $LANG['type.used_for'] = 'Gehostet';
- $LANG['type.user'] = 'Benutzer';
- 
- $LANG['user.add'] = 'Benutzer hinzufügen';
-+$LANG['user.add.duplicateuid'] = 'Die eindeutige Identität (UID) $1 ist schon vergeben.';
- $LANG['user.add.success'] = 'Benutzer erfolgreich hinzugefügt.';
- $LANG['user.alias'] = 'Sekundäre Email-Adresse';
- $LANG['user.astaccountallowedcodec'] = 'Erlaubte(r) Codec(s)';
-diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
-index 620843a..71fca97 100644
---- a/lib/locale/en_US.php
-+++ b/lib/locale/en_US.php
-@@ -351,6 +351,7 @@ $LANG['type.used_for'] = 'Hosted';
- $LANG['type.user'] = 'User';
- 
- $LANG['user.add'] = 'Add User';
-+$LANG['user.add.duplicateuid'] = 'The unique identity (UID) $1 is already in use.';
- $LANG['user.add.success'] = 'User created successfully.';
- $LANG['user.alias'] = 'Secondary Email Address(es)';
- $LANG['user.astaccountallowedcodec'] = 'Allowed codec(s)';
 diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
 index 43e5fea..c2470cf 100644
 --- a/lib/kolab_client_task.php
@@ -213,3 +189,27 @@ index 43e5fea..c2470cf 100644
                  $result = $this->api->login($login['username'], $login['password'], $login['domain'], true);
  
                  if ($token = $result->get('session_token')) {
+diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
+index 1727518..2e7d595 100644
+--- a/lib/locale/de_DE.php
++++ b/lib/locale/de_DE.php
+@@ -353,6 +353,7 @@ $LANG['type.used_for'] = 'Gehostet';
+ $LANG['type.user'] = 'Benutzer';
+ 
+ $LANG['user.add'] = 'Benutzer hinzufügen';
++$LANG['user.add.duplicateuid'] = 'Die eindeutige Identität (UID) $1 ist schon vergeben.';
+ $LANG['user.add.success'] = 'Benutzer erfolgreich hinzugefügt.';
+ $LANG['user.alias'] = 'Sekundäre Email-Adresse';
+ $LANG['user.astaccountallowedcodec'] = 'Erlaubte(r) Codec(s)';
+diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
+index 620843a..71fca97 100644
+--- a/lib/locale/en_US.php
++++ b/lib/locale/en_US.php
+@@ -351,6 +351,7 @@ $LANG['type.used_for'] = 'Hosted';
+ $LANG['type.user'] = 'User';
+ 
+ $LANG['user.add'] = 'Add User';
++$LANG['user.add.duplicateuid'] = 'The unique identity (UID) $1 is already in use.';
+ $LANG['user.add.success'] = 'User created successfully.';
+ $LANG['user.alias'] = 'Secondary Email Address(es)';
+ $LANG['user.astaccountallowedcodec'] = 'Allowed codec(s)';
