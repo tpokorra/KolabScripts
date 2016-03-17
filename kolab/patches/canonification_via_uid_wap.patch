@@ -1,0 +1,215 @@
+diff --git a/lib/Auth.php b/lib/Auth.php
+index 88e9bb3..de98433 100644
+--- a/lib/Auth.php
++++ b/lib/Auth.php
+@@ -451,6 +451,11 @@ class Auth {
+         return $this->auth_instance()->user_find_by_attribute($attribute);
+     }
+ 
++    public function user_find_by_attribute_per_domain($domain, $attribute)
++    {
++        return $this->auth_instance($domain)->user_find_by_attribute($attribute);
++    }
++
+     public function user_info($userdata, $attributes = array('*'))
+     {
+         return $this->auth_instance()->user_info($userdata, $attributes);
+diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
+index 7976780..d677012 100644
+--- a/lib/api/kolab_api_service_form_value.php
++++ b/lib/api/kolab_api_service_form_value.php
+@@ -840,21 +840,50 @@ class kolab_api_service_form_value extends kolab_api_service
+ 
+             $orig_uid = $uid;
+             $auth     = Auth::get_instance($_SESSION['user']->get_domain());
+-
++            $conf     = Conf::get_instance();
++
++            $all_domains = array();
++           
++            if ($conf->get('unique_uid_across_domains') == "true") {
++                $domainslist = $auth->list_domains();
++                foreach ($domainslist['list'] as $domainobj) {
++                    $domain = $domainobj['associateddomain'];
++                    if (is_array($domain)) {
++                        $domain = $domain[0];
++                    }
++                    $all_domains[] = $domain;
++                }
++            } else {
++                $all_domains[] = $_SESSION['user']->get_domain();
++            }
++    
+             $x = 2;
+-            while (($user_found = $auth->user_find_by_attribute(array('uid' => $uid)))) {
+-                if (!empty($postdata['id'])) {
+-                    $user_found_dn          = key($user_found);
+-                    $user_found_unique_attr = $this->unique_attribute_value($user_found_dn);
+-                    //console("user with uid $uid found", $user_found_unique_attr);
+-                    if ($user_found_unique_attr == $postdata['id']) {
+-                        //console("that's us.");
+-                        break;
++            while (true) {
++                $user_found = null;
++                foreach ($all_domains as $domain) {
++                    $user_found = $auth->user_find_by_attribute_per_domain($domain, array('uid' => $uid));
++
++                    if (!empty($postdata['id'])) {
++                        $user_found_dn          = key($user_found);
++                        $user_found_unique_attr = $this->unique_attribute_value($user_found_dn);
++                        //console("user with uid $uid found", $user_found_unique_attr);
++                        if ($user_found_unique_attr == $postdata['id']) {
++                            //console("that's us.");
++                            $user_found = null;
++                            break; // foreach domain
++                        }
++                    }
++                    if ($user_found) {
++                        break; // foreach domain
+                     }
+                 }
+ 
+-                $uid = $orig_uid . $x;
+-                $x++;
++                if ($user_found) {
++		    $uid = $orig_uid . $x;
++                    $x++;
++                } else {
++                    break; // while true
++                }
+             }
+ 
+             return $uid;
+diff --git a/lib/api/kolab_api_service_user.php b/lib/api/kolab_api_service_user.php
+index 43ab530..e1ed9d0 100644
+--- a/lib/api/kolab_api_service_user.php
++++ b/lib/api/kolab_api_service_user.php
+@@ -88,6 +88,33 @@ class kolab_api_service_user extends kolab_api_service
+         Log::trace("user_add()", $attributes);
+ 
+         $auth   = Auth::get_instance();
++        $conf   = Conf::get_instance();
++
++        # validate if the uid is unique inside this domain, or across multiple domains
++        $all_domains = array();
++
++        if ($conf->get('unique_uid_across_domains') == "true") {
++            $domainslist = $auth->list_domains();
++            foreach ($domainslist['list'] as $domainobj) {
++                $domain = $domainobj['associateddomain'];
++                if (is_array($domain)) {
++                    $domain = $domain[0];
++                }
++                $all_domains[] = $domain;
++            }
++        } else {
++            $all_domains[] = $_SESSION['user']->get_domain();
++        }
++   
++        $user_found = null;
++        foreach ($all_domains as $domain) {
++            $user_found = $auth->user_find_by_attribute_per_domain($domain, array('uid' => $attributes['uid']));
++            if ($user_found) {
++                throw new Exception(kolab_api_controller::translate("error").": ".
++                   kolab_api_controller::translate("user.add.duplicateuid", $attributes['uid']));
++            }
++        }
++
+         $result = $auth->user_add($attributes, $postdata['type_id']);
+ 
+         if ($result) {
+@@ -231,4 +258,38 @@ class kolab_api_service_user extends kolab_api_service
+         return false;
+     }
+ 
++    /**
++     * Find user and return his domain.
++     * If the search returns only one record we'll return the domain of the user.
++     * 
++     * @param array $get   GET parameters
++     * @param array $post  POST parameters
++     *
++     * @return array|bool User attributes, False on error
++     */
++    public function user_get_domain($get, $post)
++    {
++        $auth       = Auth::get_instance();
++        $all_domains   = $auth->list_domains();
++        $all_domains   = $all_domains['list'];
++        $exists_in_domain = "";
++
++        foreach ($all_domains as $domainobj) {
++            $domain = $domainobj['associateddomain'];
++            if (is_array($domain)) {
++                $domain = $domain[0];
++            }
++            if ($auth->user_find_by_attribute_per_domain($domain, array('uid' => $get['id']))) {
++                if (!empty($exists_in_domain)) {
++                    // there are multiple users with the same userid in different domains
++                    return false;
++                }
++                $exists_in_domain = $domain;
++            }
++        }
++        if (empty($exists_in_domain)) {
++            return false;
++        }
++        return array('domain' => $exists_in_domain);
++    }
+ }
+diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
+index 43e5fea..c2470cf 100644
+--- a/lib/kolab_client_task.php
++++ b/lib/kolab_client_task.php
+@@ -202,6 +202,27 @@
+             $login = $this->get_input('login', 'POST');
+ 
+             if ($login['username']) {
++                if ($this->config->get('kolab', 'unique_uid_across_domains') == "true") {
++                    $dirman = $this->config->get('ldap', 'bind_dn');
++                    if (strpos($login['username'], '@') === false && $login['username'] != $dirman) {
++                        $templogin = $this->api->login($dirman, $this->config->get('ldap', 'bind_pw'));
++
++                        if ($temptoken = $templogin->get('session_token')) {
++                            $this->api->set_session_token($temptoken);
++                        }
++
++                        if (($result = $this->api->get('user.get_domain', array('id' => $login['username']))) !== false) {
++                            $result = $result->get();
++                            if (array_key_exists('domain', $result)) {
++                                $login['domain'] = $result['domain'];
++                            }
++                        }
++
++                        // reset the api connection
++                        $this->api_init();
++                    }
++                }
++
+                 $result = $this->api->login($login['username'], $login['password'], $login['domain'], true);
+ 
+                 if ($token = $result->get('session_token')) {
+diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
+index 1727518..2e7d595 100644
+--- a/lib/locale/de_DE.php
++++ b/lib/locale/de_DE.php
+@@ -353,6 +353,7 @@ $LANG['type.used_for'] = 'Gehostet';
+ $LANG['type.user'] = 'Benutzer';
+ 
+ $LANG['user.add'] = 'Benutzer hinzufügen';
++$LANG['user.add.duplicateuid'] = 'Die eindeutige Identität (UID) $1 ist schon vergeben.';
+ $LANG['user.add.success'] = 'Benutzer erfolgreich hinzugefügt.';
+ $LANG['user.alias'] = 'Sekundäre Email-Adresse';
+ $LANG['user.astaccountallowedcodec'] = 'Erlaubte(r) Codec(s)';
+diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
+index 620843a..71fca97 100644
+--- a/lib/locale/en_US.php
++++ b/lib/locale/en_US.php
+@@ -351,6 +351,7 @@ $LANG['type.used_for'] = 'Hosted';
+ $LANG['type.user'] = 'User';
+ 
+ $LANG['user.add'] = 'Add User';
++$LANG['user.add.duplicateuid'] = 'The unique identity (UID) $1 is already in use.';
+ $LANG['user.add.success'] = 'User created successfully.';
+ $LANG['user.alias'] = 'Secondary Email Address(es)';
+ $LANG['user.astaccountallowedcodec'] = 'Allowed codec(s)';

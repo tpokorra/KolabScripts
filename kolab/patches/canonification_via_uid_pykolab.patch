@@ -1,0 +1,58 @@
+diff --git a/pykolab/auth/ldap/__init__.py b/pykolab/auth/ldap/__init__.py
+index f9e27ff..270a9d1 100644
+--- a/pykolab/auth/ldap/__init__.py
++++ b/pykolab/auth/ldap/__init__.py
+@@ -33,6 +33,7 @@ from pykolab import utils
+ from pykolab.constants import *
+ from pykolab.errors import *
+ from pykolab.translate import _
++from pykolab import wap_client
+ 
+ log = pykolab.getLogger('pykolab.auth')
+ conf = pykolab.getConf()
+@@ -138,8 +139,23 @@ class LDAP(pykolab.base.Base):
+ 
+             Called from pykolab.auth.Auth, the realm parameter is derived, while
+             login[3] preserves the originally specified realm.
+-        """
+ 
++            If unique_uid_across_domains is defined as true,
++            and username is not an email address,
++            and the username is unique across all domains,
++            then the domain is determined that contains this username
++            and used as the realm
++        """
++
++        if conf.get('kolab', 'unique_uid_across_domains') == "true":
++            if ((not "@" in login[0])
++                    and (login[0] != 'cyrus-admin')
++                    and (realm == conf.get('kolab', 'primary_domain'))):
++                wap_client.authenticate()
++                userdomain = wap_client.user_get_domain(login[0])['domain']
++                if not userdomain is None:
++                    realm = userdomain
++                    self.domain = userdomain
+         try:
+             log.debug(
+                     _("Attempting to authenticate user %s in realm %s") % (
+diff --git a/pykolab/wap_client/__init__.py b/pykolab/wap_client/__init__.py
+index 900e280..0b1e002 100644
+--- a/pykolab/wap_client/__init__.py
++++ b/pykolab/wap_client/__init__.py
+@@ -624,6 +624,16 @@ def user_find(attribs=None):
+ 
+     return user
+ 
++
++def user_get_domain(user=None):
++    if user is None:
++        user = utils.ask_question("User unique id")
++
++    _params = {'id': user}
++
++    return request('GET', 'user.get_domain', get=_params)
++
++
+ def user_form_value_generate(params=None):
+     if params == None:
+         params = get_user_input()
