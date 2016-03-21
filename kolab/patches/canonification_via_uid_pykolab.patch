@@ -29,9 +29,9 @@ index f9e27ff..270a9d1 100644
 +                    and (realm == conf.get('kolab', 'primary_domain'))):
 +                wap_client.authenticate()
 +                userdomain = wap_client.user_get_domain(login[0])
-+                    if userdomain != False and not userdomain['domain'] is None:
-+                        realm = userdomain['domain']
-+                        self.domain = userdomain['domain']
++                if userdomain != False and not userdomain['domain'] is None:
++                    realm = userdomain['domain']
++                    self.domain = userdomain['domain']
          try:
              log.debug(
                      _("Attempting to authenticate user %s in realm %s") % (
