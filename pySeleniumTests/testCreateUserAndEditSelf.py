@@ -40,7 +40,7 @@ class KolabWAPCreateUserAndEditSelf(unittest.TestCase):
         # login Directory Manager
         kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
 
-        username, emailLogin, password = kolabWAPhelper.create_user()
+        username, emailLogin, password, uid = kolabWAPhelper.create_user()
 
         kolabWAPhelper.logout_kolab_wap()
 
@@ -60,7 +60,7 @@ class KolabWAPCreateUserAndEditSelf(unittest.TestCase):
 
         domainname = kolabWAPhelper.create_domain()
 
-        username, emailLogin, password = kolabWAPhelper.create_user(mail_quota="20kb")
+        username, emailLogin, password, uid = kolabWAPhelper.create_user(mail_quota="20kb")
 
         kolabWAPhelper.logout_kolab_wap()
 
@@ -80,7 +80,7 @@ class KolabWAPCreateUserAndEditSelf(unittest.TestCase):
 
         domainname = kolabWAPhelper.create_domain()
 
-        username, emailLogin, password = kolabWAPhelper.create_user()
+        username, emailLogin, password, uid = kolabWAPhelper.create_user()
 
         kolabWAPhelper.logout_kolab_wap()
 

@@ -29,7 +29,7 @@ class KolabEmailCatchAll(unittest.TestCase):
         domainname = kolabWAPhelper.create_domain()
 
         # add the user
-        username, emailLogin, password = kolabWAPhelper.create_user(alias="catchall@" + domainname)
+        username, emailLogin, password, uid = kolabWAPhelper.create_user(alias="catchall@" + domainname)
         kolabWAPhelper.logout_kolab_wap()
 
         # send email to catch all alias address from command line
