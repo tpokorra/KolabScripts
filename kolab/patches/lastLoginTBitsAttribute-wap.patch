@@ -123,7 +123,7 @@ index 1609cc3..e806293 100644
 +++ b/lib/locale/de_DE.php
 @@ -448,6 +448,8 @@
  $LANG['domain.domainadmin'] = 'Administratoren für diese Domain';
- $LANG['user.tbitskolabisdomainadmin'] = 'Ist Domain Administrator';
+ #$LANG['user.tbitskolabisdomainadmin'] = 'Ist Domain Administrator';
  $LANG['user.tbitskolabmaxaccounts'] = 'Maximale Anzahl von Benutzerkonten';
  $LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
  $LANG['user.tbitskolabdefaultquota'] = 'Voreinstellung Quota für Benutzerkonten';
@@ -142,7 +142,7 @@ index fbb51c9..4bf06d3 100644
  $LANG['user.street'] = 'Street';
  $LANG['user.system'] = 'System';
  $LANG['user.telephonenumber'] = 'Phone Number';
- $LANG['user.tbitskolabisdomainadmin'] = 'Is Domain Administrator';
+ #$LANG['user.tbitskolabisdomainadmin'] = 'Is Domain Administrator';
  $LANG['user.tbitskolabmaxaccounts'] = 'Maximum number of accounts';
  $LANG['user.tbitskolaboverallquota'] = 'Overall Quota assigned';
  $LANG['user.tbitskolabdefaultquota'] = 'Default Quota for user accounts';

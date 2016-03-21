@@ -259,7 +259,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
             elem.click()
             elem = driver.find_element_by_xpath("//input[@name='domainadmin[-1]']")
             elem.send_keys(domainadmin)
-            self.wait_loading(0.5)
+            self.wait_loading(1.0)
             driver.find_element_by_xpath("//div[@id='autocompletepane']/ul/li[@class='selected']").click()
 
         elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
@@ -479,9 +479,16 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem = driver.find_element_by_link_text("Contact Information")
         elem.click()
         self.wait_loading(1.0)
-        elem = driver.find_element_by_name("mail")
-        emailLogin = elem.get_attribute('value')
-        self.assertNotEquals(0, emailLogin.__len__(), "email should be set automatically, but length is 0")
+
+        if not prefix=="admin":
+          elem = driver.find_element_by_name("mail")
+          emailLogin = elem.get_attribute('value')
+          self.assertNotEquals(0, emailLogin.__len__(), "email should be set automatically, but length is 0")
+        else:
+          elem = driver.find_element_by_link_text("System")
+          emailLogin = driver.find_element_by_name("uid").get_attribute('value')
+          self.assertNotEquals(0, emailLogin.__len__(), "uid should be set automatically, but length is 0")
+          elem = driver.find_element_by_link_text("Contact Information")
 
         if alias is not None:
             driver.find_element_by_xpath("//textarea[@name=\"alias\"]/following-sibling::*[1]/span[@class=\"listelement\"]/span[@class=\"actions\"]/span[@class=\"add\"]").click()
@@ -518,7 +525,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.assertEquals("User created successfully.", elem.text, "User was not saved successfully, message: " + elem.text)
 
         self.startKolabSync(self.get_selected_domain()) 
-        if forward_to is None:
+        if forward_to is None and prefix!="admin":
             if self.imap is None:
               self.imap = IMAP()
               self.imap.connect()
@@ -544,12 +551,14 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
     def configure_domain_admin(self, overall_quota, default_quota, max_accounts):
         driver = self.driver
-        elem = driver.find_element_by_link_text("Domain Administrator")
-        elem.click()
-        driver.find_element_by_xpath("//input[@name='tbitskolabisdomainadmin']").click()
 
-        elem = driver.find_element_by_link_text("Domain Administrator")
-        elem.click()
+        driver.find_element_by_link_text("Personal").click()
+        self.wait_loading(1)
+        driver.find_element_by_xpath("//select[@name='type_id']/option[text()='Domain Administrator']").click()
+        self.wait_loading(1)
+
+        driver.find_element_by_link_text("Domain Administrator").click()
+
         if overall_quota is not None:
            elem = driver.find_element_by_name("tbitskolaboverallquota")
            elem.send_keys(overall_quota[:-2])
@@ -561,22 +570,6 @@ class KolabWAPTestHelpers(unittest.TestCase):
         if max_accounts is not None:
            elem = driver.find_element_by_name("tbitskolabmaxaccounts")
            elem.send_keys(max_accounts)
-
-    def upgrade_user_to_domainadmin(self, username, domainname,
-                    overall_quota = None,
-                    default_quota = None,
-                    max_accounts = None):
-        driver = self.driver
-        self.load_user(username)
-        self.configure_domain_admin(overall_quota, default_quota, max_accounts)
-        elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
-        elem.click()
-
-        self.wait_loading(1)
-        elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
-        self.assertEquals("User updated successfully.", elem.text, "User was not saved successfully, message: " + elem.text)
-
-        self.link_admin_to_domain(username, domainname)
 
     # create a new domain, and create a domain admin for that domain, inside that domain
     def create_domainadmin(self,
@@ -615,10 +608,34 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem.click()
         elem = driver.find_element_by_xpath("//input[@name='domainadmin[-1]']")
         elem.send_keys(username)
-        self.wait_loading(0.5)
+        self.wait_loading(1)
         driver.find_element_by_xpath("//div[@id='autocompletepane']/ul/li[@class='selected']").click()
         elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
         elem.click()
+        self.wait_loading()
+        elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
+        self.assertEquals("Domain updated successfully.", elem.text, "domain was not updated successfully, message: " + elem.text)
+
+    def unlink_admin_from_domain(self, username, domainname):
+        driver = self.driver
+
+        # now edit the domain and remove the domainadmin
+        driver.find_element_by_link_text("Domains").click()
+        self.wait_loading(1.0)
+        elem = self.driver.find_element_by_id("searchinput")
+        elem.send_keys(domainname)
+        elem.send_keys(Keys.ENTER)
+        self.wait_loading(initialwait = 2)
+        elem = self.driver.find_element_by_xpath("//table[@id='domainlist']/tbody/tr/td")
+        self.assertEquals(domainname, elem.text, "Expected to select domain " + domainname + " but was " + elem.text)
+        elem.click()
+        self.wait_loading(initialwait = 1)
+        elem = driver.find_element_by_link_text("Domain Administrators")
+        elem.click()
+        elem = driver.find_element_by_xpath("//input[matches(@value, '" + username + ".*')]")
+        driver.find_element_by_xpath(elem, "../span[@class='reset']").click()
+        self.wait_loading(1)
+        driver.find_element_by_xpath("//input[@value=\"Submit\"]").click()
         self.wait_loading()
         elem = driver.find_element_by_xpath("//div[@id=\"message\"]")
         self.assertEquals("Domain updated successfully.", elem.text, "domain was not updated successfully, message: " + elem.text)

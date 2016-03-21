@@ -23,7 +23,7 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         # login Directory Manager
         kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
 
-        username, emailLogin, password = kolabWAPhelper.create_user(
+        username, emailLogin, password, uid = kolabWAPhelper.create_user(
             prefix = "user")
 
         # now edit the user
@@ -60,13 +60,9 @@ class KolabWAPDomainAdmin(unittest.TestCase):
 
         kolabWAPhelper.wait_loading(initialwait = 1)
 
-        # check if the user type is a Kolab user with domain admin permissions
+        # check if the user type is a Kolab Domain Administrator
         elem = self.driver.find_element_by_xpath("//form[@id='user-form']/fieldset/table/tbody/tr/td[@class='value']")
-        self.assertEquals("Kolab User", elem.text, "user type should be Kolab user, but was " + elem.text)
-        elem = self.driver.find_element_by_link_text("Domain Administrator")
-        elem.click()
-        if not self.driver.find_element_by_xpath("//input[@name='tbitskolabisdomainadmin']").is_selected():
-            self.assertTrue(False, "isDomainAdmin should be checked")
+        self.assertEquals("Domain Administrator", elem.text, "user type should be Domain Administrator, but was " + elem.text)
 
         kolabWAPhelper.logout_kolab_wap()
 
@@ -96,12 +92,6 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         elem = self.driver.find_element_by_xpath("//input[@name=\"tbitskolaboverallquota\"]")
         if not "readonly" in elem.get_attribute('class'):
           self.assertTrue(False, "overallquota should be readonly for the domain admin")
-        # and the checkbox for domainadmin itself should be readonly and disabled
-        elem = self.driver.find_element_by_xpath("//input[@name=\"tbitskolabisdomainadmin\"]")
-        if not "readonly" in elem.get_attribute('class'):
-          self.assertTrue(False, "isdomainadmin should be readonly for the domain admin")
-        if not elem.get_attribute('disabled') == 'true':
-          self.assertTrue(False, "isdomainadmin should be disabled for the domain admin")
 
         kolabWAPhelper.logout_kolab_wap()
 
@@ -133,11 +123,8 @@ class KolabWAPDomainAdmin(unittest.TestCase):
 
         username, emailLogin, password, domainname = kolabWAPhelper.create_domainadmin()
 
-        # now withdraw domainadmin permissions
-        kolabWAPhelper.load_user(username)
-        self.driver.find_element_by_link_text("Domain Administrator").click()
-        self.driver.find_element_by_xpath("//input[@name='tbitskolabisdomainadmin']").click()
-        self.driver.find_element_by_xpath("//input[@value=\"Submit\"]").click()
+        # now withdraw domainadmin permissions for this domain
+        kolabWAPhelper.unlink_admin_from_domain(username, domainname)
  
         kolabWAPhelper.logout_kolab_wap()
 

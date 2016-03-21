@@ -303,7 +303,7 @@ index 0c03be0..6ad01c3 100644
          if (in_array('tbitsKolabUser', $this->classes_allowed())) {
              $self_attrs = array_merge($self_attrs, array('tbitsKolabLastLogin'));
          }
-+        $admin_readonly_attrs = array("tbitsKolabMaxAccounts", "tbitsKolabOverallQuota", "tbitsKolabIsDomainAdmin");
++        $admin_readonly_attrs = array("tbitsKolabMaxAccounts", "tbitsKolabOverallQuota");
  
          $_domain = str_replace('.', '_', $domain);
          $dn      = $inetdomainbasedn;
@@ -322,9 +322,9 @@ index 0c03be0..6ad01c3 100644
  
          $user_dn = key($user);
  
-+	if (empty($attributes['tbitskolabisdomainadmin'])) {
-+            $attributes['tbitskolabisdomainadmin'] = $user[$user_dn]['tbitskolabisdomainadmin'];
-+        }
++#	if (empty($attributes['tbitskolabisdomainadmin'])) {
++#            $attributes['tbitskolabisdomainadmin'] = $user[$user_dn]['tbitskolabisdomainadmin'];
++#        }
 +
          // We should start throwing stuff over the fence here.
          $result = $this->modify_entry($user_dn, $user[$user_dn], $attributes);
@@ -385,7 +385,7 @@ index a48d44a..16475db 100644
  
 +    /**
 +     * get the users that are domainadmins.
-+     * We assume: all users with attribute tbitskolabisdomainadmin set, plus the Directory Manager
++     * We assume: all users of class tbitskolabdomainadmin, plus the Directory Manager
 +     */
 +    private function list_options_domainadmin($postdata, $attribs = array())
 +    {
@@ -395,7 +395,7 @@ index a48d44a..16475db 100644
 +        $all_domains   = $all_domains['list'];
 +        $dna           = $conf->get('domain_name_attribute');
 +        $_domainadmins = array();
-+        $domainAdminFilter = '(&(objectclass=tbitsKolabUser)(tbitskolabisdomainadmin=True))';
++        $domainAdminFilter = '(objectclass=tbitsKolabDomainAdmin)';
 +
 +        if (!empty($postdata['list'])) {
 +            foreach ($all_domains as $domain_id => $domain_attrs) {
@@ -583,7 +583,7 @@ index 6d51754..c5d71d9 100644
              'kolabhomeserver'           => 'config',
              'mailhost'                  => 'config',
              'mailquota'                 => 'config',
-+            'tbitskolabisdomainadmin'   => 'domainadmin',
++#           'tbitskolabisdomainadmin'   => 'domainadmin',
 +            'tbitskolabmaxaccounts'     => 'domainadmin',
 +            'tbitskolaboverallquota'    => 'domainadmin',
 +            'tbitskolabdefaultquota'    => 'domainadmin',
@@ -632,7 +632,7 @@ index b88e520..1609cc3 100644
 +$LANG['user.domainadmin'] = 'Domain Administrator';
 +$LANG['domain.admins'] = 'Domain Administratoren';
 +$LANG['domain.domainadmin'] = 'Administratoren für diese Domain';
-+$LANG['user.tbitskolabisdomainadmin'] = 'Ist Domain Administrator';
++#$LANG['user.tbitskolabisdomainadmin'] = 'Ist Domain Administrator';
 +$LANG['user.tbitskolabmaxaccounts'] = 'Maximale Anzahl von Benutzerkonten';
 +$LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
 +$LANG['user.tbitskolabdefaultquota'] = 'Voreinstellung Quota für Benutzerkonten';
@@ -666,7 +666,7 @@ index e36977d..fbb51c9 100644
  $LANG['user.street'] = 'Street';
  $LANG['user.system'] = 'System';
  $LANG['user.telephonenumber'] = 'Phone Number';
-+$LANG['user.tbitskolabisdomainadmin'] = 'Is Domain Administrator';
++#$LANG['user.tbitskolabisdomainadmin'] = 'Is Domain Administrator';
 +$LANG['user.tbitskolabmaxaccounts'] = 'Maximum number of accounts';
 +$LANG['user.tbitskolaboverallquota'] = 'Overall Quota assigned';
 +$LANG['user.tbitskolabdefaultquota'] = 'Default Quota for user accounts';
@@ -695,7 +695,7 @@ index e36977d..fbb51c9 100644
 +                            }
 +                        }
 +                        if ($hideDomainAdminValues) {
-+                            continue;
++//                            continue;
 +                        }
 +                    }
 +
@@ -731,8 +731,8 @@ index e36977d..fbb51c9 100644
 +
 +    isdomainadmin = $('input[name="tbitskolabisdomainadmin"]');
 +    if (isdomainadmin) {
-+        disableDomainAdminAttributes();
-+        isdomainadmin.change(disableDomainAdminAttributes);
++        //disableDomainAdminAttributes();
++        //isdomainadmin.change(disableDomainAdminAttributes);
 +    }
    };
  
@@ -743,19 +743,19 @@ index e36977d..fbb51c9 100644
              $domain_dn = key($result);
          }
  
-+        if (!empty($result) && !empty($result['replace']) && !empty($result['replace']['tbitskolabisdomainadmin']) 
-+                && $attributes['tbitskolabisdomainadmin'] == 'FALSE') {
-+            // drop the permissions on the domains
-+            $domains = $this->domainadmin_get_domains($user_dn);
-+            foreach ($domains as $domainname) {
-+                $domain = $this->domain_info($domainname);
-+                $domainadmins = $domain[key($domain)]['domainadmin'];
-+                if(($key = array_search($user_dn, $domainadmins)) !== false) {
-+                    unset($domainadmins[$key]);
-+                }
-+                $this->domain_admin_save($domain, key($domain), $domainadmins);
-+            }
-+        }
++#        if (!empty($result) && !empty($result['replace']) && !empty($result['replace']['tbitskolabisdomainadmin']) 
++#                && $attributes['tbitskolabisdomainadmin'] == 'FALSE') {
++#            // drop the permissions on the domains
++#            $domains = $this->domainadmin_get_domains($user_dn);
++#            foreach ($domains as $domainname) {
++#                $domain = $this->domain_info($domainname);
++#                $domainadmins = $domain[key($domain)]['domainadmin'];
++#                if(($key = array_search($user_dn, $domainadmins)) !== false) {
++#                    unset($domainadmins[$key]);
++#                }
++#                $this->domain_admin_save($domain, key($domain), $domainadmins);
++#            }
++#        }
 +
          return $result;
      }
