@@ -595,7 +595,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         # now edit the domain and set the domainadmin
         driver.find_element_by_link_text("Domains").click()
-        self.wait_loading(1.0)
+        self.wait_loading(2.0)
         elem = self.driver.find_element_by_id("searchinput")
         elem.send_keys(domainname)
         elem.send_keys(Keys.ENTER)
@@ -621,7 +621,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         # now edit the domain and remove the domainadmin
         driver.find_element_by_link_text("Domains").click()
-        self.wait_loading(1.0)
+        self.wait_loading(2.0)
         elem = self.driver.find_element_by_id("searchinput")
         elem.send_keys(domainname)
         elem.send_keys(Keys.ENTER)
