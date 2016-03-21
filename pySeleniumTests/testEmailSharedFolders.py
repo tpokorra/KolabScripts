@@ -24,8 +24,8 @@ class KolabEmailSharedFolders(unittest.TestCase):
         
         # login Directory Manager, create 2 users
         kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
-        username1, emailLogin1, password1 = kolabWAPhelper.create_user()
-        #username2, emailLogin2, password2 = kolabWAPhelper.create_user()
+        username1, emailLogin1, password1, uid1 = kolabWAPhelper.create_user()
+        #username2, emailLogin2, password2, uid2 = kolabWAPhelper.create_user()
 
         # create shared folder
         # could use delegates=[emailLogin1, emailLogin2], but this is not tested at the moment

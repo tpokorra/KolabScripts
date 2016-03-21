@@ -23,7 +23,7 @@ class KolabWAPLastLogin(unittest.TestCase):
         # login Directory Manager
         kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
 
-        username, emailLogin, password = kolabWAPhelper.create_user()
+        username, emailLogin, password, uid = kolabWAPhelper.create_user()
         kolabWAPhelper.logout_kolab_wap()
 
         # login the new user
@@ -45,7 +45,7 @@ class KolabWAPLastLogin(unittest.TestCase):
 
         domainname = kolabWAPhelper.create_domain()
 
-        username, emailLogin, password = kolabWAPhelper.create_user()
+        username, emailLogin, password, uid = kolabWAPhelper.create_user()
         kolabWAPhelper.logout_kolab_wap()
 
         # login the new user

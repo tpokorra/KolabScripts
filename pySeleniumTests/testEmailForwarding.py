@@ -28,10 +28,10 @@ class KolabEmailMailForwarding(unittest.TestCase):
         kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
 
         # add the user
-        username, emailLogin, password = kolabWAPhelper.create_user()
+        username, emailLogin, password, uid = kolabWAPhelper.create_user()
         
         # create a forward address
-        username2, emailForwardAddress, password2 = kolabWAPhelper.create_user(forward_to=emailLogin)
+        username2, emailForwardAddress, password2, uid2 = kolabWAPhelper.create_user(forward_to=emailLogin)
         # wait a few seconds for the change to take effect
         time.sleep(10)
         
@@ -61,11 +61,11 @@ class KolabEmailMailForwarding(unittest.TestCase):
         kolabWAPhelper.select_domain(enabled_maildomain);
 
         # add the user
-        username, emailLogin, password = kolabWAPhelper.create_user()
+        username, emailLogin, password, uid = kolabWAPhelper.create_user()
 
         # create a forward address
         # using an external echo address (see https://de.wikipedia.org/wiki/Echo-Mailer)
-        username2, emailForwardAddress, password2 = kolabWAPhelper.create_user(forward_to="echo@tu-berlin.de")
+        username2, emailForwardAddress, password2, uid2 = kolabWAPhelper.create_user(forward_to="echo@tu-berlin.de")
         time.sleep(10)
 
         kolabWAPhelper.logout_kolab_wap()

@@ -35,7 +35,7 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         kolabWAPhelper.create_user()
         kolabWAPhelper.create_user()
         kolabWAPhelper.select_domain(domainname2)
-        username2, emailLogin2, password2 = kolabWAPhelper.create_user()
+        username2, emailLogin2, password2, uid2 = kolabWAPhelper.create_user()
         # should fail, only 4 accounts allowed, including the domain admin
         kolabWAPhelper.create_user(expected_message_contains = "Cannot create another account")
 

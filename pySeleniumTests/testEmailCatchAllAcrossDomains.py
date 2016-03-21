@@ -44,7 +44,7 @@ class KolabEmailCatchAllAcrossDomains(unittest.TestCase):
         subprocess.call(['service', 'postfix', 'restart'])
         
         # now add user for real
-        username, emailLogin, password = kolabWAPhelper.create_user(username=username, alias="catchall@" + aliasdomainname)
+        username, emailLogin, password, uid = kolabWAPhelper.create_user(username=username, alias="catchall@" + aliasdomainname)
         kolabWAPhelper.logout_kolab_wap()
 
         # send email to catch all alias address from command line

@@ -57,7 +57,7 @@ class KolabAutoCreateFolders(unittest.TestCase):
         #modify the default folders in /etc/kolab/kolab.conf
         newContactsFolderName = self.helper_modify_autocreate_folders()
 
-        username, emailLogin, password = kolabWAPhelper.create_user()
+        username, emailLogin, password, uid = kolabWAPhelper.create_user()
 
         kolabWAPhelper.logout_kolab_wap()
 
@@ -84,7 +84,7 @@ class KolabAutoCreateFolders(unittest.TestCase):
         #modify the default folders in /etc/kolab/kolab.conf
         newContactsFolderName = self.helper_modify_autocreate_folders()
 
-        username, emailLogin, password = kolabWAPhelper.create_user()
+        username, emailLogin, password, uid = kolabWAPhelper.create_user()
 
         kolabWAPhelper.logout_kolab_wap()
 
