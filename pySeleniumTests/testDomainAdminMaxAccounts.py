@@ -43,9 +43,10 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         username2, emailLogin2, password2, uid2 = kolabWAPhelper.create_domainadmin(
             max_accounts = 7)
         kolabWAPhelper.link_admin_to_domain(username2, domainname)
-        kolabWAPhelper.link_admin_to_domain(username2, domainname2)
-        # should still fail, because the minimum is used
-        kolabWAPhelper.create_user(expected_message_contains = "Cannot create another account")
+        # should still fail, because only one admin can have a max account number
+        kolabWAPhelper.select_domain(domainname)
+        kolabWAPhelper.create_user(expected_message_contains =
+            "only one domainadmin can have a maximum account number specified")
 
         kolabWAPhelper.logout_kolab_wap()
 
