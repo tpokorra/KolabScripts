@@ -57,21 +57,21 @@ class KolabUniqueIDAcrossDomains(unittest.TestCase):
         # create a user in the primary domain
         username = "user" + datetime.datetime.now().strftime("%Y%m%d%H%M%S") + "uid"
         self.enable_editable_uid()
-        username, emailLogin, password = kolabWAPhelper.create_user(username=username, uid=username)
+        username, emailLogin, password, uid = kolabWAPhelper.create_user(username=username, uid=username)
 
         # create a domain and select it
         domainname = kolabWAPhelper.create_domain()
 
         # attempt to create a user with the same username as in the primary domain, should result in a uid with digit 2 attached
-        username, emailLogin, password, uid = kolabWAPhelper.create_user_return_uid(username=username)
+        username, emailLogin, password, uid = kolabWAPhelper.create_user(username=username)
         self.assertEquals(username + "2", uid, "generate_uid should create a unique id across domains for same surname, expected " + username + "2, but got: " + uid)
 
         # attempt to create a user with the same uid as in the primary domain
-        kolabWAPhelper.create_user_return_uid(username=username, uid=username, expected_message_contains=("Error: The unique identity (UID) " + username + " is already in use."))
+        kolabWAPhelper.create_user(username=username, uid=username, expected_message_contains=("Error: The unique identity (UID) " + username + " is already in use."))
 
         # create a new user
         username = "user" + datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        username, emailLogin, password = kolabWAPhelper.create_user(username=username)
+        username, emailLogin, password, uid = kolabWAPhelper.create_user(username=username)
         kolabWAPhelper.logout_kolab_wap()
 
         # test kolab-saslauthd from the commandline
