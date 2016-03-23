@@ -30,7 +30,7 @@ $kolabUserType['attributes']['fields']['objectclass'][] = 'tbitskolabuser';
 $kolabUserType['attributes']['form_fields']['tbitskolablastlogin'] = array('type' => 'text-unixtimestamp', 'optional' => 1);
 $service_type = new kolab_api_service_type(null);
 $result = $service_type->type_edit(null, $kolabUserType);
-echo "saving user type kolab: ".print_r($result,true)."\n";
+//echo "saving user type kolab: ".print_r($result,true)."\n";
 if ($result === false) {
     echo "failure: was not able to save user type kolab\n";
     die();
@@ -61,7 +61,7 @@ $newType['attributes']['form_fields']['tbitskolaboverallquota'] = array('type' =
 $newType['attributes']['form_fields']['tbitskolabdefaultquota'] = array('type' => 'text-quota', 'optional' => 1);
 
 $result = $service_type->type_add(null, $newType);
-echo "saving user type domainadmin: ".print_r($result,true)."\n";
+//echo "saving user type domainadmin: ".print_r($result,true)."\n";
 if ($result === false) {
     echo "failure: was not able to add new user type domainadmin\n";
     die();
