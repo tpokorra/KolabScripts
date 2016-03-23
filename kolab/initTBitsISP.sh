@@ -79,6 +79,15 @@ else
   service dirsrv stop && sleep 10 && service dirsrv start && sleep 10
 fi
 
+# need to delete the LDAP cache file. it lives in a private tmp directory of httpd
+for d in /tmp/systemd-private-*-httpd.service*
+do
+  if [ -d $d ]
+  then
+    rm -f $d/tmp/*Net_LDAP2_Schema.cache
+  fi
+done
+
 #####################################################################################
 #add tbitsKolabUser objectclass to Kolab user, for last login time and the DomainAdmin attributes
 #####################################################################################
