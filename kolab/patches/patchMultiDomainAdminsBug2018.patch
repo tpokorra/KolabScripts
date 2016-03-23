@@ -151,7 +151,7 @@ index b0027be..cc37e4a 100644
          // We should start throwing stuff over the fence here.
          $result = $this->modify_entry($user_dn, $user[$user_dn], $attributes);
  
-@@ -967,7 +1037,23 @@ class LDAP extends Net_LDAP3 {
+@@ -967,6 +1037,22 @@ class LDAP extends Net_LDAP3 {
                  $pass = $result['replace']['userpassword'];
                  $_SESSION['user']->user_bind_pw = is_array($pass) ? implode($pass) : $pass;
              }
