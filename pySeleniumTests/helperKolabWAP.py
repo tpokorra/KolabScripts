@@ -693,13 +693,15 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         # roundcubemail/?_task=mail&_action=show&_uid=1&_mbox=INBOX
         driver.get(url + "?_task=mail&_action=show&_uid=1&_mbox=" + folder)
-        self.wait_loading(5)
+        self.wait_loading(10)
         if emailSubjectLine is not None:
+           wait = WebDriverWait(driver, 10);
            elem = wait.until(EC.visibility_of_element_located(
                       (By.XPATH, "//h2[@class='subject'][text()='" + emailSubjectLine + "']")),
                    "the first email does not have the subject " + emailSubjectLine)
         if emailSubjectLineDoesNotContain is not None:
            try:
+             wait = WebDriverWait(driver, 10);
              elem = wait.until(EC.visibility_of_element_located((By.XPATH, "//h2[@class='subject'][text()='" + emailSubjectLineDoesNotContain + "']")),
                   "cannot find the email with subject " + emailSubjectLineDoesNotContain);
              self.assertTrue(False, "email subject should not contain " + emailSubjectLineDoesNotContain + " but was " + elem.text)
