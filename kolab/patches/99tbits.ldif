@@ -47,7 +47,6 @@ objectClasses: (2.25.270637687019478811349087770667234728572.2.3
   NAME 'tbitsKolabDomainAdmin'
   DESC 'TBits Kolab Domain Admin Object'
   SUP top AUXILIARY
-  MAY ( tbitsKolabLastLogin $
-        tbitsKolabMaxAccounts $
+  MAY ( tbitsKolabMaxAccounts $
         tbitsKolabOverallQuota $
         tbitsKolabDefaultQuota ) )
