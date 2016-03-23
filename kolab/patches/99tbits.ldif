@@ -34,23 +34,19 @@ attributeTypes: (2.25.270637687019478811349087770667234728572.1.5
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE)
-# tbitsKolabIsDomainAdmin defines if this user is allowed to manage any domain. needs to linked from each domain as Directory Administrator
-# Default is no.
-attributeTypes: ( 2.25.270637687019478811349087770667234728572.1.6
-  NAME 'tbitsKolabIsDomainAdmin'
-  DESC 'Create the user mailbox on the kolabHomeServer only'
-  EQUALITY booleanMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
-  SINGLE-VALUE )
 # tbits user account
 # we want to know when the user logged in successfully the last time 
-# also adding the DomainAdmin attributes
 objectClasses: (2.25.270637687019478811349087770667234728572.2.2
   NAME 'tbitsKolabUser'
   DESC 'TBits Kolab User Object'
   SUP top AUXILIARY
-  MAY ( tbitsKolabLastLogin $
-        tbitsKolabIsDomainAdmin $
-        tbitsKolabMaxAccounts $
+  MAY ( tbitsKolabLastLogin ) )
+# tbits domain admin account
+# also adding the DomainAdmin attributes
+objectClasses: (2.25.270637687019478811349087770667234728572.2.3
+  NAME 'tbitsKolabDomainAdmin'
+  DESC 'TBits Kolab Domain Admin Object'
+  SUP top AUXILIARY
+  MAY ( tbitsKolabMaxAccounts $
         tbitsKolabOverallQuota $
         tbitsKolabDefaultQuota ) )
