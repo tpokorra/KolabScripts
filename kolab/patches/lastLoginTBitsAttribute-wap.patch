@@ -141,7 +141,7 @@ index c8f30f4..40feaba 100644
  $LANG['user.street'] = 'Street';
  $LANG['user.system'] = 'System';
  $LANG['user.telephonenumber'] = 'Phone Number';
- $LANG['user.tbitskolabisdomainadmin'] = 'Is Domain Administrator';
+ #$LANG['user.tbitskolabisdomainadmin'] = 'Is Domain Administrator';
  $LANG['user.tbitskolabmaxaccounts'] = 'Maximum number of accounts';
  $LANG['user.tbitskolaboverallquota'] = 'Overall Quota assigned';
  $LANG['user.tbitskolabdefaultquota'] = 'Default Quota for user accounts';
