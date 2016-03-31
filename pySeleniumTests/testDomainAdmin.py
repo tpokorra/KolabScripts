@@ -44,6 +44,18 @@ class KolabWAPDomainAdmin(unittest.TestCase):
 
         username, emailLogin, password, domainname = kolabWAPhelper.create_domainadmin()
 
+        # some tests if the domain admin has been stored in LDAP as expected
+        # there should not be the objectClass: mailrecipient
+        # there should not be mail: or alias:
+        ldapuid="uid="+username+",ou=People,dc=" + ",dc=".join(domainname.split("."))
+        value = kolabWAPhelper.getLDAPValue(ldapuid, 'objectClass')
+        if 'mailrecipient' in value:
+            self.assertIsNone(value, "we don't want objectClass mailrecipient for domainadmins but there is " + str(value))
+        value = kolabWAPhelper.getLDAPValue(ldapuid, 'mail', '*')
+        self.assertIsNone(value, "we don't want an attribute mail for domainadmins but there is " + str(value))
+        value = kolabWAPhelper.getLDAPValue(ldapuid, 'alias', '*')
+        self.assertIsNone(value, "we don't want an attribute alias for domainadmins but there is " + str(value))
+
         # now edit the user
         self.driver.get(self.driver.current_url)
         elem = self.driver.find_element_by_link_text("Users")

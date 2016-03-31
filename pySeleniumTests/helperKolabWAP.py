@@ -61,7 +61,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         # should return https://localhost or http://localhost
         return api_url[:posSlash]
 
-    def getLDAPValue(self, entry_dn, attribute):
+    def getLDAPValue(self, entry_dn, attribute, searchattribute=None):
         self.ldap = ldap.ldapobject.ReconnectLDAPObject(
                 self.getConf('ldap', 'ldap_uri'),
                 trace_level=0,
@@ -81,7 +81,10 @@ class KolabWAPTestHelpers(unittest.TestCase):
         except ldap.INVALID_CREDENTIALS:
            print("Invalid DN, username and/or password.")
 
-        attributes = [attribute]
+        if searchattribute is None:
+            searchattribute=attribute
+
+        attributes = [searchattribute]
         _search = self.ldap.search_ext(
                 entry_dn,
                 ldap.SCOPE_BASE,
