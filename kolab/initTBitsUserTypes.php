@@ -44,7 +44,13 @@ $newType['key'] = 'domainadmin';
 $newType['name'] = 'Domain Administrator';
 $newType['description'] = 'A Kolab Domain Administrator';
 $newType['attributes']['fields']['objectclass'][] = 'tbitskolabdomainadmin';
-unset($newType['attributes']['fields']['objectclass']['mailrecipient']);
+// it does not work like this: unset($newType['attributes']['fields']['objectclass']['mailrecipient']);
+foreach ($newType['attributes']['fields']['objectclass'] as $index => $class) {
+    if ($class == 'mailrecipient') {
+        unset($newType['attributes']['fields']['objectclass'][$index]);
+        break;
+    }
+}
 unset($newType['attributes']['auto_form_fields']['alias']);
 unset($newType['attributes']['auto_form_fields']['mailhost']);
 unset($newType['attributes']['auto_form_fields']['mail']);
