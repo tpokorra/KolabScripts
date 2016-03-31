@@ -35,8 +35,10 @@ OBS_repo_OS=$1
 systemctl stop kolabd
 systemctl stop kolab-saslauthd
 systemctl stop cyrus-imapd
-systemctl stop dirsrv@`hostname --short`
+systemctl stop dirsrv.target
 systemctl stop wallace
+systemctl stop clamd@amavisd
+systemctl stop amavisd
 systemctl stop httpd
 systemctl stop mariadb
 
