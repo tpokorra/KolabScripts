@@ -151,15 +151,14 @@ index b0027be..cc37e4a 100644
          // We should start throwing stuff over the fence here.
          $result = $this->modify_entry($user_dn, $user[$user_dn], $attributes);
  
-@@ -967,6 +1037,22 @@ class LDAP extends Net_LDAP3 {
+@@ -973,8 +1043,24 @@
                  $pass = $result['replace']['userpassword'];
                  $_SESSION['user']->user_bind_pw = is_array($pass) ? implode($pass) : $pass;
              }
--        }
 +
 +            $domain_dn = key($result);
-+        }
-+
+         }
+ 
 +#        if (!empty($result) && !empty($result['replace']) && !empty($result['replace']['tbitskolabisdomainadmin']) 
 +#                && $attributes['tbitskolabisdomainadmin'] == 'FALSE') {
 +#            // drop the permissions on the domains
@@ -173,8 +172,10 @@ index b0027be..cc37e4a 100644
 +#                $this->domain_admin_save($domain, key($domain), $domainadmins);
 +#            }
 +#        }
- 
++
          return $result;
+     }
+ 
 @@ -1702,4 +1788,164 @@ class LDAP extends Net_LDAP3 {
  
          return false;
