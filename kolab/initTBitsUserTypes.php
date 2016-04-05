@@ -51,6 +51,13 @@ foreach ($newType['attributes']['fields']['objectclass'] as $index => $class) {
         break;
     }
 }
+// also drop the class kolabinetorgperson so that kolabd will not add an alias, mail or mailHost attribute
+foreach ($newType['attributes']['fields']['objectclass'] as $index => $class) {
+    if ($class == 'kolabinetorgperson') {
+        unset($newType['attributes']['fields']['objectclass'][$index]);
+        break;
+    }
+}
 unset($newType['attributes']['auto_form_fields']['alias']);
 unset($newType['attributes']['auto_form_fields']['mailhost']);
 unset($newType['attributes']['auto_form_fields']['mail']);
