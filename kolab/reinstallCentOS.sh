@@ -116,8 +116,13 @@ then
     yum clean metadata
     yum -y install kolab kolab-freebusy patch unzip || exit -1
   fi
+  yum -y install clamav-update || exit -1
 elif [[ $OBS_repo_OS == Fedora* ]]
 then
   dnf clean metadata
-  dnf -y install  kolab kolab-freebusy patch unzip || exit -1
+  dnf -y install kolab kolab-freebusy patch unzip || exit -1
+  dnf -y install clamav-update || exit -1
 fi
+
+sed -i "s/^Example/#Example/g" /etc/freshclam.conf
+freshclam
