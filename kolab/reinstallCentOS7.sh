@@ -124,5 +124,6 @@ then
 fi
 
 yum clean metadata
-yum -y install kolab kolab-freebusy patch unzip
-
+yum -y install kolab kolab-freebusy patch unzip clamav-update || exit -1
+sed -i "s/^Example/#Example/g" /etc/freshclam.conf
+freshclam

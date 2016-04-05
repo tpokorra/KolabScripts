@@ -109,3 +109,7 @@ if [ $tryagain -eq 1 ]; then
   yum -y install kolab kolab-freebusy patch unzip
 fi
 
+yum -y install clamav-update || exit -1
+sed -i "s/^Example/#Example/g" /etc/freshclam.conf
+freshclam
+
