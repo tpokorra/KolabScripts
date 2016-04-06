@@ -125,4 +125,5 @@ then
 fi
 
 sed -i "s/^Example/#Example/g" /etc/freshclam.conf
+sed -i "s/#DatabaseMirror db.XY.clamav.net/DatabaseMirror db.de.clamav.net/g" /etc/freshclam.conf
 freshclam
