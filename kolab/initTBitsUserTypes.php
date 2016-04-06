@@ -43,21 +43,15 @@ $newType['type'] = 'user';
 $newType['key'] = 'domainadmin';
 $newType['name'] = 'Domain Administrator';
 $newType['description'] = 'A Kolab Domain Administrator';
+// we need a new array, otherwise ldap error when adding new domain admins:
+// ldap_add(): Value array must have consecutive indices 0, 1, ... in /usr/share/php/Net/LDAP3.php on line 196
+$newType['attributes']['fields']['objectclass'] = array();
+$newType['attributes']['fields']['objectclass'][] = 'top';
+$newType['attributes']['fields']['objectclass'][] = 'inetorgperson';
+$newType['attributes']['fields']['objectclass'][] = 'organizationalperson';
+$newType['attributes']['fields']['objectclass'][] = 'person';
+$newType['attributes']['fields']['objectclass'][] = 'tbitskolabuser';
 $newType['attributes']['fields']['objectclass'][] = 'tbitskolabdomainadmin';
-// it does not work like this: unset($newType['attributes']['fields']['objectclass']['mailrecipient']);
-foreach ($newType['attributes']['fields']['objectclass'] as $index => $class) {
-    if ($class == 'mailrecipient') {
-        unset($newType['attributes']['fields']['objectclass'][$index]);
-        break;
-    }
-}
-// also drop the class kolabinetorgperson so that kolabd will not add an alias, mail or mailHost attribute
-foreach ($newType['attributes']['fields']['objectclass'] as $index => $class) {
-    if ($class == 'kolabinetorgperson') {
-        unset($newType['attributes']['fields']['objectclass'][$index]);
-        break;
-    }
-}
 unset($newType['attributes']['auto_form_fields']['alias']);
 unset($newType['attributes']['auto_form_fields']['mailhost']);
 unset($newType['attributes']['auto_form_fields']['mail']);
