@@ -748,9 +748,19 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.wait_loading(10)
         if emailSubjectLine is not None:
            wait = WebDriverWait(driver, 10);
-           elem = wait.until(EC.visibility_of_element_located(
+           try:
+             elem = wait.until(EC.visibility_of_element_located(
                       (By.XPATH, "//div[@id='messageheader']/h2[text()='" + emailSubjectLine + "']")),
                    "the first email does not have the subject " + emailSubjectLine)
+           except TimeoutException:
+             instead=""
+             try:
+               elem = self.driver.find_element_by_xpath("//h2[@class='subject']")
+               instead = " but it was instead: " + elem.text
+             except NoSuchElementException:
+               print("no such element")
+               pass
+             self.assertTrue(False, "the first email does not have the subject " + emailSubjectLine + instead) 
         if emailSubjectLineDoesNotContain is not None:
            try:
              wait = WebDriverWait(driver, 10);
