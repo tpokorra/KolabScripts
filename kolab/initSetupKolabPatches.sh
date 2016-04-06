@@ -71,6 +71,9 @@ patch -p2 -i `pwd`/patches/domainDeleteForceBug5098.patch -d $pythonDistPackages
 echo "applying packport fix for timeout issues of pykolab wapclient"
 patch -p2 -i `pwd`/patches/backport_timeoutissue_wapclient.patch -d $pythonDistPackages/pykolab || exit -1
 
+# need to fix alias: type=list also in formfields. see https://issues.kolab.org/show_bug.cgi?id=2219#c8
+sed -i 's#\\"form_fields\\":{\\"alias\\":{\\"optional\\":true}#\\"form_fields\\":{\\"alias\\":{\\"type\":\\"list\\",\\"optional\\":true}#g' /usr/share/doc/kolab-webadmin-3.2.6/kolab_wap.sql
+
 # TODO on Debian, we need to install the rewrite for the csrf token
 if [ -f /etc/apache2/sites-enabled/000-default ]
 then
