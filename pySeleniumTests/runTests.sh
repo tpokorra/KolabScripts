@@ -7,6 +7,15 @@ if [ ! -z "$1" ]; then
   tests=$1
 fi
 
+# delete created domains starting with domain*
+function deleteDomains() {
+    for d in `kolab list-domains | grep -v "Primary Domain" | grep "^domain"`
+    do
+      kolab delete-domain --force $d
+      php /usr/share/kolab-webadmin/bin/domain_delete.php
+    done
+}
+
 rm -f /tmp/output*.html
 hasError=0
 
@@ -21,6 +30,7 @@ fi
 
 # requires configuration for catchall and forwarding, and multidomain
 if [[ "$tests" == "all" || "$tests" == "catchallforwarding" ]]; then
+  deleteDomains
   # we need the multidomain script and patches installed, because otherwise we need to wait for up to 10 minutes for the domain sync to happen
   ./testEmailCatchAll.py || hasError=1
   # ignore other test test_mail_forwarding_external because it needs configuration of a domain that can receive email from outside
@@ -29,6 +39,7 @@ fi
 
 # requires multi domain patch
 if [[ "$tests" == "all" || "$tests" == "multidomain" ]]; then
+  deleteDomains
   # these tests have been run in vanilla, but this time we run all test cases, and with SSL
   ./testCreateUserAndEditSelf.py || hasError=1
   ./testRoundcubeChangePassword.py || hasError=1
@@ -40,6 +51,7 @@ fi
 
 # requires domain admin patch
 if [[ "$tests" == "all" || "$tests" == "domainadmin" ]]; then
+  deleteDomains
   ./testDomainAdmin.py || hasError=1
   ./testDomainAdminDefaultQuota.py || hasError=1
   ./testDomainAdminMaxAccounts.py || hasError=1
