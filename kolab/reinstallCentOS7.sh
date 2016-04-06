@@ -126,4 +126,5 @@ fi
 yum clean metadata
 yum -y install kolab kolab-freebusy patch unzip clamav-update clamav-server-systemd || exit -1
 sed -i "s/^Example/#Example/g" /etc/freshclam.conf
+sed -i "s/#DatabaseMirror db.XY.clamav.net/DatabaseMirror db.de.clamav.net/g" /etc/freshclam.conf
 freshclam
