@@ -74,7 +74,7 @@ $newType['attributes']['form_fields']['tbitskolaboverallquota'] = array('type' =
 $newType['attributes']['form_fields']['tbitskolabdefaultquota'] = array('type' => 'text-quota', 'optional' => 1);
 
 $result = $service_type->type_add(null, $newType);
-echo "saving user type domainadmin: ".print_r($result,true)."\n";
+// echo "saving user type domainadmin: ".print_r($result,true)."\n";
 if ($result === false) {
     echo "failure: was not able to add new user type domainadmin\n";
     die();
