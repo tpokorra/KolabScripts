@@ -38,7 +38,7 @@ class KolabWAPLastLogin(unittest.TestCase):
 
     def test_last_login_in_other_domain(self):
         kolabWAPhelper = self.kolabWAPhelper
-        kolabWAPhelper.log("Running test: test_last_login")
+        kolabWAPhelper.log("Running test: test_last_login_in_other_domain")
         
         # login Directory Manager
         kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")

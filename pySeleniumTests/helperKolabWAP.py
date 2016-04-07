@@ -492,6 +492,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
           emailLogin = driver.find_element_by_name("uid").get_attribute('value')
           self.assertNotEquals(0, emailLogin.__len__(), "uid should be set automatically, but length is 0")
           elem = driver.find_element_by_link_text("Contact Information")
+
         if alias is not None:
             driver.find_element_by_xpath("//textarea[@name=\"alias\"]/following-sibling::*[1]/span[@class=\"listelement\"]/span[@class=\"actions\"]/span[@class=\"add\"]").click()
             elem = driver.find_element_by_xpath("//textarea[@name=\"alias\"]/following-sibling::*[1]/span[2]/input");
@@ -611,7 +612,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem.click()
         elem = driver.find_element_by_xpath("//input[@name='domainadmin[-1]']")
         elem.send_keys(username)
-        self.wait_loading(0.5)
+        self.wait_loading(1)
         driver.find_element_by_xpath("//div[@id='autocompletepane']/ul/li[@class='selected']").click()
         elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
         elem.click()
@@ -715,8 +716,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
         #     self.assertTrue(True, "we expect a timeout, since we don't want to find the email with this subject") 
 
         # roundcubemail/?_task=mail&_action=show&_uid=1&_mbox=INBOX
-        self.wait_loading(10)
         driver.get(url + "?_task=mail&_action=show&_uid=1&_mbox=" + folder)
+        self.wait_loading(10)
         if emailSubjectLine is not None:
            wait = WebDriverWait(driver, 10);
            try:

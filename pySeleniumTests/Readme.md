@@ -1,6 +1,6 @@
 Instructions
 ============
-Please also see http://kolab.org/blog/timotheus-pokorra/2013/11/19/kolab-integration-tests-selenium-and-python
+Please also see http://www.pokorra.de/2013/11/kolab-integration-tests-with-selenium-and-python/
 
 Install Selenium:
 ```sh
