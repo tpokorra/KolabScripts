@@ -393,36 +393,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         return emailSharedFolder, foldername
 
     # create new user account in currently selected domain
-    # this is an overload of create_user_return_uid that does not return the uid
     def create_user(self,
-                    prefix = "user",
-                    overall_quota = None,
-                    default_quota = None,
-                    max_accounts = None,
-                    default_quota_verify = None,
-                    default_role_verify = None,
-                    mail_quota = None,
-                    username = None,
-                    uid = None,
-                    alias = None,
-                    forward_to = None,
-                    expected_message_contains = None):
-        username, emailLogin, password, uid = self.create_user_return_uid(prefix,
-                    overall_quota,
-                    default_quota,
-                    max_accounts,
-                    default_quota_verify,
-                    default_role_verify,
-                    mail_quota,
-                    username,
-                    uid,
-                    alias,
-                    forward_to,
-                    expected_message_contains)
-        return username, emailLogin, password
-
-    # create new user account in currently selected domain
-    def create_user_return_uid(self,
                     prefix = "user",
                     overall_quota = None,
                     default_quota = None,
@@ -616,7 +587,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
                     expected_message_contains = None):
         driver=self.driver
         domainname = self.create_domain()
-        (username, emailLogin, password) = self.create_user("admin",
+        (username, emailLogin, password, uid) = self.create_user("admin",
               overall_quota, default_quota, max_accounts, default_quota_verify, default_role_verify, mail_quota, username, alias, forward_to, expected_message_contains)
         self.link_admin_to_domain(username, domainname)
         return username, emailLogin, password, domainname
