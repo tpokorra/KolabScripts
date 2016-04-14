@@ -1,0 +1,166 @@
+diff -uNr kolab-webadmin.orig/lib/Auth/LDAP.php kolab-webadmin/lib/Auth/LDAP.php
+--- kolab-webadmin.orig/lib/Auth/LDAP.php	2016-04-14 09:39:03.000000000 +0200
++++ kolab-webadmin/lib/Auth/LDAP.php	2016-04-14 12:32:15.168909912 +0200
+@@ -271,7 +271,7 @@
+         }
+ 
+         if (in_array('tbitsKolabUser', $this->classes_allowed())) {
+-            $self_attrs = array_merge($self_attrs, array('tbitsKolabLastLogin'));
++            $self_attrs = array_merge($self_attrs, array('tbitsKolabLastLogin', 'tbitsKolabQuotaUsed'));
+         }
+ 
+         $_domain = str_replace('.', '_', $domain);
+@@ -1155,7 +1155,33 @@
+ 
+         $this->read_prepare($attributes);
+ 
+-        return $this->_read($user_dn, $attributes);
++        $result = $this->_read($user_dn, $attributes);
++
++        if (in_array('tbitskolabquotaused', $attributes)) {
++            $kolabhomeserver = $result[$user_dn]['mailhost'];
++            // uri = imaps://localhost:993
++            $imapuri = $this->conf->get('cyrus-imap', 'uri');
++            $imap_port = "993";
++            $imap_manager = $this->conf->get('cyrus-imap', 'admin_login');
++            $imap_password = $this->conf->get('cyrus-imap', 'admin_password');
++
++            $mbox = imap_open("{" . $kolabhomeserver . ":" . $imap_port ."/imap/ssl/novalidate-cert}",
++                    $imap_manager, $imap_password, OP_HALFOPEN);
++            if($mbox) {
++                $quota = @imap_get_quota($mbox, "user/" . $result[$user_dn]['mail']);
++                imap_close($mbox);
++                $quota = $quota['usage'].";".$quota['limit'];
++            }
++            else {
++                // use 'unknown' value
++                $quota = 'unknown';
++            }
++
++            $result[$user_dn]['tbitskolabquotaused'] = $quota;
++        }
++
++        return $result;
++
+     }
+ 
+     public function user_find_by_attribute($attribute)
+diff -uNr kolab-webadmin.orig/lib/client/kolab_client_task_settings.php kolab-webadmin/lib/client/kolab_client_task_settings.php
+--- kolab-webadmin.orig/lib/client/kolab_client_task_settings.php	2016-04-14 09:39:03.000000000 +0200
++++ kolab-webadmin/lib/client/kolab_client_task_settings.php	2016-04-14 09:48:28.351378654 +0200
+@@ -34,6 +34,7 @@
+     protected $form_element_types = array(
+         'text', 'text-separated', 'text-quota', 'text-autocomplete',
+         'text-unixtimestamp',
++        'text-quotaused',
+         'select', 'multiselect',
+         'list', 'list-autocomplete', 'checkbox', 'password', 'ldap_url',
+         'aci', 'imap_acl',
+diff -uNr kolab-webadmin.orig/lib/client/kolab_client_task_user.php kolab-webadmin/lib/client/kolab_client_task_user.php
+--- kolab-webadmin.orig/lib/client/kolab_client_task_user.php	2016-04-14 09:39:03.000000000 +0200
++++ kolab-webadmin/lib/client/kolab_client_task_user.php	2016-04-14 09:59:11.820086212 +0200
+@@ -130,6 +130,7 @@
+             'mailalternateaddress'      => 'contact_info',
+ 
+             'tbitskolablastlogin'       => 'statistics',
++            'tbitskolabquotaused'       => 'statistics',
+ 
+             /* POSIX Attributes first */
+             'uid'                       => 'system',
+diff -uNr kolab-webadmin.orig/lib/kolab_client_task.php kolab-webadmin/lib/kolab_client_task.php
+--- kolab-webadmin.orig/lib/kolab_client_task.php	2016-04-14 09:39:03.000000000 +0200
++++ kolab-webadmin/lib/kolab_client_task.php	2016-04-14 09:49:54.662400122 +0200
+@@ -914,6 +914,11 @@
+             $result['default'] = $field['default'];
+             break;
+ 
++        case 'text-quotaused':
++            $result['type']    = kolab_form::INPUT_TEXTQUOTAUSED;
++            $result['default'] = $field['default'];
++            break;
++
+         case 'aci':
+             $result['type']      = kolab_form::INPUT_TEXTAREA;
+             $result['data-type'] = 'aci';
+diff -uNr kolab-webadmin.orig/lib/kolab_form.php kolab-webadmin/lib/kolab_form.php
+--- kolab-webadmin.orig/lib/kolab_form.php	2016-04-14 09:39:03.000000000 +0200
++++ kolab-webadmin/lib/kolab_form.php	2016-04-14 09:50:42.293860162 +0200
+@@ -39,6 +39,7 @@
+     const INPUT_CUSTOM   = 10;
+     const INPUT_CONTENT  = 20;
+     const INPUT_TEXTQUOTA = 30;
++    const INPUT_TEXTQUOTAUSED = 31;
+     const INPUT_TEXTUNIXTIMESTAMP = 40;
+ 
+     private $attribs  = array();
+@@ -295,6 +296,11 @@
+             $content = kolab_html::inputquota($attribs);
+             break;
+ 
++        case self::INPUT_TEXTQUOTAUSED:
++            $attribs['type'] = 'text';
++            $content = kolab_html::inputquotaused($attribs);
++            break;
++
+         case self::INPUT_TEXTUNIXTIMESTAMP:
+             $attribs['type'] = 'text';
+             $content = kolab_html::inputunixtimestamp($attribs);
+diff -uNr kolab-webadmin.orig/lib/kolab_html.php kolab-webadmin/lib/kolab_html.php
+--- kolab-webadmin.orig/lib/kolab_html.php	2016-04-14 09:39:03.000000000 +0200
++++ kolab-webadmin/lib/kolab_html.php	2016-04-14 12:30:04.566385693 +0200
+@@ -209,6 +209,55 @@
+         return self::input($attribs) . self::select($select);
+     }
+ 
++    public static function quota_to_read($valueInKB)
++    {
++        $result = array ('value' => $valueInKB, 'unit' => 'kb');
++        if ($result['value'] % 1024 == 0) {
++            if ($result['value'] >= 1024) {
++                $result['value'] /= 1024;
++                $result['unit'] = 'mb';
++            }
++            if ($result['value'] % 1024 == 0 && $result['value'] >= 1024) {
++                $result['value'] /= 1024;
++                $result['unit'] = 'gb';
++            }
++        }
++        return $result['value']." ".strtoupper($result['unit']);
++    }
++
++    /**
++     * Readonly control that will display the diskspace used compared to the booked quota
++     *
++     * @param array  $attribs  Element attributes
++     *
++     * @return string HTML output of the used quota
++     */
++    public static function inputquotaused($attribs = array())
++    {
++        $attribs['type'] = 'hidden';
++        $hidden_input = self::input($attribs);
++        unset($attribs['type']);
++        $attribs['name'] .= "_display";
++        $attribs['readonly'] = true;
++        $attribs['disabled'] = true;
++	if (!empty($attribs['value'])) {
++            if ($attribs['value'] == 'unknown') {
++               $attribs['value'] = '';
++            } else {
++               $values = explode(';', $attribs['value']);
++               $quota = array();
++               $quota['usage'] = $values[0];
++               $quota['limit'] = $values[1];
++               $quota['percentage'] = round($quota['usage'] / $quota['limit'] * 100);
++               $quota['usage'] = self::quota_to_read($quota['usage']);
++               $quota['limit'] = self::quota_to_read($quota['limit']);
++               $attribs['value'] = $quota['usage']. " / ".$quota['limit']." (".$quota['percentage']."%)";
++            }
++        }
++        $readonly_input = self::input($attribs);
++        return $hidden_input.$readonly_input;
++    }
++
+     /**
+      * Readonly control that will display the time encoded as a unix timestamp. Used for displaying tbitsKolabLastLogin
+      *

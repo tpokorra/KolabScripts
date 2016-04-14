@@ -34,13 +34,21 @@ attributeTypes: (2.25.270637687019478811349087770667234728572.1.5
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE)
+# tbitskolabquotaused is a place holder for the quota used
+attributeTypes: (2.25.270637687019478811349087770667234728572.1.6
+  NAME 'tbitsKolabQuotaUsed'
+  DESC 'place holder for the quota used'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE)
 # tbits user account
 # we want to know when the user logged in successfully the last time 
 objectClasses: (2.25.270637687019478811349087770667234728572.2.2
   NAME 'tbitsKolabUser'
   DESC 'TBits Kolab User Object'
   SUP top AUXILIARY
-  MAY ( tbitsKolabLastLogin ) )
+  MAY ( tbitsKolabLastLogin $
+        tbitsKolabQuotaUsed ) )
 # tbits domain admin account
 # also adding the DomainAdmin attributes
 objectClasses: (2.25.270637687019478811349087770667234728572.2.3

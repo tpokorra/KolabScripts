@@ -126,5 +126,5 @@ apt-get -y install apt-transport-https
 apt-get update
 apt-get -y install aptitude
 
-aptitude -y install kolab kolab-freebusy || exit 1
+aptitude -y install kolab kolab-freebusy php5-imap || exit 1
 
