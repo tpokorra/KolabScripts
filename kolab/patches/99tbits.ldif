@@ -35,7 +35,7 @@ attributeTypes: (2.25.270637687019478811349087770667234728572.1.5
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE)
 # tbitskolabquotaused is a place holder for the quota used
-attributeTypes: (2.25.270637687019478811349087770667234728572.1.6
+attributeTypes: (2.25.270637687019478811349087770667234728572.1.7
   NAME 'tbitsKolabQuotaUsed'
   DESC 'place holder for the quota used'
   EQUALITY integerMatch
