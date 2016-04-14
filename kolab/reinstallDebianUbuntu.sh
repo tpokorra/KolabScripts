@@ -124,7 +124,7 @@ then
   apt-get -y install -t stable apache2
 fi
 
-aptitude -y install kolab kolab-freebusy
+aptitude -y install kolab kolab-freebusy php5-imap
 
 # somehow apache has died and would not restart. probably related to https://issues.kolab.org/show_bug.cgi?id=2050
 service apache2 stop

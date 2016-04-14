@@ -103,10 +103,10 @@ do
 done
 
 tryagain=0
-yum -y install kolab kolab-freebusy patch unzip || tryagain=1
+yum -y install kolab kolab-freebusy patch unzip php-imap || tryagain=1
 if [ $tryagain -eq 1 ]; then
   yum clean metadata
-  yum -y install kolab kolab-freebusy patch unzip
+  yum -y install kolab kolab-freebusy patch unzip php-imap
 fi
 
 yum -y install clamav-update || exit -1

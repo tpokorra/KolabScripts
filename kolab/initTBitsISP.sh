@@ -44,6 +44,8 @@ patch -p1 --fuzz=0 -i `pwd`/patches/lastLoginTBitsAttribute-wap.patch -d /usr/sh
 patch -p1 --fuzz=0 -i `pwd`/patches/lastLoginTBitsAttribute-pykolab.patch -d $pythonDistPackages || exit -1
 echo "applying allowPrimaryEmailAddressFromDomain.patch"
 patch -p1 --fuzz=0 -i `pwd`/patches/allowPrimaryEmailAddressFromDomain.patch -d $pythonDistPackages || exit -1
+echo "applying quotaused_wap.patch"
+patch -p1 --fuzz=0 -i `pwd`/patches/quotaused_wap.patch -d /usr/share/kolab-webadmin || exit -1
 
 #####################################################################################
 #using specific ldap attribute for the domainadmin overall quota
