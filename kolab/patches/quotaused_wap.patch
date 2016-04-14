@@ -1,8 +1,8 @@
 diff -uNr kolab-webadmin.orig/lib/Auth/LDAP.php kolab-webadmin/lib/Auth/LDAP.php
 --- kolab-webadmin.orig/lib/Auth/LDAP.php	2016-04-14 09:39:03.000000000 +0200
 +++ kolab-webadmin/lib/Auth/LDAP.php	2016-04-14 12:32:15.168909912 +0200
-@@ -271,7 +271,7 @@
-         }
+@@ -253,7 +253,7 @@
+         $admin_readonly_attrs = array("tbitsKolabMaxAccounts", "tbitsKolabOverallQuota");
  
          if (in_array('tbitsKolabUser', $this->classes_allowed())) {
 -            $self_attrs = array_merge($self_attrs, array('tbitsKolabLastLogin'));
