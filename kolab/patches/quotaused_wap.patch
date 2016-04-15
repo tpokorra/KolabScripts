@@ -112,18 +112,18 @@ diff -uNr kolab-webadmin.orig/lib/kolab_html.php kolab-webadmin/lib/kolab_html.p
          return self::input($attribs) . self::select($select);
      }
  
-+    public static function quota_to_read($valueInKB)
++    public static function quota_to_read($valueInKB, $precise=false)
 +    {
 +        $result = array ('value' => $valueInKB, 'unit' => 'kb');
-+        if ($result['value'] % 1024 == 0) {
-+            if ($result['value'] >= 1024) {
-+                $result['value'] /= 1024;
-+                $result['unit'] = 'mb';
-+            }
-+            if ($result['value'] % 1024 == 0 && $result['value'] >= 1024) {
-+                $result['value'] /= 1024;
-+                $result['unit'] = 'gb';
-+            }
++        if ((!$precise || ($result['value'] % 1024 == 0)) && $result['value'] >= 1024) {
++            $result['value'] /= 1024;
++            $result['value'] = round($result['value']);
++            $result['unit'] = 'mb';
++        }
++        if ((!$precise || ($result['value'] % 1024 == 0)) && $result['value'] >= 1024) {
++            $result['value'] /= 1024;
++            $result['value'] = round($result['value'], 1);
++            $result['unit'] = 'gb';
 +        }
 +        return $result['value']." ".strtoupper($result['unit']);
 +    }
@@ -153,7 +153,7 @@ diff -uNr kolab-webadmin.orig/lib/kolab_html.php kolab-webadmin/lib/kolab_html.p
 +               $quota['limit'] = $values[1];
 +               $quota['percentage'] = round($quota['usage'] / $quota['limit'] * 100);
 +               $quota['usage'] = self::quota_to_read($quota['usage']);
-+               $quota['limit'] = self::quota_to_read($quota['limit']);
++               $quota['limit'] = self::quota_to_read($quota['limit'], true);
 +               $attribs['value'] = $quota['usage']. " / ".$quota['limit']." (".$quota['percentage']."%)";
 +            }
 +        }
