@@ -111,10 +111,10 @@ then
   yum clean metadata
 
   tryagain=0
-  yum -y install kolab kolab-freebusy patch unzip || tryagain=1
+  yum -y install kolab kolab-freebusy patch unzip php-imap || tryagain=1
   if [ $tryagain -eq 1 ]; then
     yum clean metadata
-    yum -y install kolab kolab-freebusy patch unzip || exit -1
+    yum -y install kolab kolab-freebusy patch unzip php-imap || exit -1
   fi
   yum -y install clamav-update || exit -1
 elif [[ $OBS_repo_OS == Fedora* ]]
