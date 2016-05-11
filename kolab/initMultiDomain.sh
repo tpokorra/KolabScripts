@@ -94,21 +94,9 @@ sed -r -i -e "s#'ou=People,.*'#'ou=People,%dc'#g" /etc/roundcubemail/kolab_auth.
 sed -r -i -e "s#'ou=Groups,.*'#'ou=Groups,%dc'#g" /etc/roundcubemail/kolab_auth.inc.php
 
 #####################################################################################
-#fix a bug https://issues.kolab.org/show_bug.cgi?id=2673 
-#so that changing the password works in Roundcube for multiple domains
-#####################################################################################
-cp -r /etc/roundcubemail/password.inc.php /etc/roundcubemail/password.inc.php.beforeMultiDomain
-sed -r -i -e "s#config\['password_driver'\] = 'ldap'#config['password_driver'] = 'ldap_simple'#g" /etc/roundcubemail/password.inc.php
-
-#####################################################################################
 #enable freebusy for all domains
 #####################################################################################
 sed -r -i -e "s#base_dn = .*#base_dn = %dc#g" /usr/share/kolab-freebusy/config/config.ini
-
-#####################################################################################
-#fix a bug for freebusy (see https://issues.kolab.org/show_bug.cgi?id=2524, missing quotes)
-#####################################################################################
-sed -r -i -e 's#bind_dn = (.*)#bind_dn = "\1"#g' /usr/share/kolab-freebusy/config/config.ini
 
 #####################################################################################
 #auto created folders: do not use an extra partition for the archive folder. 
