@@ -111,5 +111,12 @@ fi
 
 yum -y install clamav-update || exit -1
 sed -i "s/^Example/#Example/g" /etc/freshclam.conf
-freshclam
-
+sed -i "s/#DatabaseMirror db.XY.clamav.net/DatabaseMirror db.de.clamav.net/g" /etc/freshclam.conf
+# Problem with clamav 0.99.1 in Epel: https://bugzilla.redhat.com/show_bug.cgi?id=1325717
+if [ -f ~/.ssh/main.cvd ]
+then
+  # use our cached files
+  mv -f ~/.ssh/*.cvd /var/lib/clamav/
+else
+  freshclam
+fi
