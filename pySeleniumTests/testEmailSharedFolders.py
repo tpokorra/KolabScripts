@@ -50,7 +50,6 @@ class KolabEmailSharedFolders(unittest.TestCase):
         
         print "sending email to " + emailSharedFolder
         emailSubjectLine = kolabWAPhelper.send_email(emailSharedFolder)
-        kolabWAPhelper.wait_loading(3.0)
         kolabWAPhelper.check_email_received(emailSubjectLineDoesNotContain="Undelivered Mail Returned to Sender")
         # no need to subscribe the folder, because we are using the direct url to load the folder in Roundcube
         kolabWAPhelper.check_email_received(

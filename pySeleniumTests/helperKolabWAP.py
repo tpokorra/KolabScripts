@@ -716,6 +716,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         #     self.assertTrue(True, "we expect a timeout, since we don't want to find the email with this subject") 
 
         # roundcubemail/?_task=mail&_action=show&_uid=1&_mbox=INBOX
+        time.sleep(10)
         driver.get(url + "?_task=mail&_action=show&_uid=1&_mbox=" + folder)
         self.wait_loading(10)
         if emailSubjectLine is not None:

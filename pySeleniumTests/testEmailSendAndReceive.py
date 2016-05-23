@@ -30,7 +30,6 @@ class KolabEmailSendAndReceiveEmail(unittest.TestCase):
         kolabWAPhelper.login_roundcube("/roundcubemail", emailLogin1, password1)
         emailSubjectLine = kolabWAPhelper.send_email(emailLogin2)
         kolabWAPhelper.logout_roundcube()
-        kolabWAPhelper.wait_loading(5)
 
         # login user2 to roundcube and check for email
         kolabWAPhelper.login_roundcube("/roundcubemail", emailLogin2, password2)

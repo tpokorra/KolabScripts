@@ -36,7 +36,6 @@ class KolabEmailCatchAll(unittest.TestCase):
         print "sending email..."
         subject = 'subject ' + domainname
         subprocess.call(['/bin/bash', '-c', 'echo "test" | mail -s "' + subject + '" alias' + domainname + '@' + domainname])
-        kolabWAPhelper.wait_loading(2.0)
 
         # login user to roundcube and check for email
         kolabWAPhelper.login_roundcube("/roundcubemail", emailLogin, password)

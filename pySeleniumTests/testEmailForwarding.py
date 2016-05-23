@@ -41,7 +41,6 @@ class KolabEmailMailForwarding(unittest.TestCase):
         print "sending email to " + emailForwardAddress
         subject = 'for ' + username
         subprocess.call(['/bin/bash', '-c', 'echo "test" | mail -s "' + subject + '" ' + emailForwardAddress])
-        time.sleep(10)
 
         # login user to roundcube and check for email
         kolabWAPhelper.login_roundcube("/roundcubemail", emailLogin, password)
@@ -74,7 +73,6 @@ class KolabEmailMailForwarding(unittest.TestCase):
         kolabWAPhelper.login_roundcube("/roundcubemail", emailLogin, password)
         print "sending email to " + emailForwardAddress
         emailSubjectLine = kolabWAPhelper.send_email(emailForwardAddress)
-        kolabWAPhelper.wait_loading(5.0)
         kolabWAPhelper.check_email_received(emailSubjectLine="Re: " + emailSubjectLine)
         kolabWAPhelper.logout_roundcube()
 
