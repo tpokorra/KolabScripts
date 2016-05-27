@@ -47,7 +47,7 @@ diff -uNr a/kolab-webadmin/lib/client/kolab_client_task_user.php kolab-webadmin/
      );
  
      protected $list_attribs = array('displayname', 'cn');
-@@ -76,6 +77,39 @@
+@@ -76,6 +77,40 @@
          $this->output->set_object('taskcontent', $output);
      }
  
@@ -78,6 +78,7 @@ diff -uNr a/kolab-webadmin/lib/client/kolab_client_task_user.php kolab-webadmin/
 +
 +        $output .= "</table>\n";
 +        $this->output->set_object('taskcontent', $output);
++        $this->output->add_translation('quota.unlimited');
 +        $this->output->add_translation('report.uid');
 +        $this->output->add_translation('report.email');
 +        $this->output->add_translation('report.quotausage');
