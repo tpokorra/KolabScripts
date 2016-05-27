@@ -10,7 +10,7 @@ diff -uNr kolab-webadmin.orig/lib/Auth/LDAP.php kolab-webadmin/lib/Auth/LDAP.php
          }
  
          $_domain = str_replace('.', '_', $domain);
-@@ -1155,7 +1155,33 @@
+@@ -1155,7 +1155,37 @@
  
          $this->read_prepare($attributes);
  
@@ -30,7 +30,11 @@ diff -uNr kolab-webadmin.orig/lib/Auth/LDAP.php kolab-webadmin/lib/Auth/LDAP.php
 +            if($mbox) {
 +                $quota = @imap_get_quota($mbox, "user/" . $result[$user_dn]['mail']);
 +                imap_close($mbox);
-+                $quota = $quota['usage'].";".$quota['limit'];
++                if (empty($quota['limit'])) {
++                    $quota = 'unlimited';
++                } else {
++                    $quota = $quota['usage'].";".$quota['limit'];
++                }
 +            }
 +            else {
 +                // use 'unknown' value
@@ -108,7 +112,7 @@ diff -uNr kolab-webadmin.orig/lib/kolab_form.php kolab-webadmin/lib/kolab_form.p
 diff -uNr kolab-webadmin.orig/lib/kolab_html.php kolab-webadmin/lib/kolab_html.php
 --- kolab-webadmin.orig/lib/kolab_html.php	2016-04-14 09:39:03.000000000 +0200
 +++ kolab-webadmin/lib/kolab_html.php	2016-04-14 12:30:04.566385693 +0200
-@@ -209,6 +209,58 @@
+@@ -209,6 +209,61 @@
          return self::input($attribs) . self::select($select);
      }
  
@@ -143,9 +147,12 @@ diff -uNr kolab-webadmin.orig/lib/kolab_html.php kolab-webadmin/lib/kolab_html.p
 +        $attribs['name'] .= "_display";
 +        $attribs['readonly'] = true;
 +        $attribs['disabled'] = true;
-+	if (!empty($attribs['value'])) {
-+            if ($attribs['value'] == 'unknown') {
++        if (!empty($attribs['value'])) {
++            if ($attribs['value'] == 'unknown') { 
 +               $attribs['value'] = '';
++            }
++            else if ($attribs['value'] == 'unlimited') {
++               $attribs['value'] = 'unlimited';
 +            } else {
 +               $values = explode(';', $attribs['value']);
 +               $quota = array();
