@@ -54,17 +54,13 @@ diff -uNr a/kolab-webadmin/lib/client/kolab_client_task_user.php kolab-webadmin/
 +    public function action_report()
 +    {
 +        // TODO: only show this to domain admins
-+        // TODO: translate the labels
-+        $output = "<table><tr><th>User UID</th><th>User E-Mail</th><th>Quota Usage</th><th>Last Login</th></tr>\n";
++        $output = "<table><tr><th>_report.uid</th><th>_report.email</th><th>_report.quotausage</th><th>_report.lastlogin</th></tr>\n";
 +
 +        // Get all users within the current domain, and their quota usage and last login data
-+        $result = $this->api_post('users.list', null, array('attributes' => array('uid', 'mail', 'tbitskolablastlogin', 'tbitskolabquotaused')));
++        $result = $this->api_post('users.list', null, 
++                    array('attributes' => array('uid', 'mail', 'tbitskolablastlogin', 'tbitskolabquotaused')));
 +        $userdata = $result->get();
-+            $lastlogin = print_r($userdata['list'],true);
-+        //$conf = Conf::get_instance();
-+        //$domain = $conf->get('primary_domain');
-+        //$auth = Auth::get_instance($domain);
-+        //$users = $auth->list_users("dc=kolab,dc=pokorra,dc=de"); // , array() 'mail', 'uid'
++
 +        foreach ($userdata['list'] as $longuid => $user) {
 +            $uid = $user['uid'];
 +            $email = $user['mail'];
@@ -82,6 +78,10 @@ diff -uNr a/kolab-webadmin/lib/client/kolab_client_task_user.php kolab-webadmin/
 +
 +        $output .= "</table>\n";
 +        $this->output->set_object('taskcontent', $output);
++        $this->output->add_translation('report.uid');
++        $this->output->add_translation('report.email');
++        $this->output->add_translation('report.quotausage');
++        $this->output->add_translation('report.lastlogin');
 +    }
 +
      private function user_form($attribs, $data = array())
@@ -90,22 +90,30 @@ diff -uNr a/kolab-webadmin/lib/client/kolab_client_task_user.php kolab-webadmin/
 diff -uNr a/kolab-webadmin/lib/locale/de_DE.php kolab-webadmin/lib/locale/de_DE.php
 --- a/kolab-webadmin/lib/locale/de_DE.php	2016-05-25 18:34:15.066822970 +0200
 +++ kolab-webadmin/lib/locale/de_DE.php	2016-05-18 16:08:46.000000000 +0200
-@@ -434,6 +434,7 @@
+@@ -434,6 +434,11 @@
  $LANG['user.postbox'] = 'Postfach';
  $LANG['user.postcode'] = 'Postleitzahl';
  $LANG['user.preferredlanguage'] = 'Muttersprache';
 +$LANG['user.report'] = 'Übersicht';
++$LANG['report.uid'] = "Benutzername";
++$LANG['report.email'] = "E-Mail";
++$LANG['report.quotausage'] = "Speicherverbrauch";
++$LANG['report.lastlogin'] = "Letzter Login";
  $LANG['user.room'] = 'Raumnummer';
  $LANG['user.sn'] = 'Nachname';
  $LANG['user.street'] = 'Straße';
 diff -uNr a/kolab-webadmin/lib/locale/en_US.php kolab-webadmin/lib/locale/en_US.php
 --- a/kolab-webadmin/lib/locale/en_US.php	2016-05-25 18:34:15.066822970 +0200
 +++ kolab-webadmin/lib/locale/en_US.php	2016-05-18 16:14:54.000000000 +0200
-@@ -435,6 +435,7 @@
+@@ -435,6 +435,11 @@
  $LANG['user.postbox'] = 'Postal box';
  $LANG['user.postcode'] = 'Postal code';
  $LANG['user.preferredlanguage'] = 'Native tongue';
 +$LANG['user.report'] = 'Report';
++$LANG['report.uid'] = "UID";
++$LANG['report.email'] = "E-Mail";
++$LANG['report.quotausage'] = "Quota Usage";
++$LANG['report.lastlogin'] = "Last Login";
  $LANG['user.room'] = 'Room number';
  $LANG['user.sn'] = 'Surname';
  $LANG['user.statistics'] = 'Info';
