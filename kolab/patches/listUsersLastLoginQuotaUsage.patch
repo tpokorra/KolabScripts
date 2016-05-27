@@ -1,0 +1,112 @@
+diff -uNr a/kolab-webadmin/lib/api/kolab_api_service_user.php kolab-webadmin/lib/api/kolab_api_service_user.php
+--- a/kolab-webadmin/lib/api/kolab_api_service_user.php	2016-05-25 18:34:15.030823375 +0200
++++ kolab-webadmin/lib/api/kolab_api_service_user.php	2016-05-18 16:27:45.000000000 +0200
+@@ -62,6 +62,7 @@
+         if (in_array('read', $effective_rights['entryLevelRights'])) {
+             $rights['info'] = "r";
+             $rights['find'] = "r";
++            $rights['report'] = "r";
+         }
+ 
+         $rights['effective_rights'] = "r";
+diff -uNr a/kolab-webadmin/lib/api/kolab_api_service_users.php kolab-webadmin/lib/api/kolab_api_service_users.php
+--- a/kolab-webadmin/lib/api/kolab_api_service_users.php	2016-05-06 15:38:14.000000000 +0200
++++ kolab-webadmin/lib/api/kolab_api_service_users.php	2016-05-25 17:52:09.000000000 +0200
+@@ -41,6 +41,8 @@
+             'mailhost',
+             'mailquota',
+             'entrydn',
++            'tbitskolablastlogin',
++            'tbitskolabquotaused',
+         );
+ 
+     /**
+@@ -78,6 +80,14 @@
+ 
+         Log::trace("users.list result: " . var_export($users, TRUE));
+ 
++        if (in_array('tbitskolabquotaused', $attributes)) {
++            // need to query user_info for each user
++            foreach ($users['list'] as $uid_dn => $data) {
++                $detaildata = $auth->user_info($uid_dn, array('uid', 'tbitskolabquotaused', 'mailhost', 'mail'));
++                $users['list'][$uid_dn]['tbitskolabquotaused'] = $detaildata[$uid_dn]['tbitskolabquotaused'];
++            }
++        }
++
+         return $users;
+     }
+
+diff -uNr a/kolab-webadmin/lib/client/kolab_client_task_user.php kolab-webadmin/lib/client/kolab_client_task_user.php
+--- a/kolab-webadmin/lib/client/kolab_client_task_user.php	2016-05-25 18:34:15.062823015 +0200
++++ kolab-webadmin/lib/client/kolab_client_task_user.php	2016-05-25 17:45:32.000000000 +0200
+@@ -28,6 +28,7 @@
+ 
+     protected $menu = array(
+         'add'  => 'user.add',
++        'report' => 'user.report',
+     );
+ 
+     protected $list_attribs = array('displayname', 'cn');
+@@ -76,6 +77,39 @@
+         $this->output->set_object('taskcontent', $output);
+     }
+ 
++    public function action_report()
++    {
++        // TODO: only show this to domain admins
++        // TODO: translate the labels
++        $output = "<table><tr><th>User UID</th><th>User E-Mail</th><th>Quota Usage</th><th>Last Login</th></tr>\n";
++
++        // Get all users within the current domain, and their quota usage and last login data
++        $result = $this->api_post('users.list', null, array('attributes' => array('uid', 'mail', 'tbitskolablastlogin', 'tbitskolabquotaused')));
++        $userdata = $result->get();
++            $lastlogin = print_r($userdata['list'],true);
++        //$conf = Conf::get_instance();
++        //$domain = $conf->get('primary_domain');
++        //$auth = Auth::get_instance($domain);
++        //$users = $auth->list_users("dc=kolab,dc=pokorra,dc=de"); // , array() 'mail', 'uid'
++        foreach ($userdata['list'] as $longuid => $user) {
++            $uid = $user['uid'];
++            $email = $user['mail'];
++            if (!empty($user['tbitskolablastlogin'])) {
++                $lastlogin = date('d.m.Y H:i:s', $user['tbitskolablastlogin']);
++            } else {
++                $lastlogin = "";
++            }
++
++            // see https://github.com/TBits/KolabScripts/blob/master/kolab/patches/quotaused_wap.patch
++            $quota = kolab_html::inputquotaused(array('value' => $user['tbitskolabquotaused']));
++
++            $output .= "<tr><td>$uid</td><td>$email</td><td>$quota</td><td>$lastlogin</td></tr>\n";
++        }
++
++        $output .= "</table>\n";
++        $this->output->set_object('taskcontent', $output);
++    }
++
+     private function user_form($attribs, $data = array())
+     {
+         if (empty($attribs['id'])) {
+diff -uNr a/kolab-webadmin/lib/locale/de_DE.php kolab-webadmin/lib/locale/de_DE.php
+--- a/kolab-webadmin/lib/locale/de_DE.php	2016-05-25 18:34:15.066822970 +0200
++++ kolab-webadmin/lib/locale/de_DE.php	2016-05-18 16:08:46.000000000 +0200
+@@ -434,6 +434,7 @@
+ $LANG['user.postbox'] = 'Postfach';
+ $LANG['user.postcode'] = 'Postleitzahl';
+ $LANG['user.preferredlanguage'] = 'Muttersprache';
++$LANG['user.report'] = 'Übersicht';
+ $LANG['user.room'] = 'Raumnummer';
+ $LANG['user.sn'] = 'Nachname';
+ $LANG['user.street'] = 'Straße';
+diff -uNr a/kolab-webadmin/lib/locale/en_US.php kolab-webadmin/lib/locale/en_US.php
+--- a/kolab-webadmin/lib/locale/en_US.php	2016-05-25 18:34:15.066822970 +0200
++++ kolab-webadmin/lib/locale/en_US.php	2016-05-18 16:14:54.000000000 +0200
+@@ -435,6 +435,7 @@
+ $LANG['user.postbox'] = 'Postal box';
+ $LANG['user.postcode'] = 'Postal code';
+ $LANG['user.preferredlanguage'] = 'Native tongue';
++$LANG['user.report'] = 'Report';
+ $LANG['user.room'] = 'Room number';
+ $LANG['user.sn'] = 'Surname';
+ $LANG['user.statistics'] = 'Info';
+

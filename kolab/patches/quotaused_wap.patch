@@ -17,7 +17,7 @@ diff -uNr kolab-webadmin.orig/lib/Auth/LDAP.php kolab-webadmin/lib/Auth/LDAP.php
 -        return $this->_read($user_dn, $attributes);
 +        $result = $this->_read($user_dn, $attributes);
 +
-+        if (in_array('tbitskolabquotaused', $attributes)) {
++        if (in_array('tbitskolabquotaused', $attributes) && in_array('mailhost', $attributes) && in_array('mail', $attributes)) {
 +            $kolabhomeserver = $result[$user_dn]['mailhost'];
 +            // uri = imaps://localhost:993
 +            $imapuri = $this->conf->get('cyrus-imap', 'uri');
@@ -108,7 +108,7 @@ diff -uNr kolab-webadmin.orig/lib/kolab_form.php kolab-webadmin/lib/kolab_form.p
 diff -uNr kolab-webadmin.orig/lib/kolab_html.php kolab-webadmin/lib/kolab_html.php
 --- kolab-webadmin.orig/lib/kolab_html.php	2016-04-14 09:39:03.000000000 +0200
 +++ kolab-webadmin/lib/kolab_html.php	2016-04-14 12:30:04.566385693 +0200
-@@ -209,6 +209,55 @@
+@@ -209,6 +209,58 @@
          return self::input($attribs) . self::select($select);
      }
  
@@ -155,6 +155,9 @@ diff -uNr kolab-webadmin.orig/lib/kolab_html.php kolab-webadmin/lib/kolab_html.p
 +               $quota['usage'] = self::quota_to_read($quota['usage']);
 +               $quota['limit'] = self::quota_to_read($quota['limit'], true);
 +               $attribs['value'] = $quota['usage']. " / ".$quota['limit']." (".$quota['percentage']."%)";
++               if ($quota['percentage'] >= 90) {
++                   $attribs['style'] = 'background-color:red';
++               }
 +            }
 +        }
 +        $readonly_input = self::input($attribs);
