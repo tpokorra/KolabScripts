@@ -392,7 +392,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
                     uid = None,
                     alias = None,
                     forward_to = None,
-                    expected_message_contains = None):
+                    expected_message_contains = None,
+                    role = None):
         # restart kolabd service, otherwise we need to wait up to 10 minutes for the mailbox to be created
         self.stopKolabServer()
 
@@ -502,6 +503,12 @@ class KolabWAPTestHelpers(unittest.TestCase):
             elem.send_keys(uid)
         else:
             uid = elem.get_attribute("value")
+
+        if role is not None:
+          elem = driver.find_element_by_name("nsroledn[-1]")
+          elem.send_keys(role)
+          self.wait_loading(1)
+          driver.find_element_by_xpath("//div[@id='autocompletepane']/ul/li[@class='selected']").click()
 
         elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
         elem.click()
