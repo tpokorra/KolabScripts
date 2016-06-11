@@ -1,14 +1,17 @@
 diff -uNr a/kolab-webadmin/lib/api/kolab_api_service_user.php kolab-webadmin/lib/api/kolab_api_service_user.php
 --- a/kolab-webadmin/lib/api/kolab_api_service_user.php	2016-05-25 18:34:15.030823375 +0200
 +++ kolab-webadmin/lib/api/kolab_api_service_user.php	2016-05-18 16:27:45.000000000 +0200
-@@ -62,6 +62,7 @@
-         if (in_array('read', $effective_rights['entryLevelRights'])) {
-             $rights['info'] = "r";
+@@ -64,6 +64,10 @@
              $rights['find'] = "r";
-+            $rights['report'] = "r";
          }
  
++        if (in_array('report', $effective_rights['entryLevelRights'])) {
++            $rights['report'] = "r";
++        }
++
          $rights['effective_rights'] = "r";
+ 
+         return $rights;
 diff -uNr a/kolab-webadmin/lib/api/kolab_api_service_users.php kolab-webadmin/lib/api/kolab_api_service_users.php
 --- a/kolab-webadmin/lib/api/kolab_api_service_users.php	2016-05-06 15:38:14.000000000 +0200
 +++ kolab-webadmin/lib/api/kolab_api_service_users.php	2016-05-25 17:52:09.000000000 +0200
@@ -118,4 +121,21 @@ diff -uNr a/kolab-webadmin/lib/locale/en_US.php kolab-webadmin/lib/locale/en_US.
  $LANG['user.room'] = 'Room number';
  $LANG['user.sn'] = 'Surname';
  $LANG['user.statistics'] = 'Info';
+diff -uNr a/kolab-webadmin/lib/Auth/LDAP.php kolab-webadmin/lib/Auth/LDAP.php
+--- a/kolab-webadmin/lib/Auth/LDAP.php	2016-06-07 17:40:22.356024774 +0200
++++ kolab-webadmin/lib/Auth/LDAP.php	2016-06-07 17:51:10.396661445 +0200
+@@ -627,6 +627,13 @@
+             $result = $this->legacy_rights($subject);
+         }
+ 
++        $user = $this->user_info($_SESSION['user']->user_bind_dn, array('objectclass', 'nsrole'));
++        if ($_SESSION['user']->user_bind_dn == "cn=Directory Manager" ||
++            (!empty($user[$_SESSION['user']->user_bind_dn]['nsrole']) && strpos($user[$_SESSION['user']->user_bind_dn]['nsrole'], '=kolab-admin,dc=') > 0) ||
++            (in_array('tbitskolabdomainadmin', array_values($user[$_SESSION['user']->user_bind_dn]['objectclass'])))) {
++            $result['entryLevelRights'][] = "report";
++        }
++
+         if (!$this->set_cache_data($ckey, $result)) {
+              $this->icache[$ckey] = $result;
+         }
 
