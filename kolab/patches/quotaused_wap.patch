@@ -10,7 +10,16 @@ diff -uNr kolab-webadmin.orig/lib/Auth/LDAP.php kolab-webadmin/lib/Auth/LDAP.php
          }
  
          $_domain = str_replace('.', '_', $domain);
-@@ -1155,7 +1155,37 @@
+@@ -1078,6 +1078,8 @@
+ 
+         $user_dn = key($user);
+ 
++        unset($attributes['tbitskolabquotaused']);
++
+ #      if (empty($attributes['tbitskolabisdomainadmin'])) {
+ #            $attributes['tbitskolabisdomainadmin'] = $user[$user_dn]['tbitskolabisdomainadmin'];
+ #        }
+@@ -1131,7 +1133,37 @@
  
          $this->read_prepare($attributes);
  
@@ -74,7 +83,7 @@ diff -uNr kolab-webadmin.orig/lib/client/kolab_client_task_user.php kolab-webadm
 diff -uNr kolab-webadmin.orig/lib/kolab_client_task.php kolab-webadmin/lib/kolab_client_task.php
 --- kolab-webadmin.orig/lib/kolab_client_task.php	2016-04-14 09:39:03.000000000 +0200
 +++ kolab-webadmin/lib/kolab_client_task.php	2016-04-14 09:49:54.662400122 +0200
-@@ -914,6 +914,13 @@
+@@ -907,6 +907,13 @@
              $result['default'] = $field['default'];
              break;
  
