@@ -163,7 +163,7 @@ diff -uNr kolab-webadmin.orig/lib/kolab_html.php kolab-webadmin/lib/kolab_html.p
 +               $attribs['value'] = '';
 +            }
 +            else if ($attribs['value'] == 'unlimited') {
-+               $attribs['value'] = '_quota.unlimited';
++               $attribs['value'] = '#_#quota.unlimited';
 +            } else {
 +               $values = explode(';', $attribs['value']);
 +               $quota = array();
@@ -200,7 +200,7 @@ diff -uNr kolab-webadmin.orig/lib/kolab_client_output.php kolab-webadmin/lib/kol
 +            $l = array();
 +            $t = array();
 +            foreach ($this->labels as $label) {
-+                $l[] = "_$label";
++                $l[] = "#_#$label";
 +                $t[] = kolab_client_task::translate($label);
 +            }
 +            $response = str_replace($l, $t, $response);

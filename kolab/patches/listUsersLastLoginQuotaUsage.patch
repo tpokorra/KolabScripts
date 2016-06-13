@@ -57,7 +57,7 @@ diff -uNr a/kolab-webadmin/lib/client/kolab_client_task_user.php kolab-webadmin/
 +    public function action_report()
 +    {
 +        // TODO: only show this to domain admins
-+        $output = "<table><tr><th>_report.uid</th><th>_report.email</th><th>_report.quotausage</th><th>_report.lastlogin</th></tr>\n";
++        $output = "<table><tr><th>#_#report.uid</th><th>#_#report.email</th><th>#_#report.quotausage</th><th>#_#report.lastlogin</th></tr>\n";
 +
 +        // Get all users within the current domain, and their quota usage and last login data
 +        $result = $this->api_post('users.list', null, 
