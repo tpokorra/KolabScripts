@@ -116,7 +116,7 @@ sed -i "s/#DatabaseMirror db.XY.clamav.net/DatabaseMirror db.de.clamav.net/g" /e
 if [ -f ~/.ssh/main.cvd ]
 then
   # use our cached files
-  mv -f ~/.ssh/*.cvd /var/lib/clamav/
+  cp -f ~/.ssh/*.c*d /var/lib/clamav/
 else
   freshclam
 fi
