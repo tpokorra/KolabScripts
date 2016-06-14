@@ -100,9 +100,6 @@ test" | saslpasswd2 /etc/sasldb2
 chown cyrus: /etc/sasldb2
 chmod 640 /etc/sasldb2
 service cyrus-imapd restart
-sed -r -i \
-    -e "s#uri = imaps://localhost:993#uri = imaps://localhost:9993#g" \
-    /etc/kolab/kolab.conf
 
 #####################################################################################
 # configure Postfix
