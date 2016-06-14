@@ -11,9 +11,9 @@ then
 	exit 1
 fi
 
-if [[ "`sestatus | grep disabled`" == "" ]];
+if [[ "`sestatus | grep -E 'disabled|permissive'`" == "" ]]
 then
-        echo "SELinux is active, please disable SELinux first"
+        echo "SELinux is active, please set it to permissive"
         exit 1
 fi
 
