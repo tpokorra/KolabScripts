@@ -10,7 +10,17 @@ diff -uNr kolab-webadmin.orig/lib/Auth/LDAP.php kolab-webadmin/lib/Auth/LDAP.php
          }
  
          $_domain = str_replace('.', '_', $domain);
-@@ -1155,7 +1155,33 @@
+
+@@ -1078,6 +1078,8 @@
+ 
+         $user_dn = key($user);
+ 
++        unset($attributes['tbitskolabquotaused']);
++
+ #      if (empty($attributes['tbitskolabisdomainadmin'])) {
+ #            $attributes['tbitskolabisdomainadmin'] = $user[$user_dn]['tbitskolabisdomainadmin'];
+ #        }
+@@ -1131,7 +1133,37 @@
  
          $this->read_prepare($attributes);
  
