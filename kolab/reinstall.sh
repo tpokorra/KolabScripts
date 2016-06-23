@@ -50,6 +50,7 @@ then
 fi
 echo "    or unattended: setup-kolab --default --mysqlserver=new --timezone=$ZONE --directory-manager-pwd=test"
 h=`hostname`
+echo "   ./disableGuam.sh   # recommended in Winterfell, until Guam is working properly. see T1305"
 echo "   ./initHttpTunnel.sh"
 #echo "   ./initIMAPProxy.sh"
 echo "   ./initSSL.sh "${h:`expr index $h .`}
