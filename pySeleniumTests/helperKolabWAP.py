@@ -52,7 +52,11 @@ class KolabWAPTestHelpers(unittest.TestCase):
         return conf.get(section, attribute)
 
     def getCmdListMailboxes(self):
-        return "kolab list-mailboxes --server='127.0.0.1:9993' "
+        # check if cyrus is running on 9993 or on 993
+        for line in open("/etc/cyrus.conf"):
+            if "9993" in line and not "#" in line:
+                return "kolab list-mailboxes --server='127.0.0.1:9993'"
+        return "kolab list-mailboxes"
 
     def getSiteUrl(self):
         api_url = self.getConf('kolab_wap', 'api_url')
