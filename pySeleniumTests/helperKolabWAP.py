@@ -239,7 +239,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.startKolabServer()
 
     # create a new domain and select it
-    def create_domain(self, domainadmin = None, withAliasDomain = False):
+    def create_domain(self, domainadmin = None, withAliasDomain = False, domainname = None):
 
         # stop kolabd service, otherwise we need to wait up to 10 minutes for the domain to be created
         self.stopKolabServer()
@@ -252,7 +252,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.wait_loading()
 
         elem = driver.find_element_by_name("associateddomain[0]")
-        domainname = "domain" + datetime.datetime.now().strftime("%Y%m%d%H%M%S") + ".de"
+        if domainname is None:
+            domainname = "domain" + datetime.datetime.now().strftime("%Y%m%d%H%M%S") + ".de"
         elem.send_keys(domainname)
 
         if withAliasDomain == True:
@@ -586,6 +587,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
            elem.send_keys(max_accounts)
 
     # create a new domain, and create a domain admin for that domain, inside that domain
+    # if only_create_admin is False, then the domain admin will not manage that domain
     def create_domainadmin(self,
                     overall_quota = None,
                     default_quota = None,
@@ -596,12 +598,15 @@ class KolabWAPTestHelpers(unittest.TestCase):
                     username = None,
                     alias = None,
                     forward_to = None,
-                    expected_message_contains = None):
+                    expected_message_contains = None,
+                    domainname = None,
+                    only_create_admin = False):
         driver=self.driver
-        domainname = self.create_domain()
+        domainname = self.create_domain(domainname=domainname)
         (username, emailLogin, password, uid) = self.create_user("admin",
               overall_quota, default_quota, max_accounts, default_quota_verify, default_role_verify, mail_quota, username, alias, forward_to, expected_message_contains)
-        self.link_admin_to_domain(username, domainname)
+        if only_create_admin == False:
+            self.link_admin_to_domain(username, domainname)
         return username, emailLogin, password, domainname
 
     def link_admin_to_domain(self, username, domainname):

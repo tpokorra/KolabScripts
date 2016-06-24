@@ -125,6 +125,27 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         kolabWAPhelper.create_user()
         kolabWAPhelper.logout_kolab_wap()
 
+    # test if the domain admin can add users to another domain that he manages when he is not domainadmin in his own domain
+    # this might need fixing. see https://github.com/TBits/KolabScripts/issues/67
+    def test_domain_admin_create_user_other_domain(self):
+        kolabWAPhelper = self.kolabWAPhelper
+        kolabWAPhelper.log("Running test: test_domain_admin_edit_create_user_other_domain")
+
+        # login Directory Manager
+        kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
+
+        username, emailLogin, password, domainname = kolabWAPhelper.create_domainadmin(only_create_admin=True)
+        domainname2 = kolabWAPhelper.create_domain(username)
+        kolabWAPhelper.logout_kolab_wap()
+
+        kolabWAPhelper.login_kolab_wap("/kolab-webadmin", emailLogin, password)
+        kolabWAPhelper.select_domain(domainname2)
+        self.driver.find_element_by_link_text("Users").click()
+        kolabWAPhelper.wait_loading()
+        if self.driver.page_source.find('class="formtitle">Add User<') != -1:
+            self.assertTrue(False, "Domain Admin should not be able to add users because he is not domain admin in his own domain")
+        kolabWAPhelper.logout_kolab_wap()
+
     # test if ex-domain admin cannot add users
     def test_ex_domain_admin_without_permission(self):
         kolabWAPhelper = self.kolabWAPhelper
