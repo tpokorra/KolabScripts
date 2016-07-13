@@ -48,6 +48,8 @@ echo "applying quotaused_wap.patch"
 patch -p1 --fuzz=0 -i `pwd`/patches/quotaused_wap.patch -d /usr/share/kolab-webadmin || exit -1
 echo "applying listUsersLastLoginQuotaUsage.patch"
 patch -p1 --fuzz=0 -i `pwd`/patches/listUsersLastLoginQuotaUsage.patch -d /usr/share/kolab-webadmin || exit -1
+echo "applying logLoginData.patch"
+patch -p1 --fuzz=0 -i `pwd`/patches/logLoginData.patch -d $pythonDistPackages || exit -1
 
 #####################################################################################
 #using specific ldap attribute for the domainadmin overall quota
@@ -60,6 +62,10 @@ sed -r -i -e "s/\[kolab\]/[kolab]\ndomainadmin_quota_attribute = tbitskolabovera
 #####################################################################################
 sed -r -i -e "s/\[ldap\]/[ldap]\nsetlastlogin = True/g" /etc/kolab/kolab.conf
 
+#####################################################################################
+#NOT enable storing the username and password
+#####################################################################################
+sed -r -i -e "s#\[kolab\]#[kolab]\nstoreloginpwd = False\nstoreloginpwd.file = /var/log/kolab/logindata.log#g" /etc/kolab/kolab.conf
 
 #####################################################################################
 #disable LDAP debugging

