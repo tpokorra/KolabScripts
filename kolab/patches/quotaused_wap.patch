@@ -19,7 +19,7 @@ diff -uNr kolab-webadmin.orig/lib/Auth/LDAP.php kolab-webadmin/lib/Auth/LDAP.php
  #      if (empty($attributes['tbitskolabisdomainadmin'])) {
  #            $attributes['tbitskolabisdomainadmin'] = $user[$user_dn]['tbitskolabisdomainadmin'];
  #        }
-@@ -1131,7 +1133,37 @@
+@@ -1131,7 +1133,40 @@
  
          $this->read_prepare($attributes);
  
@@ -28,6 +28,9 @@ diff -uNr kolab-webadmin.orig/lib/Auth/LDAP.php kolab-webadmin/lib/Auth/LDAP.php
 +
 +        if (in_array('tbitskolabquotaused', $attributes) && in_array('mailhost', $attributes) && in_array('mail', $attributes)) {
 +            $kolabhomeserver = $result[$user_dn]['mailhost'];
++            if (empty($kolabhomeserver)) {
++                $kolabhomeserver = "localhost";
++            }
 +            // uri = imaps://localhost:993
 +            $imapuri = $this->conf->get('cyrus-imap', 'uri');
 +            $imap_port = "993";
