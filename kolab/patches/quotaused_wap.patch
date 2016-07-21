@@ -20,7 +20,7 @@ index 4cda7cc..4173acb 100644
  #	if (empty($attributes['tbitskolabisdomainadmin'])) {
  #            $attributes['tbitskolabisdomainadmin'] = $user[$user_dn]['tbitskolabisdomainadmin'];
  #        }
-@@ -1155,7 +1157,37 @@ class LDAP extends Net_LDAP3 {
+@@ -1155,7 +1157,40 @@ class LDAP extends Net_LDAP3 {
  
          $this->read_prepare($attributes);
  
@@ -29,6 +29,9 @@ index 4cda7cc..4173acb 100644
 +
 +        if (in_array('tbitskolabquotaused', $attributes) && in_array('mailhost', $attributes) && in_array('mail', $attributes)) {
 +            $kolabhomeserver = $result[$user_dn]['mailhost'];
++            if (empty($kolabhomeserver)) {
++                $kolabhomeserver = "localhost";
++            }
 +            // uri = imaps://localhost:993
 +            $imapuri = $this->conf->get('cyrus-imap', 'uri');
 +            $imap_port = "993";
