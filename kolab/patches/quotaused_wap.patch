@@ -1,7 +1,8 @@
-diff -uNr kolab-webadmin.orig/lib/Auth/LDAP.php kolab-webadmin/lib/Auth/LDAP.php
---- kolab-webadmin.orig/lib/Auth/LDAP.php	2016-04-14 09:39:03.000000000 +0200
-+++ kolab-webadmin/lib/Auth/LDAP.php	2016-04-14 12:32:15.168909912 +0200
-@@ -271,7 +271,7 @@
+diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
+index 4cda7cc..4173acb 100644
+--- a/lib/Auth/LDAP.php
++++ b/lib/Auth/LDAP.php
+@@ -271,7 +271,7 @@ class LDAP extends Net_LDAP3 {
          }
  
          if (in_array('tbitsKolabUser', $this->classes_allowed())) {
@@ -10,24 +11,23 @@ diff -uNr kolab-webadmin.orig/lib/Auth/LDAP.php kolab-webadmin/lib/Auth/LDAP.php
          }
  
          $_domain = str_replace('.', '_', $domain);
-
-@@ -1078,6 +1078,8 @@
+@@ -1102,6 +1102,8 @@ class LDAP extends Net_LDAP3 {
  
          $user_dn = key($user);
  
 +        unset($attributes['tbitskolabquotaused']);
 +
- #      if (empty($attributes['tbitskolabisdomainadmin'])) {
+ #        if (empty($attributes['tbitskolabisdomainadmin'])) {
  #            $attributes['tbitskolabisdomainadmin'] = $user[$user_dn]['tbitskolabisdomainadmin'];
  #        }
-@@ -1131,7 +1133,40 @@
+@@ -1155,7 +1157,40 @@ class LDAP extends Net_LDAP3 {
  
          $this->read_prepare($attributes);
  
 -        return $this->_read($user_dn, $attributes);
 +        $result = $this->_read($user_dn, $attributes);
 +
-+        if (in_array('tbitskolabquotaused', $attributes)) {
++        if (in_array('tbitskolabquotaused', $attributes) && in_array('mailhost', $attributes) && in_array('mail', $attributes)) {
 +            $kolabhomeserver = $result[$user_dn]['mailhost'];
 +            if (empty($kolabhomeserver)) {
 +                $kolabhomeserver = "localhost";
@@ -43,7 +43,11 @@ diff -uNr kolab-webadmin.orig/lib/Auth/LDAP.php kolab-webadmin/lib/Auth/LDAP.php
 +            if($mbox) {
 +                $quota = @imap_get_quota($mbox, "user/" . $result[$user_dn]['mail']);
 +                imap_close($mbox);
-+                $quota = $quota['usage'].";".$quota['limit'];
++                if (empty($quota['limit'])) {
++                    $quota = 'unlimited';
++                } else {
++                    $quota = $quota['usage'].";".$quota['limit'];
++                }
 +            }
 +            else {
 +                // use 'unknown' value
@@ -58,10 +62,11 @@ diff -uNr kolab-webadmin.orig/lib/Auth/LDAP.php kolab-webadmin/lib/Auth/LDAP.php
      }
  
      public function user_find_by_attribute($attribute)
-diff -uNr kolab-webadmin.orig/lib/client/kolab_client_task_settings.php kolab-webadmin/lib/client/kolab_client_task_settings.php
---- kolab-webadmin.orig/lib/client/kolab_client_task_settings.php	2016-04-14 09:39:03.000000000 +0200
-+++ kolab-webadmin/lib/client/kolab_client_task_settings.php	2016-04-14 09:48:28.351378654 +0200
-@@ -34,6 +34,7 @@
+diff --git a/lib/client/kolab_client_task_settings.php b/lib/client/kolab_client_task_settings.php
+index 18c8f96..e0e5af7 100644
+--- a/lib/client/kolab_client_task_settings.php
++++ b/lib/client/kolab_client_task_settings.php
+@@ -34,6 +34,7 @@ class kolab_client_task_settings extends kolab_client_task
      protected $form_element_types = array(
          'text', 'text-separated', 'text-quota', 'text-autocomplete',
          'text-unixtimestamp',
@@ -69,10 +74,11 @@ diff -uNr kolab-webadmin.orig/lib/client/kolab_client_task_settings.php kolab-we
          'select', 'multiselect',
          'list', 'list-autocomplete', 'checkbox', 'password', 'ldap_url',
          'aci', 'imap_acl',
-diff -uNr kolab-webadmin.orig/lib/client/kolab_client_task_user.php kolab-webadmin/lib/client/kolab_client_task_user.php
---- kolab-webadmin.orig/lib/client/kolab_client_task_user.php	2016-04-14 09:39:03.000000000 +0200
-+++ kolab-webadmin/lib/client/kolab_client_task_user.php	2016-04-14 09:59:11.820086212 +0200
-@@ -130,6 +130,7 @@
+diff --git a/lib/client/kolab_client_task_user.php b/lib/client/kolab_client_task_user.php
+index df5aebe..0faf286 100644
+--- a/lib/client/kolab_client_task_user.php
++++ b/lib/client/kolab_client_task_user.php
+@@ -130,6 +130,7 @@ class kolab_client_task_user extends kolab_client_task
              'mailalternateaddress'      => 'contact_info',
  
              'tbitskolablastlogin'       => 'statistics',
@@ -80,25 +86,55 @@ diff -uNr kolab-webadmin.orig/lib/client/kolab_client_task_user.php kolab-webadm
  
              /* POSIX Attributes first */
              'uid'                       => 'system',
-diff -uNr kolab-webadmin.orig/lib/kolab_client_task.php kolab-webadmin/lib/kolab_client_task.php
---- kolab-webadmin.orig/lib/kolab_client_task.php	2016-04-14 09:39:03.000000000 +0200
-+++ kolab-webadmin/lib/kolab_client_task.php	2016-04-14 09:49:54.662400122 +0200
-@@ -914,6 +914,11 @@
+diff --git a/lib/kolab_client_output.php b/lib/kolab_client_output.php
+index f7bb471..820776d 100644
+--- a/lib/kolab_client_output.php
++++ b/lib/kolab_client_output.php
+@@ -127,7 +127,20 @@ class kolab_client_output
+             $response['labels'][$label] = kolab_client_task::translate($label);
+         }
+ 
+-        return json_encode($response);
++        $response = json_encode($response);
++
++        $this->labels = array_unique($this->labels);
++        if (!empty($this->labels)) {
++            $l = array();
++            $t = array();
++            foreach ($this->labels as $label) {
++                $l[] = "#_#$label";
++                $t[] = kolab_client_task::translate($label);
++            }
++            $response = str_replace($l, $t, $response);
++        }
++
++        return $response;
+     }
+ 
+     /**
+diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
+index 137b8c0..d7c4dd7 100644
+--- a/lib/kolab_client_task.php
++++ b/lib/kolab_client_task.php
+@@ -914,6 +914,13 @@ class kolab_client_task
              $result['default'] = $field['default'];
              break;
  
 +        case 'text-quotaused':
 +            $result['type']    = kolab_form::INPUT_TEXTQUOTAUSED;
 +            $result['default'] = $field['default'];
++
++            $this->output->add_translation('quota.unlimited');
 +            break;
 +
          case 'aci':
              $result['type']      = kolab_form::INPUT_TEXTAREA;
              $result['data-type'] = 'aci';
-diff -uNr kolab-webadmin.orig/lib/kolab_form.php kolab-webadmin/lib/kolab_form.php
---- kolab-webadmin.orig/lib/kolab_form.php	2016-04-14 09:39:03.000000000 +0200
-+++ kolab-webadmin/lib/kolab_form.php	2016-04-14 09:50:42.293860162 +0200
-@@ -39,6 +39,7 @@
+diff --git a/lib/kolab_form.php b/lib/kolab_form.php
+index 8ebcda0..51a2ebf 100644
+--- a/lib/kolab_form.php
++++ b/lib/kolab_form.php
+@@ -39,6 +39,7 @@ class kolab_form
      const INPUT_CUSTOM   = 10;
      const INPUT_CONTENT  = 20;
      const INPUT_TEXTQUOTA = 30;
@@ -106,7 +142,7 @@ diff -uNr kolab-webadmin.orig/lib/kolab_form.php kolab-webadmin/lib/kolab_form.p
      const INPUT_TEXTUNIXTIMESTAMP = 40;
  
      private $attribs  = array();
-@@ -295,6 +296,11 @@
+@@ -295,6 +296,11 @@ class kolab_form
              $content = kolab_html::inputquota($attribs);
              break;
  
@@ -118,10 +154,11 @@ diff -uNr kolab-webadmin.orig/lib/kolab_form.php kolab-webadmin/lib/kolab_form.p
          case self::INPUT_TEXTUNIXTIMESTAMP:
              $attribs['type'] = 'text';
              $content = kolab_html::inputunixtimestamp($attribs);
-diff -uNr kolab-webadmin.orig/lib/kolab_html.php kolab-webadmin/lib/kolab_html.php
---- kolab-webadmin.orig/lib/kolab_html.php	2016-04-14 09:39:03.000000000 +0200
-+++ kolab-webadmin/lib/kolab_html.php	2016-04-14 12:30:04.566385693 +0200
-@@ -209,6 +209,55 @@
+diff --git a/lib/kolab_html.php b/lib/kolab_html.php
+index 911a239..e8596ad 100644
+--- a/lib/kolab_html.php
++++ b/lib/kolab_html.php
+@@ -209,6 +209,61 @@ class kolab_html
          return self::input($attribs) . self::select($select);
      }
  
@@ -156,9 +193,12 @@ diff -uNr kolab-webadmin.orig/lib/kolab_html.php kolab-webadmin/lib/kolab_html.p
 +        $attribs['name'] .= "_display";
 +        $attribs['readonly'] = true;
 +        $attribs['disabled'] = true;
-+	if (!empty($attribs['value'])) {
-+            if ($attribs['value'] == 'unknown') {
++        if (!empty($attribs['value'])) {
++            if ($attribs['value'] == 'unknown') { 
 +               $attribs['value'] = '';
++            }
++            else if ($attribs['value'] == 'unlimited') {
++               $attribs['value'] = '#_#quota.unlimited';
 +            } else {
 +               $values = explode(';', $attribs['value']);
 +               $quota = array();
@@ -168,6 +208,9 @@ diff -uNr kolab-webadmin.orig/lib/kolab_html.php kolab-webadmin/lib/kolab_html.p
 +               $quota['usage'] = self::quota_to_read($quota['usage']);
 +               $quota['limit'] = self::quota_to_read($quota['limit'], true);
 +               $attribs['value'] = $quota['usage']. " / ".$quota['limit']." (".$quota['percentage']."%)";
++               if ($quota['percentage'] >= 90) {
++                   $attribs['style'] = 'background-color:red';
++               }
 +            }
 +        }
 +        $readonly_input = self::input($attribs);
@@ -177,24 +220,27 @@ diff -uNr kolab-webadmin.orig/lib/kolab_html.php kolab-webadmin/lib/kolab_html.p
      /**
       * Readonly control that will display the time encoded as a unix timestamp. Used for displaying tbitsKolabLastLogin
       *
-diff -uNr kolab-webadmin.orig/lib/locale/de_DE.php kolab-webadmin/lib/locale/de_DE.php
---- kolab-webadmin.orig/lib/locale/de_DE.php	2016-04-14 09:39:03.000000000 +0200
-+++ kolab-webadmin/lib/locale/de_DE.php	2016-04-14 14:13:57.791770256 +0200
-@@ -459,4 +459,5 @@
+diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
+index e42ec2c..785208e 100644
+--- a/lib/locale/de_DE.php
++++ b/lib/locale/de_DE.php
+@@ -459,4 +459,6 @@ $LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
  $LANG['user.tbitskolabdefaultquota'] = 'Voreinstellung Quota für Benutzerkonten';
  $LANG['user.statistics'] = 'Info';
  $LANG['user.tbitskolablastlogin'] = 'Letzte erfolgreiche Anmeldung';
 +$LANG['user.tbitskolabquotaused'] = 'Aktueller Speicherplatzverbrauch';
++$LANG['quota.unlimited'] = "Unbegrenzt";
  
-diff -uNr kolab-webadmin.orig/lib/locale/en_US.php kolab-webadmin/lib/locale/en_US.php
---- kolab-webadmin.orig/lib/locale/en_US.php	2016-04-14 09:39:03.000000000 +0200
-+++ kolab-webadmin/lib/locale/en_US.php	2016-04-14 14:14:18.295537491 +0200
-@@ -446,6 +446,7 @@
+diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
+index b8a9502..f02bdf8 100644
+--- a/lib/locale/en_US.php
++++ b/lib/locale/en_US.php
+@@ -446,6 +446,8 @@ $LANG['user.tbitskolabmaxaccounts'] = 'Maximum number of accounts';
  $LANG['user.tbitskolaboverallquota'] = 'Overall Quota assigned';
  $LANG['user.tbitskolabdefaultquota'] = 'Default Quota for user accounts';
  $LANG['user.tbitskolablastlogin'] = 'Latest successful login';
 +$LANG['user.tbitskolabquotaused'] = 'Current quota usage';
++$LANG['quota.unlimited'] = "Unlimited";
  $LANG['user.title'] = 'Job Title';
  $LANG['user.type_id'] = 'Account type';
  $LANG['user.uid'] = 'Unique identity (UID)';
-

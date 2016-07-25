@@ -1,0 +1,146 @@
+diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
+index 4173acb..3f67e40 100644
+--- a/lib/Auth/LDAP.php
++++ b/lib/Auth/LDAP.php
+@@ -651,6 +651,13 @@ class LDAP extends Net_LDAP3 {
+             $result = $this->legacy_rights($subject);
+         }
+ 
++        $user = $this->user_info($_SESSION['user']->user_bind_dn, array('objectclass', 'nsrole'));
++        if ($_SESSION['user']->user_bind_dn == "cn=Directory Manager" ||
++            (!empty($user[$_SESSION['user']->user_bind_dn]['nsrole']) && strpos($user[$_SESSION['user']->user_bind_dn]['nsrole'], '=kolab-admin,dc=') > 0) ||
++            (in_array('tbitskolabdomainadmin', array_values($user[$_SESSION['user']->user_bind_dn]['objectclass'])))) {
++            $result['entryLevelRights'][] = "report";
++        }
++
+         if (!$this->set_cache_data($ckey, $result)) {
+              $this->icache[$ckey] = $result;
+         }
+diff --git a/lib/api/kolab_api_service_user.php b/lib/api/kolab_api_service_user.php
+index 411172a..8755e88 100644
+--- a/lib/api/kolab_api_service_user.php
++++ b/lib/api/kolab_api_service_user.php
+@@ -64,6 +64,10 @@ class kolab_api_service_user extends kolab_api_service
+             $rights['find'] = "r";
+         }
+ 
++        if (in_array('report', $effective_rights['entryLevelRights'])) {
++            $rights['report'] = "r";
++        }
++
+         $rights['effective_rights'] = "r";
+ 
+         return $rights;
+diff --git a/lib/api/kolab_api_service_users.php b/lib/api/kolab_api_service_users.php
+index 73f3890..fc433fb 100644
+--- a/lib/api/kolab_api_service_users.php
++++ b/lib/api/kolab_api_service_users.php
+@@ -41,6 +41,8 @@ class kolab_api_service_users extends kolab_api_service
+             'mailhost',
+             'mailquota',
+             'entrydn',
++            'tbitskolablastlogin',
++            'tbitskolabquotaused',
+         );
+ 
+     /**
+@@ -78,6 +80,14 @@ class kolab_api_service_users extends kolab_api_service
+ 
+         Log::trace("users.list result: " . var_export($users, TRUE));
+ 
++        if (in_array('tbitskolabquotaused', $attributes)) {
++            // need to query user_info for each user
++            foreach ($users['list'] as $uid_dn => $data) {
++                $detaildata = $auth->user_info($uid_dn, array('uid', 'tbitskolabquotaused', 'mailhost', 'mail'));
++                $users['list'][$uid_dn]['tbitskolabquotaused'] = $detaildata[$uid_dn]['tbitskolabquotaused'];
++            }
++        }
++
+         return $users;
+     }
+ 
+diff --git a/lib/client/kolab_client_task_user.php b/lib/client/kolab_client_task_user.php
+index 0faf286..55c37ac 100644
+--- a/lib/client/kolab_client_task_user.php
++++ b/lib/client/kolab_client_task_user.php
+@@ -28,6 +28,7 @@ class kolab_client_task_user extends kolab_client_task
+ 
+     protected $menu = array(
+         'add'  => 'user.add',
++        'report' => 'user.report',
+     );
+ 
+     protected $list_attribs = array('displayname', 'cn');
+@@ -76,6 +77,40 @@ class kolab_client_task_user extends kolab_client_task
+         $this->output->set_object('taskcontent', $output);
+     }
+ 
++    public function action_report()
++    {
++        // TODO: only show this to domain admins
++        $output = "<table><tr><th>#_#report.uid</th><th>#_#report.email</th><th>#_#report.quotausage</th><th>#_#report.lastlogin</th></tr>\n";
++
++        // Get all users within the current domain, and their quota usage and last login data
++        $result = $this->api_post('users.list', null, 
++                    array('attributes' => array('uid', 'mail', 'tbitskolablastlogin', 'tbitskolabquotaused')));
++        $userdata = $result->get();
++
++        foreach ($userdata['list'] as $longuid => $user) {
++            $uid = $user['uid'];
++            $email = $user['mail'];
++            if (!empty($user['tbitskolablastlogin'])) {
++                $lastlogin = date('d.m.Y H:i:s', $user['tbitskolablastlogin']);
++            } else {
++                $lastlogin = "";
++            }
++
++            // see https://github.com/TBits/KolabScripts/blob/master/kolab/patches/quotaused_wap.patch
++            $quota = kolab_html::inputquotaused(array('value' => $user['tbitskolabquotaused']));
++
++            $output .= "<tr><td>$uid</td><td>$email</td><td>$quota</td><td>$lastlogin</td></tr>\n";
++        }
++
++        $output .= "</table>\n";
++        $this->output->set_object('taskcontent', $output);
++        $this->output->add_translation('quota.unlimited');
++        $this->output->add_translation('report.uid');
++        $this->output->add_translation('report.email');
++        $this->output->add_translation('report.quotausage');
++        $this->output->add_translation('report.lastlogin');
++    }
++
+     private function user_form($attribs, $data = array())
+     {
+         if (empty($attribs['id'])) {
+diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
+index 785208e..4be1c24 100644
+--- a/lib/locale/de_DE.php
++++ b/lib/locale/de_DE.php
+@@ -434,6 +434,11 @@ $LANG['user.postalcode'] = 'Postleitzahl';
+ $LANG['user.postbox'] = 'Postfach';
+ $LANG['user.postcode'] = 'Postleitzahl';
+ $LANG['user.preferredlanguage'] = 'Muttersprache';
++$LANG['user.report'] = 'Übersicht';
++$LANG['report.uid'] = "Benutzername";
++$LANG['report.email'] = "E-Mail";
++$LANG['report.quotausage'] = "Speicherverbrauch";
++$LANG['report.lastlogin'] = "Letzter Login";
+ $LANG['user.room'] = 'Raumnummer';
+ $LANG['user.sn'] = 'Nachname';
+ $LANG['user.street'] = 'Straße';
+diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
+index f02bdf8..cd6e228 100644
+--- a/lib/locale/en_US.php
++++ b/lib/locale/en_US.php
+@@ -435,6 +435,11 @@ $LANG['user.postalcode'] = 'Postal Code';
+ $LANG['user.postbox'] = 'Postal box';
+ $LANG['user.postcode'] = 'Postal code';
+ $LANG['user.preferredlanguage'] = 'Native tongue';
++$LANG['user.report'] = 'Report';
++$LANG['report.uid'] = "UID";
++$LANG['report.email'] = "E-Mail";
++$LANG['report.quotausage'] = "Quota Usage";
++$LANG['report.lastlogin'] = "Last Login";
+ $LANG['user.room'] = 'Room number';
+ $LANG['user.sn'] = 'Surname';
+ $LANG['user.statistics'] = 'Info';
