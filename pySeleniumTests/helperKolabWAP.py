@@ -52,7 +52,11 @@ class KolabWAPTestHelpers(unittest.TestCase):
         return conf.get(section, attribute)
 
     def getCmdListMailboxes(self):
-        return "kolab list-mailboxes --server='127.0.0.1:9993' "
+        # check if cyrus is running on 9993 or on 993
+        for line in open("/etc/cyrus.conf"):
+            if "9993" in line and not "#" in line:
+                return "kolab list-mailboxes --server='127.0.0.1:9993'"
+        return "kolab list-mailboxes"
 
     def getSiteUrl(self):
         api_url = self.getConf('kolab_wap', 'api_url')
@@ -235,7 +239,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.startKolabServer()
 
     # create a new domain and select it
-    def create_domain(self, domainadmin = None, withAliasDomain = False):
+    def create_domain(self, domainadmin = None, withAliasDomain = False, domainname = None):
 
         # stop kolabd service, otherwise we need to wait up to 10 minutes for the domain to be created
         self.stopKolabServer()
@@ -248,7 +252,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.wait_loading()
 
         elem = driver.find_element_by_name("associateddomain[0]")
-        domainname = "domain" + datetime.datetime.now().strftime("%Y%m%d%H%M%S") + ".de"
+        if domainname is None:
+            domainname = "domain" + datetime.datetime.now().strftime("%Y%m%d%H%M%S") + ".de"
         elem.send_keys(domainname)
 
         if withAliasDomain == True:
@@ -405,7 +410,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
                     uid = None,
                     alias = None,
                     forward_to = None,
-                    expected_message_contains = None):
+                    expected_message_contains = None,
+                    role = None):
         # restart kolabd service, otherwise we need to wait up to 10 minutes for the mailbox to be created
         self.stopKolabServer()
 
@@ -516,6 +522,12 @@ class KolabWAPTestHelpers(unittest.TestCase):
         else:
             uid = elem.get_attribute("value")
 
+        if role is not None:
+          elem = driver.find_element_by_name("nsroledn[-1]")
+          elem.send_keys(role)
+          self.wait_loading(1)
+          driver.find_element_by_xpath("//div[@id='autocompletepane']/ul/li[@class='selected']").click()
+
         elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
         elem.click()
 
@@ -575,6 +587,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
            elem.send_keys(max_accounts)
 
     # create a new domain, and create a domain admin for that domain, inside that domain
+    # if only_create_admin is False, then the domain admin will not manage that domain
     def create_domainadmin(self,
                     overall_quota = None,
                     default_quota = None,
@@ -585,12 +598,15 @@ class KolabWAPTestHelpers(unittest.TestCase):
                     username = None,
                     alias = None,
                     forward_to = None,
-                    expected_message_contains = None):
+                    expected_message_contains = None,
+                    domainname = None,
+                    only_create_admin = False):
         driver=self.driver
-        domainname = self.create_domain()
+        domainname = self.create_domain(domainname=domainname)
         (username, emailLogin, password, uid) = self.create_user("admin",
               overall_quota, default_quota, max_accounts, default_quota_verify, default_role_verify, mail_quota, username, alias, forward_to, expected_message_contains)
-        self.link_admin_to_domain(username, domainname)
+        if only_create_admin == False:
+            self.link_admin_to_domain(username, domainname)
         return username, emailLogin, password, domainname
 
     def link_admin_to_domain(self, username, domainname):
@@ -716,9 +732,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
         #     self.assertTrue(True, "we expect a timeout, since we don't want to find the email with this subject") 
 
         # roundcubemail/?_task=mail&_action=show&_uid=1&_mbox=INBOX
-        time.sleep(10)
-        driver.get(url + "?_task=mail&_action=show&_uid=1&_mbox=" + folder)
         self.wait_loading(10)
+        driver.get(url + "?_task=mail&_action=show&_uid=1&_mbox=" + folder)
         if emailSubjectLine is not None:
            wait = WebDriverWait(driver, 10);
            try:
