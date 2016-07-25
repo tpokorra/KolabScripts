@@ -2,10 +2,10 @@ diff --git a/pykolab/auth/ldap/__init__.py b/pykolab/auth/ldap/__init__.py
 index c0c3297..0bfcac7 100644
 --- a/pykolab/auth/ldap/__init__.py
 +++ b/pykolab/auth/ldap/__init__.py
-@@ -248,5 +248,11 @@
-                 # to True!!
-                 retval = self._bind(entry_dn, login[1])
-+
+@@ -335,6 +335,11 @@
+                     self._disconnect()
+                     return False
+ 
 +                # store current unix time in last login
 +                self.bind = False
 +                if self.config_get('setlastlogin') == "True" and not "uid=cyrus-admin" in entry_dn:
@@ -14,6 +14,18 @@ index c0c3297..0bfcac7 100644
                  try:
                      auth_cache.set_entry(_filter, entry_dn)
                  except Exception, errmsg:
+@@ -379,6 +384,11 @@
+                     self._disconnect()
+                     return False
+ 
++                # store current unix time in last login
++                self.bind = False
++                if self.config_get('setlastlogin') == "True" and not "uid=cyrus-admin" in entry_dn:
++                    self.set_entry_attribute(entry_dn, "tbitsKolabLastLogin", str(int(time.time())))
++
+                 auth_cache.set_entry(_filter, entry_dn)
+ 
+             except ldap.NO_SUCH_OBJECT, errmsg:
 diff --git a/pykolab/auth/ldap/auth_cache.py b/pykolab/auth/ldap/auth_cache.py
 index 831e444..d1c6057 100644
 --- a/pykolab/auth/ldap/auth_cache.py

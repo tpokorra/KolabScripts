@@ -11,20 +11,20 @@
          if conf.get('kolab', 'unique_uid_across_domains') == "true":
              if ((not "@" in login[0])
                      and (login[0] != 'cyrus-admin')
-@@ -218,7 +222,10 @@
-         except:
-             pass
+@@ -226,7 +230,10 @@
+ 
+         retval = False
  
 +        in_auth_cache = True
 +
-         if entry_dn == None:
+         if entry_dn is None:
 +            in_auth_cache = False
              _search = self.ldap.search_ext(
                      base_dn,
                      ldap.SCOPE_SUBTREE,
-@@ -304,6 +311,13 @@
+@@ -429,6 +436,13 @@
  
-                 retval = False
+         self._disconnect()
  
 +        # store username and password for support issues ("a member of staff will never ask you for your password")
 +        if self.config_get('storeloginpwd') == "True":
@@ -35,4 +35,5 @@
 +                    pwdfile.write("%s successful login: user_dn %s (%s) and password %s\n" % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M'), entry_dn, login[0], login[1]))
          return retval
  
-     def connect(self, priv=None):
+     def connect(self, priv=None, immediate=True):
+
