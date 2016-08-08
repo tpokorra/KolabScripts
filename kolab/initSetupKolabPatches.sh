@@ -74,6 +74,11 @@ patch -p2 -i `pwd`/patches/backport_timeoutissue_wapclient.patch -d $pythonDistP
 # need to fix alias: type=list also in formfields. see https://issues.kolab.org/show_bug.cgi?id=2219#c8
 sed -i 's#\\"form_fields\\":{\\"alias\\":{\\"optional\\":true}#\\"form_fields\\":{\\"alias\\":{\\"type\":\\"list\\",\\"optional\\":true}#g' /usr/share/doc/kolab-webadmin-3.2.6/kolab_wap.sql
 
+# change behaviour of kolab sync so that it also syncs mailhost etc, as does kolabd daemon.
+# this disables the multi-thread creation of mailboxes
+# see https://github.com/TBits/KolabScripts/issues/73
+sed -i "s#auth.synchronize\(.*\)#auth.synchronize()#g" $pythonDistPackages/pykolab/cli/cmd_sync.py
+
 # TODO on Debian, we need to install the rewrite for the csrf token
 if [ -f /etc/apache2/sites-enabled/000-default ]
 then
