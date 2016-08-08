@@ -124,15 +124,18 @@ diff -uNr a/kolab-webadmin/lib/locale/en_US.php kolab-webadmin/lib/locale/en_US.
 diff -uNr a/kolab-webadmin/lib/Auth/LDAP.php kolab-webadmin/lib/Auth/LDAP.php
 --- a/kolab-webadmin/lib/Auth/LDAP.php	2016-06-07 17:40:22.356024774 +0200
 +++ kolab-webadmin/lib/Auth/LDAP.php	2016-06-07 17:51:10.396661445 +0200
-@@ -627,6 +627,13 @@
+@@ -627,6 +627,16 @@
              $result = $this->legacy_rights($subject);
          }
- 
-+        $user = $this->user_info($_SESSION['user']->user_bind_dn, array('objectclass', 'nsrole'));
-+        if ($_SESSION['user']->user_bind_dn == "cn=Directory Manager" ||
-+            (!empty($user[$_SESSION['user']->user_bind_dn]['nsrole']) && strpos($user[$_SESSION['user']->user_bind_dn]['nsrole'], '=kolab-admin,dc=') > 0) ||
-+            (in_array('tbitskolabdomainadmin', array_values($user[$_SESSION['user']->user_bind_dn]['objectclass'])))) {
-+            $result['entryLevelRights'][] = "report";
+
++        if ($_SESSION['user']->user_bind_dn == "cn=Directory Manager") {
++           $result['entryLevelRights'][] = "report";
++        } else {
++            $user = $this->user_info($_SESSION['user']->user_bind_dn, array('objectclass', 'nsrole'));
++            if ((!empty($user[$_SESSION['user']->user_bind_dn]['nsrole']) && strpos($user[$_SESSION['user']->user_bind_dn]['nsrole'], '=kolab-admin,dc=') > 0) ||
++                (in_array('tbitskolabdomainadmin', array_values($user[$_SESSION['user']->user_bind_dn]['objectclass'])))) {
++                $result['entryLevelRights'][] = "report";
++            }
 +        }
 +
          if (!$this->set_cache_data($ckey, $result)) {
