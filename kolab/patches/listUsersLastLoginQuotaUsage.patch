@@ -2,15 +2,18 @@ diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
 index 4173acb..3f67e40 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -651,6 +651,13 @@ class LDAP extends Net_LDAP3 {
+@@ -651,6 +651,16 @@ class LDAP extends Net_LDAP3 {
              $result = $this->legacy_rights($subject);
          }
  
-+        $user = $this->user_info($_SESSION['user']->user_bind_dn, array('objectclass', 'nsrole'));
-+        if ($_SESSION['user']->user_bind_dn == "cn=Directory Manager" ||
-+            (!empty($user[$_SESSION['user']->user_bind_dn]['nsrole']) && strpos($user[$_SESSION['user']->user_bind_dn]['nsrole'], '=kolab-admin,dc=') > 0) ||
-+            (in_array('tbitskolabdomainadmin', array_values($user[$_SESSION['user']->user_bind_dn]['objectclass'])))) {
-+            $result['entryLevelRights'][] = "report";
++        if ($_SESSION['user']->user_bind_dn == "cn=Directory Manager") {
++           $result['entryLevelRights'][] = "report";
++        } else {
++            $user = $this->user_info($_SESSION['user']->user_bind_dn, array('objectclass', 'nsrole'));
++            if ((!empty($user[$_SESSION['user']->user_bind_dn]['nsrole']) && strpos($user[$_SESSION['user']->user_bind_dn]['nsrole'], '=kolab-admin,dc=') > 0) ||
++                (in_array('tbitskolabdomainadmin', array_values($user[$_SESSION['user']->user_bind_dn]['objectclass'])))) {
++                $result['entryLevelRights'][] = "report";
++            }
 +        }
 +
          if (!$this->set_cache_data($ckey, $result)) {
