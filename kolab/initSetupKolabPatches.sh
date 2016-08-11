@@ -18,11 +18,6 @@ patch -p1 -i `pwd`/patches/roundcubeStorageMariadbBug4883.patch -d /usr/share/ro
 #echo "applying patch for waiting after restart of dirsrv (necessary on Debian)"
 #patch -p1 -i `pwd`/patches/setupKolabSleepDirSrv.patch -d $pythonDistPackages || exit -1
 
-# change behaviour of kolab sync so that it also syncs mailhost etc, as does kolabd daemon.
-# this disables the multi-thread creation of mailboxes
-# see https://github.com/TBits/KolabScripts/issues/73
-sed -i "s#auth.synchronize\(.*\)#auth.synchronize()#g" $pythonDistPackages/pykolab/cli/cmd_sync.py
-
 if [[ $OS == Debian* ]]
 then
       # workaround for bug 2050, https://issues.kolab.org/show_bug.cgi?id=2050
