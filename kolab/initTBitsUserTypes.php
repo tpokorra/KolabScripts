@@ -55,6 +55,9 @@ $newType['attributes']['fields']['objectclass'][] = 'tbitskolabuser';
 $newType['attributes']['fields']['objectclass'][] = 'tbitskolabdomainadmin';
 unset($newType['attributes']['auto_form_fields']['alias']);
 unset($newType['attributes']['auto_form_fields']['mailhost']);
+// for testing, we have a default value for mailhost (configureKolabUserMailhost.py)
+// so we also need to drop mailhost from form_fields
+unset($newType['attributes']['form_fields']['mailhost']);
 unset($newType['attributes']['auto_form_fields']['mail']);
 unset($newType['attributes']['form_fields']['mailquota']);
 unset($newType['attributes']['form_fields']['mailalternateaddress']);
