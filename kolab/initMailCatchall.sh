@@ -12,8 +12,7 @@ sed -i -e 's#^query_filter = .*#query_filter = (\&(alias=catchall@%d)(objectclas
 cp /etc/postfix/ldap/virtual_alias_maps_3.cf $filename_3
 sed -i -e 's#^query_filter = .*#query_filter = (\&(alias=catchall@%d)(objectclass=inetorgperson))#g' $filename_3
 
-sed -i -e "s#ldap:/etc/postfix/ldap/virtual_alias_maps.cf#ldap:/etc/postfix/ldap/virtual_alias_maps.cf, ldap:$filename#" /etc/postfix/main.cf
-sed -i -e "s#ldap:/etc/postfix/ldap/virtual_alias_maps_3.cf#ldap:/etc/postfix/ldap/virtual_alias_maps_3.cf, ldap:$filename_3#" /etc/postfix/main.cf
+sed -i -e "s#^virtual_alias_maps = \(.*\)#virtual_alias_maps = \1, ldap:$filename, ldap:$filename_3#" /etc/postfix/main.cf
 
 postmap $filename
 postmap $filename_3
