@@ -30,17 +30,31 @@ class KolabEmailCatchAll(unittest.TestCase):
 
         # add the user
         username, emailLogin, password, uid = kolabWAPhelper.create_user(alias="catchall@" + domainname)
+
+        # add another user with an email address that should be excluded from catchall
+        username2, emailLogin2, password2, uid2 = kolabWAPhelper.create_user()
+
         kolabWAPhelper.logout_kolab_wap()
 
         # send email to catch all alias address from command line
         print "sending email..."
         subject = 'subject ' + domainname
         subprocess.call(['/bin/bash', '-c', 'echo "test" | mail -s "' + subject + '" alias' + domainname + '@' + domainname])
+
+        # send email to the other user from the command line
+        subject2 = 'subject ' + username2
+        subprocess.call(['/bin/bash', '-c', 'echo "test" | mail -s "' + subject2 + '" ' + emailLogin2])
+ 
         kolabWAPhelper.wait_loading(2.0)
 
-        # login user to roundcube and check for email
+        # login catchall user to roundcube and check for email
         kolabWAPhelper.login_roundcube("/roundcubemail", emailLogin, password)
         kolabWAPhelper.check_email_received(emailSubjectLine=subject)
+        kolabWAPhelper.logout_roundcube()
+
+        # login other user to roundcube and check for email
+        kolabWAPhelper.login_roundcube("/roundcubemail", emailLogin2, password2)
+        kolabWAPhelper.check_email_received(emailSubjectLine=subject2)
         kolabWAPhelper.logout_roundcube()
 
     def tearDown(self):
