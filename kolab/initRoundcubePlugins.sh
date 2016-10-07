@@ -14,6 +14,19 @@ else
   fi
 fi
 
+#####################################################################################
+# install our modified version of the ude_login plugin to support enabling/disabling Roundcube functionality per user/domain
+# see  https://github.com/TBits/ude_login
+#####################################################################################
+# install ude_login plugin
+wget https://github.com/tbits/ude_login/archive/ude_login.tar.gz -O ude_login.tar.gz
+tar -xzf ude_login.tar.gz
+rm -f ude_login.tar.gz
+mv ude_login-ude_login_tbits /usr/share/roundcubemail/plugins/ude_login
+mv /usr/share/roundcubemail/plugins/ude_login/ude_login.inc.php /etc/roundcubemail/
+cp -f /etc/roundcubemail/config.inc.php /etc/roundcubemail/config.inc.php.beforeUdeLogin
+sed -r -i -e "s#'redundant_attachments',#'redundant_attachments',\n            'ude_login',#g" /etc/roundcubemail/config.inc.php
+
 # disable the message_label plugin, because Kolab 3.3 has tags for emails
 if [ 1 -eq 0 ];
 then
