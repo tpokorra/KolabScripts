@@ -109,11 +109,9 @@ then
   export obs=http://obs.kolabsys.com/repositories/
 fi
 
-#cat > /etc/apt/sources.list.d/kolab.list <<FINISH
-#deb $obs/Kolab:/16/$OBS_repo_OS/ ./
-#FINISH
-apt-get install -y apt-transport-https
-echo 'deb https://lbs.solidcharity.com/repos/tbits.net/Kolab_16TestDebian/debian/jessie/ /' > /etc/apt/sources.list.d/kolab.list
+cat > /etc/apt/sources.list.d/kolab.list <<FINISH
+deb $obs/Kolab:/16/$OBS_repo_OS/ ./
+FINISH
 
 wget https://ssl.kolabsys.com/community.asc -O Release.key
 apt-key add Release.key; rm -rf Release.key
