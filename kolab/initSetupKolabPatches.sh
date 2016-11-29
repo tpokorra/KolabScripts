@@ -19,7 +19,13 @@ patch -p1 -i `pwd`/patches/roundcubeStorageMariadbBug4883.patch -d /usr/share/ro
 #patch -p1 -i `pwd`/patches/setupKolabSleepDirSrv.patch -d $pythonDistPackages || exit -1
 
 echo "applying patch to Roundcube for the compose to show loading message"
-patch -p1 -i `pwd`/patches/roundcubeComposeLoading.patch -d /usr/share/roundcubemail || exit -1
+if [[ $OS == Debian* ]]
+then
+  patch -p1 -i `pwd`/patches/roundcubeComposeLoading.patch -d /usr/share/roundcubemail || exit -1
+else
+  # app.js has been compressed
+  sed -i "s#this.open_compose_step=function(p){var url#this.open_compose_step=function(p){this.set_busy(true, 'loading');var url#g" /usr/share/roundcubemail/public_html/assets/program/js/app.js
+fi
 
 if [[ $OS == Debian* ]]
 then
