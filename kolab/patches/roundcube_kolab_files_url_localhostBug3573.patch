@@ -18,7 +18,7 @@ diff --git a/plugins/kolab_files/lib/kolab_files_engine.php b/plugins/kolab_file
 -        $this->url     = rcube_utils::resolve_url($url);
          $this->plugin  = $plugin;
          $this->rc      = $plugin->rc;
-+        $url = str_replace("/api", "", $this->rc->config->get('file_api_url'));
++        $url = $this->rc->config->get('file_api_url');
 +        $this->url     = rcube_utils::resolve_url($url);
          $this->timeout = $this->rc->config->get('session_lifetime') * 60;
      }
@@ -29,7 +29,7 @@ diff --git a/plugins/kolab_files/lib/kolab_files_engine.php b/plugins/kolab_file
  
          try {
              $url = $request->getUrl();
-+            $url->setUrl($this->url);
++            $url = new Net_URL2($this->url);
  
              // Send ping request
              if ($token) {
