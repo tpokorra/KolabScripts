@@ -684,7 +684,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         emailSubjectLine = "subject" + datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
         driver.find_element_by_xpath("//div[@id=\"messagetoolbar\"]/a[contains(@class,'button') and contains(@class,'compose')]").click()
-        self.wait_loading(3.0)
+        self.wait_loading()
         elem = driver.find_element_by_name("_to")
         elem.send_keys(recipientEmailAddress)
         elem = driver.find_element_by_name("_subject")
