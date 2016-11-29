@@ -9,14 +9,27 @@ Subject: [PATCH] make sure that we can use kolab_files in roundcube even if the 
  1 files changed, 1 insertions(+), 0 deletions(-)
 
 diff --git a/plugins/kolab_files/lib/kolab_files_engine.php b/plugins/kolab_files/lib/kolab_files_engine.php
-index 8cb408b..aaa41fb 100644
+--- a/plugins/kolab_files/lib/kolab_files_engine.php	2016-11-29 10:14:37.753144663 +0100
++++ b/plugins/kolab_files/lib/kolab_files_engine.php	2016-11-29 10:13:00.170124396 +0100
+@@ -38,9 +38,10 @@
+      */
+     public function __construct($plugin, $url)
+     {
+-        $this->url     = rcube_utils::resolve_url($url);
+         $this->plugin  = $plugin;
+         $this->rc      = $plugin->rc;
++        $url = str_replace("/api", "", $this->rc->config->get('file_api_url'));
++        $this->url     = rcube_utils::resolve_url($url);
+         $this->timeout = $this->rc->config->get('session_lifetime') * 60;
+     }
+
 --- a/plugins/kolab_files/lib/kolab_files_engine.php
 +++ b/plugins/kolab_files/lib/kolab_files_engine.php
 @@ -539,6 +539,7 @@ class kolab_files_engine
  
          try {
              $url = $request->getUrl();
-+            $url->setHost("localhost");
++            $url->setUrl($this->url);
  
              // Send ping request
              if ($token) {
