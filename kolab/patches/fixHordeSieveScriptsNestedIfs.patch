@@ -1,0 +1,88 @@
+From bc826be106cc079bf96366049aad12adced45265 Mon Sep 17 00:00:00 2001
+From: Aleksander Machniak <alec@alec.pl>
+Date: Wed, 30 Nov 2016 09:56:50 +0100
+Subject: [PATCH] Fix handling of scripts with nested rules (#5540)
+
+---
+ CHANGELOG                                          |  2 ++
+ plugins/managesieve/Changelog                      |  2 ++
+ .../lib/Roundcube/rcube_sieve_script.php           |  8 ++++++-
+ plugins/managesieve/tests/src/parser_nesting       | 25 ++++++++++++++++++++++
+ plugins/managesieve/tests/src/parser_nesting.out   |  9 ++++++++
+ 5 files changed, 45 insertions(+), 1 deletion(-)
+ create mode 100644 plugins/managesieve/tests/src/parser_nesting
+ create mode 100644 plugins/managesieve/tests/src/parser_nesting.out
+
+diff --git a/plugins/managesieve/lib/Roundcube/rcube_sieve_script.php b/plugins/managesieve/lib/Roundcube/rcube_sieve_script.php
+index c603dd5..9af5bf7 100644
+--- a/plugins/managesieve/lib/Roundcube/rcube_sieve_script.php
++++ b/plugins/managesieve/lib/Roundcube/rcube_sieve_script.php
+@@ -805,6 +805,11 @@ private function _parse_actions($content, &$position, $end = '}')
+             $token     = !empty($tokens) ? array_shift($tokens) : $separator;
+ 
+             switch ($token) {
++            case 'if':
++                // nested 'if' conditions, ignore the whole rule (#5540)
++                $this->_parse_actions($content, $position);
++                continue 2;
++
+             case 'discard':
+             case 'keep':
+             case 'stop':
+@@ -890,8 +895,9 @@ private function _parse_actions($content, &$position, $end = '}')
+                 break;
+             }
+ 
+-            if ($separator == $end)
++            if ($separator == $end) {
+                 break;
++            }
+         }
+ 
+         return $result;
+diff --git a/plugins/managesieve/tests/src/parser_nesting b/plugins/managesieve/tests/src/parser_nesting
+new file mode 100644
+index 0000000..f857926
+--- /dev/null
++++ b/plugins/managesieve/tests/src/parser_nesting
+@@ -0,0 +1,25 @@
++# Sieve Filter
++# Erzeugt von Ingo (http://www.horde.org/ingo/) (30.09.2016, 16:02)
++
++# Nested rules aren't supported and will be ignored (#5540)
++
++require ["vacation", "regex"];
++
++# Abwesenheit
++if allof ( not exists ["list-help", "list-unsubscribe", "list-subscribe", "list-owner", "list-post", "list-archive", "list-id", "Mailing-List"],
++  not header :is "Precedence" ["list", "bulk", "junk"],
++  not header :matches "To" "Multiple recipients of*") {
++    if header :regex "Received" "^.*(2016) (\\(.*\\) )?..:..:.. (\\(.*\\) )?(\\+|\\-)....( \\(.*\\))?$" {
++    if header :regex "Received" "^.*(Oct) (\\(.*\\) )?.... (\\(.*\\) )?..:..:.. (\\(.*\\) )?(\\+|\\-)....( \\(.*\\))?$" {
++    if header :regex "Received" "^.*([0 ]4|[0 ]5|[0 ]6|[0 ]7) (\\(.*\\) )?... (\\(.*\\) )?.... (\\(.*\\) )?..:..:.. (\\(.*\\) )?(\\+|\\-)....( \\(.*\\))?$" {
++    vacation :days 7 :addresses "test@company.com" :subject "vacation" "blablabla";
++}
++}
++}
++}
++
++# Ausgeschlossene Adressen
++if address :is ["From", "Sender", "Resent-From"] "noreply@example.org"  {
++    discard;
++    stop;
++}
+diff --git a/plugins/managesieve/tests/src/parser_nesting.out b/plugins/managesieve/tests/src/parser_nesting.out
+new file mode 100644
+index 0000000..5d64332
+--- /dev/null
++++ b/plugins/managesieve/tests/src/parser_nesting.out
+@@ -0,0 +1,9 @@
++# Sieve Filter
++# Erzeugt von Ingo (http://www.horde.org/ingo/) (30.09.2016, 16:02)
++
++# rule:[Ausgeschlossene Adressen]
++if address :is ["From","Sender","Resent-From"] "noreply@example.org"
++{
++	discard;
++	stop;
++}

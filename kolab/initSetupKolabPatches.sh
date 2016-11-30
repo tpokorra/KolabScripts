@@ -51,6 +51,9 @@ patch -p1 -i `pwd`/patches/fixDomainImport.patch -d /usr/share/kolab-webadmin ||
 echo "applying patch for Roundcube Kolab plugin for storage in MariaDB"
 patch -p1 -i `pwd`/patches/roundcubeStorageMariadbBug4883.patch -d /usr/share/roundcubemail || exit -1
 
+echo "fix problem with old Horde Sieve scripts with multiple ifs"
+patch -p1 -i `pwd`/patches/fixHordeSieveScriptsNestedIfs.patch -d /usr/share/roundcubemail || exit -1
+
 if [ -f /usr/lib/cyrus-imapd/cvt_cyrusdb_all ]
 then
   echo "temporary fixes for Cyrus stop script"
