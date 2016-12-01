@@ -18,6 +18,9 @@ patch -p1 -i `pwd`/patches/roundcubeStorageMariadbBug4883.patch -d /usr/share/ro
 #echo "applying patch for waiting after restart of dirsrv (necessary on Debian)"
 #patch -p1 -i `pwd`/patches/setupKolabSleepDirSrv.patch -d $pythonDistPackages || exit -1
 
+echo "fix problem with old Horde Sieve scripts with multiple ifs"
+patch -p1 -i `pwd`/patches/fixHordeSieveScriptsNestedIfs.patch -d /usr/share/roundcubemail || exit -1
+
 if [[ $OS == Debian* ]]
 then
       # workaround for bug 2050, https://issues.kolab.org/show_bug.cgi?id=2050
