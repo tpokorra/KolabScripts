@@ -120,7 +120,7 @@ then
 elif [[ $OBS_repo_OS == Fedora* ]]
 then
   dnf clean metadata
-  dnf -y install kolab kolab-freebusy patch unzip php-imap || exit -1
+  dnf -y install kolab kolab-freebusy patch unzip php-imap aspell || exit -1
   dnf -y install clamav-update || exit -1
 fi
 
