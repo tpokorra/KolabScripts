@@ -125,6 +125,7 @@ then
   dnf clean metadata
   dnf -y install kolab kolab-freebusy patch unzip php-imap aspell || exit -1
   if [ -z $WITHOUTSPAMFILTER ]
+  then
     dnf -y install clamav-update || exit -1
   fi
 fi
