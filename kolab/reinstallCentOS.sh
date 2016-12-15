@@ -116,21 +116,35 @@ then
     yum clean metadata
     yum -y install kolab kolab-freebusy patch unzip php-imap || exit -1
   fi
-  yum -y install clamav-update || exit -1
+  if [ -z $WITHOUTSPAMFILTER ]
+  then
+    yum -y install clamav-update || exit -1
+  fi
 elif [[ $OBS_repo_OS == Fedora* ]]
 then
   dnf clean metadata
   dnf -y install kolab kolab-freebusy patch unzip php-imap aspell || exit -1
-  dnf -y install clamav-update || exit -1
+  if [ -z $WITHOUTSPAMFILTER ]
+  then
+    dnf -y install clamav-update || exit -1
+  fi
 fi
 
-sed -i "s/^Example/#Example/g" /etc/freshclam.conf
-sed -i "s/#DatabaseMirror db.XY.clamav.net/DatabaseMirror db.de.clamav.net/g" /etc/freshclam.conf
-# Problem with clamav 0.99.1 in Epel: https://bugzilla.redhat.com/show_bug.cgi?id=1325717
-if [ -f ~/.ssh/main.cvd ]
+if [ -z $WITHOUTSPAMFILTER ]
 then
-  # use our cached files
-  cp -f ~/.ssh/*.c*d /var/lib/clamav/
-else
-  freshclam
+  sed -i "s/^Example/#Example/g" /etc/freshclam.conf
+  sed -i "s/#DatabaseMirror db.XY.clamav.net/DatabaseMirror db.de.clamav.net/g" /etc/freshclam.conf
+  # Problem with clamav 0.99.1 in Epel: https://bugzilla.redhat.com/show_bug.cgi?id=1325717
+  if [ -f ~/.ssh/main.cvd ]
+  then
+    # use our cached files
+    cp -f ~/.ssh/*.c*d /var/lib/clamav/
+  else
+    freshclam
+  fi
+fi
+
+if [ ! -z $WITHOUTSPAMFILTER ]
+then
+  ./disableSpamFilter.sh || exit -1
 fi
