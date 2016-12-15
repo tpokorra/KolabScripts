@@ -6,7 +6,7 @@ This service at https://dply.co/ is currently in Beta stage. You can specify a s
 Dply Button
 ===
 
-The script that we insert at https://dply.co/button is maintained in this directory: dply.sh 
+The script that we insert at https://dply.co/button is maintained in this directory: [dply.sh](dply.sh)
 
 
 Kolab on Dply

@@ -18,3 +18,7 @@ chmod a+x dply$branch.sh
 
 # you can rerun this script if you want to reinstall Kolab.
 ./dply$branch.sh $pwd
+
+# next steps:
+# http://your.ip/kolab-webadmin, login with user: cn=Directory Manager, password: as defined at the top of this script, default: test
+# http://your.ip/roundcubemail
