@@ -15,6 +15,7 @@ yum install -y wget
 cd /root
 wget https://raw.githubusercontent.com/TBits/KolabScripts/$branch/dply/reinstallKolab.sh -O dply$branch.sh
 chmod a+x dply$branch.sh
+sed -i 's#branch="KolabWinterfell"#branch="$branch"#g' dply$branch.sh
 
 # you can rerun this script if you want to reinstall Kolab.
 ./dply$branch.sh $pwd

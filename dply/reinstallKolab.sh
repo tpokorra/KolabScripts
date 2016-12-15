@@ -1,11 +1,15 @@
 #!/bin/bash
 
-branch=Kolab16
-
 if [ -z "$1" ]; then
   pwd="test"
 else
   pwd=$1
+fi
+
+if [ -z "$2" ]; then
+  branch="KolabWinterfell"
+else
+  branch=$1
 fi
 
 # we need a fully qualified domain name
