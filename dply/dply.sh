@@ -1,0 +1,20 @@
+#!/bin/bash
+
+swapsize="1GB"
+branch="Kolab16"
+# recommended: use another password than test for user: cn=Directory Manager
+pwd="test"
+
+# add swap space to deal with small amount of RAM
+fallocate -l $swapsize /swapfile1;
+mkswap /swapfile1
+swapon /swapfile1
+echo "/swapfile1              swap                    swap    defaults        0 0" >> /etc/fstab
+
+yum install -y wget
+cd /root
+wget https://raw.githubusercontent.com/TBits/KolabScripts/$branch/dply/reinstallKolab.sh -O dply$branch.sh
+chmod a+x dply$branch.sh
+
+# you can rerun this script if you want to reinstall Kolab.
+./dply$branch.sh $pwd
