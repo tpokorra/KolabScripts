@@ -6,4 +6,6 @@ We have organised the scripts according to the releases.
 Please have a look in the branches.
 So if you want to work with Kolab 3.4, go to https://github.com/TBits/KolabScripts/tree/Kolab3.4
 
+Main development happens in branch KolabWinterfell, see https://github.com/TBits/KolabScripts/tree/KolabWinterfell
+
 For more details, please visit the wiki at https://github.com/tbits/kolabscripts/wiki
