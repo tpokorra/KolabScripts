@@ -683,14 +683,10 @@ class KolabWAPTestHelpers(unittest.TestCase):
         driver = self.driver
         emailSubjectLine = "subject" + datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
+        self.wait_loading(2)
         driver.find_element_by_xpath("//div[@id=\"messagetoolbar\"]/a[contains(@class,'button') and contains(@class,'compose')]").click()
         self.wait_loading(2)
-        try:
-          elem = driver.find_element_by_name("_to")
-        except NoSuchElementException, e:
-          # workaround. sometimes the compose page does take quite long to load
-          self.wait_loading(10)
-          elem = driver.find_element_by_name("_to")
+        elem = driver.find_element_by_name("_to")
         elem.send_keys(recipientEmailAddress)
         elem = driver.find_element_by_name("_subject")
         elem.send_keys(emailSubjectLine)
