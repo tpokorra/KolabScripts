@@ -18,6 +18,10 @@ patch -p1 -i `pwd`/patches/roundcubeStorageMariadbBug4883.patch -d /usr/share/ro
 #echo "applying patch for waiting after restart of dirsrv (necessary on Debian)"
 #patch -p1 -i `pwd`/patches/setupKolabSleepDirSrv.patch -d $pythonDistPackages || exit -1
 
+# https://github.com/TBits/KolabScripts/issues/76
+echo "fix problem on LXC containers with access to TCP keepalive settings"
+patch -p1 -i `pwd`/patches/fixPykolabIMAPKeepAlive.patch -d $pythonDistPackages || exit -1
+
 echo "fix problem with old Horde Sieve scripts with multiple ifs"
 patch -p1 -i `pwd`/patches/fixHordeSieveScriptsNestedIfs.patch -d /usr/share/roundcubemail || exit -1
 

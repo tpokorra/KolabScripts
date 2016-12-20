@@ -1,0 +1,25 @@
+--- a/pykolab/imap/__init__.py	2016-12-20 11:33:39.935615623 +0100
++++ b/pykolab/imap/__init__.py	2016-12-20 11:35:05.840123506 +0100
+@@ -848,14 +848,19 @@
+     def _set_socket_keepalive(self, sock):
+         sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+ 
+-        with open('/proc/sys/net/ipv4/tcp_keepalive_time', 'r') as f:
++        try:
++          with open('/proc/sys/net/ipv4/tcp_keepalive_time', 'r') as f:
+             sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, (int)(f.read()))
+ 
+-        with open('/proc/sys/net/ipv4/tcp_keepalive_intvl', 'r') as f:
++          with open('/proc/sys/net/ipv4/tcp_keepalive_intvl', 'r') as f:
+             sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, (int)(f.read()))
+ 
+-        with open('/proc/sys/net/ipv4/tcp_keepalive_probes', 'r') as f:
++          with open('/proc/sys/net/ipv4/tcp_keepalive_probes', 'r') as f:
+             sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, (int)(f.read()))
++        except:
++          sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 7200)
++          sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 75)
++          sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 9)
+ 
+     def _set_kolab_mailfolder_acls(self, acls, folder=None, update=False):
+         # special case, folder has no ACLs assigned and update was requested,
