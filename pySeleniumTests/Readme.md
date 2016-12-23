@@ -13,6 +13,14 @@ You can use PhantomJS with Selenium to have a headless browser. It is based on W
 yum install phantomjs
 ```
 
+If PhantomJS is not available via yum or apt-get, you can download it and install it like this:
+
+```sh
+wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2
+tar xjf phantomjs-2.1.1-linux-x86_64.tar.bz2
+cp phantomjs-2.1.1-linux-x86_64/bin/phantomjs /usr/bin
+```
+
 Please also install the mail package because it is required by some tests:
 
 ```sh
