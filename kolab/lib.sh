@@ -20,22 +20,14 @@ function DetermineOS
   elif [ -f /etc/redhat-release ]
   then
     release=`cat /etc/redhat-release`
-    if [[ $release == Fedora\ release\ 20\ * ]]
+    if [[ $release == Fedora\ release\ 24\ * ]]
     then
-      export OS=Fedora_20
-      export RELEASE=22
-    elif [[ $release == Fedora\ release\ 21\ * ]]
+      export OS=Fedora_24
+      export RELEASE=24
+    elif [[ $release == Fedora\ release\ 25\ * ]]
     then
-      export OS=Fedora_21
-      export RELEASE=21
-    elif [[ $release == Fedora\ release\ 22\ * ]]
-    then
-      export OS=Fedora_22
-      export RELEASE=22
-    elif [[ $release == Fedora\ release\ 23\ * ]]
-    then
-      export OS=Fedora_23
-      export RELEASE=23
+      export OS=Fedora_25
+      export RELEASE=25
     fi
   elif [ -f /etc/lsb-release ]
   then

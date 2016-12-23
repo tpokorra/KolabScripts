@@ -94,13 +94,16 @@ then
   yum-config-manager --add-repo $obs/Kolab:/16/$OBS_repo_OS/Kolab:16.repo
 elif [[ $OBS_repo_OS == Fedora* ]]
 then
-  dnf config-manager --add-repo $obs/Kolab:/16/$OBS_repo_OS/Kolab:16.repo
+  # there are currently no Kolab packages for Fedora 25 on OBS
+  #dnf config-manager --add-repo $obs/Kolab:/16/$OBS_repo_OS/Kolab:16.repo
+  # use my copr instead
+  dnf config-manager --add-repo https://copr.fedorainfracloud.org/coprs/tpokorra/Kolab_16/repo/fedora-$RELEASE/tpokorra-Kolab_16-fedora-$RELEASE.repo
 fi
 
 rpm --import "https://ssl.kolabsys.com/community.asc"
 
 # add priority = 1 to kolab repo files
-for f in /etc/yum.repos.d/Kolab*.repo
+for f in /etc/yum.repos.d/Kolab*.repo /etc/yum.repos.d/tpokorra-Kolab*.repo
 do
     sed -i "s#enabled=1#enabled=1\npriority=1#g" $f
     sed -i "s#http://obs.kolabsys.com:82/#$obs/#g" $f
