@@ -39,4 +39,15 @@ then
 #      sed -i -e "s~</VirtualHost>~$newConfigLines</VirtualHost>~" /etc/apache2/sites-enabled/000-default
 fi
 
-systemctl start guam || exit -1
+if [[ $OS == CentOS* || $OS == Fedora* ]]
+then
+  if [[ "`rpm -qa | grep guam`" != "" ]]
+  then
+    systemctl start guam || exit -1
+  fi
+else
+  if [[ "`dpkg -l | grep guam`" != "" ]]
+  then
+    systemctl start guam || exit -1
+  fi
+fi
