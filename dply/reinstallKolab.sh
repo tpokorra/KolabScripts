@@ -29,6 +29,13 @@ echo "y" | ./reinstall.sh || exit 1
 
 setup-kolab --default --mysqlserver=new --timezone=Europe/Berlin --directory-manager-pwd=$pwd || exit 1
 
+# is guam installed at all?
+if [[ "`rpm -qa | grep guam`" == "" ]]
+then
+  # make sure that cyrus is listening on the correct ports
+  ./disableGuam.sh
+fi
+
 # next steps:
 # http://your.ip/kolab-webadmin, login with user: cn=Directory Manager, password: as passed to this script, default: test
 # http://your.ip/roundcubemail
