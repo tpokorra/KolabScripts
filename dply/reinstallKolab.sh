@@ -18,6 +18,7 @@ hostnamectl set-hostname $branch.demo.example.org
 yum install -y wget which bzip2 mailx selinux-policy-targeted
 # disable SELinux
 sed -i 's/enforcing/permissive/g' /etc/selinux/config
+setenforce 0
 
 wget -O $branch.tar.gz https://github.com/TBits/KolabScripts/archive/$branch.tar.gz
 tar xzf $branch.tar.gz
