@@ -98,6 +98,11 @@ then
   #dnf config-manager --add-repo $obs/Kolab:/Winterfell/$OBS_repo_OS/Kolab:Winterfell.repo
   # use my copr instead
   dnf config-manager --add-repo https://copr.fedorainfracloud.org/coprs/tpokorra/Kolab_Winterfell/repo/fedora-$RELEASE/tpokorra-Kolab_Winterfell-fedora-$RELEASE.repo
+  # at the moment the packages do not seem to be signed
+  for f in /etc/yum.repos.d/tpokorra-Kolab*.repo
+  do
+    sed -i "s#gpgcheck=1#gpgcheck=0#g" $f
+  done
 fi
 
 rpm --import "https://ssl.kolabsys.com/community.asc"
