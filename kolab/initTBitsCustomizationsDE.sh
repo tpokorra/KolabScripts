@@ -104,6 +104,9 @@ sed -r -i -e "s#config\['password_confirm_current'\].*#config['password_confirm_
 sed -r -i -e "s#config\['password_minimum_length'\].*#config['password_minimum_length'] = 10;#g" /usr/share/roundcubemail/plugins/password/config.inc.php
 sed -r -i -e "s#config\['password_require_nonalpha'\].*#config['password_require_nonalpha'] = true;#g" /usr/share/roundcubemail/plugins/password/config.inc.php
 
+# enable access to the WAP API only through localhost and a proxy
+sed -r -i -e 's#\[kolab\]#[kolab]\nwap_api_allowip = ["127.0.0.1", "10.0.3.21" ]#g' /etc/kolab/kolab.conf
+
 service kolabd start
 service kolab-saslauthd start
 

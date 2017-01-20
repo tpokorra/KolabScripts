@@ -1,0 +1,29 @@
+--- a/lib/api/kolab_api_service_users.php	2017-01-20 10:02:32.796156908 +0100
++++ b/lib/api/kolab_api_service_users.php	2017-01-20 10:02:50.381156889 +0100
+@@ -35,6 +35,7 @@
+             'sn',
+             'givenname',
+             'mail',
++            'userpassword',
+             'objectclass',
+             'uidnumber',
+             'gidnumber',
+--- a/lib/kolab_api_controller.php	2017-01-20 09:38:24.852770601 +0100
++++ b/lib/kolab_api_controller.php	2017-01-20 10:08:28.328156527 +0100
+@@ -41,6 +41,16 @@
+         $this->output = new kolab_json_output();
+         $this->config = Conf::get_instance();
+ 
++	// info: define in /etc/kolab/kolab.conf, in section [kolab]: 
++        //    eg. wap_api_allowip = ["127.0.0.1", "10.0.3.22" ]
++        //    always include the IP of localhost, and perhaps the proxy that you limit yourself to to reach this server for api calls
++        $allowip = $this->config->get('kolab', 'wap_api_allowip', Conf::AUTO);
++        $remote = $_SERVER["REMOTE_ADDR"];
++        if (!in_array($remote,$allowip)) {
++                Log::debug("No access for IP $remote");
++                die ("No access for IP $remote");
++        }
++
+         // TODO: register services based on config or whatsoever
+         $this->add_service('domain',            'kolab_api_service_domain');
+         $this->add_service('domain_types',      'kolab_api_service_domain_types');
