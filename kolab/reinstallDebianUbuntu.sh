@@ -126,8 +126,10 @@ apt-get -y install apt-transport-https
 apt-get update
 apt-get -y install aptitude
 
-# first install postfix to avoid conflict with exim4???
-aptitude -y install postfix || exit 1
+# first remove exim4 to avoid conflict with postfix
+# exim4 is installed by LBS when setting up the machine
+# does not fail if exim4 is not installed anyway
+apt-get -y remove exim4-base exim4-config exim4-daemon-light || exit 1
 
 aptitude -y install kolab kolab-freebusy php5-imap || exit 1
 
