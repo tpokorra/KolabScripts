@@ -30,6 +30,8 @@ echo "applying listUsersLastLoginQuotaUsage.patch"
 patch -p1 -i `pwd`/patches/listUsersLastLoginQuotaUsage.patch -d /usr/share/kolab-webadmin || exit -1
 echo "applying logLoginData.patch"
 patch -p1 -i `pwd`/patches/logLoginData.patch -d $pythonDistPackages || exit -1
+echo "applying wap_api_listuserswithhash.patch"
+patch -p1 -i `pwd`/patches/wap_api_listuserswithhash.patch -d /usr/share/kolab-webadmin || exit -1
 
 #####################################################################################
 #using specific ldap attribute for the domainadmin overall quota
