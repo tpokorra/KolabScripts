@@ -60,6 +60,10 @@ patch -p1 --fuzz=0 -i `pwd`/patches/wap_api_listuserswithhash.patch -d /usr/shar
 #####################################################################################
 sed -r -i -e "s/\[kolab\]/[kolab]\ndomainadmin_quota_attribute = tbitskolaboverallquota/g" /etc/kolab/kolab.conf
 
+#####################################################################################
+# enable access to the WAP API only through localhost and a proxy
+#####################################################################################
+sed -r -i -e 's#\[kolab\]#[kolab]\nwap_api_allowip = ["127.0.0.1", "10.0.3.21" ]#g' /etc/kolab/kolab.conf
 
 #####################################################################################
 #enable storing the last login time for each user
