@@ -10,16 +10,18 @@
              'gidnumber',
 --- a/lib/kolab_api_controller.php	2017-01-20 09:38:24.852770601 +0100
 +++ b/lib/kolab_api_controller.php	2017-01-20 10:08:28.328156527 +0100
-@@ -41,6 +41,16 @@
+@@ -41,6 +41,18 @@
          $this->output = new kolab_json_output();
          $this->config = Conf::get_instance();
  
-+	// info: define in /etc/kolab/kolab.conf, in section [kolab]: 
-+        //    eg. wap_api_allowip = ["127.0.0.1", "10.0.3.22" ]
++        // info: define in /etc/kolab/kolab.conf, in section [kolab]: 
++        //    eg. wap_api_userslist_allowip = ["127.0.0.1", "10.0.3.22" ]
 +        //    always include the IP of localhost, and perhaps the proxy that you limit yourself to to reach this server for api calls
-+        $allowip = $this->config->get('kolab', 'wap_api_allowip', Conf::AUTO);
++        // we only limit access to users.list, because that will now publish the password hash
++        // We need access to the API though for everyone else, because editing a user directly accesses the API as well
++        $allowip = $this->config->get('kolab', 'wap_api_userslist_allowip', Conf::AUTO);
 +        $remote = $_SERVER["REMOTE_ADDR"];
-+        if (!in_array($remote,$allowip)) {
++        if (!empty($allowip) && !in_array($remote,$allowip)) {
 +                Log::debug("No access for IP $remote");
 +                die ("No access for IP $remote");
 +        }
