@@ -63,7 +63,7 @@ sed -r -i -e "s/\[kolab\]/[kolab]\ndomainadmin_quota_attribute = tbitskolabovera
 #####################################################################################
 # enable access to the WAP API only through localhost and a proxy
 #####################################################################################
-sed -r -i -e 's#\[kolab\]#[kolab]\nwap_api_allowip = ["127.0.0.1", "10.0.3.21" ]#g' /etc/kolab/kolab.conf
+sed -r -i -e 's#\[kolab\]#[kolab]\nwap_api_userslist_allowip = ["127.0.0.1", "10.0.3.21" ]#g' /etc/kolab/kolab.conf
 
 #####################################################################################
 #enable storing the last login time for each user
