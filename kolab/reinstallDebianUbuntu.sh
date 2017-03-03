@@ -67,7 +67,7 @@ then
   /usr/sbin/remove-ds-admin -f -a -y
 fi
 
-apt-get -y purge apache2\* 389\* cyrus-imapd\* postfix\* mysql-server\* roundcube\* pykolab\* kolab\* libkolab\* kolab-3\* php-net-ldap3
+apt-get -y purge apache2\* 389\* cyrus-imapd\* postfix\* mysql-server\* roundcube\* pykolab\* kolab\* libkolab\* kolab-3\* php-net-ldap3 || exit -1
 
 echo "deleting files..."
 rm -Rf \
