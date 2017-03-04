@@ -42,7 +42,19 @@ systemctl stop amavisd
 systemctl stop httpd
 systemctl stop mariadb
 
-yum -y remove 389\* cyrus-imapd\* postfix\* mariadb-server\* guam\* roundcube\* pykolab\* kolab\* libkolab\* libcalendaring\* kolab-3\* httpd php-Net-LDAP3 up-imapproxy nginx stunnel || exit -1
+pkgs="389\* cyrus-imapd\* postfix\* mariadb-server\* guam\* roundcube\* pykolab\* kolab\* libkolab\* libcalendaring\* kolab-3\* httpd php-Net-LDAP3 up-imapproxy nginx stunnel"
+if [[ $OBS_repo_OS == CentOS* ]]
+then
+  yum -y remove $pkgs || exit -1
+elif [[ $OBS_repo_OS == Fedora* ]]
+  dnf -y remove $pkgs
+  error=0
+  for pkg in ${pkgs//\\\*/}; do if [[ ! -z "`rpm -qa | grep $pkg`" ]]; then echo "$pkg is still installed"; $error=1; fi; done
+  if [ $error -gt 0 ]
+  then
+    exit -1
+  fi
+fi
 
 echo "deleting files..."
 rm -Rf \
