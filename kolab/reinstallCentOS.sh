@@ -47,6 +47,7 @@ if [[ $OBS_repo_OS == CentOS* ]]
 then
   yum -y remove $pkgs || exit -1
 elif [[ $OBS_repo_OS == Fedora* ]]
+then
   dnf -y remove $pkgs
   error=0
   for pkg in ${pkgs//\\\*/}; do if [[ ! -z "`rpm -qa | grep $pkg`" ]]; then echo "$pkg is still installed"; $error=1; fi; done
