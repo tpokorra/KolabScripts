@@ -26,13 +26,9 @@ echo "fix problem with old Horde Sieve scripts with multiple ifs"
 patch -p1 -i `pwd`/patches/fixHordeSieveScriptsNestedIfs.patch -d /usr/share/roundcubemail || exit -1
 
 echo "applying patch to Roundcube for the compose to show loading message"
-if [[ $OS == Debian* ]]
-then
-  patch -p1 -i `pwd`/patches/roundcubeComposeLoading.patch -d /usr/share/roundcubemail || exit -1
-else
-  # app.js has been compressed
-  sed -i "s#this.open_compose_step=function(p){var url#this.open_compose_step=function(p){this.set_busy(true, 'loading');var url#g" /usr/share/roundcubemail/public_html/assets/program/js/app.js
-fi
+# patch -p1 -i `pwd`/patches/roundcubeComposeLoading.patch -d /usr/share/roundcubemail || exit -1
+# app.js has been compressed
+sed -i "s#this.open_compose_step=function(p){var url#this.open_compose_step=function(p){this.set_busy(true, 'loading');var url#g" /usr/share/roundcubemail/public_html/assets/program/js/app.js
 
 if [[ $OS == Debian* ]]
 then
