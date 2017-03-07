@@ -69,7 +69,8 @@ fi
 
 apt-get -y install apt-transport-https aptitude
 
-aptitude -y purge apache2\* 389\* cyrus-imapd\* postfix\* mysql-server\* roundcube\* pykolab\* kolab\* libkolab\* kolab-3\* php-net-ldap3
+aptitude -y purge roundcube\* apache2\* 389\* cyrus-imapd\* postfix\* mysql-server\* pykolab\* kolab\* libkolab\* kolab-3\* php-net-ldap3
+apt-get upgrade || exit -1
 
 echo "deleting files..."
 rm -Rf \
