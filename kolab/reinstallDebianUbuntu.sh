@@ -67,7 +67,9 @@ then
   /usr/sbin/remove-ds-admin -f -a -y
 fi
 
-apt-get -y purge apache2\* 389\* cyrus-imapd\* postfix\* mysql-server\* roundcube\* pykolab\* kolab\* libkolab\* kolab-3\* php-net-ldap3
+apt-get -y install apt-transport-https aptitude
+
+aptitude -y purge apache2\* 389\* cyrus-imapd\* postfix\* mysql-server\* roundcube\* pykolab\* kolab\* libkolab\* kolab-3\* php-net-ldap3
 
 echo "deleting files..."
 rm -Rf \
@@ -122,9 +124,7 @@ Pin: origin obs.kolabsys.com
 Pin-Priority: 501
 FINISH
 
-apt-get -y install apt-transport-https
 apt-get update
-apt-get -y install aptitude
 
 # first remove exim4 to avoid conflict with postfix
 # exim4 is installed by LBS when setting up the machine
