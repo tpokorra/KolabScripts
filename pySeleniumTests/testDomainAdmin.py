@@ -186,8 +186,6 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         
         self.kolabWAPhelper.tear_down()
         
-        self.driver.quit()
-
 if __name__ == "__main__":
     unittest.main()
 
