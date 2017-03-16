@@ -22,9 +22,6 @@ patch -p1 -i `pwd`/patches/roundcubeStorageMariadbBug4883.patch -d /usr/share/ro
 echo "fix problem on LXC containers with access to TCP keepalive settings"
 patch -p1 -i `pwd`/patches/fixPykolabIMAPKeepAlive.patch -d $pythonDistPackages || exit -1
 
-echo "fix problem with old Horde Sieve scripts with multiple ifs"
-patch -p1 -i `pwd`/patches/fixHordeSieveScriptsNestedIfs.patch -d /usr/share/roundcubemail || exit -1
-
 echo "applying patch to Roundcube for the compose to show loading message"
 # patch -p1 -i `pwd`/patches/roundcubeComposeLoading.patch -d /usr/share/roundcubemail || exit -1
 # app.js has been compressed
