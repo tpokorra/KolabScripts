@@ -2,8 +2,8 @@ diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
 index 4cda7cc..4173acb 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -271,7 +271,7 @@ class LDAP extends Net_LDAP3 {
-         }
+@@ -271,7 +271,7 @@
+         $admin_readonly_attrs = array("tbitsKolabMaxAccounts", "tbitsKolabOverallQuota");
  
          if (in_array('tbitsKolabUser', $this->classes_allowed())) {
 -            $self_attrs = array_merge($self_attrs, array('tbitsKolabLastLogin'));

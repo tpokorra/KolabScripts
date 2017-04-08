@@ -55,7 +55,7 @@ index 0c03be0..6ad01c3 100644
 +
          $domain_dn = $domain_name_attribute . '=' . $domain . ',' . $domain_base_dn;
  
-         $result = $this->add_entry($domain_dn, $attributes);
+         if (!empty($attributes['inetdomainbasedn'])) {
 @@ -368,6 +387,10 @@
              $this->add_entry($dn, $attrs);
          }
@@ -134,7 +134,7 @@ index 0c03be0..6ad01c3 100644
          return $result;
 @@ -1721,4 +1786,164 @@
  
-         return false;
+         return $directory;
      }
 +
 +    private function ChangeDomainReadCapability($user, $domain, $action='add')
@@ -300,8 +300,8 @@ index 0c03be0..6ad01c3 100644
 --- a/lib/Auth/LDAP.php	2014-12-01 18:41:10.949301999 +0100
 +++ b/lib/Auth/LDAP.php	2014-12-01 18:43:23.457301999 +0100
 @@ -252,6 +252,7 @@
-         if (in_array('tbitsKolabUser', $this->classes_allowed())) {
-             $self_attrs = array_merge($self_attrs, array('tbitsKolabLastLogin'));
+         if (in_array('kolabInetOrgPerson', $this->classes_allowed())) {
+              $self_attrs = array_merge($self_attrs, array('kolabDelegate', 'kolabInvitationPolicy', 'kolabAllowSMTPSender'));
          }
 +        $admin_readonly_attrs = array("tbitsKolabMaxAccounts", "tbitsKolabOverallQuota");
  
@@ -372,7 +372,7 @@ index 189b39f..d15c119 100644
 +                'autocomplete' => true,
 +                'optional' => true,
 +            ),
-             'inetdomainbasedn' => array(
+             'domainrelatedobject_only' => array(
                  'optional' => true,
              ),
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
@@ -498,7 +498,7 @@ index a48d44a..16475db 100644
      {
          $conf = Conf::get_instance();
 @@ -1507,6 +1556,21 @@ class kolab_api_service_form_value extends kolab_api_service
-         if (in_array($email_domain, $valid_domains)) {
+         if (in_array($email_domain, $this->_get_valid_domains($my_primary_domain))) {
              $valid = true;
          }
 +        
@@ -538,9 +538,9 @@ index 5c23e8a..d424801 100644
 +            'domainadmin'       => 'admins',
          );
  
-         //console("domain_form() \$data", $data);
+         // Prepare fields
 @@ -178,6 +180,15 @@ class kolab_client_task_domain extends kolab_client_task
-             );
+             }
          }
  
 +        // load all domain admins
@@ -553,7 +553,7 @@ index 5c23e8a..d424801 100644
 +        $data['domainadmin_options'] = $resp['list'];
 +
          // Create form object and populate with fields
-         $form = $this->form_create('domain', $attribs, $sections, $fields, $fields_map, $data, $add_mode);
+         $form = $this->form_create('domain', $attribs, $sections, $fields, $fields_map, $data, $add_mode, $title);
  
 --- a/lib/kolab_client_task.php	2014-12-01 18:41:10.901301999 +0100
 +++ b/lib/kolab_client_task.php	2014-12-01 18:47:30.229301999 +0100

@@ -35,5 +35,5 @@
 +                    pwdfile.write("%s successful login: user_dn %s (%s) and password %s\n" % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M'), entry_dn, login[0], login[1]))
          return retval
  
-     def connect(self, priv=None, immediate=True):
+     def connect(self, priv=None, immediate=False):
 

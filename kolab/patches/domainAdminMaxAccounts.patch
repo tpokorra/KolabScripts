@@ -106,5 +106,5 @@ index 79dcb59..1cbce61 100644
 +
          $attributes = $this->parse_input_attributes('user', $postdata);
  
-         Log::trace("user_add()", $attributes);
+         password_policy::validate_password($attributes['userpassword']);
 

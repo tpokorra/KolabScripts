@@ -2,9 +2,9 @@ diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
 index aafe618..abd33eb 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -251,6 +251,10 @@ class LDAP extends Net_LDAP3 {
-              $self_attrs = array_merge($self_attrs, array('kolabDelegate', 'kolabInvitationPolicy', 'kolabAllowSMTPSender'));
+@@ -270,6 +270,10 @@
          }
+         $admin_readonly_attrs = array("tbitsKolabMaxAccounts", "tbitsKolabOverallQuota");
  
 +        if (in_array('tbitsKolabUser', $this->classes_allowed())) {
 +            $self_attrs = array_merge($self_attrs, array('tbitsKolabLastLogin'));
