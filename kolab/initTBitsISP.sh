@@ -11,6 +11,13 @@ DeterminePythonPath
 # apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=2018
 #####################################################################################
 
+if [ -z $APPLYPATCHES ] 
+then
+  APPLYPATCHES=1
+fi
+
+if [ $APPLYPATCHES -eq 1 ]
+then
 echo "applying patchMultiDomainAdminsBug2018.patch"
 patch -p1 -i `pwd`/patches/patchMultiDomainAdminsBug2018.patch -d /usr/share/kolab-webadmin || exit -1
 echo "applying domainquotaBug2046.patch"
@@ -32,6 +39,7 @@ echo "applying logLoginData.patch"
 patch -p1 -i `pwd`/patches/logLoginData.patch -d $pythonDistPackages || exit -1
 echo "applying wap_api_listuserswithhash.patch"
 patch -p1 -i `pwd`/patches/wap_api_listuserswithhash.patch -d /usr/share/kolab-webadmin || exit -1
+fi
 
 #####################################################################################
 #using specific ldap attribute for the domainadmin overall quota

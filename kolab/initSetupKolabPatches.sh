@@ -11,6 +11,13 @@ DeterminePythonPath
 # apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=2018
 #####################################################################################
 
+if [ -z $APPLYPATCHES ]
+then
+  APPLYPATCHES=1
+fi
+
+if [ $APPLYPATCHES -eq 1 ]
+then
 echo "applying patch for Roundcube Kolab plugin for storage in MariaDB"
 patch -p1 -i `pwd`/patches/roundcubeStorageMariadbBug4883.patch -d /usr/share/roundcubemail || exit -1
 
@@ -26,6 +33,7 @@ echo "applying patch to Roundcube for the compose to show loading message"
 # patch -p1 -i `pwd`/patches/roundcubeComposeLoading.patch -d /usr/share/roundcubemail || exit -1
 # app.js has been compressed
 sed -i "s#this.open_compose_step=function(p){var url#this.open_compose_step=function(p){this.set_busy(true, 'loading');var url#g" /usr/share/roundcubemail/public_html/assets/program/js/app.js
+fi
 
 if [[ $OS == Debian* ]]
 then

@@ -157,9 +157,17 @@ then
   wget $patchesurl/canonification_via_uid_pykolab -O patches/canonification_via_uid_pykolab.patch
 fi
 
-patch -p1 -i `pwd`/patches/validateAliasDomainPostfixVirtualFileBug2658.patch -d /usr/share/kolab-webadmin || exit -1
-patch -p1 --fuzz=0 -i `pwd`/patches/canonification_via_uid_wap.patch -d /usr/share/kolab-webadmin || exit -1
-patch -p1 --fuzz=0 -i `pwd`/patches/canonification_via_uid_pykolab.patch -d $pythonDistPackages || exit -1
+if [ -z $APPLYPATCHES ] 
+then
+  APPLYPATCHES=1
+fi
+
+if [ $APPLYPATCHES -eq 1 ]
+then
+  patch -p1 -i `pwd`/patches/validateAliasDomainPostfixVirtualFileBug2658.patch -d /usr/share/kolab-webadmin || exit -1
+  patch -p1 --fuzz=0 -i `pwd`/patches/canonification_via_uid_wap.patch -d /usr/share/kolab-webadmin || exit -1
+  patch -p1 --fuzz=0 -i `pwd`/patches/canonification_via_uid_pykolab.patch -d $pythonDistPackages || exit -1
+fi
 
 service kolab-saslauthd restart
 
