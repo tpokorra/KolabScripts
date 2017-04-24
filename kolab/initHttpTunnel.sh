@@ -10,4 +10,12 @@ sed -r -i \
 
 sed -i -e "s#?>#    \$config['file_api_url'] = 'http://localhost/chwala/api/';\n\n?>#g" /etc/roundcubemail/config.inc.php
 
-patch -p1 -i `pwd`/patches/roundcube_kolab_files_url_localhostBug3573.patch -d /usr/share/roundcubemail
+if [ -z $APPLYPATCHES ]
+then
+  APPLYPATCHES=1
+fi
+
+if [ $APPLYPATCHES -eq 1 ]
+then
+  patch -p1 -i `pwd`/patches/roundcube_kolab_files_url_localhostBug3573.patch -d /usr/share/roundcubemail
+fi

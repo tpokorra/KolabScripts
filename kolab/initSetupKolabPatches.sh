@@ -11,6 +11,13 @@ DeterminePythonPath
 # apply a couple of patches, see related kolab bugzilla number in filename, eg. https://issues.kolab.org/show_bug.cgi?id=2018
 #####################################################################################
 
+if [ -z $APPLYPATCHES ]
+then
+  APPLYPATCHES=1
+fi
+
+if [ $APPLYPATCHES -eq 1 ]
+then
 echo "applying patch for Roundcube Kolab plugin for storage in MariaDB"
 patch -p1 --fuzz=0 -i `pwd`/patches/roundcubeStorageMariadbBug4883.patch -d /usr/share/roundcubemail || exit -1
 
@@ -21,6 +28,7 @@ patch -p1 --fuzz=0 -i `pwd`/patches/roundcubeStorageMariadbBug4883.patch -d /usr
 # https://github.com/TBits/KolabScripts/issues/76
 echo "fix problem on LXC containers with access to TCP keepalive settings"
 patch -p1 --fuzz=0 -i `pwd`/patches/fixPykolabIMAPKeepAlive.patch -d $pythonDistPackages || exit -1
+fi
 
 if [[ $OS == Debian* ]]
 then
