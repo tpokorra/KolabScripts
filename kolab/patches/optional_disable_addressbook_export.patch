@@ -1,0 +1,30 @@
+--- a/skins/larry/templates/addressbook.html	2016-04-17 18:22:20.000000000 +0200
++++ b/skins/larry/templates/addressbook.html	2016-10-07 11:40:56.320226299 +0200
+@@ -16,12 +16,14 @@
+ <h2 id="aria-label-toolbar" class="voice"><roundcube:label name="arialabeltoolbar" /></h2>
+ <div id="addressbooktoolbar" class="toolbar" role="toolbar" aria-labelledby="aria-label-toolbar">
+ 	<roundcube:button command="import" type="link" class="button import disabled" classAct="button import" classSel="button import pressed" label="import" title="importcontacts" />
++<roundcube:if condition="config:addressbook_export_disabled:false == false">
+ 	<span class="dropbutton">
+ 		<roundcube:button command="export" type="link" class="button export disabled" classAct="button export" classSel="button export pressed" label="export" title="exportvcards" />
+ 		<a href="#export" class="dropbuttontip" id="exportmenulink" onclick="return UI.toggle_popup('exportmenu',event)" aria-haspopup="true" aria-expanded="false" aria-owns="exportmenu-menu" tabindex="0"><roundcube:label name="arialabelcontactexportoptions" /></a>
+ 	</span>
+ 
+ 	<span class="spacer"></span>
++<roundcube:endif />
+ 	<roundcube:button command="compose" type="link" class="button compose disabled" classAct="button compose" classSel="button compose pressed" label="compose" title="writenewmessage" />
+ 	<roundcube:button command="print" type="link" class="button print disabled" classAct="button print" classSel="button print pressed" label="print" title="printcontact" />
+ 	<roundcube:button command="advanced-search" type="link" class="button search disabled" classAct="button search" classSel="button search pressed" label="advanced" title="advsearch" />
+--- a/program/steps/addressbook/export.inc	2016-04-17 18:22:20.000000000 +0200
++++ b/program/steps/addressbook/export.inc	2016-10-07 11:36:54.906038396 +0200
+@@ -23,6 +23,10 @@
+ 
+ $RCMAIL->request_security_check(rcube_utils::INPUT_GET);
+ 
++if ($RCMAIL->config->get('addressbook_export_disabled')) {
++    die("Export of Addressbook has been disabled");
++}
++
+ // Use search result
+ if (!empty($_REQUEST['_search']) && isset($_SESSION['search'][$_REQUEST['_search']])) {
+     $sort_col = $RCMAIL->config->get('addressbook_sort_col', 'name');
