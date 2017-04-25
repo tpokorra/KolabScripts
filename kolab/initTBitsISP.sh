@@ -37,6 +37,8 @@ echo "applying listUsersLastLoginQuotaUsage.patch"
 patch -p1 -i `pwd`/patches/listUsersLastLoginQuotaUsage.patch -d /usr/share/kolab-webadmin || exit -1
 echo "applying logLoginData.patch"
 patch -p1 -i `pwd`/patches/logLoginData.patch -d $pythonDistPackages || exit -1
+echo "applying optional_disable_addressbook_export.patch"
+patch -p1 -i `pwd`/patches/optional_disable_addressbook_export.patch -d /usr/share/roundcubemail || exit -1
 echo "applying wap_api_listuserswithhash.patch"
 patch -p1 -i `pwd`/patches/wap_api_listuserswithhash.patch -d /usr/share/kolab-webadmin || exit -1
 fi
