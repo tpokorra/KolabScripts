@@ -28,6 +28,9 @@ then
 elif [[ $OBS_repo_OS == "Ubuntu_14.04" ]]
 then
   LBS_repo_OS="ubuntu/trusty trusty"
+elif [[ $OBS_repo_OS == "Ubuntu_16.04" ]]
+then
+  LBS_repo_OS="ubuntu/xenial xenial"
 fi
 
 if [ -z `hostname -f | awk -F "." '{ print $2 }'` ]
