@@ -70,10 +70,15 @@ then
   /usr/sbin/remove-ds-admin -f -a -y
 fi
 
-apt-get -y purge apache2\* 389\* cyrus-imapd\* postfix\* mysql-server\* roundcube\* pykolab\* kolab\* libkolab\* kolab-3\* php-net-ldap3
+# only actually remove all packages if there has been an installation already.
+# we need this workaround because there are problems installing postfix
+# a second time on an automatically installed system for testing purposes
+if [ -d /etc/dirsrv ]
+then
+  apt-get -y purge apache2\* 389\* cyrus-imapd\* postfix\* mysql-server\* roundcube\* pykolab\* kolab\* libkolab\* kolab-3\* php-net-ldap3
 
-echo "deleting files..."
-rm -Rf \
+  echo "deleting files..."
+  rm -Rf \
     /etc/postfix \
     /etc/apache2 \
     /etc/roundcubemail \
@@ -104,6 +109,7 @@ rm -Rf \
     /tmp/*-Net_LDAP2_Schema.cache \
     /var/spool/imap \
     /var/spool/postfix
+fi
 
 # could use environment variable obs=http://my.proxy.org/obs.kolabsys.com
 # see http://kolab.org/blog/timotheus-pokorra/2013/11/26/downloading-obs-repo-php-proxy-file
