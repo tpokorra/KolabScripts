@@ -57,10 +57,6 @@ dpkg-reconfigure locales
 debconf-set-selections <<< 'mysql-server-5.5	mysql-server/root_password_again	password'
 debconf-set-selections <<< 'mysql-server-5.5	mysql-server/root_password	password'
 
-# configurations for postfix
-debconf-set-selections <<< "postfix postfix/mailname string "`hostname -f`
-debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Internet Site'"
-
 service kolab-server stop
 service kolab-saslauthd stop
 service cyrus-imapd stop
@@ -132,6 +128,10 @@ FINISH
 apt-get -y install apt-transport-https
 apt-get update
 apt-get -y install aptitude
+
+# configurations for postfix
+debconf-set-selections <<< "postfix postfix/mailname string "`hostname -f`
+debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Internet Site'"
 
 if [[ $OBS_repo_OS == "Debian_8.0" ]]
 then
