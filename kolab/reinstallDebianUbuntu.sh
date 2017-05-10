@@ -28,6 +28,9 @@ then
 elif [[ $OBS_repo_OS == "Ubuntu_14.04" ]]
 then
   LBS_repo_OS="ubuntu/trusty trusty"
+elif [[ $OBS_repo_OS == "Ubuntu_16.04" ]]
+then
+  LBS_repo_OS="ubuntu/xenial xenial"
 fi
 
 if [ -z `hostname -f | awk -F "." '{ print $2 }'` ]
@@ -69,11 +72,20 @@ fi
 
 apt-get -y install apt-transport-https aptitude
 
-aptitude -y purge roundcube\* apache2\* 389\* cyrus-imapd\* postfix\* mysql-server\* pykolab\* kolab\* libkolab\* kolab-3\* php-net-ldap3
-apt-get upgrade || exit -1
+# configurations for postfix
+debconf-set-selections <<< "postfix postfix/mailname string "`hostname -f`
+debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Internet Site'"
 
-echo "deleting files..."
-rm -Rf \
+# only actually remove all packages if there has been an installation already.
+# we need this workaround because there are problems installing postfix
+# a second time on an automatically installed system for testing purposes
+if [ -d /etc/dirsrv ]
+then
+  aptitude -y purge roundcube\* apache2\* 389\* cyrus-imapd\* postfix\* mysql-server\* pykolab\* kolab\* libkolab\* kolab-3\* php-net-ldap3
+  apt-get upgrade || exit -1
+
+  echo "deleting files..."
+  rm -Rf \
     /etc/postfix \
     /etc/apache2 \
     /etc/roundcubemail \
@@ -104,6 +116,7 @@ rm -Rf \
     /tmp/*-Net_LDAP2_Schema.cache \
     /var/spool/imap \
     /var/spool/postfix
+fi
 
 # could use environment variable obs=http://my.proxy.org/obs.kolabsys.com
 # see http://kolab.org/blog/timotheus-pokorra/2013/11/26/downloading-obs-repo-php-proxy-file
