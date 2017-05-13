@@ -40,8 +40,8 @@ answersCreateKey() {
     echo SomeCity
     echo SomeOrganization
     echo SomeOrganizationalUnit
-    echo localhost
-    echo root@localhost
+    echo $server_name
+    echo root@$server_name
 }
 
 if [ ! -f $key_directory/certs/$server_name.crt ]
