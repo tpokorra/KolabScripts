@@ -66,7 +66,7 @@ then
 
     # generate a private key, and self signed certificate
     writeConf
-    openssl req -newkey rsa:2048 -keyout $server_name.key -nodes -x509 -days 365 -out $server_name.crt -config req.conf
+    openssl req -newkey rsa:2048 -keyout $server_name.key -nodes -x509 -days 365 -out $server_name.crt -config req.conf -extensions 'v3_req'
 
     cp $server_name.key $key_directory/private
     cp $server_name.crt $key_directory/certs
