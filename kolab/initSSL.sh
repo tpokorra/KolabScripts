@@ -34,14 +34,28 @@ fi
 #####################################################################################
 # create self signed certificate
 #####################################################################################
-answersCreateKey() {
-    echo --
-    echo SomeState
-    echo SomeCity
-    echo SomeOrganization
-    echo SomeOrganizationalUnit
-    echo $server_name
-    echo root@$server_name
+writeConf() {
+cat > req.conf <<FINISH
+[req]
+distinguished_name = req_distinguished_name
+req_extensions = v3_req
+prompt = no
+[req_distinguished_name]
+C = DE
+ST = SomeState
+L = SomeCity
+O = SomeOrganization
+OU = SomeOrganizationalUnit
+CN = $server_name
+[v3_req]
+keyUsage = keyEncipherment, dataEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = $server_name
+DNS.2 = localhost
+FINISH
+
 }
 
 if [ ! -f $key_directory/certs/$server_name.crt ]
@@ -51,7 +65,8 @@ then
     cd keys
 
     # generate a private key, and self signed certificate
-    answersCreateKey | openssl req -newkey rsa:2048 -keyout $server_name.key -nodes -x509 -days 365 -out $server_name.crt
+    writeConf
+    openssl req -newkey rsa:2048 -keyout $server_name.key -nodes -x509 -days 365 -out $server_name.crt -config req.conf
 
     cp $server_name.key $key_directory/private
     cp $server_name.crt $key_directory/certs
