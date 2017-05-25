@@ -146,4 +146,4 @@ then
 fi
 
 aptitude -y install kolab kolab-freebusy php5-imap || exit 1
-
+aptitude -y install python-pymysql || exit 1
