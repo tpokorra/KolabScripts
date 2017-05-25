@@ -693,7 +693,12 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem = driver.find_element_by_name("_message")
         elem.send_keys("Hello World")
         driver.find_element_by_xpath("//div[@id=\"messagetoolbar\"]/a[@class=\"button send\"]").click()
-        self.wait_loading(20)
+        self.wait_loading(1)
+        if 'ui-dialog-title' in self.driver.page_source:
+          elem = driver.find_element_by_class_name("ui-dialog-title")
+          self.assertNotEquals("ERRORTITLE", elem.text, "should have sent the email, but was " + elem.text)
+        else:
+          self.wait_loading(10)
 
         return emailSubjectLine
 
