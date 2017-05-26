@@ -146,5 +146,4 @@ apt-get update
 apt-get -y remove exim4-base exim4-config exim4-daemon-light || exit 1
 
 aptitude -y install kolab kolab-freebusy php5-imap || exit 1
-aptitude -y install python-pymysql
 
