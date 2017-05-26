@@ -108,7 +108,7 @@ then
   yum-config-manager --add-repo $obs/Kolab:/Winterfell/$OBS_repo_OS/Kolab:Winterfell.repo
 elif [[ $OBS_repo_OS == Fedora* ]]
 then
-  yum-config-manager --add-repo $obs/Kolab:/Winterfell/$OBS_repo_OS/Kolab:Winterfell.repo
+  dnf config-manager --add-repo $obs/Kolab:/Winterfell/$OBS_repo_OS/Kolab:Winterfell.repo
 elif [[ $OBS_repo_OS == FedoraDISABLED* ]]
 then
   # there are currently no Kolab packages for Fedora 25 on OBS
