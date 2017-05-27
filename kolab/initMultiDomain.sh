@@ -134,10 +134,13 @@ sed -r -i -e "s/\[cyrus-imap\]/[imap]\nvirtual_domains = userid\n\n[cyrus-imap]/
 #####################################################################################
 if [[ $OS == CentOS* || $OS == Fedora* ]]
 then
-  yum -y install php-pecl-memcache memcached
-elif [[ $OS == Debian* || $OS == Ubuntu* ]]
+  yum -y install php-pecl-memcache memcached || exit -1
+elif [[ $OS == Debian* ]]
 then
-  apt-get -y install php5-memcache memcached
+  apt-get -y install php5-memcache memcached || exit -1
+elif [[ $OS == Ubuntu* ]]
+then
+  apt-get -y install php-memcache memcached || exit -1
 fi
 
 systemctl start memcached
