@@ -232,7 +232,7 @@ SSLCACertificateFile $key_directory/certs/$server_name.ca-chain.pem\n"
     then
       patch -p1 -i `pwd`/patches/fixSelfSignedCertPykolab.patch -d $pythonDistPackages || exit -1
     fi
-    if [[ $OS == Ubuntu ]]
+    if [[ $OS == Ubuntu* ]]
     then
       patch -p1 -i `pwd`/patches/fixSelfSignedCertPykolab.patch -d $pythonDistPackages || exit -1
     fi
