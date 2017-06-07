@@ -42,6 +42,8 @@ echo "applying optional_disable_addressbook_export.patch"
 patch -p1 --fuzz=0 -i `pwd`/patches/optional_disable_addressbook_export.patch -d /usr/share/roundcubemail || exit -1
 echo "applying wap_api_listuserswithhash.patch"
 patch -p1 --fuzz=0 -i `pwd`/patches/wap_api_listuserswithhash.patch -d /usr/share/kolab-webadmin || exit -1
+echo "applying intranetToken-wap.patch"
+patch -p1 --fuzz=0 -i `pwd`/patches/intranetToken-wap.patch -d /usr/share/kolab-webadmin || exit -1
 
 fi
 
