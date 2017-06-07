@@ -9,6 +9,9 @@ service kolab-saslauthd stop
 # add admin_auto_fields_rw = true to kolab_wap section of kolab.conf
 sed -r -i -e "s#\[kolab_wap\]#[kolab_wap]\nadmin_auto_fields_rw = true#g" /etc/kolab/kolab.conf
 
+# add enable_intranet_token to kolab section of kolab.conf
+sed -r -i -e "s#\[kolab\]#[kolab]\nenable_intranet_token = test.tbits.net,customerxyz.de#g" /etc/kolab/kolab.conf
+
 # change default locale
 sed -r -i -e "s#default_locale = en_US#default_locale = de_DE#g" /etc/kolab/kolab.conf
 
