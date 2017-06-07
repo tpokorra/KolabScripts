@@ -34,6 +34,13 @@ attributeTypes: (2.25.270637687019478811349087770667234728572.1.5
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE)
+# tbitsKolabIntranetToken defines the login credentials for the intranet server that is included with a Roundcube plugin
+attributeTypes: (2.25.270637687019478811349087770667234728572.1.6
+  NAME 'tbitsKolabIntranetToken'
+  DESC 'credentials for another service'
+  EQUALITY octetStringMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.40
+  SINGLE-VALUE)
 # tbitskolabquotaused is a place holder for the quota used
 attributeTypes: (2.25.270637687019478811349087770667234728572.1.7
   NAME 'tbitsKolabQuotaUsed'
@@ -48,6 +55,7 @@ objectClasses: (2.25.270637687019478811349087770667234728572.2.2
   DESC 'TBits Kolab User Object'
   SUP top AUXILIARY
   MAY ( tbitsKolabLastLogin $
+        tbitsKolabIntranetToken $
         tbitsKolabQuotaUsed ) )
 # tbits domain admin account
 # also adding the DomainAdmin attributes

@@ -29,6 +29,7 @@ $kolabUserType['type'] = 'user';
 $kolabUserType['attributes']['fields']['objectclass'][] = 'tbitskolabuser';
 $kolabUserType['attributes']['form_fields']['tbitskolablastlogin'] = array('type' => 'text-unixtimestamp', 'optional' => 1);
 $kolabUserType['attributes']['form_fields']['tbitskolabquotaused'] = array('type' => 'text-quotaused', 'optional' => 1);
+$kolabUserType['attributes']['form_fields']['tbitskolabintranettoken'] = array('type' => 'text', 'optional' => 1);
 $service_type = new kolab_api_service_type(null);
 $result = $service_type->type_edit(null, $kolabUserType);
 //echo "saving user type kolab: ".print_r($result,true)."\n";
