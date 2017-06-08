@@ -1,5 +1,5 @@
---- LDAP.orig	2017-06-07 14:49:10.525162243 +0200
-+++ /usr/share/kolab-webadmin/lib/Auth/LDAP.php	2017-06-07 14:49:44.736163982 +0200
+--- a/lib/Auth/LDAP.php	2017-06-07 14:49:10.525162243 +0200
++++ b/lib/Auth/LDAP.php	2017-06-07 14:49:44.736163982 +0200
 @@ -271,7 +271,7 @@
          $admin_readonly_attrs = array("tbitsKolabMaxAccounts", "tbitsKolabOverallQuota");
  
@@ -9,8 +9,8 @@
          }
  
          $_domain = str_replace('.', '_', $domain);
---- en_US.php	2017-06-07 15:00:24.488196507 +0200
-+++ //usr/share/kolab-webadmin/lib/locale/en_US.php	2017-06-07 15:01:16.455199149 +0200
+--- a/lib/locale/en_US.php	2017-06-07 15:00:24.488196507 +0200
++++ b/lib/locale/en_US.php	2017-06-07 15:01:16.455199149 +0200
 @@ -451,6 +451,7 @@
  $LANG['user.tbitskolaboverallquota'] = 'Overall Quota assigned';
  $LANG['user.tbitskolabdefaultquota'] = 'Default Quota for user accounts';
@@ -19,8 +19,8 @@
  $LANG['user.tbitskolabquotaused'] = 'Current quota usage';
  $LANG['quota.unlimited'] = "Unlimited";
  $LANG['user.title'] = 'Job Title';
---- de_DE.php	2017-06-07 15:01:22.184199440 +0200
-+++ /usr/share/kolab-webadmin/lib/locale/de_DE.php	2017-06-07 15:01:49.481200828 +0200
+--- a/lib/locale/de_DE.php	2017-06-07 15:01:22.184199440 +0200
++++ b/lib/locale/de_DE.php	2017-06-07 15:01:49.481200828 +0200
 @@ -464,6 +464,7 @@
  $LANG['user.tbitskolabdefaultquota'] = 'Voreinstellung Quota für Benutzerkonten';
  $LANG['user.statistics'] = 'Info';
@@ -29,8 +29,8 @@
  $LANG['user.tbitskolabquotaused'] = 'Aktueller Speicherplatzverbrauch';
  $LANG['quota.unlimited'] = "Unbegrenzt";
  
---- kolab_client_task_user.php	2017-06-07 15:03:00.731204450 +0200
-+++ /usr/share/kolab-webadmin/lib/client/kolab_client_task_user.php	2017-06-07 15:21:12.860259972 +0200
+--- a/lib/client/kolab_client_task_user.php	2017-06-07 15:03:00.731204450 +0200
++++ b/lib/client/kolab_client_task_user.php	2017-06-07 15:21:12.860259972 +0200
 @@ -171,6 +171,7 @@
              'uid'                       => 'system',
              'userpassword'              => 'system',
