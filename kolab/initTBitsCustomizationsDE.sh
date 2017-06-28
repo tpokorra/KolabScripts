@@ -23,6 +23,7 @@ sed -r -i -e "s#autocreate_folders#secondary_mail = { }\nautocreate_folders#g" /
 
 # set in /etc/sysconfig/dirsrv: ulimit -n 32192, to avoid dirsrv crashing because of too many open files
 sed -r -i -e "s/# ulimit -n 8192/ulimit -n 32192/g" /etc/sysconfig/dirsrv
+sed -r -i -e "s/#ulimit -n 8192/ulimit -n 32192/g" /etc/sysconfig/dirsrv
 if [ -f /bin/systemctl ]
 then
   /bin/systemctl restart dirsrv.target && sleep 10
