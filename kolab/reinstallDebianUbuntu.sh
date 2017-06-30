@@ -142,7 +142,7 @@ debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Internet Si
 if [[ $OBS_repo_OS == "Debian_8.0" ]]
 then
   # we do not want apache2 2.2 from KolabSys OBS
-  apt-get -y install -t stable apache2 || exit 1
+  apt-get -y install -t jessie apache2 || exit 1
 fi
 
 aptitude -y install kolab kolab-freebusy php5-imap || exit 1
