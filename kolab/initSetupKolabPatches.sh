@@ -35,6 +35,19 @@ echo "applying patch to Roundcube for the compose to show loading message"
 sed -i "s#this.open_compose_step=function(p){var url#this.open_compose_step=function(p){this.set_busy(true, 'loading');var url#g" /usr/share/roundcubemail/public_html/assets/program/js/app.js
 fi
 
+if [[ $OS == CentOS* || $OS == Fedora* ]]
+then
+  # there is an issue with lxc 2.0.8 and CentOS, with PrivateDevices
+  # https://github.com/lxc/lxc/issues/1623
+  # journalctl -xe shows:
+  # -- Unit amavisd.service has begun starting up.
+  # systemd[3849]: Failed at step NAMESPACE spawning /usr/sbin/amavisd: Invalid argument
+  # -- Subject: Process /usr/sbin/amavisd could not be executed
+  sed -i 's/PrivateDevices=true/#PrivateDevices=true/g' /usr/lib/systemd/system/amavisd.service
+  systemctl daemon-reload
+  systemctl restart amavisd.service
+fi
+
 if [[ $OS == Debian* ]]
 then
       # workaround for bug 2050, https://issues.kolab.org/show_bug.cgi?id=2050
