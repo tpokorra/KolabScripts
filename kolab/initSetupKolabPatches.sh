@@ -50,6 +50,15 @@ then
   then
     systemctl start guam || exit -1
   fi
+  # there is an issue with lxc 2.0.8 and CentOS, with PrivateDevices
+  # https://github.com/lxc/lxc/issues/1623
+  # journalctl -xe shows:
+  # -- Unit amavisd.service has begun starting up.
+  # systemd[3849]: Failed at step NAMESPACE spawning /usr/sbin/amavisd: Invalid argument
+  # -- Subject: Process /usr/sbin/amavisd could not be executed
+  sed -i 's/PrivateDevices=true/#PrivateDevices=true/g' /usr/lib/systemd/system/amavisd.service
+  systemctl daemon-reload
+  systemctl restart amavisd.service
 else
   if [[ "`dpkg -l | grep guam`" != "" ]]
   then
