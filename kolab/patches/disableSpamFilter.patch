@@ -46,3 +46,50 @@
      else:
          log.error(_("Could not configure to start on boot, the " + \
 
+--- a/share/templates/master.cf.tpl	2017-06-30 17:26:24.826606148 +0200
++++ b/share/templates/master.cf.tpl	2017-06-30 17:26:57.024321974 +0200
+@@ -62,26 +62,26 @@
+ scache              unix        -       -       n       -       1       scache
+ 
+ # Filter email through Amavisd
+-smtp-amavis         unix        -       -       n       -       3       smtp
+-    -o smtp_data_done_timeout=1800
+-    -o disable_dns_lookups=yes
+-    -o smtp_send_xforward_command=yes
+-    -o max_use=20
+-    -o smtp_bind_address=127.0.0.1
++#smtp-amavis         unix        -       -       n       -       3       smtp
++#    -o smtp_data_done_timeout=1800
++#    -o disable_dns_lookups=yes
++#    -o smtp_send_xforward_command=yes
++#    -o max_use=20
++#    -o smtp_bind_address=127.0.0.1
+ 
+ # Listener to re-inject email from Amavisd into Postfix
+-127.0.0.1:10025     inet        n       -       n       -       100     smtpd
+-    -o cleanup_service_name=cleanup_internal
+-    -o content_filter=smtp-wallace:[127.0.0.1]:10026
+-    -o local_recipient_maps=
+-    -o relay_recipient_maps=
+-    -o smtpd_restriction_classes=
+-    -o smtpd_client_restrictions=
+-    -o smtpd_helo_restrictions=
+-    -o smtpd_sender_restrictions=
+-    -o smtpd_recipient_restrictions=permit_mynetworks,reject
+-    -o mynetworks=127.0.0.0/8
+-    -o smtpd_authorized_xforward_hosts=127.0.0.0/8
++#127.0.0.1:10025     inet        n       -       n       -       100     smtpd
++#    -o cleanup_service_name=cleanup_internal
++#    -o content_filter=smtp-wallace:[127.0.0.1]:10026
++#    -o local_recipient_maps=
++#    -o relay_recipient_maps=
++#    -o smtpd_restriction_classes=
++#    -o smtpd_client_restrictions=
++#    -o smtpd_helo_restrictions=
++#    -o smtpd_sender_restrictions=
++#    -o smtpd_recipient_restrictions=permit_mynetworks,reject
++#    -o mynetworks=127.0.0.0/8
++#    -o smtpd_authorized_xforward_hosts=127.0.0.0/8
+ 
+ # Filter email through Wallace
+ smtp-wallace        unix        -       -       n       -       3       smtp
