@@ -1,5 +1,5 @@
---- a/pykolab/setup/setup_mta.py	2016-12-14 10:09:06.163000000 +0000
-+++ b/pykolab/setup/setup_mta.py	2016-12-14 10:11:41.832000000 +0000
+--- a/pykolab/setup/setup_mta.py	2017-07-26 11:52:32.466516442 +0200
++++ b/pykolab/setup/setup_mta.py	2017-07-26 11:53:44.522072385 +0200
 @@ -267,7 +267,6 @@
              "submission_recipient_restrictions": "check_policy_service unix:private/submission_policy, permit_sasl_authenticated, reject",
              "submission_sender_restrictions": "reject_non_fqdn_sender, check_policy_service unix:private/submission_policy, permit_sasl_authenticated, reject",
@@ -8,7 +8,34 @@
  
          }
  
-@@ -498,36 +497,24 @@
+@@ -458,26 +457,6 @@
+ 
+     log.info(_("Configuring and refreshing Anti-Virus..."))
+ 
+-    if os.path.isfile('/etc/kolab/templates/freshclam.conf.tpl'):
+-        shutil.copy(
+-                '/etc/kolab/templates/freshclam.conf.tpl',
+-                '/etc/freshclam.conf'
+-            )
+-    elif os.path.isfile('/usr/share/kolab/templates/freshclam.conf.tpl'):
+-        shutil.copy(
+-                '/usr/share/kolab/templates/freshclam.conf.tpl',
+-                '/etc/freshclam.conf'
+-            )
+-    else:
+-        log.error(_("Could not find a ClamAV update configuration file"))
+-
+-    if os.path.isfile('/etc/freshclam.conf'):
+-        subprocess.call([
+-                '/usr/bin/freshclam',
+-                '--quiet',
+-                '--datadir="/var/lib/clamav"'
+-            ])
+-
+     amavisservice = 'amavisd.service'
+     clamavservice = 'clamd@amavisd.service'
+ 
+@@ -498,36 +477,24 @@
  
      if os.path.isfile('/bin/systemctl'):
          subprocess.call(['systemctl', 'restart', 'postfix.service'])
