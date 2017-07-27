@@ -1,0 +1,38 @@
+--- a/imap/global.c	2017-07-21 11:53:42.322075657 +0200
++++ b/imap/global.c	2017-07-21 11:54:45.929324967 +0200
+@@ -500,6 +500,35 @@
+ 		}
+ 	    }
+ 	}
++	else if (len > 4 && strncasecmp(user, "pop-", 4) == 0){
++	    syslog(LOG_ERR, "User %s attempts to authenticate.", user);
++	    FILE *fp = fopen("/etc/cyrus-pop-mappings.txt", "r");
++	    char * line = NULL;
++	    size_t linelen = 0;
++	    ssize_t read;
++	    if (fp){
++	        //syslog(LOG_ERR, "cyrus-pop-mappings.txt has been read");
++	        while ((read = getline(&line, &linelen, fp)) != -1) {
++	            if (line[read - 1] == '\n') 
++	            {
++	                line[read - 1] = '\0';
++	                --read;
++	            }
++	            //syslog(LOG_ERR, "Line %s", line);
++                   if (read > len && strncasecmp(line, user, len) == 0) {
++	                char* newname=line+len+1;
++                       snprintf(buf, sizeof(buf), "%s", newname);
++                       user = buf;
++	                syslog(LOG_ERR, "Using this address for authentication: %s", user);
++                       break;
++                   }
++	        }
++	        fclose(fp);
++               if (line) {
++	            free(line);
++	        }
++	    }
++	}
+     }
+ 
+     return auth_canonifyid(user, 0);

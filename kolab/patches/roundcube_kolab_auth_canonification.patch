@@ -1,0 +1,21 @@
+--- a/plugins/kolab_auth/kolab_auth.php	2017-07-26 21:55:57.528181599 +0200
++++ b/plugins/kolab_auth/kolab_auth.php	2017-07-26 22:18:52.357323642 +0200
+@@ -383,7 +383,17 @@
+             $args['abort'] = true;
+             return $args;
+         }
+-
++if (strlen($user) > strlen('pop-') && substr($user,0,4) == 'pop-') {
++	$popuser=file_get_contents("/etc/cyrus-pop-mappings.txt");
++	$users=explode("\n", $popuser);
++        foreach($users as $line) {
++		$data = explode(';', $line);
++		if ($data[0] == $user) {
++			$user = $data[1];
++			break;
++		}
++	}
++}
+         // temporarily set the current username to the one submitted
+         $this->username = $user;
+ 
