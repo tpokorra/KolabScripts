@@ -1,0 +1,50 @@
+diff --git a/imap/imapd.c b/imap/imapd.c
+index 017df58..1ba482d 100644
+--- a/imap/imapd.c
++++ b/imap/imapd.c
+@@ -177,6 +177,7 @@ static void *imapd_tls_comp = NULL; /* TLS compression method, if any */
+ static int imapd_compress_done = 0; /* have we done a successful compress? */
+ static const char *plaintextloginalert = NULL;
+ static int ignorequota = 0;
++static int HideKolabFolders = 1;
+ 
+ static struct id_data {
+     struct attvaluelist *params;
+@@ -2837,6 +2838,12 @@ static void cmd_id(char *tag)
+ 	}
+ 
+ 	syslog(LOG_INFO, "client id:%s", buf_cstring(&logbuf));
++
++        // must catch Roundcube/Kolab, Python/Kolab, PyKolab/Kolab
++        if (strstr(buf_cstring(&logbuf), "/Kolab")) {
++           HideKolabFolders = 0;
++        }
++
+ 	buf_free(&logbuf);
+     }
+ 
+@@ -11465,6 +11472,23 @@ static void list_response(const char *name, int attributes,
+ 	cmd = "LIST";
+ 	break;
+     }
++
++    if (HideKolabFolders && mbentry) {
++        struct buf attrib = BUF_INITIALIZER;
++        if (!annotatemore_lookup(mbentry->name, "/vendor/kolab/folder-type", imapd_userid, &attrib) && attrib.len) {
++            imapd_sasl_log(NULL, SASL_LOG_DEBUG, mbentry->name);
++            imapd_sasl_log(NULL, SASL_LOG_DEBUG, attrib.s);
++            // folder annotation can be: mail.sentitems, mail.wastebasket, mail.inbox, mail.drafts, contact.default, etc
++            if (!strstr(attrib.s, "mail")) {
++                imapd_sasl_log(NULL, SASL_LOG_DEBUG, "do not publish");
++                imapd_sasl_log(NULL, SASL_LOG_DEBUG, mbentry->name);
++                buf_free(&attrib);
++                goto done;
++            }
++        }
++        buf_free(&attrib);
++    }
++
+     prot_printf(imapd_out, "* %s (", cmd);
+     for (sep = "", attr = mbox_name_attributes; attr->id; attr++) {
+ 	if (attributes & attr->flag) {
+

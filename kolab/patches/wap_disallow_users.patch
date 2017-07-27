@@ -1,0 +1,20 @@
+--- a/lib/kolab_api_controller.php	2017-07-27 17:01:09.406020391 +0200
++++ b/lib/kolab_api_controller.php	2017-07-27 17:30:24.469974574 +0200
+@@ -331,6 +331,16 @@
+ 
+         // start new (PHP) session
+         if ($user_dn) {
++            // if one or several domains are specified in kolab_webadmin_disabled_for_users, then only admin users from that domain can use the kolab webadmin
++            $kolab_webadmin_disabled_for_users = $this->config->get('kolab_wap', 'kolab_webadmin_disabled_for_users');
++            if (!(empty($kolab_webadmin_disabled_for_users))) {
++                $domains_users_disabled = explode(',', $kolab_webadmin_disabled_for_users);
++	        foreach ($domains_users_disabled as $domain_users_disabled) {
++                    if (strpos($user_dn, 'ou=People,dc='.implode(',dc=', explode('.', $domain_users_disabled))) > 0 && strpos($user_dn, 'uid=admin-') === false) {
++                        return false;
++                    }
++                }
++            }
+             $_SESSION['time'] = time();
+             $result = array(
+                 'user'          => $_SESSION['user']->get_username(),
+
