@@ -147,3 +147,10 @@ apt-get -y remove exim4-base exim4-config exim4-daemon-light || exit 1
 
 aptitude -y install kolab kolab-freebusy php5-imap || exit 1
 
+# workaround for bug https://git.kolab.org/T2588
+jqueryfile=/usr/share/roundcubemail/public_html/assets/program/js/jquery.min.js
+if [ ! -f $jqueryfile ]
+then
+  wget https://code.jquery.com/jquery-2.1.4.min.js -O $jqueryfile
+fi
+
