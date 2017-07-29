@@ -43,7 +43,7 @@ systemctl stop httpd
 systemctl stop mariadb
 systemctl stop guam
 
-pkgs="389\* cyrus-imapd\* postfix\* mariadb-server\* guam\* roundcube\* pykolab\* kolab\* libkolab\* libcalendaring\* kolab-3\* httpd php-Net-LDAP3 up-imapproxy nginx stunnel"
+pkgs="389* cyrus-imapd* postfix* mariadb-server* guam* roundcube* pykolab* kolab* libkolab* libcalendaring* httpd php-Net-LDAP3 up-imapproxy nginx stunnel"
 if [[ $OBS_repo_OS == CentOS* ]]
 then
   yum -y remove $pkgs || exit -1
