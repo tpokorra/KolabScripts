@@ -744,8 +744,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
            wait = WebDriverWait(driver, 10);
            try:
              elem = wait.until(EC.visibility_of_element_located(
-                      (By.XPATH, "//div[@id='messageheader']/h2[text()='" + emailSubjectLine + "']")),
-                   "the first email does not have the subject " + emailSubjectLine)
+                      (By.XPATH, "//div[@id='messageheader']/h2[@class='subject']")),
+                   "cannot find the first email")
            except TimeoutException:
              instead=""
              try:
@@ -755,12 +755,15 @@ class KolabWAPTestHelpers(unittest.TestCase):
                print("no such element")
                pass
              self.assertTrue(False, "the first email does not have the subject " + emailSubjectLine + instead) 
+           if not emailSubjectLine in elem.text:
+             self.assertTrue(False, "the first email does not have the subject " + emailSubjectLine + " but instead " + elem.text())
         if emailSubjectLineDoesNotContain is not None:
            try:
              wait = WebDriverWait(driver, 10);
-             elem = wait.until(EC.visibility_of_element_located((By.XPATH, "//div[@id='messageheader']/h2[text()='" + emailSubjectLineDoesNotContain + "']")),
-                  "cannot find the email with subject " + emailSubjectLineDoesNotContain);
-             self.assertTrue(False, "email subject should not contain " + emailSubjectLineDoesNotContain + " but was " + elem.text)
+             elem = wait.until(EC.visibility_of_element_located((By.XPATH, "//div[@id='messageheader']/h2[@class='subject']")),
+                  "cannot find the first email");
+             if not emailSubjectLineDoesNotContain in elem.text:
+               self.assertTrue(False, "email subject should not contain " + emailSubjectLineDoesNotContain + " but was " + elem.text)
            except TimeoutException, e:
              self.assertTrue(True, "we expect a timeout, since we don't want to find the email with this subject as the first email")
 
