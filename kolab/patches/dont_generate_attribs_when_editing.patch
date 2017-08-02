@@ -1,0 +1,22 @@
+--- a/lib/api/kolab_api_service_form_value.php	2017-08-02 13:50:21.742083841 +0200
++++ b/lib/api/kolab_api_service_form_value.php	2017-08-02 14:01:03.165836381 +0200
+@@ -67,6 +67,7 @@
+         $attribs    = $this->object_type_attributes($postdata['object_type'], $postdata['type_id'], $type_key);
+         $attributes = (array) $postdata['attributes'];
+         $result     = array();
++        $conf       = Conf::get_instance();
+ 
+         $postdata['type_key'] = $type_key;
+ 
+@@ -88,6 +89,11 @@
+                 }
+             }
+ 
++            if (!empty($postdata['id']) && $conf->get('kolab_wap', 'admin_auto_fields_rw') == True){
++                // do not modify the primary e-mail address or the uid after the user has been created already
++                continue;
++            }
++
+             Log::trace("Executing method $method_name");
+             $result[$attr_name] = $this->{$method_name}($postdata, $attribs);
+         }
