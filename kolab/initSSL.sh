@@ -108,7 +108,7 @@ sed -r -i \
     -e "s|^tls_key_file:.*|tls_key_file: $key_directory/private/$server_name.key|g" \
     -e "s|^tls_ca_file:.*|tls_ca_file: $key_directory/certs/$server_name.ca-chain.pem|g" \
     -e "s|^tls_server_cert:.*|tls_server_cert: $key_directory/certs/$server_name.crt|g" \
-    -e "s|^tls_server_key:.*|tls_server_key: $key_directory/private/$server_name.key|g" \
+    -e "s|^tls_server_key:.*|tls_server_key: $key_directory/private/$server_name.key\ntls_client_ca_file: $key_directory/certs/$server_name.ca-chain.pem|g" \
     /etc/imapd.conf
 echo "test\
 test" | saslpasswd2 /etc/sasldb2
