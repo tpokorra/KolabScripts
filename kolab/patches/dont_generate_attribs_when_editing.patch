@@ -8,11 +8,12 @@
  
          $postdata['type_key'] = $type_key;
  
-@@ -88,6 +89,11 @@
+@@ -88,6 +89,12 @@
                  }
              }
  
-+            if (!empty($postdata['id']) && $conf->get('kolab_wap', 'admin_auto_fields_rw') == True){
++            if (!empty($postdata['id']) && $conf->get('kolab_wap', 'admin_auto_fields_rw') == True &&
++                $attr_name != 'cn' && $attr_name != 'displayname'){
 +                // do not modify the primary e-mail address or the uid after the user has been created already
 +                continue;
 +            }
