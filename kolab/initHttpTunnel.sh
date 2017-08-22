@@ -17,6 +17,6 @@ fi
 
 if [ $APPLYPATCHES -eq 1 ]
 then
-  # not applying this patch because it fails. things should have been fixed, see https://git.kolab.org/T2426
+  echo "not applying roundcube_kolab_files_url_localhostBug3573.patch because it fails. things should have been fixed, see https://git.kolab.org/T2426"
   #patch -p1 -i `pwd`/patches/roundcube_kolab_files_url_localhostBug3573.patch -d /usr/share/roundcubemail || exit -1
 fi
