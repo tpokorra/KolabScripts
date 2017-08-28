@@ -8,14 +8,4 @@ sed -r -i \
     -e "s#\[kolab_wap\]#[kolab_wap]\napi_url = http://localhost/kolab-webadmin/api#g" \
     /etc/kolab/kolab.conf
 
-sed -i -e "s#?>#    \$config['file_api_url'] = 'http://localhost/chwala/api/';\n\n?>#g" /etc/roundcubemail/config.inc.php
-
-if [ -z $APPLYPATCHES ]
-then
-  APPLYPATCHES=1
-fi
-
-if [ $APPLYPATCHES -eq 1 ]
-then
-  patch -p1 -i `pwd`/patches/roundcube_kolab_files_url_localhostBug3573.patch -d /usr/share/roundcubemail
-fi
+sed -i -e "s#?>#    \$config['kolab_files_server_url'] = 'http://localhost/chwala/';\n\n?>#g" /etc/roundcubemail/config.inc.php
