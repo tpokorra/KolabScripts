@@ -7,9 +7,9 @@
 +            // if one or several domains are specified in kolab_webadmin_disabled_for_users, then only admin users from that domain can use the kolab webadmin
 +            $kolab_webadmin_disabled_for_users = $this->config->get('kolab_wap', 'kolab_webadmin_disabled_for_users');
 +            if (!(empty($kolab_webadmin_disabled_for_users))) {
-+                if (!in_array('tbitskolabdomainadmin', $result['info']['objectclass']) && $user_dn != 'cn=Directory Manager') {
++                if (($user_dn != 'cn=Directory Manager') && !in_array('tbitskolabdomainadmin', $result['info']['objectclass'])) {
 +                    $domains_users_disabled = explode(',', $kolab_webadmin_disabled_for_users);
-+	            foreach ($domains_users_disabled as $domain_users_disabled) {
++                    foreach ($domains_users_disabled as $domain_users_disabled) {
 +                        if ($domain_users_disabled == 'allusers' || strpos($user_dn, 'ou=People,dc='.implode(',dc=', explode('.', $domain_users_disabled))) > 0) {
 +                            return false;
 +                        }
