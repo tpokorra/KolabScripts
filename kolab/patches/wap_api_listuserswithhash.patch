@@ -22,7 +22,7 @@
 +        $allowip = $this->config->get('kolab', 'wap_api_userslist_allowip', Conf::AUTO);
 +        $remote = $_SERVER["REMOTE_ADDR"];
 +        if (!empty($allowip) && !in_array($remote,$allowip)) {
-+                Log::debug("No access for IP $remote");
++                Log::error("No access for IP $remote");
 +                die ("No access for IP $remote");
 +        }
 +
