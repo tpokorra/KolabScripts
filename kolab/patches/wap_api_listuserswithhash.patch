@@ -8,24 +8,37 @@
              'objectclass',
              'uidnumber',
              'gidnumber',
---- a/lib/kolab_api_controller.php	2017-01-20 09:38:24.852770601 +0100
-+++ b/lib/kolab_api_controller.php	2017-01-20 10:08:28.328156527 +0100
-@@ -41,6 +41,18 @@
-         $this->output = new kolab_json_output();
-         $this->config = Conf::get_instance();
+--- a/lib/kolab_api_controller.php	2016-06-27 11:57:13.000000000 +0200
++++ b/lib/kolab_api_controller.php	2017-08-31 09:26:53.802753277 +0200
+@@ -204,6 +204,7 @@
+         $get     = array('proxy' => 1); // Prevent from infinite redirect
+ 
+         $request->setMethod($method == 'GET' ? HTTP_Request2::METHOD_GET : HTTP_Request2::METHOD_POST);
++        $request->setHeader('X-Forwarded-For', $_SERVER['REMOTE_ADDR']);
+         $request->setHeader('X-Session-Token', kolab_utils::get_request_header('X-Session-Token'));
+ 
+         kolab_client_api::configure($request);
+--- a/lib/api/kolab_api_service_users.php	2017-08-30 16:01:26.879336915 +0200
++++ b/lib/api/kolab_api_service_users.php	2017-08-30 16:57:55.838333280 +0200
+@@ -76,6 +76,21 @@
+         $params = $this->parse_list_params($post);
+         $search = $this->parse_list_search($post);
  
 +        // info: define in /etc/kolab/kolab.conf, in section [kolab]: 
 +        //    eg. wap_api_userslist_allowip = ["127.0.0.1", "10.0.3.22" ]
 +        //    always include the IP of localhost, and perhaps the proxy that you limit yourself to to reach this server for api calls
-+        // we only limit access to users.list, because that will now publish the password hash
++        // we only limit access to users.list and attribute userpassword, because that will publish the password hash
 +        // We need access to the API though for everyone else, because editing a user directly accesses the API as well
-+        $allowip = $this->config->get('kolab', 'wap_api_userslist_allowip', Conf::AUTO);
-+        $remote = $_SERVER["REMOTE_ADDR"];
-+        if (!empty($allowip) && !in_array($remote,$allowip)) {
++        if (in_array('userpassword', $attributes)) {
++            $config = Conf::get_instance();
++            $allowip = $config->get('kolab', 'wap_api_userpassword_allowip', Conf::AUTO);
++            $remote = $_SERVER['HTTP_X_FORWARDED_FOR'];
++            if (!empty($allowip) && !in_array($remote,$allowip)) {
 +                Log::error("No access for IP $remote");
 +                die ("No access for IP $remote");
++            }
 +        }
 +
-         // TODO: register services based on config or whatsoever
-         $this->add_service('domain',            'kolab_api_service_domain');
-         $this->add_service('domain_types',      'kolab_api_service_domain_types');
+         $users = $auth->list_users(null, $attributes, $search, $params);
+         $users = $this->parse_list_result($users);
+ 
