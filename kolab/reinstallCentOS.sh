@@ -43,6 +43,13 @@ systemctl stop httpd
 systemctl stop mariadb
 systemctl stop guam
 
+dirsrvinstance=$(find /var/lib/dirsrv -type d -name slapd-*)
+if [ ! -z "$dirsrvinstance" ]
+then
+  dirsrvinstance=$(basename $dirsrvinstance)
+  remove-ds.pl -a -i $dirsrvinstance
+fi
+
 pkgs="389* cyrus-imapd* postfix* mariadb-server* guam* roundcube* pykolab* kolab* libkolab* libcalendaring* httpd php-Net-LDAP3 up-imapproxy nginx stunnel"
 if [[ $OBS_repo_OS == CentOS* ]]
 then
