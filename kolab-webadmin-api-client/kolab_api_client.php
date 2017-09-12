@@ -173,18 +173,14 @@ class kolab_api_client
 		// see https://cgit.kolab.org/webadmin/tree/lib/api/kolab_api_service_user.php#n130
 		$url=$this->server['api_url']."user.edit";
 
-		$postdata =
-			array(
-				'id' => $id,
-				'type_id' => 1
-				);
-
-		$postdata = array_merge($postdata, $attributes);
+		$attributes['id'] = $id;
+		$attributes['type_id'] = 1;
+		unset($attributes['entrydn']);
 
 		curl_setopt($this->ch, CURLOPT_URL, $url);
 		curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, 'POST');
 		curl_setopt($this->ch, CURLOPT_POST, 1);
-		curl_setopt($this->ch, CURLOPT_POSTFIELDS, json_encode($postdata));
+		curl_setopt($this->ch, CURLOPT_POSTFIELDS, json_encode($attributes));
 
 		$response = curl_exec($this->ch);
 		list($header, $body) = explode("\r\n\r\n", $response, 2);
@@ -195,6 +191,7 @@ class kolab_api_client
 		}
 
 		echo ("problem in user_edit: \n".$response."\n\n");
+
 		return false;
 	}
 
@@ -243,6 +240,26 @@ class kolab_api_client
 		}
 
 		echo ("problem in user_delete: \n".$response."\n\n");
+		return false;
+	}
+
+	function domain_add($domain) {
+		$url=$this->server['api_url']."domain.add";
+
+		curl_setopt($this->ch, CURLOPT_URL, $url);
+		curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, 'POST');
+		curl_setopt($this->ch, CURLOPT_POST, 1);
+		curl_setopt($this->ch, CURLOPT_POSTFIELDS, json_encode(array('associateddomain' => $domain)));
+
+		$response = curl_exec($this->ch);
+		list($header, $body) = explode("\r\n\r\n", $response, 2);
+		$json = json_decode($body);
+
+		if ($json->status == 'OK') {
+			return true;
+		}
+
+		echo ("problem in domain_add: \n".$response."\n\n");
 		return false;
 	}
 }

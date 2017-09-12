@@ -21,6 +21,9 @@
  +--------------------------------------------------------------------------+
 */
 
+// for a stress test, call:
+// while [ 1 ]; do php test.php || break; done
+
 include "test.config.php";
 require_once("kolab_api_client.php");
 
@@ -30,7 +33,16 @@ function process_server($server) {
 	$api = new kolab_api_client($server);
 
 	if ($api->establish_connection() == null) {
-		return false;
+		die(-1);
+	}
+
+	// add new domains
+	for ($i = 0; $i < 10; $i++) {
+		$domainname = "test".date('YmdHis')."_$i.de";
+		echo "adding domain ".$domainname."\n";
+		if (!$api->domain_add($domainname)) {
+			die("problem adding domain");
+		}
 	}
 
 	// fetch the email addresses for each domain
@@ -55,25 +67,40 @@ function process_server($server) {
 		}
 	}
 
-	// add 3 users
+	// add 30 users
 	$api->select_domain('dev.tbits.net');
-	for ($i = 0; $i < 3; $i++) {
+	for ($i = 0; $i < 30; $i++) {
 		echo "adding user $i\n";
 		if (!$api->user_add(array('givenname' => 'John', 'sn' => 'Doe', 'preferredlanguage' => 'en_US', 'ou' => 'ou=People,dc=dev,dc=tbits,dc=net'))) {
 			die("cannot add user\n");
 		}
 	}
 
+	// fetch the email addresses for each domain
+	$mailaccounts = array();
+	foreach ($domains as $domain) {
+		if ($api->select_domain($domain)) {
+			$mailaccounts = array_merge($mailaccounts, $api->get_email_addresses(array('mail', 'cn', 'uid', 'entrydn')));
+		}
+	}
+
 	// update the last login time
+	$countUpdate=0;
 	foreach ($mailaccounts as $email => $userdetails) {
 
-		echo $email." ".$userdetails['entrydn']."\n";
+		if ($countUpdate++ > 10) {
+			break;
+		}
 
+		echo $email." ".$userdetails['entrydn']."\n";
+		$api->select_domain($userdetails['domain']);
+
+		// LDAP update for each user
 		if (($userobj = $api->user_info($userdetails['entrydn'])) !== false) {
-			//print_r($userobj);
-			$api->select_domain($userdetails['domain']);
+			// print_r($userobj);
 			$userarray = (array)$userobj;
 			$userarray['tbitskolablastlogin'] = date("U");
+			$userarray['alias'] = array();
 			$api->user_edit($userdetails['entrydn'], $userarray);
 		}
 	}
