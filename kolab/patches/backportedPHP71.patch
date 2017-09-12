@@ -1,0 +1,47 @@
+From 9f4605eae5f0dfb17fd4267d1072b5f79771e705 Mon Sep 17 00:00:00 2001
+From: Aleksander Machniak <machniak@kolabsys.com>
+Date: Tue, 12 Sep 2017 13:48:05 +0200
+Subject: fix issue with PHP 7.1
+
+Summary: see details in https://git.kolab.org/T2630
+
+Reviewers: #web_administration_panel_developers, machniak
+
+Reviewed By: #web_administration_panel_developers, machniak
+
+Subscribers: #web_administration_panel_developers
+
+Tags: #web_administration_panel
+
+Maniphest Tasks: T2630
+
+Differential Revision: https://git.kolab.org/D542
+---
+ lib/kolab_client_output.php | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/lib/kolab_client_output.php b/lib/kolab_client_output.php
+index f7bb471..34c8289 100644
+--- a/lib/kolab_client_output.php
++++ b/lib/kolab_client_output.php
+@@ -145,7 +145,7 @@ class kolab_client_output
+             $this->tpl->assign($name, $value);
+         }
+ 
+-        $script = '';
++        $script = array();
+ 
+         if (!empty($this->env)) {
+             $script[] = 'kadm.env = ' . json_encode($this->env) . ';';
+@@ -171,7 +171,7 @@ class kolab_client_output
+         }
+ 
+         $this->tpl->assign('skin_path', 'skins/' . $this->skin . '/');
+-        if ($script) {
++        if (!empty($script)) {
+             $script = "<script type=\"text/javascript\">\n" . implode("\n", $script) . "\n</script>";
+             $this->tpl->assign('script', $script);
+         }
+-- 
+cgit v1.1
+
