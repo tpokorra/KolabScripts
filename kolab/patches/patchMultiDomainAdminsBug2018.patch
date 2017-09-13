@@ -132,7 +132,7 @@ index 0c03be0..6ad01c3 100644
          }
  
          return $result;
-@@ -1721,4 +1786,164 @@
+@@ -1721,4 +1786,166 @@
  
          return $directory;
      }
@@ -275,23 +275,25 @@ index 0c03be0..6ad01c3 100644
 +        $domainadmins = $domaindetails['domainadmin'];
 +
 +        unset($resultvalue);
++        unset($maxaccounts);
 +        foreach ($domaindetails['domainadmin'] as $domainadmin) {
 +            // ignore cn=Directory Manager
 +            if ($domainadmin != $this->conf->get('bind_dn')) {
 +                $userinfo = array_shift(array_values($this->user_info($domainadmin, array($config_flag))));
 +                if (!empty($userinfo[$config_flag])) {
-+                    // what about multiple domain admins of one domain?
-+                    if (isset($resultvalue) && $resultvalue != $userinfo[$config_flag]) {
-+                        throw new Exception('error: domainadmins have contradicting settings for '.$config_flag);
++                    // the domainadmin with the smallest amount of available accounts is the domainadmin that we use
++                    // this will ignore the super domain admins (resellers)
++                    if (empty($maxaccounts) || $maxaccounts > $userinfo['tbitskolabmaxaccounts']) {
++                        $maindomainadmin = $domainadmin;
++                        $maxaccounts = $userinfo['tbitskolabmaxaccounts'];
++                        $resultvalue = $userinfo[$config_flag];
 +                    }
-+                    $maindomainadmin = $domainadmin;
-+                    $resultvalue = $userinfo[$config_flag];
 +                }
 +            }
 +        }
 +
 +        if (!isset($resultvalue)) {
-+            return $resultvalue;
++            return NULL;
 +        }
 +
 +        return array('domainadmin' => $maindomainadmin, $config_flag => $resultvalue);

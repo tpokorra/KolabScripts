@@ -48,7 +48,7 @@ diff --git a/lib/api/kolab_api_service_user.php b/lib/api/kolab_api_service_user
 index 79dcb59..1cbce61 100644
 --- a/lib/api/kolab_api_service_user.php
 +++ b/lib/api/kolab_api_service_user.php
-@@ -70,6 +70,48 @@
+@@ -70,6 +70,34 @@
      }
  
      /**
@@ -62,32 +62,18 @@ index 79dcb59..1cbce61 100644
 +        $auth = Auth::get_instance();
 +        $conf = Conf::get_instance();
 +
-+        // get domain admin for the current domain, and the mailquota of the domain admin
-+        $domaindetails = array_shift(array_values($auth->domain_info($_SESSION['user']->get_domain())));
-+        $domainadmins = $domaindetails['domainadmin'];
-+        unset($domainadminmaxaccounts);
-+        if (isset($domaindetails['domainadmin'])) {
-+            foreach ($domaindetails['domainadmin'] as $domainadmin) {
-+                // ignore cn=Directory Manager
-+                if ($domainadmin != $conf->get('bind_dn')) {
-+                    $userinfo = array_shift(array_values($auth->user_info($domainadmin, array($quota_attribute, 'tbitskolabmaxaccounts'))));
-+                    if (isset($userinfo['tbitskolabmaxaccounts'])) {
-+                        // what about multiple domain admins of one domain?
-+                        if (isset($domainadminmaxaccounts)) {
-+                            throw new Exception('error: only one domainadmin can have a maximum account number specified');
-+                        }
-+                        $domainadminmaxaccounts = $userinfo['tbitskolabmaxaccounts'];
-+                        $maindomainadmin = $domainadmin;
-+                    }
-+                }
-+            }
-+        }
-+
-+        if (isset($domainadminmaxaccounts)) {
-+            $numberOfAccounts = $auth->domainadmin_get_number_of_accounts($maindomainadmin);
-+            if ($numberOfAccounts >= $domainadminmaxaccounts) {
++        // get the domain admin that is defined closest to this domain (least number of accounts)
++        // and get the number of accounts that this domain admin has booked
++        $result = $auth->domainadmin_get_configuration($_SESSION['user']->get_domain(), 'tbitskolabmaxaccounts');
++ 
++        if (!empty($result)) {
++            $domainadmin = $result['domainadmin'];
++            $bookedaccounts = $result['tbitskolabmaxaccounts'];
++            $numberOfAccounts = $auth->domainadmin_get_number_of_accounts($domainadmin);
++            if ($numberOfAccounts >= $bookedaccounts) {
 +                  throw new Exception('error: Cannot create another account.<br/>'.
-+                      'maximum accounts booked: '.$domainadminmaxaccounts.'<br/>'.
++                      'maximum accounts booked: '.$bookedaccounts.'<br/>'.
++                      'for DomainAdmin '.$domainadmin.'<br/>'.
 +                      'Please order more accounts!');
 +            }
 +        }
