@@ -20,6 +20,7 @@ DeterminePythonPath
 #####################################################################################
 
 export key_directory=/etc/pki/tls
+export ca_directory=/etc/pki/CA
 export sslgroup=ssl
 export ca_file=startcom-ca.pem
 export ca_subclass_file=startcom-sub.class2.server.ca.pem
@@ -60,13 +61,30 @@ FINISH
 
 if [ ! -f $key_directory/certs/$server_name.crt ]
 then
+    # we need a CA for dirsrv
+    if [ ! -f $ca_directory/my-ca.crt ]
+    then
+      touch $ca_directory/index.txt
+      echo 01 > $ca_directory/serial
+      # generate a key without a passphrase, not encrypted
+      openssl genrsa -out $ca_directory/private/my-ca.key 2048
+      # generate the certificate for the CA
+      subj="/C=XX/ST=empty/L=empty/O=My CA/OU=empty/CN=myca.net/emailAddress=dev@myca.net"
+      openssl req -new -x509 -key $ca_directory/private/my-ca.key -days 3650 -subj "$subj" > $ca_directory/my-ca.crt
+    fi
+
     rm -Rf keys
     mkdir keys
     cd keys
 
     # generate a private key, and self signed certificate
     writeConf
-    openssl req -newkey rsa:2048 -sha256 -keyout $server_name.key -nodes -x509 -days 365 -out $server_name.crt -config req.conf -extensions 'v3_req'
+    # generate a key without a passphrase, not encrypted
+    openssl genrsa -out $server_name.key 2048
+    # generate a CSR
+    openssl req -new -key $server_name.key -out $server_name.csr -config req.conf -extensions 'v3_req'
+    # generate the certificate
+    openssl x509 -req -in $server_name.csr -CA /etc/pki/CA/my-ca.crt -CAkey /etc/pki/CA/private/my-ca.key -CAcreateserial -out $server_name.crt -days 1024 -sha256
 
     cp $server_name.key $key_directory/private
     cp $server_name.crt $key_directory/certs
@@ -85,8 +103,14 @@ then
             $key_directory/certs/$ca_subclass_file \
             > $key_directory/certs/$server_name.ca-chain.pem
     else
+      if [ -f $ca_directory/my-ca.crt ]
+      then
+        cat /etc/pki/CA/my-ca.crt > $key_directory/certs/$server_name.bundle.pem
+        cat /etc/pki/CA/my-ca.crt > $key_directory/certs/$server_name.ca-chain.pem
+      else
         # we do not have a ca for the self signed certificate, so using our own certificate
         cat $key_directory/certs/$server_name.crt > $key_directory/certs/$server_name.ca-chain.pem
+      fi
     fi
 
     cd ..
@@ -266,5 +290,74 @@ sed -i -e 's/http:/https:/' /etc/roundcubemail/config.inc.php
 #####################################################################################
 # configure LDAP server
 #####################################################################################
-# not done here, no need to access it from the outside.
-# the firewall should block port 389
+export slapdir=$(find /etc/dirsrv -type d -name slapd-*)
+export slapdir=$(basename $slapdir)
+servercert="Server-Cert"
+certutil -A -d /etc/dirsrv/$slapdir/ -n "ca_cert" -t "TCu,TCu,TCu" -i $key_directory/certs/$server_name.ca-chain.pem 
+certutil -A -d /etc/dirsrv/$slapdir/ -n "$servercert" -t "TCu,TCu,TCu" -i $key_directory/certs/$server_name.bundle.pem
+
+echo "Internal (Software) Token:foo" > /etc/dirsrv/$slapdir/pin.txt
+
+openssl pkcs12 -export \
+    -in $key_directory/certs/$server_name.crt \
+    -inkey $key_directory/private/$server_name.key \
+    -out /tmp/example.p12 -name "$servercert" -passout pass:foo
+echo "foo" > /tmp/foo
+pk12util -i /tmp/example.p12 -d /etc/dirsrv/$slapdir/ \
+    -w /tmp/foo -k /dev/null
+rm -f /tmp/foo
+rm -f /tmp/example.p12
+
+certutil -M -n "ca_cert" -t TCu,TCu,TCu -d /etc/dirsrv/$slapdir/
+certutil -M -n "$servercert" -t TCu,TCu,TCu -d /etc/dirsrv/$slapdir/
+# to test:
+#certutil -L -d /etc/dirsrv/$slapdir/
+#certutil -V -d /etc/dirsrv/$slapdir/ -n "ca_cert" -eu CVS
+#certutil -V -d /etc/dirsrv/$slapdir/ -n "$servercert" -eu CVS
+
+echo "Internal (Software) Token:foo" > /etc/dirsrv/$slapdir/pin.txt
+
+passwd=$(grep ^bind_pw /etc/kolab/kolab.conf | cut -d '=' -f2- | sed -e 's/\s*//g')
+ldapmodify -x -h localhost -p 389 \
+    -D "cn=Directory Manager" -w "${passwd}" << EOF
+dn: cn=encryption,cn=config
+changetype: modify
+replace: nsSSL2
+nsSSL2: off
+-
+replace: nsSSL3
+nsSSL3: off
+-
+replace: nsTLS1
+nsTLS1: on
+-
+replace: nsSSLClientAuth
+nsSSLClientAuth: allowed
+
+dn: cn=config
+changetype: modify
+add: nsslapd-security
+nsslapd-security: on
+-
+replace: nsslapd-ssl-check-hostname
+nsslapd-ssl-check-hostname: off
+-
+replace: nsslapd-secureport
+nsslapd-secureport: 636
+
+dn: cn=RSA,cn=encryption,cn=config
+changetype: add
+objectclass: top
+objectclass: nsEncryptionModule
+cn: RSA
+nsSSLPersonalitySSL: $servercert
+nsSSLToken: internal (software)
+nsSSLActivation: on
+EOF
+
+systemctl restart dirsrv.target
+
+# to test: openssl s_client -connect localhost:636 -CAfile /etc/pki/CA/my-ca.crt
+# for ldapsearch, you need to install /etc/pki/CA/my-ca.crt to your clients ldap configuration
+# to test: ldapsearch -x -H ldap://localhost  -Z    -b "cn=kolab,cn=config" -D "cn=Directory Manager"     -w "${passwd}"
+# to test: ldapsearch -x -H ldaps://localhost       -b "cn=kolab,cn=config" -D "cn=Directory Manager"     -w "${passwd}"
