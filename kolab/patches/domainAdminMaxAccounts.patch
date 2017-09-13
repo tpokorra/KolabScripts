@@ -28,10 +28,10 @@ index cd76caf..fa42791 100644
 +        $numberOfAccounts = 0;
 +        $domains = $this->domainadmin_get_domains($domainadmin);
 +        foreach ($domains as $domain) {
-+            // get all users that are part of this domain; the domainadmin itself is not of class kolabinetorgperson
++            // get all users that are part of this domain; the domainadmin itself is not of class mailrecipient
 +            $users_result = $this->search(
 +                               $this->_standard_root_dn($domain),
-+                               "objectclass=kolabinetorgperson");
++                               "objectclass=mailrecipient");
 +            if ($users_result != null && count($users_result) > 0) {
 +               $users = $users_result->entries(true);
 +               $numberOfAccounts += count($users);
