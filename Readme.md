@@ -4,6 +4,6 @@ You are welcome to provide Pull requests on Github, if you spot a problem or wan
 
 We have organised the scripts according to the releases.
 Please have a look in the branches.
-So if you want to work with Kolab 3.4, go to https://github.com/TBits/KolabScripts/tree/Kolab3.4
+So if you want to work with Kolab 16, go to https://github.com/TBits/KolabScripts/tree/Kolab16
 
 For more details, please visit the wiki at https://github.com/tbits/kolabscripts/wiki
