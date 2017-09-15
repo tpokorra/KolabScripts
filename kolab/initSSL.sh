@@ -213,6 +213,11 @@ then
     then
       patch -p1 -i `pwd`/patches/fixSelfSignedCertPykolab.patch -d $pythonDistPackages || exit -1
     fi
+    # starting with CentOS 7.4, we have the same issue to fix
+    if [[ $OS == CentOS* && $RELEASE -ge 7 ]]
+    then
+      patch -p1 -i `pwd`/patches/fixSelfSignedCertPykolab.patch -d $pythonDistPackages || exit -1
+    fi
 # for Debian and Ubuntu
 elif [[ $OS == Ubuntu* || $OS == Debian* ]]
 then
