@@ -32,6 +32,9 @@ then
     ca_directory=/etc/ssl/CA
     mkdir -p $ca_directory/private
     sslgroup=ssl-cert
+else
+    # Fedora: need to create the directory
+    mkdir -p $ca_directory/private
 fi
 
 #####################################################################################
@@ -157,7 +160,12 @@ service postfix restart
 # for CentOS and Fedora
 if [[ $OS == CentOS* || $OS == Fedora* ]]
 then
-    yum -y install mod_ssl
+    if [[ $OS == CentOS* ]]
+    then
+      yum -y install mod_ssl
+    else
+      dnf -y install mod_ssl
+    fi
 
     if [ -f /etc/httpd/conf.d/nss.conf ]
     then
