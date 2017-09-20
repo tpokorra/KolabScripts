@@ -29,6 +29,8 @@ if [ ! -d $key_directory ]
 then
     # Debian: the keys live in a different place
     key_directory=/etc/ssl
+    ca_directory=/etc/ssl/CA
+    mkdir -p $ca_directory/private
     sslgroup=ssl-cert
 fi
 
@@ -84,7 +86,7 @@ then
     # generate a CSR
     openssl req -new -key $server_name.key -out $server_name.csr -config req.conf -extensions 'v3_req'
     # generate the certificate
-    openssl x509 -req -in $server_name.csr -CA /etc/pki/CA/my-ca.crt -CAkey /etc/pki/CA/private/my-ca.key -CAcreateserial -out $server_name.crt -days 1024 -sha256
+    openssl x509 -req -in $server_name.csr -CA $ca_directory/my-ca.crt -CAkey $ca_directory/private/my-ca.key -CAcreateserial -out $server_name.crt -days 1024 -sha256
 
     cp $server_name.key $key_directory/private
     cp $server_name.crt $key_directory/certs
@@ -105,8 +107,8 @@ then
     else
       if [ -f $ca_directory/my-ca.crt ]
       then
-        cat /etc/pki/CA/my-ca.crt > $key_directory/certs/$server_name.bundle.pem
-        cat /etc/pki/CA/my-ca.crt > $key_directory/certs/$server_name.ca-chain.pem
+        cat $ca_directory/my-ca.crt > $key_directory/certs/$server_name.bundle.pem
+        cat $ca_directory/my-ca.crt > $key_directory/certs/$server_name.ca-chain.pem
       else
         # we do not have a ca for the self signed certificate, so using our own certificate
         cat $key_directory/certs/$server_name.crt > $key_directory/certs/$server_name.ca-chain.pem
