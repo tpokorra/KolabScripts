@@ -119,7 +119,7 @@ index 93716ee..9ec097b 100644
  
 +        // check for sieve rules that are active: vacation and forwarding
 +        if (in_array('sieve', $attributes) && in_array('mailrecipient', $result[$user_dn]['objectclass']) && empty($result[$user_dn]['mailforwardingaddress'])) {
-+             $result = collect_sieve_rules($result);
++             $result = $this->collect_sieve_rules($result);
 +        }
 +
          return $result;
