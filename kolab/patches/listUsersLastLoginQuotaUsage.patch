@@ -262,7 +262,7 @@ index 0faf286..4ea6363 100644
      );
  
      protected $list_attribs = array('displayname', 'cn');
-@@ -76,6 +78,131 @@ class kolab_client_task_user extends kolab_client_task
+@@ -76,6 +78,133 @@ class kolab_client_task_user extends kolab_client_task
          $this->output->set_object('taskcontent', $output);
      }
  
@@ -343,6 +343,7 @@ index 0faf286..4ea6363 100644
 +        $output .= "</table>\n";
 +        $this->output->set_object('taskcontent', $output);
 +        $this->output->add_translation('quota.unlimited');
++        $this->output->add_translation('quota.nomailbox');
 +        $this->output->add_translation('report.uid');
 +        $this->output->add_translation('report.name');
 +        $this->output->add_translation('report.email');
@@ -383,6 +384,7 @@ index 0faf286..4ea6363 100644
 +        $this->output->set_object('taskcontent', $output);
 +
 +        $this->output->add_translation('quota.unlimited');
++        $this->output->add_translation('quota.nomailbox');
 +        $this->output->add_translation('report.uid');
 +        $this->output->add_translation('report.name');
 +        $this->output->add_translation('report.accounts');
