@@ -158,7 +158,7 @@ diff --git a/lib/kolab_html.php b/lib/kolab_html.php
 index 911a239..e8596ad 100644
 --- a/lib/kolab_html.php
 +++ b/lib/kolab_html.php
-@@ -209,6 +209,61 @@ class kolab_html
+@@ -209,6 +209,63 @@ class kolab_html
          return self::input($attribs) . self::select($select);
      }
  
@@ -199,7 +199,7 @@ index 911a239..e8596ad 100644
 +            }
 +            else if ($attribs['value'] == 'unlimited') {
 +               $attribs['value'] = '#_#quota.unlimited';
-+            } else {
++            } else if (strpos($attribs['value'], ';') !== false) {
 +               $values = explode(';', $attribs['value']);
 +               $quota = array();
 +               $quota['usage'] = $values[0];
@@ -211,6 +211,8 @@ index 911a239..e8596ad 100644
 +               if ($quota['percentage'] >= 90) {
 +                   $attribs['style'] = 'background-color:red';
 +               }
++            } else {
++               $attribs['value'] = self::quota_to_read($attribs['value']);
 +            }
 +        }
 +        $readonly_input = self::input($attribs);
