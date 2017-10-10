@@ -1,9 +1,9 @@
 --- a/lib/api/kolab_api_service_users.php	2017-01-20 10:02:32.796156908 +0100
 +++ b/lib/api/kolab_api_service_users.php	2017-01-20 10:02:50.381156889 +0100
-@@ -35,6 +35,7 @@
-             'sn',
+@@ -36,6 +36,7 @@ class kolab_api_service_users extends kolab_api_service
              'givenname',
              'mail',
+             'alias',
 +            'userpassword',
              'objectclass',
              'uidnumber',
@@ -20,7 +20,7 @@
          kolab_client_api::configure($request);
 --- a/lib/api/kolab_api_service_users.php	2017-08-30 16:01:26.879336915 +0200
 +++ b/lib/api/kolab_api_service_users.php	2017-08-30 16:57:55.838333280 +0200
-@@ -76,6 +76,21 @@
+@@ -81,6 +82,21 @@ class kolab_api_service_users extends kolab_api_service
          $params = $this->parse_list_params($post);
          $search = $this->parse_list_search($post);
  
@@ -39,6 +39,6 @@
 +            }
 +        }
 +
-         $users = $auth->list_users(null, $attributes, $search, $params);
-         $users = $this->parse_list_result($users);
- 
+         if (in_array('tbitskolaboverallquota', $attributes)) {
+             // only get the domain admins
+             $users = $auth->list_admins(null, $attributes);
