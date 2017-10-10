@@ -45,7 +45,7 @@ index 4cda7cc..4173acb 100644
 +                $quota = @imap_get_quota($mbox, $folder);
 +                if ($quota === false) {
 +                    $boxes = imap_list($mbox, $imap_srv, '*');
-+                    if( array_search($imap_srv.$folder, $boxes) === false ) {
++                    if( empty($boxes) || array_search($imap_srv.$folder, $boxes) === false ) {
 +                        $quota = 'nomailbox';
 +                    } else {
 +                        $quota = 'unlimited';
