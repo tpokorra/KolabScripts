@@ -18,7 +18,7 @@
 +$LANG['user.tbitskolabintranettoken'] = 'Intranet token';
  $LANG['user.tbitskolabquotaused'] = 'Current quota usage';
  $LANG['quota.unlimited'] = "Unlimited";
- $LANG['user.title'] = 'Job Title';
+ $LANG['quota.nomailbox'] = "Mailbox does not exist yet";
 --- a/lib/locale/de_DE.php	2017-06-07 15:01:22.184199440 +0200
 +++ b/lib/locale/de_DE.php	2017-06-07 15:01:49.481200828 +0200
 @@ -464,6 +464,7 @@
@@ -28,7 +28,7 @@
 +$LANG['user.tbitskolabintranettoken'] = 'Intranet Anmeldung';
  $LANG['user.tbitskolabquotaused'] = 'Aktueller Speicherplatzverbrauch';
  $LANG['quota.unlimited'] = "Unbegrenzt";
- 
+ $LANG['quota.nomailbox'] = "Noch kein Postfach vorhanden"; 
 --- a/lib/client/kolab_client_task_user.php	2017-06-07 15:03:00.731204450 +0200
 +++ b/lib/client/kolab_client_task_user.php	2017-06-07 15:21:12.860259972 +0200
 @@ -171,6 +171,7 @@
