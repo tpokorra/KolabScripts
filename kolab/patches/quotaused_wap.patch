@@ -2,8 +2,8 @@ diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
 index 4cda7cc..4173acb 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -271,7 +271,7 @@ class LDAP extends Net_LDAP3 {
-         }
+@@ -271,7 +271,7 @@
+         $admin_readonly_attrs = array("tbitsKolabMaxAccounts", "tbitsKolabOverallQuota");
  
          if (in_array('tbitsKolabUser', $this->classes_allowed())) {
 -            $self_attrs = array_merge($self_attrs, array('tbitsKolabLastLogin'));
@@ -17,10 +17,10 @@ index 4cda7cc..4173acb 100644
  
 +        unset($attributes['tbitskolabquotaused']);
 +
- #	if (empty($attributes['tbitskolabisdomainadmin'])) {
+ #        if (empty($attributes['tbitskolabisdomainadmin'])) {
  #            $attributes['tbitskolabisdomainadmin'] = $user[$user_dn]['tbitskolabisdomainadmin'];
  #        }
-@@ -1155,7 +1157,40 @@ class LDAP extends Net_LDAP3 {
+@@ -1155,7 +1157,46 @@ class LDAP extends Net_LDAP3 {
  
          $this->read_prepare($attributes);
  
@@ -38,16 +38,22 @@ index 4cda7cc..4173acb 100644
 +            $imap_manager = $this->conf->get('cyrus-imap', 'admin_login');
 +            $imap_password = $this->conf->get('cyrus-imap', 'admin_password');
 +
-+            $mbox = imap_open("{" . $kolabhomeserver . ":" . $imap_port ."/imap/ssl/novalidate-cert}",
-+                    $imap_manager, $imap_password, OP_HALFOPEN);
++            $imap_srv = "{" . $kolabhomeserver . ":" . $imap_port ."/imap/ssl/novalidate-cert}";
++            $mbox = imap_open($imap_srv, $imap_manager, $imap_password, OP_HALFOPEN);
 +            if($mbox) {
-+                $quota = @imap_get_quota($mbox, "user/" . $result[$user_dn]['mail']);
-+                imap_close($mbox);
-+                if (empty($quota['limit'])) {
-+                    $quota = 'unlimited';
++                $folder = "user/" . $result[$user_dn]['mail'];
++                $quota = @imap_get_quota($mbox, $folder);
++                if ($quota === false) {
++                    $boxes = imap_list($mbox, $imap_srv, '*');
++                    if( array_search($imap_srv.$folder, $boxes) === false ) {
++                        $quota = 'nomailbox';
++                    } else {
++                        $quota = 'unlimited';
++                    }
 +                } else {
 +                    $quota = $quota['usage'].";".$quota['limit'];
 +                }
++                imap_close($mbox);
 +            }
 +            else {
 +                // use 'unknown' value
@@ -116,7 +122,7 @@ diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
 index 137b8c0..d7c4dd7 100644
 --- a/lib/kolab_client_task.php
 +++ b/lib/kolab_client_task.php
-@@ -914,6 +914,13 @@ class kolab_client_task
+@@ -914,6 +914,14 @@ class kolab_client_task
              $result['default'] = $field['default'];
              break;
  
@@ -124,6 +130,7 @@ index 137b8c0..d7c4dd7 100644
 +            $result['type']    = kolab_form::INPUT_TEXTQUOTAUSED;
 +            $result['default'] = $field['default'];
 +
++            $this->output->add_translation('quota.nomailbox');
 +            $this->output->add_translation('quota.unlimited');
 +            break;
 +
@@ -158,7 +165,7 @@ diff --git a/lib/kolab_html.php b/lib/kolab_html.php
 index 911a239..e8596ad 100644
 --- a/lib/kolab_html.php
 +++ b/lib/kolab_html.php
-@@ -209,6 +209,63 @@ class kolab_html
+@@ -209,6 +209,64 @@ class kolab_html
          return self::input($attribs) . self::select($select);
      }
  
@@ -196,8 +203,9 @@ index 911a239..e8596ad 100644
 +        if (!empty($attribs['value'])) {
 +            if ($attribs['value'] == 'unknown') { 
 +               $attribs['value'] = '';
-+            }
-+            else if ($attribs['value'] == 'unlimited') {
++            } else if ($attribs['value'] == 'nomailbox') {
++               $attribs['value'] = '#_#quota.nomailbox';
++            } else if ($attribs['value'] == 'unlimited') {
 +               $attribs['value'] = '#_#quota.unlimited';
 +            } else if (strpos($attribs['value'], ';') !== false) {
 +               $values = explode(';', $attribs['value']);
@@ -226,23 +234,25 @@ diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
 index e42ec2c..785208e 100644
 --- a/lib/locale/de_DE.php
 +++ b/lib/locale/de_DE.php
-@@ -459,4 +459,6 @@ $LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
+@@ -459,4 +459,7 @@ $LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
  $LANG['user.tbitskolabdefaultquota'] = 'Voreinstellung Quota für Benutzerkonten';
  $LANG['user.statistics'] = 'Info';
  $LANG['user.tbitskolablastlogin'] = 'Letzte erfolgreiche Anmeldung';
 +$LANG['user.tbitskolabquotaused'] = 'Aktueller Speicherplatzverbrauch';
 +$LANG['quota.unlimited'] = "Unbegrenzt";
++$LANG['quota.nomailbox'] = "Noch kein Postfach vorhanden";
  
 diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
 index b8a9502..f02bdf8 100644
 --- a/lib/locale/en_US.php
 +++ b/lib/locale/en_US.php
-@@ -446,6 +446,8 @@ $LANG['user.tbitskolabmaxaccounts'] = 'Maximum number of accounts';
+@@ -446,6 +446,9 @@ $LANG['user.tbitskolabmaxaccounts'] = 'Maximum number of accounts';
  $LANG['user.tbitskolaboverallquota'] = 'Overall Quota assigned';
  $LANG['user.tbitskolabdefaultquota'] = 'Default Quota for user accounts';
  $LANG['user.tbitskolablastlogin'] = 'Latest successful login';
 +$LANG['user.tbitskolabquotaused'] = 'Current quota usage';
 +$LANG['quota.unlimited'] = "Unlimited";
++$LANG['quota.nomailbox'] = "Mailbox does not exist yet";
  $LANG['user.title'] = 'Job Title';
  $LANG['user.type_id'] = 'Account type';
  $LANG['user.uid'] = 'Unique identity (UID)';

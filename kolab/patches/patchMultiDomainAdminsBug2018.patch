@@ -144,7 +144,7 @@ index 06aed37..0bff8ea 100644
  
          $user_dn = key($user);
  
-+#	if (empty($attributes['tbitskolabisdomainadmin'])) {
++#        if (empty($attributes['tbitskolabisdomainadmin'])) {
 +#            $attributes['tbitskolabisdomainadmin'] = $user[$user_dn]['tbitskolabisdomainadmin'];
 +#        }
 +
