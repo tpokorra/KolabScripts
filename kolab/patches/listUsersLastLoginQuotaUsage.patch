@@ -1,5 +1,21 @@
+diff --git a/lib/Auth.php b/lib/Auth.php
+index 591dd3a..725c2d4 100644
+--- a/lib/Auth.php
++++ b/lib/Auth.php
+@@ -309,6 +309,11 @@ class Auth {
+         return $this->auth_instance($domain)->list_users($attributes, $search, $params);
+     }
+ 
++    public function list_admins($domain = NULL, $attributes = array())
++    {
++        return $this->auth_instance($domain)->list_admins($attributes);
++    }
++
+     public function list_groups($domain = NULL, $attributes = array(), $search = array(), $params = array())
+     {
+         return $this->auth_instance($domain)->list_groups($attributes, $search, $params);
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index 93716ee..9ec097b 100644
+index 93716ee..90c3673 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
 @@ -24,6 +24,7 @@
@@ -27,7 +43,45 @@ index 93716ee..9ec097b 100644
          if (!$this->set_cache_data($ckey, $result)) {
               $this->icache[$ckey] = $result;
          }
-@@ -1144,6 +1155,72 @@ class LDAP extends Net_LDAP3 {
+@@ -861,6 +872,37 @@ class LDAP extends Net_LDAP3 {
+         return $this->_list($base_dn, $filter, 'sub', $attributes, $search, $params);
+     }
+ 
++    public function list_admins($attributes = array(), $domain = null)
++    {
++        if (empty($domain)) {
++            $domain = $this->domain;
++        }
++
++        $this->_log(LOG_DEBUG, "Auth::LDAP::list_admins(". var_export($attributes, true) . ", ".$domain.")");
++        $domaininfo = $this->domain_info($domain);
++        $result = array ('count' => 0, 'list' => array());
++        list($firstKey) = array_keys($domaininfo);
++        foreach ($domaininfo[$firstKey]['domainadmin'] as $domainadmin_dn) {
++             if ($domainadmin_dn == "cn=Directory Manager") {
++                 // don't show the Directory Manager in the list
++                 //$result['count']++;
++                 //$result['list'][$domainadmin_dn] = array('uid' => 'cn=Directory Manager', 'cn' => 'Directory Manager');
++             } else {
++                 $result['count']++;
++                 $userinfo = $this->user_info($domainadmin_dn, $attributes);
++                 foreach($userinfo as $domainadmin => $value) {
++                     $result['list'][$domainadmin] = $value;
++                     $result['list'][$domainadmin]['tbitskolaboverallquota'] = $this->domainadmin_get_user_quota($domainadmin,'').
++                         ";".$result['list'][$domainadmin]['tbitskolaboverallquota'];
++                     $result['list'][$domainadmin]['tbitskolabmaxaccounts'] = $this->domainadmin_get_number_of_accounts($domainadmin).
++                         " / ".$result['list'][$domainadmin]['tbitskolabmaxaccounts'];
++                 }
++             }
++        }
++
++        return $result;
++    }
++
+     public function organizationalunit_add($attrs, $typeid = null)
+     {
+         $base_dn = $this->entry_base_dn('ou', $typeid, $attrs);
+@@ -1144,6 +1186,72 @@ class LDAP extends Net_LDAP3 {
          return $this->entry_delete($user);
      }
  
@@ -100,7 +154,7 @@ index 93716ee..9ec097b 100644
      public function user_info($user, $attributes = array('*'))
      {
          $this->_log(LOG_DEBUG, "Auth::LDAP::user_info() for user " . var_export($user, true));
-@@ -1155,6 +1232,12 @@ class LDAP extends Net_LDAP3 {
+@@ -1155,6 +1263,12 @@ class LDAP extends Net_LDAP3 {
              return false;
          }
  
@@ -113,7 +167,7 @@ index 93716ee..9ec097b 100644
          $this->read_prepare($attributes);
  
          $result = $this->_read($user_dn, $attributes);
-@@ -1189,6 +1272,11 @@ class LDAP extends Net_LDAP3 {
+@@ -1189,6 +1303,11 @@ class LDAP extends Net_LDAP3 {
              $result[$user_dn]['tbitskolabquotaused'] = $quota;
          }
  
@@ -126,25 +180,26 @@ index 93716ee..9ec097b 100644
  
      }
 diff --git a/lib/api/kolab_api_service_user.php b/lib/api/kolab_api_service_user.php
-index 7b230d8..dfdf02b 100644
+index 7b230d8..4c3394c 100644
 --- a/lib/api/kolab_api_service_user.php
 +++ b/lib/api/kolab_api_service_user.php
-@@ -64,6 +64,10 @@ class kolab_api_service_user extends kolab_api_service
+@@ -64,6 +64,11 @@ class kolab_api_service_user extends kolab_api_service
              $rights['find'] = "r";
          }
  
 +        if (in_array('report', $effective_rights['entryLevelRights'])) {
-+            $rights['report'] = "r";
++            $rights['userreport'] = "r";
++            $rights['adminreport'] = "r";
 +        }
 +
          $rights['effective_rights'] = "r";
  
          return $rights;
 diff --git a/lib/api/kolab_api_service_users.php b/lib/api/kolab_api_service_users.php
-index 73f3890..e117b0f 100644
+index 73f3890..1a59a10 100644
 --- a/lib/api/kolab_api_service_users.php
 +++ b/lib/api/kolab_api_service_users.php
-@@ -35,12 +35,17 @@ class kolab_api_service_users extends kolab_api_service
+@@ -35,12 +35,20 @@ class kolab_api_service_users extends kolab_api_service
              'sn',
              'givenname',
              'mail',
@@ -157,12 +212,28 @@ index 73f3890..e117b0f 100644
              'entrydn',
 +            'tbitskolablastlogin',
 +            'tbitskolabquotaused',
++            'tbitskolaboverallquota',
++            'tbitskolabdefaultquota',
++            'tbitskolabmaxaccounts',
 +            'mailForwardingAddress',
 +            'sieve',
          );
  
      /**
-@@ -78,6 +83,15 @@ class kolab_api_service_users extends kolab_api_service
+@@ -73,11 +81,26 @@ class kolab_api_service_users extends kolab_api_service
+         $params = $this->parse_list_params($post);
+         $search = $this->parse_list_search($post);
+ 
+-        $users = $auth->list_users(null, $attributes, $search, $params);
+-        $users = $this->parse_list_result($users);
++        if (in_array('tbitskolaboverallquota', $attributes)) {
++            // only get the domain admins
++            $users = $auth->list_admins(null, $attributes);
++            $users = $this->parse_list_result($users);
++        } else {
++            $users = $auth->list_users(null, $attributes, $search, $params);
++            $users = $this->parse_list_result($users);
++        }
  
          Log::trace("users.list result: " . var_export($users, TRUE));
  
@@ -179,25 +250,26 @@ index 73f3890..e117b0f 100644
      }
  
 diff --git a/lib/client/kolab_client_task_user.php b/lib/client/kolab_client_task_user.php
-index 0faf286..3a1d677 100644
+index 0faf286..4ea6363 100644
 --- a/lib/client/kolab_client_task_user.php
 +++ b/lib/client/kolab_client_task_user.php
-@@ -28,6 +28,7 @@ class kolab_client_task_user extends kolab_client_task
+@@ -28,6 +28,8 @@ class kolab_client_task_user extends kolab_client_task
  
      protected $menu = array(
          'add'  => 'user.add',
-+        'report' => 'user.report',
++        'userreport' => 'user.userreport',
++        'adminreport' => 'user.adminreport',
      );
  
      protected $list_attribs = array('displayname', 'cn');
-@@ -76,6 +77,91 @@ class kolab_client_task_user extends kolab_client_task
+@@ -76,6 +78,131 @@ class kolab_client_task_user extends kolab_client_task
          $this->output->set_object('taskcontent', $output);
      }
  
-+    public function action_report()
++    public function action_userreport()
 +    {
-+        // TODO: only show this to domain admins
-+        $output = "<table><tr><th>#_#report.uid</th><th>#_#report.name</th><th>#_#report.email</th><th>#_#report.forward</th><th>#_#report.quotausage</th><th>#_#report.lastlogin</th></tr>\n";
++        // only domain admins and users with role kolab-admin and the Directory Manager have access to this report
++        $output = "<table class='list'><tr><th>#_#report.uid</th><th>#_#report.name</th><th>#_#report.email</th><th>#_#report.forward</th><th>#_#report.quotausage</th><th>#_#report.lastlogin</th></tr>\n";
 +
 +        // Get all users within the current domain, and their quota usage and last login data and some more information
 +        $result = $this->api_post('users.list', null, 
@@ -257,14 +329,14 @@ index 0faf286..3a1d677 100644
 +
 +            // see https://github.com/TBits/KolabScripts/blob/master/kolab/patches/quotaused_wap.patch
 +            if (!empty($user['mailforwardingaddress'])) {
-+                $output .= "<tr><td>$uid</td><td>$name</td><td>$email</td><td>Mail forwarding to:</td><td colspan='2'>$forward</td></tr>\n";
++                $output .= "<tr class='selectable'><td>$uid</td><td>$name</td><td>$email</td><td>Mail forwarding to:</td><td colspan='2'>$forward</td></tr>\n";
 +            } else if (empty($user['mail'])) {
-+                // TODO show limits for this domain admin
-+                // TODO show domain admins at the top???
-+                $output .= "<tr><td>$uid</td><td>$name</td><td>$email</td><td colspan='3'>Domain Admin</td></tr>\n";
++                // do not show domain admins in this list
 +            } else {
 +                $quota = kolab_html::inputquotaused(array('value' => $user['tbitskolabquotaused']));
-+                $output .= "<tr><td>$uid</td><td>$name</td><td>$email</td><td>$sieve</td><td>$quota</td><td>$lastlogin</td></tr>\n";
++                $output .= "<tr class='selectable'><td>$uid</td><td>$name</td><td>$email</td><td>$sieve</td>".
++                    "<td style='text-align:center'>$quota</td>".
++                    "<td>$lastlogin</td></tr>\n";
 +            }
 +        }
 +
@@ -279,40 +351,88 @@ index 0faf286..3a1d677 100644
 +        $this->output->add_translation('report.lastlogin');
 +    }
 +
++    public function action_adminreport() {
++        // only domain admins and users with role kolab-admin and the Directory Manager have access to this report
++        $output = "<table class='list'><tr><th>#_#report.uid</th><th>#_#report.name</th><th>#_#report.accounts</th><th>#_#report.quotaassigned</th><th>#_#report.defaultquota</th><th>#_#report.lastlogin</th></tr>\n";
++
++        // Get all domain admins linked to the current domain, and their quota settings and last login data and some more information
++        $result = $this->api_post('users.list', null,
++                    array('attributes' => array('uid', 'cn', 'tbitskolaboverallquota', 'tbitskolabdefaultquota', 'tbitskolabmaxaccounts', 'tbitskolablastlogin', 'tbitskolabquotaused')));
++        $userdata = $result->get();
++
++        foreach ($userdata['list'] as $longuid => $user) {
++            $name = $user['cn'];
++            $uid = $user['uid'];
++
++            if (!empty($user['tbitskolablastlogin'])) {
++                $lastlogin = date('d.m.Y H:i:s', $user['tbitskolablastlogin']);
++            } else {
++                $lastlogin = "";
++            }
++
++            $overallquota = kolab_html::inputquotaused(array('value' => $user['tbitskolaboverallquota']));
++            $defaultquota = kolab_html::inputquotaused(array('value' => $user['tbitskolabdefaultquota']));
++            $output .= "<tr class='selectable'><td>$uid</td><td>$name</td>".
++                "<td style='text-align:center'>".$user['tbitskolabmaxaccounts']."</td>".
++                "<td style='text-align:center'>".$overallquota."</td>".
++                "<td style='text-align:center'>".$defaultquota."</td>".
++                "<td>$lastlogin</td></tr>\n";
++        }
++
++        $output .= "</table>\n";
++        $this->output->set_object('taskcontent', $output);
++
++        $this->output->add_translation('quota.unlimited');
++        $this->output->add_translation('report.uid');
++        $this->output->add_translation('report.name');
++        $this->output->add_translation('report.accounts');
++        $this->output->add_translation('report.defaultquota');
++        $this->output->add_translation('report.quotaassigned');
++        $this->output->add_translation('report.lastlogin');
++    }
++
      private function user_form($attribs, $data = array())
      {
          if (empty($attribs['id'])) {
 diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
-index 785208e..b301a4f 100644
+index 785208e..cae58c5 100644
 --- a/lib/locale/de_DE.php
 +++ b/lib/locale/de_DE.php
-@@ -434,6 +434,13 @@ $LANG['user.postalcode'] = 'Postleitzahl';
+@@ -434,6 +434,17 @@ $LANG['user.postalcode'] = 'Postleitzahl';
  $LANG['user.postbox'] = 'Postfach';
  $LANG['user.postcode'] = 'Postleitzahl';
  $LANG['user.preferredlanguage'] = 'Muttersprache';
-+$LANG['user.report'] = 'Übersicht';
++$LANG['user.userreport'] = 'Übersicht über Benutzer';
++$LANG['user.adminreport'] = 'Administratoren';
 +$LANG['report.uid'] = "Benutzername";
 +$LANG['report.name'] = "Name";
 +$LANG['report.email'] = "E-Mail";
 +$LANG['report.forward'] = "Weiterleitungen/Urlaub";
++$LANG['report.defaultquota'] = "Quota Voreinstellung";
++$LANG['report.accounts'] = "Zugewiesene Benutzerkonten";
++$LANG['report.quotaassigned'] = "Zugewiesener Speicherplatz";
 +$LANG['report.quotausage'] = "Speicherverbrauch";
 +$LANG['report.lastlogin'] = "Letzter Login";
  $LANG['user.room'] = 'Raumnummer';
  $LANG['user.sn'] = 'Nachname';
  $LANG['user.street'] = 'Straße';
 diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
-index f02bdf8..a10564f 100644
+index f02bdf8..af2277a 100644
 --- a/lib/locale/en_US.php
 +++ b/lib/locale/en_US.php
-@@ -435,6 +435,13 @@ $LANG['user.postalcode'] = 'Postal Code';
+@@ -435,6 +435,17 @@ $LANG['user.postalcode'] = 'Postal Code';
  $LANG['user.postbox'] = 'Postal box';
  $LANG['user.postcode'] = 'Postal code';
  $LANG['user.preferredlanguage'] = 'Native tongue';
-+$LANG['user.report'] = 'Report';
++$LANG['user.userreport'] = 'Detailed Users List';
++$LANG['user.adminreport'] = 'Admins List';
 +$LANG['report.uid'] = "UID";
 +$LANG['report.name'] = "Name";
 +$LANG['report.email'] = "E-Mail";
 +$LANG['report.forward'] = "Forwards/Vacation";
++$LANG['report.defaultquota'] = "Default Quota";
++$LANG['report.accounts'] = "Assigned User accounts";
++$LANG['report.quotaassigned'] = "Quota Assigned";
 +$LANG['report.quotausage'] = "Quota Usage";
 +$LANG['report.lastlogin'] = "Last Login";
  $LANG['user.room'] = 'Room number';
