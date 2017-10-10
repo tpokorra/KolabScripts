@@ -411,10 +411,10 @@ index a48d44a..16475db 100644
 +                    }
 +                }
 +
-+                $domainadmin_dn = "dc=" . implode(',dc=', explode('.', $domain_attrs[$dna][0]));
-+                $auth = Auth::get_instance($domainadmin_dn);
++                $domain_dn = "dc=" . implode(',dc=', explode('.', $domain_attrs[$dna][0]));
++                $auth = Auth::get_instance($domain_dn);
 +
-+                if ($domainadmins = $auth->search($domainadmin_dn, $domainAdminFilter, 'sub', array('dn', 'displayname', 'mail'))) {
++                if ($domainadmins = $auth->search($domain_dn, $domainAdminFilter, 'sub', array('dn', 'displayname', 'mail'))) {
 +                    foreach ($domainadmins->entries(true) as $domainadmin_dn => $domainadmin_attrs) {
 +                        $ret = $domainadmin_attrs['displayname'];
 +                        if (!empty($domainadmin_attrs['mail'])) {
@@ -440,10 +440,10 @@ index a48d44a..16475db 100644
 +                $domain_attrs[$dna] = (array)($domain_attrs[$dna]);
 +            }
 +
-+            $domainadmin_dn = "dc=" . implode(',dc=', explode('.', $domain_attrs[$dna][0]));
-+            $auth = Auth::get_instance($domainadmin_dn);
++            $domain_dn = "dc=" . implode(',dc=', explode('.', $domain_attrs[$dna][0]));
++            $auth = Auth::get_instance($domain_dn);
 +
-+            if ($domainadmins = $auth->search($domainadmin_dn, $domainAdminFilter, 'sub', array('dn', 'displayname', 'mail'))) {
++            if ($domainadmins = $auth->search($domain_dn, $domainAdminFilter, 'sub', array('dn', 'displayname', 'mail'))) {
 +                foreach ($domainadmins->entries(true) as $domainadmin_dn => $domainadmin_attrs) {
 +                    $ret = $domainadmin_attrs['displayname'];
 +                    if (!empty($domainadmin_attrs['mail'])) {
