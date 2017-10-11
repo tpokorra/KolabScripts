@@ -265,7 +265,7 @@ index 0faf286..4ea6363 100644
      );
  
      protected $list_attribs = array('displayname', 'cn');
-@@ -76,6 +78,135 @@ class kolab_client_task_user extends kolab_client_task
+@@ -76,6 +78,134 @@ class kolab_client_task_user extends kolab_client_task
          $this->output->set_object('taskcontent', $output);
      }
  
