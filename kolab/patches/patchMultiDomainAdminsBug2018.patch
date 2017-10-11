@@ -393,7 +393,7 @@ diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_servic
 index a17595e..3354ca1 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1153,6 +1153,82 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1153,6 +1153,78 @@ class kolab_api_service_form_value extends kolab_api_service
          );
      }
  
@@ -426,12 +426,10 @@ index a17595e..3354ca1 100644
 +                $domain_dn = "dc=" . implode(',dc=', explode('.', $domain_attrs[$dna][0]));
 +                $auth = Auth::get_instance($domain_dn);
 +
-+                if ($domainadmins = $auth->search($domain_dn, $domainAdminFilter, 'sub', array('dn', 'displayname', 'mail'))) {
++                if ($domainadmins = $auth->search($domain_dn, $domainAdminFilter, 'sub', array('dn', 'displayname', 'uid'))) {
 +                    foreach ($domainadmins->entries(true) as $domainadmin_dn => $domainadmin_attrs) {
 +                        $ret = $domainadmin_attrs['displayname'];
-+                        if (!empty($domainadmin_attrs['mail'])) {
-+                            $ret .= ' <' . $domainadmin_attrs['mail'] . '>';
-+                        }
++                        $ret .= ' <'.$domainadmin_attrs['uid'].'@'.$domain_attrs[$dna][0].'>';
 +                        foreach ($postdata['list'] as $id => $v) {
 +                            if ($domainadmin_dn == $v) {
 +                               $_domainadmins[$domainadmin_dn] = $ret;
@@ -455,12 +453,10 @@ index a17595e..3354ca1 100644
 +            $domain_dn = "dc=" . implode(',dc=', explode('.', $domain_attrs[$dna][0]));
 +            $auth = Auth::get_instance($domain_dn);
 +
-+            if ($domainadmins = $auth->search($domain_dn, $domainAdminFilter, 'sub', array('dn', 'displayname', 'mail'))) {
++            if ($domainadmins = $auth->search($domain_dn, $domainAdminFilter, 'sub', array('dn', 'displayname', 'uid'))) {
 +                foreach ($domainadmins->entries(true) as $domainadmin_dn => $domainadmin_attrs) {
 +                    $ret = $domainadmin_attrs['displayname'];
-+                    if (!empty($domainadmin_attrs['mail'])) {
-+                        $ret .= ' <' . $domainadmin_attrs['mail'] . '>';
-+                    }
++                    $ret .= ' <'.$domainadmin_attrs['uid'].'@'.$domain_attrs[$dna][0].'>';
 +                    if (stripos($ret, $postdata['search']) !== false) {
 +                        $_domainadmins[$domainadmin_dn] = $ret;
 +                    }
@@ -476,7 +472,7 @@ index a17595e..3354ca1 100644
      private function select_options_preferredlanguage($postdata, $attribs = array())
      {
          $options = $this->_select_options_from_db('preferredlanguage');
-@@ -1311,7 +1387,7 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1311,7 +1383,7 @@ class kolab_api_service_form_value extends kolab_api_service
          return 'OK';
      }
  
@@ -485,7 +481,7 @@ index a17595e..3354ca1 100644
      {
          // convert MB/GB into KB
          if (preg_match('/^([0-9]+)\s*(KB|MB|GB)$/i', $value, $m)) {
-@@ -1321,10 +1397,24 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1321,10 +1393,24 @@ class kolab_api_service_form_value extends kolab_api_service
              case 'GB': $value = $m[1] * 1024 * 1024; break;
              }
          }
@@ -511,7 +507,7 @@ index a17595e..3354ca1 100644
      private function validate_mailalternateaddress($value, $postdata = array(), $validation_type = null)
      {
          $conf = Conf::get_instance();
-@@ -1702,6 +1792,21 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1702,6 +1778,21 @@ class kolab_api_service_form_value extends kolab_api_service
          if (in_array($email_domain, $this->_get_valid_domains($my_primary_domain))) {
              $valid = true;
          }
