@@ -759,3 +759,66 @@ index e36977d..fbb51c9 100644
      }
  
 
+diff --git a/lib/kolab_form.php b/lib/kolab_form.php
+index 51a2ebf..f1da879 100644
+--- a/lib/kolab_form.php
++++ b/lib/kolab_form.php
+@@ -251,7 +251,7 @@ class kolab_form
+                     'body'  => $element['label'],
+                 ),
+                 1 => array(
+-                    'class' => 'value',
++                    'class' => 'value style'.$element['name'],
+                     'body'  => self::get_element($element),
+                 ),
+             );
+diff --git a/public_html/js/kolab_admin.js b/public_html/js/kolab_admin.js
+index 9c19e92..ddcec28 100644
+--- a/public_html/js/kolab_admin.js
++++ b/public_html/js/kolab_admin.js
+@@ -656,6 +656,8 @@ function kolab_admin()
+     ul.innerHTML = '';
+     // move the results pane right under the input box
+     this.ac_pane.css({left: (pos.left - 1)+'px', top: (pos.top + this.ac_input.offsetHeight - 1)+'px', display: 'none'});
++    // same width as input box
++    this.ac_pane.css({width: ($(this.ac_input).width() - 18) + 'px'});
+ 
+     // add each result line to the list
+     for (i in result) {
+diff --git a/public_html/skins/default/style.css b/public_html/skins/default/style.css
+index 5a8c598..5c5533b 100644
+--- a/public_html/skins/default/style.css
++++ b/public_html/skins/default/style.css
+@@ -630,6 +630,10 @@ span.listarea {
+   color: black;
+ }
+ 
++td.styledomainadmin span.listarea {
++  width: 500px;
++}
++
+ span.listelement {
+   display: block;
+   padding: 0;
+@@ -654,6 +658,10 @@ span.listelement input {
+   line-height: 17px;
+ }
+ 
++td.styledomainadmin span.listelement input {
++  width: 500px;
++}
++
+ span.listarea.disabled span.listelement input,
+ span.listarea.readonly span.listelement input {
+   width: 370px;
+@@ -727,6 +735,10 @@ span.listarea.autocomplete span.listelement input.autocomplete {
+   border-radius: 0;
+ }
+ 
++td.styledomainadmin .autocomplete > span.listelement input {
++  width: 500px;
++}
++
+ .autocomplete > span.listelement span.actions {
+   width: 18px;
+ }
