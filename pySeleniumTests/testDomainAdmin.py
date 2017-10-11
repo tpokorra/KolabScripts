@@ -30,7 +30,7 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         kolabWAPhelper.load_user(username)
 
         # check if the user type is actually a normal kolab user
-        elem = self.driver.find_element_by_xpath("//form[@id='user-form']/fieldset/table/tbody/tr/td[@class='value']")
+        elem = self.driver.find_element_by_xpath("//form[@id='user-form']/fieldset/table/tbody/tr/td[contains(@class, 'value')]")
         self.assertEquals("Kolab User", elem.text, "user type should be Kolab User, but was " + elem.text)
 
         kolabWAPhelper.logout_kolab_wap()
@@ -73,7 +73,7 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         kolabWAPhelper.wait_loading(initialwait = 1)
 
         # check if the user type is a Kolab Domain Administrator
-        elem = self.driver.find_element_by_xpath("//form[@id='user-form']/fieldset/table/tbody/tr/td[@class='value']")
+        elem = self.driver.find_element_by_xpath("//form[@id='user-form']/fieldset/table/tbody/tr/td[contains(@class,'value')]")
         self.assertEquals("Domain Administrator", elem.text, "user type should be Domain Administrator, but was " + elem.text)
 
         kolabWAPhelper.logout_kolab_wap()
@@ -90,7 +90,7 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         kolabWAPhelper.logout_kolab_wap()
 
         kolabWAPhelper.login_kolab_wap("/kolab-webadmin", emailLogin, password)
-        elem = self.driver.find_element_by_xpath("//div[@class=\"settings\"]")
+        elem = self.driver.find_element_by_xpath("//div[contains(@class, 'settings')]")
         elem.click()
         self.kolabWAPhelper.wait_loading()
         elem = self.driver.find_element_by_link_text("Domain Administrator")
@@ -171,7 +171,7 @@ class KolabWAPDomainAdmin(unittest.TestCase):
 
         didFail=True
         try:
-          elem = self.driver.find_element_by_xpath("//span[@class=\"formtitle\"]")
+          elem = self.driver.find_element_by_xpath("//span[contains(@class, 'formtitle')]")
           didFail=False
         except:
           # all is fine, there should not be a Add User title, but an empty box
