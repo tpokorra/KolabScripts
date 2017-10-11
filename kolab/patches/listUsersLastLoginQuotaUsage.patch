@@ -43,7 +43,7 @@ index 93716ee..90c3673 100644
          if (!$this->set_cache_data($ckey, $result)) {
               $this->icache[$ckey] = $result;
          }
-@@ -861,6 +872,37 @@ class LDAP extends Net_LDAP3 {
+@@ -861,6 +872,40 @@ class LDAP extends Net_LDAP3 {
          return $this->_list($base_dn, $filter, 'sub', $attributes, $search, $params);
      }
  
@@ -67,6 +67,9 @@ index 93716ee..90c3673 100644
 +                 $userinfo = $this->user_info($domainadmin_dn, $attributes);
 +                 foreach($userinfo as $domainadmin => $value) {
 +                     $result['list'][$domainadmin] = $value;
++                     $domain = substr($domainadmin_dn, strpos($domainadmin_dn, ',ou=People,dc=') + strlen(',ou=People,dc='));
++                     $domain = str_replace(',dc=', '.', $domain);
++                     $result['list'][$domainadmin]['domain'] = $domain;
 +                     $result['list'][$domainadmin]['tbitskolaboverallquota'] = $this->domainadmin_get_user_quota($domainadmin,'').
 +                         ";".$result['list'][$domainadmin]['tbitskolaboverallquota'];
 +                     $result['list'][$domainadmin]['tbitskolabmaxaccounts'] = $this->domainadmin_get_number_of_accounts($domainadmin).
@@ -81,7 +84,7 @@ index 93716ee..90c3673 100644
      public function organizationalunit_add($attrs, $typeid = null)
      {
          $base_dn = $this->entry_base_dn('ou', $typeid, $attrs);
-@@ -1144,6 +1186,72 @@ class LDAP extends Net_LDAP3 {
+@@ -1144,6 +1189,72 @@ class LDAP extends Net_LDAP3 {
          return $this->entry_delete($user);
      }
  
@@ -154,7 +157,7 @@ index 93716ee..90c3673 100644
      public function user_info($user, $attributes = array('*'))
      {
          $this->_log(LOG_DEBUG, "Auth::LDAP::user_info() for user " . var_export($user, true));
-@@ -1155,6 +1263,12 @@ class LDAP extends Net_LDAP3 {
+@@ -1155,6 +1266,12 @@ class LDAP extends Net_LDAP3 {
              return false;
          }
  
@@ -167,7 +170,7 @@ index 93716ee..90c3673 100644
          $this->read_prepare($attributes);
  
          $result = $this->_read($user_dn, $attributes);
-@@ -1189,6 +1303,11 @@ class LDAP extends Net_LDAP3 {
+@@ -1189,6 +1306,11 @@ class LDAP extends Net_LDAP3 {
              $result[$user_dn]['tbitskolabquotaused'] = $quota;
          }
  
@@ -262,7 +265,7 @@ index 0faf286..4ea6363 100644
      );
  
      protected $list_attribs = array('displayname', 'cn');
-@@ -76,6 +78,133 @@ class kolab_client_task_user extends kolab_client_task
+@@ -76,6 +78,135 @@ class kolab_client_task_user extends kolab_client_task
          $this->output->set_object('taskcontent', $output);
      }
  
@@ -364,6 +367,7 @@ index 0faf286..4ea6363 100644
 +        foreach ($userdata['list'] as $longuid => $user) {
 +            $name = $user['cn'];
 +            $uid = $user['uid'];
++            $domain = $user['domain'];
 +
 +            if (!empty($user['tbitskolablastlogin'])) {
 +                $lastlogin = date('d.m.Y H:i:s', $user['tbitskolablastlogin']);
@@ -373,7 +377,7 @@ index 0faf286..4ea6363 100644
 +
 +            $overallquota = kolab_html::inputquotaused(array('value' => $user['tbitskolaboverallquota']));
 +            $defaultquota = kolab_html::inputquotaused(array('value' => $user['tbitskolabdefaultquota']));
-+            $output .= "<tr class='selectable'><td>$uid</td><td>$name</td>".
++            $output .= "<tr class='selectable'><td>$uid @ $domain</td><td>$name</td>".
 +                "<td style='text-align:center'>".$user['tbitskolabmaxaccounts']."</td>".
 +                "<td style='text-align:center'>".$overallquota."</td>".
 +                "<td style='text-align:center'>".$defaultquota."</td>".
