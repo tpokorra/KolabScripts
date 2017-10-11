@@ -35,10 +35,11 @@ class KolabWAPListQuotaReport(unittest.TestCase):
         # check if report is available
         driver.find_element_by_link_text("Users").click()
         kolabWAPhelper.wait_loading()
-        self.assertEquals(-1, driver.page_source.find('href="#report"'), "should not display link to Report")
+        self.assertEquals(-1, driver.page_source.find('href="#userreport"'), "should not display link to User Report")
+        self.assertEquals(-1, driver.page_source.find('href="#adminreport"'), "should not display link to Admin Report")
 
         # should get empty page when going to report directly
-        driver.execute_script("return kadm.command('user.report', '', this)");
+        driver.execute_script("return kadm.command('user.userreport', '', this)");
         kolabWAPhelper.wait_loading(1)
         # TODO currently this is still possible. but the user can see quota and last login anyway of other users at the moment
         #self.assertEquals(-1, driver.page_source.find('<th>Quota Usage</th>'), "should not display the Report");
@@ -64,10 +65,11 @@ class KolabWAPListQuotaReport(unittest.TestCase):
         # check if report is available
         driver.find_element_by_link_text("Users").click()
         kolabWAPhelper.wait_loading()
-        self.assertNotEquals(-1, driver.page_source.find('href="#report"'), "should display link to Report")
+        self.assertNotEquals(-1, driver.page_source.find('href="#userreport"'), "should display link to User Report")
+        self.assertNotEquals(-1, driver.page_source.find('href="#adminreport"'), "should display link to Admin Report")
 
         # should see the report
-        driver.execute_script("return kadm.command('user.report', '', this)");
+        driver.execute_script("return kadm.command('user.userreport', '', this)");
         kolabWAPhelper.wait_loading(1)
         self.assertNotEquals(-1, driver.page_source.find('<th>Quota Usage</th>'), "should display the Report");
 
@@ -91,10 +93,11 @@ class KolabWAPListQuotaReport(unittest.TestCase):
         # check if report is available
         driver.find_element_by_link_text("Users").click()
         kolabWAPhelper.wait_loading()
-        self.assertNotEquals(-1, driver.page_source.find('href="#report"'), "should display link to Report")
+        self.assertNotEquals(-1, driver.page_source.find('href="#userreport"'), "should display link to User Report")
+        self.assertNotEquals(-1, driver.page_source.find('href="#adminreport"'), "should display link to Admin Report")
 
         # should see the report
-        driver.execute_script("return kadm.command('user.report', '', this)");
+        driver.execute_script("return kadm.command('user.userreport', '', this)");
         kolabWAPhelper.wait_loading(1)
         self.assertNotEquals(-1, driver.page_source.find('<th>Quota Usage</th>'), "should display the Report");
 
@@ -111,10 +114,11 @@ class KolabWAPListQuotaReport(unittest.TestCase):
         # check if report is available
         driver.find_element_by_link_text("Users").click()
         kolabWAPhelper.wait_loading()
-        self.assertNotEquals(-1, driver.page_source.find('href="#report"'), "should display link to Report")
+        self.assertNotEquals(-1, driver.page_source.find('href="#userreport"'), "should display link to User Report")
+        self.assertNotEquals(-1, driver.page_source.find('href="#adminreport"'), "should display link to Admin Report")
 
         # should see the report
-        driver.execute_script("return kadm.command('user.report', '', this)");
+        driver.execute_script("return kadm.command('user.userreport', '', this)");
         kolabWAPhelper.wait_loading(1)
         self.assertNotEquals(-1, driver.page_source.find('<th>Quota Usage</th>'), "should display the Report");
 
