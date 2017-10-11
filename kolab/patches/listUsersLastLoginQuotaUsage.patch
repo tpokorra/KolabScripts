@@ -100,7 +100,7 @@ index 93716ee..90c3673 100644
 +            return $result;
 +        }
 +
-+        $mail = $result[$user_dn]['mail'];
++        $mail = $result['mail'];
 +        if (is_array($mail)) {
 +            $mail = $mail[0];
 +        }
@@ -149,7 +149,7 @@ index 93716ee..90c3673 100644
 +            $active_sieve_rules .= "<br/>";
 +        }
 +
-+        $result[$user_dn]['sieve'] = $active_sieve_rules;
++        $result['sieve'] = $active_sieve_rules;
 +
 +        return $result;
 +    }
@@ -176,7 +176,7 @@ index 93716ee..90c3673 100644
  
 +        // check for sieve rules that are active: vacation and forwarding
 +        if (in_array('sieve', $attributes) && in_array('mailrecipient', $result[$user_dn]['objectclass']) && empty($result[$user_dn]['mailforwardingaddress'])) {
-+             $result = $this->collect_sieve_rules($result);
++             $result[$user_dn] = $this->collect_sieve_rules($result[$user_dn]);
 +        }
 +
          return $result;
