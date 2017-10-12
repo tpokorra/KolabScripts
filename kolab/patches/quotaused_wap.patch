@@ -56,7 +56,7 @@ index 1321960..e4a919e 100644
 +        }
 +        $folder = "user/" . $result['mail'];
 +
-+        $ckey = $kolabhomeserver."_".$folder;
++        $ckey = "quota_".$kolabhomeserver."_".$folder;
 +
 +        // use memcache
 +        if ($result = $this->get_cache_data($ckey)) {
