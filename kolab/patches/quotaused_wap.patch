@@ -33,7 +33,7 @@ index 1321960..e4a919e 100644
 +                $kolabhomeserver = "localhost";
 +            }
 +            $folder = "user/" . $user[$user_dn]['mail'];
-+            $ckey = $kolabhomeserver."_".$folder;
++            $ckey = "quota_".$kolabhomeserver."_".$folder;
 +
 +            // cache for one second to reset the value
 +            $quota = "invalid";
