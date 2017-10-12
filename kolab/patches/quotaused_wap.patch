@@ -1,8 +1,8 @@
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index 4cda7cc..4173acb 100644
+index 1321960..e4a919e 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -271,7 +271,7 @@
+@@ -271,7 +271,7 @@ class LDAP extends Net_LDAP3 {
          $admin_readonly_attrs = array("tbitsKolabMaxAccounts", "tbitsKolabOverallQuota");
  
          if (in_array('tbitsKolabUser', $this->classes_allowed())) {
@@ -20,7 +20,92 @@ index 4cda7cc..4173acb 100644
  #        if (empty($attributes['tbitskolabisdomainadmin'])) {
  #            $attributes['tbitskolabisdomainadmin'] = $user[$user_dn]['tbitskolabisdomainadmin'];
  #        }
-@@ -1155,7 +1157,46 @@ class LDAP extends Net_LDAP3 {
+@@ -1109,6 +1111,24 @@ class LDAP extends Net_LDAP3 {
+         // We should start throwing stuff over the fence here.
+         $result = $this->modify_entry($user_dn, $user[$user_dn], $attributes);
+ 
++        if (!empty($result) && (
++                array_key_exists('mailquota', $result['add']) ||
++                array_key_exists('mailquota', $result['del']) ||
++                array_key_exists('mailquota', $result['replace']))) {
++            $kolabhomeserver = $user[$user_dn]['mailhost'];
++            if (empty($kolabhomeserver)) {
++                $kolabhomeserver = "localhost";
++            }
++            $folder = "user/" . $user[$user_dn]['mail'];
++            $ckey = $kolabhomeserver."_".$folder;
++
++            // cache for one second to reset the value
++            $quota = "invalid";
++            if (!$this->set_cache_data($ckey, $quota, 1)) {
++                $this->icache[$ckey] = $quota;
++            }
++        }
++
+         // Handle modification of current user data
+         if (!empty($result) && $user_dn == $_SESSION['user']->user_bind_dn) {
+             // update session password
+@@ -1142,6 +1162,59 @@ class LDAP extends Net_LDAP3 {
+         return $this->entry_delete($user);
+     }
+ 
++    function collect_quota($result) {
++        $kolabhomeserver = $result['mailhost'];
++        if (empty($kolabhomeserver)) {
++            $kolabhomeserver = "localhost";
++        }
++        $folder = "user/" . $result['mail'];
++
++        $ckey = $kolabhomeserver."_".$folder;
++
++        // use memcache
++        if ($result = $this->get_cache_data($ckey)) {
++            return $result;
++        }
++        // use internal cache
++        else if (isset($this->icache[$ckey])) {
++            return $this->icache[$ckey];
++        }
++
++        // uri = imaps://localhost:993
++        $imapuri = $this->conf->get('cyrus-imap', 'uri');
++        $imap_port = "993";
++        $imap_manager = $this->conf->get('cyrus-imap', 'admin_login');
++        $imap_password = $this->conf->get('cyrus-imap', 'admin_password');
++
++        $imap_srv = "{" . $kolabhomeserver . ":" . $imap_port ."/imap/ssl/novalidate-cert}";
++        $mbox = imap_open($imap_srv, $imap_manager, $imap_password, OP_HALFOPEN);
++        if($mbox) {
++            $quota = @imap_get_quota($mbox, $folder);
++            if ($quota === false) {
++                $boxes = imap_list($mbox, $imap_srv, '*');
++                if( empty($boxes) || array_search($imap_srv.$folder, $boxes) === false ) {
++                    $quota = 'nomailbox';
++                } else {
++                    $quota = 'unlimited';
++                }
++            } else {
++                $quota = $quota['usage'].";".$quota['limit'];
++            }
++            imap_close($mbox);
++        }
++        else {
++            // use 'unknown' value
++            $quota = 'unknown';
++        }
++
++        // cache for one day
++        if (!$this->set_cache_data($ckey, $quota, 24*60*60)) {
++             $this->icache[$ckey] = $quota;
++        }
++
++        return $quota;
++    }
++
+     public function user_info($user, $attributes = array('*'))
+     {
+         $this->_log(LOG_DEBUG, "Auth::LDAP::user_info() for user " . var_export($user, true));
+@@ -1155,7 +1228,14 @@ class LDAP extends Net_LDAP3 {
  
          $this->read_prepare($attributes);
  
@@ -28,39 +113,7 @@ index 4cda7cc..4173acb 100644
 +        $result = $this->_read($user_dn, $attributes);
 +
 +        if (in_array('tbitskolabquotaused', $attributes) && in_array('mailhost', $attributes) && in_array('mail', $attributes)) {
-+            $kolabhomeserver = $result[$user_dn]['mailhost'];
-+            if (empty($kolabhomeserver)) {
-+                $kolabhomeserver = "localhost";
-+            }
-+            // uri = imaps://localhost:993
-+            $imapuri = $this->conf->get('cyrus-imap', 'uri');
-+            $imap_port = "993";
-+            $imap_manager = $this->conf->get('cyrus-imap', 'admin_login');
-+            $imap_password = $this->conf->get('cyrus-imap', 'admin_password');
-+
-+            $imap_srv = "{" . $kolabhomeserver . ":" . $imap_port ."/imap/ssl/novalidate-cert}";
-+            $mbox = imap_open($imap_srv, $imap_manager, $imap_password, OP_HALFOPEN);
-+            if($mbox) {
-+                $folder = "user/" . $result[$user_dn]['mail'];
-+                $quota = @imap_get_quota($mbox, $folder);
-+                if ($quota === false) {
-+                    $boxes = imap_list($mbox, $imap_srv, '*');
-+                    if( empty($boxes) || array_search($imap_srv.$folder, $boxes) === false ) {
-+                        $quota = 'nomailbox';
-+                    } else {
-+                        $quota = 'unlimited';
-+                    }
-+                } else {
-+                    $quota = $quota['usage'].";".$quota['limit'];
-+                }
-+                imap_close($mbox);
-+            }
-+            else {
-+                // use 'unknown' value
-+                $quota = 'unknown';
-+            }
-+
-+            $result[$user_dn]['tbitskolabquotaused'] = $quota;
++            $result[$user_dn]['tbitskolabquotaused'] = $this->collect_quota($result[$user_dn]);
 +        }
 +
 +        return $result;
@@ -69,7 +122,7 @@ index 4cda7cc..4173acb 100644
  
      public function user_find_by_attribute($attribute)
 diff --git a/lib/client/kolab_client_task_settings.php b/lib/client/kolab_client_task_settings.php
-index 18c8f96..e0e5af7 100644
+index 3cb1a6f..ebec8ba 100644
 --- a/lib/client/kolab_client_task_settings.php
 +++ b/lib/client/kolab_client_task_settings.php
 @@ -34,6 +34,7 @@ class kolab_client_task_settings extends kolab_client_task
@@ -119,7 +172,7 @@ index f7bb471..820776d 100644
  
      /**
 diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
-index 137b8c0..d7c4dd7 100644
+index 137b8c0..d8ffc6b 100644
 --- a/lib/kolab_client_task.php
 +++ b/lib/kolab_client_task.php
 @@ -914,6 +914,14 @@ class kolab_client_task
@@ -138,7 +191,7 @@ index 137b8c0..d7c4dd7 100644
              $result['type']      = kolab_form::INPUT_TEXTAREA;
              $result['data-type'] = 'aci';
 diff --git a/lib/kolab_form.php b/lib/kolab_form.php
-index 8ebcda0..51a2ebf 100644
+index dc8b515..f1da879 100644
 --- a/lib/kolab_form.php
 +++ b/lib/kolab_form.php
 @@ -39,6 +39,7 @@ class kolab_form
@@ -162,7 +215,7 @@ index 8ebcda0..51a2ebf 100644
              $attribs['type'] = 'text';
              $content = kolab_html::inputunixtimestamp($attribs);
 diff --git a/lib/kolab_html.php b/lib/kolab_html.php
-index 911a239..e8596ad 100644
+index 911a239..f71839a 100644
 --- a/lib/kolab_html.php
 +++ b/lib/kolab_html.php
 @@ -209,6 +209,64 @@ class kolab_html
@@ -231,7 +284,7 @@ index 911a239..e8596ad 100644
       * Readonly control that will display the time encoded as a unix timestamp. Used for displaying tbitsKolabLastLogin
       *
 diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
-index e42ec2c..785208e 100644
+index e42ec2c..5458494 100644
 --- a/lib/locale/de_DE.php
 +++ b/lib/locale/de_DE.php
 @@ -459,4 +459,7 @@ $LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
@@ -243,7 +296,7 @@ index e42ec2c..785208e 100644
 +$LANG['quota.nomailbox'] = "Noch kein Postfach vorhanden";
  
 diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
-index b8a9502..f02bdf8 100644
+index b8a9502..8a459f3 100644
 --- a/lib/locale/en_US.php
 +++ b/lib/locale/en_US.php
 @@ -446,6 +446,9 @@ $LANG['user.tbitskolabmaxaccounts'] = 'Maximum number of accounts';
