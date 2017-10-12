@@ -84,11 +84,27 @@ index e4a919e..28e07bf 100644
      public function organizationalunit_add($attrs, $typeid = null)
      {
          $base_dn = $this->entry_base_dn('ou', $typeid, $attrs);
-@@ -1215,6 +1260,72 @@ class LDAP extends Net_LDAP3 {
+@@ -1215,6 +1260,89 @@ class LDAP extends Net_LDAP3 {
          return $quota;
      }
  
 +    private function collect_sieve_rules($result) {
++        $mail = $result['mail'];
++        if (is_array($mail)) {
++            $mail = $mail[0];
++        }
++
++        $ckey = "sieve_".$mail;
++
++        // use memcache
++        if ($result = $this->get_cache_data($ckey)) {
++            return $result;
++        }
++        // use internal cache
++        else if (isset($this->icache[$ckey])) {
++            return $this->icache[$ckey];
++        }
++
 +        $sieve = new Net_Sieve();
 +        $sieve_port = 4190;
 +        $options = array('ssl' => array('verify_peer_name' => '', 'verify_peer' => '', 'allow_self_signed' => 1));
@@ -100,10 +116,6 @@ index e4a919e..28e07bf 100644
 +            return $result;
 +        }
 +
-+        $mail = $result['mail'];
-+        if (is_array($mail)) {
-+            $mail = $mail[0];
-+        }
 +        $res = $sieve->login($this->conf->get('cyrus-imap', 'admin_login'), $this->conf->get('cyrus-imap', 'admin_password'), 'PLAIN', $mail);
 +        if (is_a($res, 'PEAR_Error')) {
 +            $this->_log(LOG_ERROR, "cannot login to sieve");
@@ -150,6 +162,11 @@ index e4a919e..28e07bf 100644
 +        }
 +
 +        $result['sieve'] = $active_sieve_rules;
++
++        // cache for one hour
++        if (!$this->set_cache_data($ckey, $quota, 1*60*60)) {
++             $this->icache[$ckey] = $active_sieve_rules;
++        }
 +
 +        return $result;
 +    }
