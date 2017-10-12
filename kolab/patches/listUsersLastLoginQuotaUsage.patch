@@ -84,7 +84,7 @@ index e4a919e..28e07bf 100644
      public function organizationalunit_add($attrs, $typeid = null)
      {
          $base_dn = $this->entry_base_dn('ou', $typeid, $attrs);
-@@ -1215,6 +1260,89 @@ class LDAP extends Net_LDAP3 {
+@@ -1215,6 +1260,91 @@ class LDAP extends Net_LDAP3 {
          return $quota;
      }
  
@@ -97,8 +97,8 @@ index e4a919e..28e07bf 100644
 +        $ckey = "sieve_".$mail;
 +
 +        // use memcache
-+        if ($result = $this->get_cache_data($ckey)) {
-+            return $result;
++        if ($filter = $this->get_cache_data($ckey)) {
++            return $filter;
 +        }
 +        // use internal cache
 +        else if (isset($this->icache[$ckey])) {
@@ -113,13 +113,13 @@ index e4a919e..28e07bf 100644
 +        $active_sieve_rules = '';
 +        if (is_a($res, 'PEAR_Error')) {
 +            $this->_log(LOG_ERROR, "cannot connect to sieve");
-+            return $result;
++            return "not available";
 +        }
 +
 +        $res = $sieve->login($this->conf->get('cyrus-imap', 'admin_login'), $this->conf->get('cyrus-imap', 'admin_password'), 'PLAIN', $mail);
 +        if (is_a($res, 'PEAR_Error')) {
 +            $this->_log(LOG_ERROR, "cannot login to sieve");
-+            return $result;
++            return "not available";
 +        }
 +
 +        $exts = $sieve->getExtensions();
@@ -161,14 +161,16 @@ index e4a919e..28e07bf 100644
 +            $active_sieve_rules .= "<br/>";
 +        }
 +
-+        $result['sieve'] = $active_sieve_rules;
++        if (empty($active_sieve_rules)) {
++            $active_sieve_rules = "empty";
++        }
 +
 +        // cache for one hour
-+        if (!$this->set_cache_data($ckey, $quota, 1*60*60)) {
++        if (!$this->set_cache_data($ckey, $active_sieve_rules, 1*60*60)) {
 +             $this->icache[$ckey] = $active_sieve_rules;
 +        }
 +
-+        return $result;
++        return $active_sieve_rules;
 +    }
 +
      public function user_info($user, $attributes = array('*'))
@@ -187,13 +189,16 @@ index e4a919e..28e07bf 100644
          $this->read_prepare($attributes);
  
          $result = $this->_read($user_dn, $attributes);
-@@ -1234,6 +1351,11 @@ class LDAP extends Net_LDAP3 {
+@@ -1234,6 +1351,14 @@ class LDAP extends Net_LDAP3 {
              $result[$user_dn]['tbitskolabquotaused'] = $this->collect_quota($result[$user_dn]);
          }
  
 +        // check for sieve rules that are active: vacation and forwarding
 +        if (in_array('sieve', $attributes) && in_array('mailrecipient', $result[$user_dn]['objectclass']) && empty($result[$user_dn]['mailforwardingaddress'])) {
-+             $result[$user_dn] = $this->collect_sieve_rules($result[$user_dn]);
++             $result[$user_dn]['sieve'] = $this->collect_sieve_rules($result[$user_dn]);
++             if ($result[$user_dn]['sieve'] == 'empty') {
++                 $result[$user_dn]['sieve'] = '';
++             }
 +        }
 +
          return $result;
