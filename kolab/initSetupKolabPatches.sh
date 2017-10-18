@@ -36,6 +36,10 @@ echo "applying patch to Roundcube for the compose to show loading message"
 # patch -p1 -i `pwd`/patches/roundcubeComposeLoading.patch -d /usr/share/roundcubemail || exit -1
 # app.js has been compressed
 sed -i "s#this.open_compose_step=function(p){var url#this.open_compose_step=function(p){this.set_busy(true, 'loading');var url#g" /usr/share/roundcubemail/public_html/assets/program/js/app.js
+
+echo "apply patch for Etc timezone in roundcube plugins/calendar"
+patch -p1 -i `pwd`/patches/roundcube_calendar_etc_timezone_T2666.patch -d /usr/share/roundcubemail || exit -1
+
 fi
 
 if [[ $OS == CentOS* || $OS == Fedora* ]]
