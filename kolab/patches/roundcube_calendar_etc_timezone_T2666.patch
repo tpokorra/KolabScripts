@@ -1,0 +1,17 @@
+--- a/plugins/calendar/drivers/kolab/kolab_calendar.php	2017-10-18 14:33:09.229001065 +0200
++++ b/plugins/calendar/drivers/kolab/kolab_calendar.php	2017-10-18 14:33:54.520723940 +0200
+@@ -460,6 +460,14 @@
+     $links = $event['links'];
+     unset($event['links']);
+ 
++    // fix timezone Etc/GMT-1: Not a valid olson timezone
++    if (array_key_exists('start', $event) && $event['start'].timezone == 'Etc/GMT-1') {
++        $event['start'].setTimeZone('Europe/Berlin');
++    }
++    if (array_key_exists('end', $event) && $event['end'].timezone == 'Etc/GMT-1') {
++        $event['end'].setTimezone('Europe/Berlin');
++    }
++
+     //generate new event from RC input
+     $object = $this->_from_driver_event($event);
+     $saved  = $this->storage->save($object, 'event');

@@ -28,6 +28,10 @@ patch -p1 --fuzz=0 -i `pwd`/patches/roundcubeStorageMariadbBug4883.patch -d /usr
 # https://github.com/TBits/KolabScripts/issues/76
 echo "fix problem on LXC containers with access to TCP keepalive settings"
 patch -p1 --fuzz=0 -i `pwd`/patches/fixPykolabIMAPKeepAlive.patch -d $pythonDistPackages || exit -1
+
+echo "apply patch for Etc timezone in roundcube plugins/calendar"
+patch -p1 --fuzz=0 -i `pwd`/patches/roundcube_calendar_etc_timezone_T2666.patch -d /usr/share/roundcubemail || exit -1
+
 fi
 
 if [[ $OS == Debian* ]]
