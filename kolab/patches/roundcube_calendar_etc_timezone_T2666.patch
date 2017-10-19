@@ -5,11 +5,11 @@
      unset($event['links']);
  
 +    // fix timezone Etc/GMT-1: Not a valid olson timezone
-+    if (array_key_exists('start', $event) && $event['start'].timezone == 'Etc/GMT-1') {
-+        $event['start'].setTimeZone('Europe/Berlin');
++    if (array_key_exists('start', $event) && $event['start']->timezone == 'Etc/GMT-1') {
++        $event['start']->setTimezone(new DateTimeZone('Europe/Berlin'));
 +    }
-+    if (array_key_exists('end', $event) && $event['end'].timezone == 'Etc/GMT-1') {
-+        $event['end'].setTimezone('Europe/Berlin');
++    if (array_key_exists('end', $event) && $event['end']->timezone == 'Etc/GMT-1') {
++        $event['end']->setTimezone(new DateTimeZone('Europe/Berlin'));
 +    }
 +
      //generate new event from RC input
