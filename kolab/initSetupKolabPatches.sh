@@ -39,6 +39,8 @@ sed -i "s#this.open_compose_step=function(p){var url#this.open_compose_step=func
 
 echo "apply patch for Etc timezone in roundcube plugins/calendar"
 patch -p1 -i `pwd`/patches/roundcube_calendar_etc_timezone_T2666.patch -d /usr/share/roundcubemail || exit -1
+# another way to fix it, in the jstz library (see also https://bitbucket.org/pellepim/jstimezonedetect/issues/168/ignore-timezones-like-etc-gmt-1)
+sed -i 's#"UTC"===a)#"UTC"===a)\&\&a.indexOf("Etc")<0#' /usr/share/roundcubemail/public_html/assets/program/js/jstz.min.js
 
 fi
 
