@@ -402,7 +402,7 @@ index 0faf286..02a713f 100644
 +                $lastlogin = "";
 +            }
 +
-+            $overallquota = kolab_html::inputquotaused(array('value' => $user['tbitskolaboverallquota']));
++            $overallquota = kolab_html::inputquotaused(array('value' => $user['tbitskolaboverallquota']), true);
 +            $defaultquota = kolab_html::inputquotaused(array('value' => $user['tbitskolabdefaultquota']));
 +            $output .= "<tr class='selectable'><td>$uid @ $domain</td><td>$name</td>".
 +                "<td>".$assigneddomains."</td>".
