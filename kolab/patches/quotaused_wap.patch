@@ -266,7 +266,7 @@ index 911a239..f71839a 100644
 +               $quota['usage'] = $values[0];
 +               $quota['limit'] = $values[1];
 +               $quota['percentage'] = round($quota['usage'] / $quota['limit'] * 100);
-+               $quota['usage'] = self::quota_to_read($quota['usage']);
++               $quota['usage'] = self::quota_to_read($quota['usage'], true);
 +               $quota['limit'] = self::quota_to_read($quota['limit'], true);
 +               $attribs['value'] = $quota['usage']. " / ".$quota['limit']." (".$quota['percentage']."%)";
 +               if ($quota['percentage'] >= 90) {
