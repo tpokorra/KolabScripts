@@ -107,6 +107,37 @@ class KolabWAPDomainAdmin(unittest.TestCase):
 
         kolabWAPhelper.logout_kolab_wap()
 
+    # test that Super Domain Admin cannot edit the maxaccount / overallquota of other domain admins
+    def test_domain_admin_edit_other_domain_admins(self):
+        kolabWAPhelper = self.kolabWAPhelper
+        kolabWAPhelper.log("Running test: test_domain_admin_edit_other_domain_admins")
+
+        # login Directory Manager
+        kolabWAPhelper.login_kolab_wap("/kolab-webadmin", "cn=Directory Manager", "test")
+
+        username, emailLogin, password, domainname = kolabWAPhelper.create_domainadmin()
+        username2, emailLogin2, password2, domainname2 = kolabWAPhelper.create_domainadmin()
+        kolabWAPhelper.link_admin_to_domain(username, domainname2)
+        kolabWAPhelper.logout_kolab_wap()
+
+        kolabWAPhelper.login_kolab_wap("/kolab-webadmin", emailLogin, password)
+        kolabWAPhelper.select_domain(domainname2)
+        kolabWAPhelper.load_user(username2)
+
+        elem = self.driver.find_element_by_link_text("Domain Administrator")
+        elem.click()
+        self.kolabWAPhelper.wait_loading()
+        # the super domain admin should not be able to edit the parameters, eg max accounts
+        elem = self.driver.find_element_by_xpath("//input[@name=\"tbitskolabmaxaccounts\"]")
+        if not "readonly" in elem.get_attribute('class'):
+          self.assertTrue(False, "maxaccounts should be readonly for the domain admin")
+        # also not tbitskolaboverallquota
+        elem = self.driver.find_element_by_xpath("//input[@name=\"tbitskolaboverallquota\"]")
+        if not "readonly" in elem.get_attribute('class'):
+          self.assertTrue(False, "overallquota should be readonly for the domain admin")
+
+        kolabWAPhelper.logout_kolab_wap()
+
     # test if the domain admin can add users to his domain
     def test_domain_admin_create_user(self):
         kolabWAPhelper = self.kolabWAPhelper
