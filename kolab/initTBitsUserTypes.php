@@ -26,16 +26,25 @@ if ($list['list'][1]['key'] != 'kolab') {
 $kolabUserType = $list['list'][1];
 $kolabUserType['id'] = 1;
 $kolabUserType['type'] = 'user';
-$kolabUserType['attributes']['fields']['objectclass'][] = 'tbitskolabuser';
-$kolabUserType['attributes']['form_fields']['tbitskolablastlogin'] = array('type' => 'text-unixtimestamp', 'optional' => 1);
-$kolabUserType['attributes']['form_fields']['tbitskolabquotaused'] = array('type' => 'text-quotaused', 'optional' => 1);
-$kolabUserType['attributes']['form_fields']['tbitskolabintranettoken'] = array('type' => 'text', 'optional' => 1);
-$service_type = new kolab_api_service_type(null);
-$result = $service_type->type_edit(null, $kolabUserType);
-//echo "saving user type kolab: ".print_r($result,true)."\n";
-if ($result === false) {
-    echo "failure: was not able to save user type kolab\n";
-    die();
+if (!in_array('tbitskolabuser', $kolabUserType['attributes']['fields']['objectclass'])) {
+    $kolabUserType['attributes']['fields']['objectclass'][] = 'tbitskolabuser';
+    $kolabUserType['attributes']['form_fields']['tbitskolablastlogin'] = array('type' => 'text-unixtimestamp', 'optional' => 1);
+    $kolabUserType['attributes']['form_fields']['tbitskolabquotaused'] = array('type' => 'text-quotaused', 'optional' => 1);
+    $kolabUserType['attributes']['form_fields']['tbitskolabintranettoken'] = array('type' => 'text', 'optional' => 1);
+    $service_type = new kolab_api_service_type(null);
+    $result = $service_type->type_edit(null, $kolabUserType);
+    //echo "saving user type kolab: ".print_r($result,true)."\n";
+    if ($result === false) {
+        echo "failure: was not able to save user type kolab\n";
+        die();
+    }
+}
+
+foreach($list['list'] as $usertype) {
+    if ($usertype['key'] == 'domainadmin') {
+        echo "there is already a domain admin, not adding again\n";
+        die();
+    }
 }
 
 $newType = $kolabUserType;
