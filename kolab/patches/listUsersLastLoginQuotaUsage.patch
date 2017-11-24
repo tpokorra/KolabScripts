@@ -18,14 +18,15 @@ diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
 index e4a919e..28e07bf 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -24,6 +24,7 @@
+@@ -23,6 +23,8 @@
+  +--------------------------------------------------------------------------+
  */
  
- require_once "Net/LDAP3.php";
 +require_once "/usr/share/roundcubemail/plugins/managesieve/lib/Roundcube/rcube_sieve_script.php";
- 
++
  /**
   * Kolab LDAP handling abstraction class.
+  */
 @@ -651,6 +652,16 @@ class LDAP extends Net_LDAP3 {
              $result = $this->legacy_rights($subject);
          }
