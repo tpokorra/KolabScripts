@@ -10,7 +10,7 @@ index 06fb00d..1bf56fc 100644
 +        # Patch by tbits: only apply primary mail address policy if the mail address does not end with the proper domain name
 +        primary_mail_address = None
 +        if not primary_mail == None and entry.has_key(primary_mail_attribute): 
-+            if entry[primary_mail_attribute].endswith(self.domain)):
++            if entry[primary_mail_attribute].endswith(self.domain):
 +                primary_mail_address = entry[primary_mail_attribute]
 +            else:
 +                # check all secondary domains
