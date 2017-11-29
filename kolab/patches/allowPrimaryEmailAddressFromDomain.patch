@@ -2,15 +2,22 @@ diff --git a/pykolab/auth/ldap/__init__.py b/pykolab/auth/ldap/__init__.py
 index 06fb00d..1bf56fc 100644
 --- a/pykolab/auth/ldap/__init__.py
 +++ b/pykolab/auth/ldap/__init__.py
-@@ -671,7 +671,10 @@ class LDAP(pykolab.base.Base):
+@@ -671,7 +671,17 @@ class LDAP(pykolab.base.Base):
              entry['preferredlanguage'] = conf.get('kolab', 'default_locale')
 
          # Primary mail address
 -        if not primary_mail == None:
 +        # Patch by tbits: only apply primary mail address policy if the mail address does not end with the proper domain name
-+        if not primary_mail == None and (entry.has_key(primary_mail_attribute) and entry[primary_mail_attribute].endswith(self.domain)):
-+            primary_mail_address = entry[primary_mail_attribute]
-+        elif not primary_mail == None:
++        primary_mail_address = None
++        if not primary_mail == None and (entry.has_key(primary_mail_attribute): 
++            if entry[primary_mail_attribute].endswith(self.domain)):
++                primary_mail_address = entry[primary_mail_attribute]
++            else:
++                # check all secondary domains
++                for aliasdomains in self.list_secondary_domains():
++                    if entry[primary_mail_attribute].endswith(aliasdomains):
++                        primary_mail_address = entry[primary_mail_attribute]
++        if primary_mail_address == None and not primary_mail == None:
              primary_mail_address = conf.plugins.exec_hook(
                      "set_primary_mail",
                      kw={
