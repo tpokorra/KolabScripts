@@ -1,10 +1,10 @@
 --- a/pykolab/auth/ldap/__init__.py
 +++ b/pykolab/auth/ldap/__init__.py
-@@ -671,7 +671,18 @@ class LDAP(pykolab.base.Base):
+@ -960,15 +960,26 @@
              entry['preferredlanguage'] = conf.get('kolab', 'default_locale')
-
+ 
          # Primary mail address
-+        # Patch by tbits: only apply primary mail address policy if the mail address does not end with the proper domain name
++        # Patch by TBits.net: only apply primary mail address policy if the mail address does not end with the proper domain name
 +        primary_mail_address = None
 +        if not primary_mail == None and entry.has_key(primary_mail_attribute): 
 +            if entry[primary_mail_attribute].endswith(self.domain):
@@ -15,11 +15,20 @@
 +                    if entry[primary_mail_attribute].endswith(aliasdomains):
 +                        primary_mail_address = entry[primary_mail_attribute]
          if not primary_mail == None:
--             primary_mail_address = conf.plugins.exec_hook(
+-            primary_mail_address = conf.plugins.exec_hook(
 +            if primary_mail_address == None:
 +                 primary_mail_address = conf.plugins.exec_hook(
                      "set_primary_mail",
                      kw={
+                             'primary_mail': primary_mail,
+                             'entry': entry,
+                             'primary_domain': self.domain
+                         }
+-                )
++                    )
+ 
+             if primary_mail_address == None:
+                 return entry_modifications
 --- a/pykolab/plugins/recipientpolicy/__init__.py	2017-12-06 16:39:01.222883444 +0100
 +++ b/pykolab/plugins/recipientpolicy/__init__.py	2017-12-06 16:39:47.861032052 +0100
 @@ -56,10 +56,11 @@
