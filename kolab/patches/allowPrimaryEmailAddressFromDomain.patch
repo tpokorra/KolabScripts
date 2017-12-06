@@ -1,12 +1,9 @@
-diff --git a/pykolab/auth/ldap/__init__.py b/pykolab/auth/ldap/__init__.py
-index 06fb00d..1bf56fc 100644
 --- a/pykolab/auth/ldap/__init__.py
 +++ b/pykolab/auth/ldap/__init__.py
-@@ -671,7 +671,17 @@ class LDAP(pykolab.base.Base):
+@@ -671,7 +671,18 @@ class LDAP(pykolab.base.Base):
              entry['preferredlanguage'] = conf.get('kolab', 'default_locale')
 
          # Primary mail address
--        if not primary_mail == None:
 +        # Patch by tbits: only apply primary mail address policy if the mail address does not end with the proper domain name
 +        primary_mail_address = None
 +        if not primary_mail == None and entry.has_key(primary_mail_attribute): 
@@ -17,9 +14,44 @@ index 06fb00d..1bf56fc 100644
 +                for aliasdomains in self.list_secondary_domains():
 +                    if entry[primary_mail_attribute].endswith(aliasdomains):
 +                        primary_mail_address = entry[primary_mail_attribute]
-+        if primary_mail_address == None and not primary_mail == None:
-             primary_mail_address = conf.plugins.exec_hook(
+         if not primary_mail == None:
+-             primary_mail_address = conf.plugins.exec_hook(
++            if primary_mail_address == None:
++                 primary_mail_address = conf.plugins.exec_hook(
                      "set_primary_mail",
                      kw={
-
+--- a/pykolab/plugins/recipientpolicy/__init__.py	2017-12-06 16:39:01.222883444 +0100
++++ b/pykolab/plugins/recipientpolicy/__init__.py	2017-12-06 16:39:47.861032052 +0100
+@@ -56,10 +56,11 @@
+ 
+         user_attrs = utils.normalize(kw['entry'])
+ 
+-        if not user_attrs.has_key('domain'):
+-            user_attrs['domain'] = kw['primary_domain']
+-        elif not user_attrs['domain'] == kw['primary_domain']:
+-            user_attrs['domain'] = kw['primary_domain']
++        # cannot test here for alias domains
++        #if not user_attrs.has_key('domain'):
++        #    user_attrs['domain'] = kw['primary_domain']
++        #elif not user_attrs['domain'] == kw['primary_domain']:
++        #    user_attrs['domain'] = kw['primary_domain']
+ 
+         if not user_attrs.has_key('preferredlanguage'):
+             default_locale = conf.get(user_attrs['domain'], 'default_locale')
+@@ -96,10 +97,11 @@
+ 
+         user_attrs = utils.normalize(kw['entry'])
+ 
+-        if not user_attrs.has_key('domain'):
+-            user_attrs['domain'] = kw['primary_domain']
+-        elif not user_attrs['domain'] == kw['primary_domain']:
+-            user_attrs['domain'] = kw['primary_domain']
++        # cannot test here for alias domains
++        #if not user_attrs.has_key('domain'):
++        #    user_attrs['domain'] = kw['primary_domain']
++        #elif not user_attrs['domain'] == kw['primary_domain']:
++        #    user_attrs['domain'] = kw['primary_domain']
+ 
+         if not user_attrs.has_key('preferredlanguage'):
+             default_locale = conf.get(user_attrs['domain'], 'default_locale')
 
