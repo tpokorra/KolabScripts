@@ -1,66 +1,18 @@
+diff --git a/pykolab/auth/ldap/__init__.py b/pykolab/auth/ldap/__init__.py
+index 06fb00d..1bf56fc 100644
 --- a/pykolab/auth/ldap/__init__.py
 +++ b/pykolab/auth/ldap/__init__.py
-@ -960,15 +960,26 @@
+@@ -671,7 +671,10 @@ class LDAP(pykolab.base.Base):
              entry['preferredlanguage'] = conf.get('kolab', 'default_locale')
- 
+
          # Primary mail address
-+        # Patch by TBits.net: only apply primary mail address policy if the mail address does not end with the proper domain name
-+        primary_mail_address = None
-+        if not primary_mail == None and entry.has_key(primary_mail_attribute): 
-+            if entry[primary_mail_attribute].endswith(self.domain):
-+                primary_mail_address = entry[primary_mail_attribute]
-+            else:
-+                # check all secondary domains
-+                for aliasdomains in self.list_secondary_domains():
-+                    if entry[primary_mail_attribute].endswith(aliasdomains):
-+                        primary_mail_address = entry[primary_mail_attribute]
-         if not primary_mail == None:
--            primary_mail_address = conf.plugins.exec_hook(
-+            if primary_mail_address == None:
-+                 primary_mail_address = conf.plugins.exec_hook(
+-        if not primary_mail == None:
++        # Patch by tbits: only apply primary mail address policy if the mail address does not end with the proper domain name
++        if not primary_mail == None and (entry.has_key(primary_mail_attribute) and entry[primary_mail_attribute].endswith(self.domain)):
++            primary_mail_address = entry[primary_mail_attribute]
++        elif not primary_mail == None:
+             primary_mail_address = conf.plugins.exec_hook(
                      "set_primary_mail",
                      kw={
-                             'primary_mail': primary_mail,
-                             'entry': entry,
-                             'primary_domain': self.domain
-                         }
--                )
-+                    )
- 
-             if primary_mail_address == None:
-                 return entry_modifications
---- a/pykolab/plugins/recipientpolicy/__init__.py	2017-12-06 16:39:01.222883444 +0100
-+++ b/pykolab/plugins/recipientpolicy/__init__.py	2017-12-06 16:39:47.861032052 +0100
-@@ -56,10 +56,11 @@
- 
-         user_attrs = utils.normalize(kw['entry'])
- 
--        if not user_attrs.has_key('domain'):
--            user_attrs['domain'] = kw['primary_domain']
--        elif not user_attrs['domain'] == kw['primary_domain']:
--            user_attrs['domain'] = kw['primary_domain']
-+        # cannot test here for alias domains
-+        #if not user_attrs.has_key('domain'):
-+        #    user_attrs['domain'] = kw['primary_domain']
-+        #elif not user_attrs['domain'] == kw['primary_domain']:
-+        #    user_attrs['domain'] = kw['primary_domain']
- 
-         if not user_attrs.has_key('preferredlanguage'):
-             default_locale = conf.get(user_attrs['domain'], 'default_locale')
-@@ -96,10 +97,11 @@
- 
-         user_attrs = utils.normalize(kw['entry'])
- 
--        if not user_attrs.has_key('domain'):
--            user_attrs['domain'] = kw['primary_domain']
--        elif not user_attrs['domain'] == kw['primary_domain']:
--            user_attrs['domain'] = kw['primary_domain']
-+        # cannot test here for alias domains
-+        #if not user_attrs.has_key('domain'):
-+        #    user_attrs['domain'] = kw['primary_domain']
-+        #elif not user_attrs['domain'] == kw['primary_domain']:
-+        #    user_attrs['domain'] = kw['primary_domain']
- 
-         if not user_attrs.has_key('preferredlanguage'):
-             default_locale = conf.get(user_attrs['domain'], 'default_locale')
+
 
