@@ -1,0 +1,69 @@
+From 234f18ac24269b11cd1b2654c85318a0bba98b86 Mon Sep 17 00:00:00 2001
+From: Timotheus Pokorra <tp@tbits.net>
+Date: Tue, 19 Dec 2017 17:36:51 +0100
+Subject: [PATCH] do not rename an existing mailbox. fixes T3315
+
+Differential Revision: https://git.kolab.org/D559
+---
+ pykolab/auth/ldap/__init__.py | 24 ++++++++----------------
+ 1 file changed, 8 insertions(+), 16 deletions(-)
+
+diff --git a/pykolab/auth/ldap/__init__.py b/pykolab/auth/ldap/__init__.py
+index 622df71..3ce4ed1 100644
+--- a/pykolab/auth/ldap/__init__.py
++++ b/pykolab/auth/ldap/__init__.py
+@@ -1859,10 +1859,8 @@ class LDAP(pykolab.base.Base):
+                         )
+ 
+                 elif not entry_changes[result_attribute] == old_canon_attr:
+-                    self.imap.user_mailbox_rename(
+-                            old_canon_attr,
+-                            entry_changes[result_attribute]
+-                        )
++                    # do not rename an existing mailbox
++                    entry_changes[result_attribute] = old_canon_attr
+ 
+         cache.get_entry(self.domain, entry)
+ 
+@@ -2011,10 +2009,8 @@ class LDAP(pykolab.base.Base):
+                         )
+ 
+                 else:
+-                    self.imap.user_mailbox_rename(
+-                            old_canon_attr,
+-                            entry_changes[result_attribute]
+-                        )
++                    # do not rename an existing mailbox
++                    entry_changes[result_attribute] = old_canon_attr
+ 
+                 entry[result_attribute] = entry_changes[result_attribute]
+                 cache.get_entry(self.domain, entry)
+@@ -2026,10 +2022,8 @@ class LDAP(pykolab.base.Base):
+                         )
+ 
+                 else:
+-                    self.imap.user_mailbox_rename(
+-                            old_canon_attr,
+-                            entry[result_attribute]
+-                        )
++                    # do not rename an existing mailbox
++                    entry[result_attribute] = old_canon_attr
+ 
+                 cache.get_entry(self.domain, entry)
+             else:
+@@ -2199,10 +2193,8 @@ class LDAP(pykolab.base.Base):
+ 
+         if entry_changes.has_key(result_attribute) and not old_canon_attr == None:
+             if not entry_changes[result_attribute] == old_canon_attr:
+-                self.imap.user_mailbox_rename(
+-                        old_canon_attr,
+-                        entry_changes[result_attribute]
+-                    )
++                # do not rename an existing mailbox
++                entry_changes[result_attribute] = old_canon_attr
+ 
+         for key in entry_changes.keys():
+             entry[key] = entry_changes[key]
+-- 
+1.8.3.1
+

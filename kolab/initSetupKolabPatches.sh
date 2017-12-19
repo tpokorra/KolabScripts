@@ -39,6 +39,9 @@ patch -p1 -i `pwd`/patches/roundcube_calendar_etc_timezone_T2666.patch -d /usr/s
 # another way to fix it, in the jstz library (see also https://bitbucket.org/pellepim/jstimezonedetect/issues/168/ignore-timezones-like-etc-gmt-1)
 sed -i 's#"UTC"===a)#"UTC"===a)\&\&a.indexOf("Etc")<0#' /usr/share/roundcubemail/public_html/assets/program/js/jstz.min.js
 
+echo "do not rename existing mailboxes"
+patch -p1 --fuzz=0 -i `pwd`/patches/pykolab_do_not_rename_existing_mailbox_T3315.patch -d $pythonDistPackages || exit -1
+
 fi
 
 if [[ $OS == CentOS* || $OS == Fedora* ]]
