@@ -94,8 +94,8 @@ index 1321960..e4a919e 100644
 +            $quota = 'unknown';
 +        }
 +
-+        // cache for one day
-+        if (!$this->set_cache_data($ckey, $quota, 24*60*60)) {
++        // cache for one hour
++        if (!$this->set_cache_data($ckey, $quota, 1*60*60)) {
 +             $this->icache[$ckey] = $quota;
 +        }
 +
