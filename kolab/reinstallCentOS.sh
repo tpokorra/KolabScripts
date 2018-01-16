@@ -181,10 +181,3 @@ then
   ./disableSpamFilter.sh || exit -1
 fi
 
-# workaround for bug https://git.kolab.org/T2588
-jqueryfile=/usr/share/roundcubemail/public_html/assets/program/js/jquery.min.js
-if [ ! -f $jqueryfile ]
-then
-  wget https://code.jquery.com/jquery-2.1.4.min.js -O $jqueryfile
-fi
-
