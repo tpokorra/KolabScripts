@@ -46,7 +46,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         return self.driver
 
     def log(self, message):
-        print datetime.datetime.now().strftime("%H:%M:%S") + " " + message
+        print(datetime.datetime.now().strftime("%H:%M:%S") + " " + message)
 
     def getConf(self, section, attribute):
         return conf.get(section, attribute)
@@ -308,7 +308,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
     def get_selected_domain(self):
         try:
             elem = self.driver.find_element_by_id("selectlabel_domain")
-        except NoSuchElementException, e:
+        except (NoSuchElementException) as e:
             # there is only one domain, no dropdown control
             elem = self.driver.find_element_by_id("domain-selector")
         return elem.text
@@ -718,7 +718,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
             # somehow, the error message Mailbox does not exist is not picked up by Selenium when the folder does not exist
             try:
                 elem = driver.find_element_by_xpath("//ul[@id=\"mailboxlist\"]/li[contains(@class, 'mailbox " + folder.lower() + " selected')]")
-            except NoSuchElementException, e:
+            except (NoSuchElementException) as e:
                 self.assertEquals(folder, "not found", "cannot select the folder " + folder + " " + "//ul[@id=\"mailboxlist\"]/li[@class=\"mailbox " + folder.lower() + " selected\"]")
 
         wait = WebDriverWait(driver, 10);
@@ -764,7 +764,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
                   "cannot find the first email");
              if not emailSubjectLineDoesNotContain in elem.text:
                self.assertTrue(False, "email subject should not contain " + emailSubjectLineDoesNotContain + " but was " + elem.text)
-           except TimeoutException, e:
+           except (TimeoutException) as e:
              self.assertTrue(True, "we expect a timeout, since we don't want to find the email with this subject as the first email")
 
     def log_current_page(self):
