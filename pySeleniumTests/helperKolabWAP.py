@@ -4,6 +4,7 @@ import datetime
 import string
 import subprocess
 import os
+from pyvirtualdisplay import Display
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
@@ -35,14 +36,9 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.imap = None
 
     def init_driver(self):
-        webdriver.DesiredCapabilities.PHANTOMJS['phantomjs.page.customHeaders.Accept-Language'] = 'en-US'
-        # support self signed ssl certificate: see also https://github.com/detro/ghostdriver/issues/233
-        #webdriver.DesiredCapabilities.PHANTOMJS['ACCEPT_SSL_CERTS'] = 'true'
-        self.driver = webdriver.PhantomJS('phantomjs', port=50000, service_args=['--ignore-ssl-errors=true', '--ssl-protocol=tlsv1'])
-        self.driver.maximize_window()
-        
-        #self.driver = webdriver.Firefox()
-
+        self.display = Display(visible=0, size=(1024, 768))
+        self.display.start()
+        self.driver = webdriver.Firefox()
         return self.driver
 
     def log(self, message):
@@ -783,4 +779,6 @@ class KolabWAPTestHelpers(unittest.TestCase):
           self.imap.disconnect()
 
         self.driver.quit()
+
+        self.display.stop()
 

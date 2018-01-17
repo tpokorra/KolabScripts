@@ -1,4 +1,5 @@
 *.pyc
 pySeleniumTests/ghostdriver.log
+pySeleniumTests/geckodriver.log
 kolab/key
 kolab/keys

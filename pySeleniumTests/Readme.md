@@ -2,23 +2,28 @@ Instructions
 ============
 Please also see http://www.pokorra.de/2013/11/kolab-integration-tests-with-selenium-and-python/
 
-Install Selenium:
+Install the latest Firefox and geckodriver:
+
 ```sh
-yum install python-selenium
+yum install gtk3
+cd /root
+wget https://download-installer.cdn.mozilla.net/pub/firefox/releases/57.0/linux-x86_64/en-US/firefox-57.0.tar.bz2
+tar xjf firefox-57.0.tar.bz2
+ln -s /root/firefox/firefox /usr/bin/firefox
+wget https://github.com/mozilla/geckodriver/releases/download/v0.19.1/geckodriver-v0.19.1-linux64.tar.gz
+tar xzf geckodriver-v0.19.1-linux64.tar.gz
+ln -s /root/geckodriver /usr/bin/geckodriver
 ```
 
-You can use PhantomJS with Selenium to have a headless browser. It is based on Webkit.
-
+Install Xvfb and pip
 ```sh
-yum install phantomjs
+yum install Xvfb pip
 ```
 
-If PhantomJS is not available via yum or apt-get, you can download it and install it like this:
+Install Selenium from pip:
 
 ```sh
-wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2
-tar xjf phantomjs-2.1.1-linux-x86_64.tar.bz2
-cp phantomjs-2.1.1-linux-x86_64/bin/phantomjs /usr/bin
+pip install selenium pyvirtualdisplay
 ```
 
 Please also install the mail package because it is required by some tests:
