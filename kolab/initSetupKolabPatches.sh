@@ -42,6 +42,10 @@ sed -i 's#"UTC"===a)#"UTC"===a)\&\&a.indexOf("Etc")<0#' /usr/share/roundcubemail
 echo "do not rename existing mailboxes"
 patch -p1 --fuzz=0 -i `pwd`/patches/pykolab_do_not_rename_existing_mailbox_T3315.patch -d $pythonDistPackages || exit -1
 
+echo "fix for php-net-LDAP3"
+# see https://git.kolab.org/rPNL56210fdaec70bc1f8f7455a75a6cd34e3a2f7e6d
+patch -p1 --fuzz=0 -i `pwd`/patches/fixphpnetldap_url.patch -d / || exit -1
+
 fi
 
 if [[ $OS == CentOS* || $OS == Fedora* ]]
