@@ -116,6 +116,14 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
     def wait_loading(self, initialwait=0.5):
         time.sleep(initialwait)
+        try:
+          print(len(self.driver.page_source))
+          # UnexpectedAlertPresentException
+        except (Exception) as e:
+          print ("caught exception " + str(e))
+          alert = self.driver.switch_to_alert();
+          print( alert.text) # User identifier not specified!
+          alert.accept()
         while (self.driver.page_source.find('div id="loading"') != -1 and self.driver.page_source.find('id="message"') == -1) or (self.driver.page_source.find('id="message">Loading...') != -1) or (self.driver.page_source.find('id="message"><div class="loading">Loading...') != -1):
             self.log("loading")
             time.sleep(0.5)
@@ -359,7 +367,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem.send_keys("shared/" + emailSharedFolder)
 
         driver.find_element_by_xpath("//select[@id='aclacl']/option[text()='anyone']").click()
-        driver.find_element_by_xpath("//td[@class='buttons']/input[1]").click()
+        driver.find_element_by_xpath("//td[@class='buttons']/input[@value='Edit...']").click()
         self.wait_loading(1.0)
         driver.find_element_by_xpath("//select[@id='acl-type']/option[@value='all']").click()
         driver.find_element_by_xpath("//div[@class='modal_btn_buttonok']").click()
