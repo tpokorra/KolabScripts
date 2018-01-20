@@ -167,7 +167,7 @@ then
   sed -i "s/^Example/#Example/g" /etc/freshclam.conf
   sed -i "s/#DatabaseMirror db.XY.clamav.net/DatabaseMirror db.de.clamav.net/g" /etc/freshclam.conf
   # Problem with clamav 0.99.1 in Epel: https://bugzilla.redhat.com/show_bug.cgi?id=1325717
-  if [ -f ~/.ssh/main.cvd ]
+  if [ -f ~/.ssh/main.cld ]
   then
     # use our cached files
     cp -f ~/.ssh/*.c*d /var/lib/clamav/
