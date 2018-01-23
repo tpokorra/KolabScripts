@@ -59,11 +59,7 @@ class KolabWAPLastLogin(unittest.TestCase):
         # last login time will only be updated after an hour, so we cannot test that here. see pykolab/auth/ldap/auth_cache.py purge_entries
 
     def tearDown(self):
-        
-        # write current page for debugging purposes
-        self.kolabWAPhelper.log_current_page()
-        
-        self.driver.quit()
+        self.kolabWAPhelper.tear_down()
 
 if __name__ == "__main__":
     unittest.main()
