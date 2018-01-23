@@ -36,6 +36,10 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.imap = None
 
     def init_driver(self):
+        if "http_proxy" in os.environ and len(os.environ['http_proxy']) > 0:
+           raise Exception("please disable the proxy by unsetting http_proxy")
+        if "https_proxy" in os.environ and len(os.environ['https_proxy']) > 0:
+           raise Exception("please disable the proxy by unsetting https_proxy")
         self.display = Display(visible=0, size=(1024, 768))
         self.display.start()
         self.driver = webdriver.Firefox()
