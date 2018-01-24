@@ -220,7 +220,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
     def logout_roundcube(self):
         driver = self.driver
         #self.driver.find_element_by_xpath("//div[@id=\"topnav\"]/div[@id=\"taskbar\"]/a[@class=\"button-logout\"]").click()
-        url = self.getSiteUrl() + "/roundcubemail"
+        # we need current_url because of the CSRF token
+        url = driver.current_url[:driver.current_url.find("?")]
         driver.get(url + "?_task=logout")
         self.wait_loading()
         elem = driver.find_element_by_class_name("notice")
@@ -721,7 +722,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
     def check_email_received(self, folder="INBOX", emailSubjectLine = None, emailSubjectLineDoesNotContain = None):
         driver = self.driver
 
-        url = self.getSiteUrl() + "/kolab-webadmin"
+        # we need current_url to get the CSRF token
+        url = driver.current_url[:driver.current_url.find("?")]
         driver.get(url + "?_task=mail&_mbox=" + folder)
         self.wait_loading(0.5)
 
