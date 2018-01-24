@@ -12,6 +12,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 import pykolab
 import pykolab.base
@@ -42,7 +44,12 @@ class KolabWAPTestHelpers(unittest.TestCase):
            raise Exception("please disable the proxy by unsetting https_proxy")
         self.display = Display(visible=0, size=(1024, 768))
         self.display.start()
-        self.driver = webdriver.Firefox()
+        firefox_capabilities = DesiredCapabilities.FIREFOX
+        firefox_capabilities['marionette'] = True
+        opts = Options()
+        opts.profile = (r'/tmp/SeleniumTests')
+        opts.log.level = 'trace'
+        self.driver = webdriver.Firefox(capabilities=firefox_capabilities, firefox_options = opts)
         return self.driver
 
     def log(self, message):

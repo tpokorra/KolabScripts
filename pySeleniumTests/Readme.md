@@ -32,6 +32,12 @@ Please also install the mail package because it is required by some tests:
 yum install mail
 ```
 
+Create a profile for the tests:
+
+```sh
+xvfb-run firefox -CreateProfile "SeleniumTests /tmp/SeleniumTests"
+```
+
 Then you can just start the tests like this:
 ```sh
 cd KolabScripts/pySeleniumTests
