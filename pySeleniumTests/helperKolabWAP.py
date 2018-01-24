@@ -220,7 +220,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
     def logout_roundcube(self):
         driver = self.driver
         #self.driver.find_element_by_xpath("//div[@id=\"topnav\"]/div[@id=\"taskbar\"]/a[@class=\"button-logout\"]").click()
-        url = driver.current_url[:driver.current_url.find("?")]
+        url = self.getSiteUrl() + "/roundcubemail"
         driver.get(url + "?_task=logout")
         self.wait_loading()
         elem = driver.find_element_by_class_name("notice")
@@ -261,7 +261,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.stopKolabServer()
 
         driver = self.driver
-        driver.get(driver.current_url)
+        driver.get(self.getSiteUrl() + "/kolab-webadmin")
 
         elem = driver.find_element_by_link_text("Domains")
         elem.click()
@@ -331,7 +331,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
     def select_domain(self, domainname):
         driver = self.driver
-        url = driver.current_url[:driver.current_url.find("?")]
+        url = self.getSiteUrl() + "/kolab-webadmin"
         driver.get(url + "?domain=" + domainname)
         selecteddomain = self.get_selected_domain()
         self.assertEquals(domainname, selecteddomain, "selected domain: expected " + domainname + " but was " + selecteddomain)
@@ -347,7 +347,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.stopKolabServer()
 
         driver = self.driver
-        driver.get(driver.current_url)
+        driver.get(self.getSiteUrl() + "/kolab-webadmin")
         elem = driver.find_element_by_link_text("Shared Folders")
         elem.click()
         self.wait_loading()
@@ -432,7 +432,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         self.stopKolabServer()
 
         driver = self.driver
-        driver.get(driver.current_url)
+        driver.get(self.getSiteUrl() + "/kolab-webadmin")
         elem = driver.find_element_by_link_text("Users")
         elem.click()
         self.wait_loading()
@@ -629,7 +629,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         driver = self.driver
 
         # now edit the domain and set the domainadmin
-        driver.get(driver.current_url)
+        driver.get(self.getSiteUrl() + "/kolab-webadmin")
         driver.find_element_by_link_text("Domains").click()
         self.wait_loading(1.0)
         elem = self.driver.find_element_by_id("searchinput")
@@ -656,7 +656,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         driver = self.driver
 
         # now edit the domain and remove the domainadmin
-        driver.get(driver.current_url)
+        driver.get(self.getSiteUrl() + "/kolab-webadmin")
         driver.find_element_by_link_text("Domains").click()
         self.wait_loading(1.0)
         elem = self.driver.find_element_by_id("searchinput")
@@ -680,7 +680,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
     def load_user(self, username):
 
-        self.driver.get(self.driver.current_url)
+        self.driver.get(self.getSiteUrl() + "/kolab-webadmin")
         self.driver.find_element_by_link_text("Users").click()
         self.wait_loading(1.0) 
 
@@ -721,7 +721,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
     def check_email_received(self, folder="INBOX", emailSubjectLine = None, emailSubjectLineDoesNotContain = None):
         driver = self.driver
 
-        url = driver.current_url[:driver.current_url.find("?")]
+        url = self.getSiteUrl() + "/kolab-webadmin"
         driver.get(url + "?_task=mail&_mbox=" + folder)
         self.wait_loading(0.5)
 
