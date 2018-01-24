@@ -17,6 +17,11 @@ function deleteDomains() {
 }
 
 rm -f /tmp/output*.html
+
+if [ ! -d /tmp/SeleniumTests ]
+  xvfb-run firefox -CreateProfile "SeleniumTests /tmp/SeleniumTests"
+fi
+
 hasError=0
 
 # run tests against a vanilla Kolab
