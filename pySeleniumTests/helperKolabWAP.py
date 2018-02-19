@@ -155,7 +155,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem = driver.find_element_by_id("login_pass")
         elem.send_keys(password)
         driver.find_element_by_id("login_submit").click()
-        self.wait_loading()
+        self.wait_loading(1)
 
         if expected_error is not None:
             elem = driver.find_element_by_id("message")
