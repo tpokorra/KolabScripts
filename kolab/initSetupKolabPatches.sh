@@ -45,6 +45,8 @@ patch -p1 --fuzz=0 -i `pwd`/patches/pykolab_do_not_rename_existing_mailbox_T3315
 echo "fix for php-net-LDAP3"
 # see https://git.kolab.org/rPNL56210fdaec70bc1f8f7455a75a6cd34e3a2f7e6d
 patch -p1 --fuzz=0 -i `pwd`/patches/fixphpnetldap_url.patch -d / || exit -1
+# and https://cgit.kolab.org/php-Net-LDAP3/commit/?id=858fd6076366626b6ff45e8bdf57dedeb210ce34
+patch -p1 --fuzz=0 -i `pwd`/patches/fixphpnetldap_url2.patch -d / || exit -1
 
 fi
 
