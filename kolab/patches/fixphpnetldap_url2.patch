@@ -11,16 +11,16 @@ diff --git a/lib/Net/LDAP3.php b/lib/Net/LDAP3.php
 index b5dcae3..937c785 100644
 --- a/usr/share/php/Net/LDAP3.php
 +++ b/usr/share/php/Net/LDAP3.php
-@@ -2150,8 +2150,8 @@ class Net_LDAP3
- 
+@@ -2144,8 +2144,9 @@
+             );
+
              $_ldap_schema_cache_cfg = array(
+-                'path' => "/tmp/" . $host . ":" . ($port ? $port : '389') . "-Net_LDAP2_Schema.cache",
                  'max_age' => 86400,
--                'path' => sprintf('%s/%s:%d-Net_LDAP2_Schema.cache',
--                    (sys_get_temp_dir() ?: '/tmp'), str_replace('://', ':', $host) . (strpos($host, ":$port") ? '' : ":$port")),
 +                'path' => sprintf('%s/%s-Net_LDAP2_Schema.cache',
 +                    sys_get_temp_dir() ?: '/tmp', str_replace('://', ':', $host) . (strpos($host, ":$port") ? '' : ":$port")),
              );
- 
+
              $_ldap = Net_LDAP2::connect($_ldap_cfg);
 -- 
 cgit v1.1
