@@ -27,6 +27,7 @@ hasError=0
 
 # run tests against a vanilla Kolab
 if [[ "$tests" == "all" || "$tests" == "vanilla" ]]; then
+  deleteDomains
   ./testCreateUserAndEditSelf.py KolabWAPCreateUserAndEditSelf.test_edit_user_himself || hasError=1
   ./testRoundcubeChangePassword.py KolabRoundcubeChangePassword.test_edit_user_password || hasError=1
   ./testAutoCreateFolders.py KolabAutoCreateFolders.test_modified_foldername || hasError=1
