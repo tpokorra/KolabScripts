@@ -50,7 +50,7 @@ then
   remove-ds.pl -a -i $dirsrvinstance
 fi
 
-pkgs="389* cyrus-imapd* postfix* mariadb-server* guam* roundcube* pykolab* kolab* libkolab* libcalendaring* httpd php-Net-LDAP3 up-imapproxy nginx stunnel"
+pkgs="389* cyrus-imapd* postfix* mariadb-server* guam* roundcube* pykolab* kolab* libkolab* libcalendaring* httpd php-kolab-net-ldap3 up-imapproxy nginx stunnel"
 if [[ $OBS_repo_OS == CentOS* ]]
 then
   yum -y remove $pkgs || exit -1
