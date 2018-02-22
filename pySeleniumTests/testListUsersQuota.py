@@ -119,7 +119,7 @@ class KolabWAPListQuotaReport(unittest.TestCase):
         self.assertNotEquals(-1, driver.page_source.find('href="#adminreport"'), "should display link to Admin Report")
 
         # should see the report
-        driver.execute_script("return kadm.command('user.userreport', '', this)");
+        driver.find_element_by_xpath("//li[@class=\"userreport\"]/a").click()
         kolabWAPhelper.wait_loading(1)
         self.assertNotEquals(-1, driver.page_source.find('<th>Quota Usage</th>'), "should display the Report");
 
