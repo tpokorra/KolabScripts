@@ -20,10 +20,10 @@ index de98433..1146b8d 100644
      {
          return $this->auth_instance()->find_recipient($address);
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index 06aed37..0bff8ea 100644
+index 59432ef..f0bb787 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -149,6 +149,22 @@ class LDAP extends Net_LDAP3 {
+@@ -146,6 +146,22 @@ class LDAP extends Net_LDAP3 {
          $_SESSION['user']->user_bind_dn = $result;
          $_SESSION['user']->user_bind_pw = $password;
  
@@ -46,7 +46,7 @@ index 06aed37..0bff8ea 100644
          return $result;
      }
  
-@@ -188,6 +204,9 @@ class LDAP extends Net_LDAP3 {
+@@ -185,6 +201,9 @@ class LDAP extends Net_LDAP3 {
              array_unshift($attributes[$domain_name_attribute], $domain);
          }
  
@@ -56,7 +56,7 @@ index 06aed37..0bff8ea 100644
          $domain_dn = $domain_name_attribute . '=' . $domain . ',' . $domain_base_dn;
  
          if (!empty($attributes['inetdomainbasedn'])) {
-@@ -236,6 +255,7 @@ class LDAP extends Net_LDAP3 {
+@@ -233,6 +252,7 @@ class LDAP extends Net_LDAP3 {
              }
              $_aci = $aci;
          }
@@ -64,7 +64,7 @@ index 06aed37..0bff8ea 100644
  
          // @TODO: this list should be configurable or auto-created somehow
          $self_attrs = array(
-@@ -292,7 +312,7 @@ class LDAP extends Net_LDAP3 {
+@@ -289,7 +309,7 @@ class LDAP extends Net_LDAP3 {
                      // Self-modification
                      "(targetattr = \"" . implode(" || ", $self_attrs) . "\")(version 3.0; acl \"Enable self write for common attributes\"; allow (read,compare,search,write) userdn=\"ldap:///self\";)",
                      // Directory Administrators
@@ -73,7 +73,7 @@ index 06aed37..0bff8ea 100644
                      // Configuration Administrators
                      "(targetattr = \"*\")(version 3.0; acl \"Configuration Administrators Group\"; allow (all) groupdn=\"ldap:///cn=Configuration Administrators,ou=Groups,ou=TopologyManagement,o=NetscapeRoot\";)",
                      // Administrator users
-@@ -388,6 +408,10 @@ class LDAP extends Net_LDAP3 {
+@@ -385,6 +405,10 @@ class LDAP extends Net_LDAP3 {
              $this->add_entry($dn, $attrs);
          }
  
@@ -84,7 +84,7 @@ index 06aed37..0bff8ea 100644
          return $domain_dn;
      }
  
-@@ -401,6 +425,18 @@ class LDAP extends Net_LDAP3 {
+@@ -398,6 +422,18 @@ class LDAP extends Net_LDAP3 {
  
          $domain_dn = key($domain);
  
@@ -103,7 +103,7 @@ index 06aed37..0bff8ea 100644
          // We should start throwing stuff over the fence here.
          return $this->modify_entry($domain_dn, $domain[$domain_dn], $attributes);
      }
-@@ -452,6 +488,36 @@ class LDAP extends Net_LDAP3 {
+@@ -449,6 +485,36 @@ class LDAP extends Net_LDAP3 {
              $result = $this->_read($domain_dn, $attributes);
          }
  
@@ -140,7 +140,7 @@ index 06aed37..0bff8ea 100644
          $this->_log(LOG_DEBUG, "Auth::LDAP::domain_info() result: " . var_export($result, true));
  
          return $result ? $result : false;
-@@ -989,6 +1055,10 @@ class LDAP extends Net_LDAP3 {
+@@ -986,6 +1052,10 @@ class LDAP extends Net_LDAP3 {
  
          $user_dn = key($user);
  
@@ -151,7 +151,7 @@ index 06aed37..0bff8ea 100644
          // We should start throwing stuff over the fence here.
          $result = $this->modify_entry($user_dn, $user[$user_dn], $attributes);
  
-@@ -999,8 +1069,24 @@ class LDAP extends Net_LDAP3 {
+@@ -996,8 +1066,24 @@ class LDAP extends Net_LDAP3 {
                  $pass = $result['replace']['userpassword'];
                  $_SESSION['user']->user_bind_pw = is_array($pass) ? implode($pass) : $pass;
              }
@@ -176,7 +176,7 @@ index 06aed37..0bff8ea 100644
          return $result;
      }
  
-@@ -1495,4 +1581,166 @@ class LDAP extends Net_LDAP3 {
+@@ -1492,4 +1578,166 @@ class LDAP extends Net_LDAP3 {
  
          return $directory;
      }
@@ -390,7 +390,7 @@ index 487faeb..31c4d4c 100644
                  'optional' => true,
              ),
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
-index a17595e..3354ca1 100644
+index a17595e..c352752 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
 @@ -1153,6 +1153,78 @@ class kolab_api_service_form_value extends kolab_api_service
@@ -507,7 +507,7 @@ index a17595e..3354ca1 100644
      private function validate_mailalternateaddress($value, $postdata = array(), $validation_type = null)
      {
          $conf = Conf::get_instance();
-@@ -1702,6 +1778,21 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1702,6 +1788,21 @@ class kolab_api_service_form_value extends kolab_api_service
          if (in_array($email_domain, $this->_get_valid_domains($my_primary_domain))) {
              $valid = true;
          }
@@ -619,7 +619,7 @@ index 980932b..05d58f0 100644
              // than defined in object type
              if ($keys_count && $elem_keys_score < $keys_count) {
 diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
-index cc375bc..7c99d26 100644
+index e80e593..af3507e 100644
 --- a/lib/kolab_client_task.php
 +++ b/lib/kolab_client_task.php
 @@ -1184,7 +1184,8 @@ class kolab_client_task
@@ -633,7 +633,7 @@ index cc375bc..7c99d26 100644
                          $fields[$idx]['readonly'] = false;
                      }
 diff --git a/lib/kolab_form.php b/lib/kolab_form.php
-index 9ebf900..89d810b 100644
+index 9ebf900..bd7b84d 100644
 --- a/lib/kolab_form.php
 +++ b/lib/kolab_form.php
 @@ -126,6 +126,8 @@ class kolab_form
@@ -663,6 +663,15 @@ index 9ebf900..89d810b 100644
                      if ($element['type'] == self::INPUT_HIDDEN) {
                          $hidden[] = self::get_element($element);
                          continue;
+@@ -236,7 +249,7 @@ class kolab_form
+                     'body'  => $element['label'],
+                 ),
+                 1 => array(
+-                    'class' => 'value',
++                    'class' => 'value style'.$element['name'],
+                     'body'  => self::get_element($element),
+                 ),
+             );
 diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
 index 2e7d595..fe6d3e8 100644
 --- a/lib/locale/de_DE.php
@@ -717,10 +726,19 @@ index 71fca97..5726b19 100644
  $LANG['user.type_id'] = 'Account type';
  $LANG['user.uid'] = 'Unique identity (UID)';
 diff --git a/public_html/js/kolab_admin.js b/public_html/js/kolab_admin.js
-index 249da95..f5af7f7 100644
+index 249da95..e37a46c 100644
 --- a/public_html/js/kolab_admin.js
 +++ b/public_html/js/kolab_admin.js
-@@ -734,6 +734,19 @@ function kolab_admin()
+@@ -656,6 +656,8 @@ function kolab_admin()
+     ul.innerHTML = '';
+     // move the results pane right under the input box
+     this.ac_pane.css({left: (pos.left - 1)+'px', top: (pos.top + this.ac_input.offsetHeight - 1)+'px', display: 'none'});
++    // same width as input box
++    this.ac_pane.css({width: ($(this.ac_input).width() - 18) + 'px'});
+ 
+     // add each result line to the list
+     for (i in result) {
+@@ -734,6 +736,19 @@ function kolab_admin()
    /*********            Forms widgets              *********/
    /*********************************************************/
  
@@ -740,7 +758,7 @@ index 249da95..f5af7f7 100644
    // Form initialization
    this.form_init = function(id)
    {
-@@ -760,6 +773,12 @@ function kolab_admin()
+@@ -760,6 +775,12 @@ function kolab_admin()
      aci_fields.each(function() { kadm.form_aci_element_wrapper(this); });
      if (aci_fields.length)
        this.form_aci_init();
@@ -753,32 +771,6 @@ index 249da95..f5af7f7 100644
    };
  
    // Form serialization
-diff --git a/lib/kolab_form.php b/lib/kolab_form.php
-index 51a2ebf..f1da879 100644
---- a/lib/kolab_form.php
-+++ b/lib/kolab_form.php
-@@ -251,7 +251,7 @@ class kolab_form
-                     'body'  => $element['label'],
-                 ),
-                 1 => array(
--                    'class' => 'value',
-+                    'class' => 'value style'.$element['name'],
-                     'body'  => self::get_element($element),
-                 ),
-             );
-diff --git a/public_html/js/kolab_admin.js b/public_html/js/kolab_admin.js
-index 9c19e92..ddcec28 100644
---- a/public_html/js/kolab_admin.js
-+++ b/public_html/js/kolab_admin.js
-@@ -656,6 +656,8 @@ function kolab_admin()
-     ul.innerHTML = '';
-     // move the results pane right under the input box
-     this.ac_pane.css({left: (pos.left - 1)+'px', top: (pos.top + this.ac_input.offsetHeight - 1)+'px', display: 'none'});
-+    // same width as input box
-+    this.ac_pane.css({width: ($(this.ac_input).width() - 18) + 'px'});
-
-     // add each result line to the list
-     for (i in result) {
 diff --git a/public_html/skins/default/style.css b/public_html/skins/default/style.css
 index 5a8c598..5c5533b 100644
 --- a/public_html/skins/default/style.css
@@ -786,7 +778,7 @@ index 5a8c598..5c5533b 100644
 @@ -630,6 +630,10 @@ span.listarea {
    color: black;
  }
-
+ 
 +td.styledomainadmin span.listarea {
 +  width: 500px;
 +}
@@ -797,7 +789,7 @@ index 5a8c598..5c5533b 100644
 @@ -654,6 +658,10 @@ span.listelement input {
    line-height: 17px;
  }
-
+ 
 +td.styledomainadmin span.listelement input {
 +  width: 500px;
 +}
@@ -808,7 +800,7 @@ index 5a8c598..5c5533b 100644
 @@ -727,6 +735,10 @@ span.listarea.autocomplete span.listelement input.autocomplete {
    border-radius: 0;
  }
-
+ 
 +td.styledomainadmin .autocomplete > span.listelement input {
 +  width: 500px;
 +}
