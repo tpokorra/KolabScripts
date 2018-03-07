@@ -1,9 +1,9 @@
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index 1321960..e4a919e 100644
+index 47288c7..e41959d 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -271,7 +271,7 @@ class LDAP extends Net_LDAP3 {
-         $admin_readonly_attrs = array("tbitsKolabMaxAccounts", "tbitsKolabOverallQuota");
+@@ -268,7 +268,7 @@ class LDAP extends Net_LDAP3 {
+         }
  
          if (in_array('tbitsKolabUser', $this->classes_allowed())) {
 -            $self_attrs = array_merge($self_attrs, array('tbitsKolabLastLogin'));
@@ -11,7 +11,7 @@ index 1321960..e4a919e 100644
          }
  
          $_domain = str_replace('.', '_', $domain);
-@@ -1102,6 +1102,8 @@ class LDAP extends Net_LDAP3 {
+@@ -1099,6 +1099,8 @@ class LDAP extends Net_LDAP3 {
  
          $user_dn = key($user);
  
@@ -20,7 +20,7 @@ index 1321960..e4a919e 100644
  #        if (empty($attributes['tbitskolabisdomainadmin'])) {
  #            $attributes['tbitskolabisdomainadmin'] = $user[$user_dn]['tbitskolabisdomainadmin'];
  #        }
-@@ -1109,6 +1111,24 @@ class LDAP extends Net_LDAP3 {
+@@ -1106,6 +1108,24 @@ class LDAP extends Net_LDAP3 {
          // We should start throwing stuff over the fence here.
          $result = $this->modify_entry($user_dn, $user[$user_dn], $attributes);
  
@@ -45,11 +45,11 @@ index 1321960..e4a919e 100644
          // Handle modification of current user data
          if (!empty($result) && $user_dn == $_SESSION['user']->user_bind_dn) {
              // update session password
-@@ -1142,6 +1162,59 @@ class LDAP extends Net_LDAP3 {
+@@ -1139,6 +1159,59 @@ class LDAP extends Net_LDAP3 {
          return $this->entry_delete($user);
      }
  
-+    function collect_quota($result) {
++    function collect_quota($result, $force_reload=false) {
 +        $kolabhomeserver = $result['mailhost'];
 +        if (empty($kolabhomeserver)) {
 +            $kolabhomeserver = "localhost";
@@ -59,11 +59,11 @@ index 1321960..e4a919e 100644
 +        $ckey = "quota_".$kolabhomeserver."_".$folder;
 +
 +        // use memcache
-+        if ($result = $this->get_cache_data($ckey)) {
++        if (!$force_reload && $result = $this->get_cache_data($ckey)) {
 +            return $result;
 +        }
 +        // use internal cache
-+        else if (isset($this->icache[$ckey])) {
++        else if (!$force_reload && isset($this->icache[$ckey])) {
 +            return $this->icache[$ckey];
 +        }
 +
@@ -94,8 +94,8 @@ index 1321960..e4a919e 100644
 +            $quota = 'unknown';
 +        }
 +
-+        // cache for one hour
-+        if (!$this->set_cache_data($ckey, $quota, 1*60*60)) {
++        // cache for one day
++        if (!$this->set_cache_data($ckey, $quota, 24*60*60)) {
 +             $this->icache[$ckey] = $quota;
 +        }
 +
@@ -105,15 +105,24 @@ index 1321960..e4a919e 100644
      public function user_info($user, $attributes = array('*'))
      {
          $this->_log(LOG_DEBUG, "Auth::LDAP::user_info() for user " . var_export($user, true));
-@@ -1155,7 +1228,14 @@ class LDAP extends Net_LDAP3 {
+@@ -1150,9 +1223,23 @@ class LDAP extends Net_LDAP3 {
+             return false;
+         }
  
++        if (in_array('force_reload', $attributes)) {
++            $force_reload = true;
++            unset($attributes['force_reload']);
++        } else {
++            $force_reload = false;
++        }
++
          $this->read_prepare($attributes);
  
 -        return $this->_read($user_dn, $attributes);
 +        $result = $this->_read($user_dn, $attributes);
 +
 +        if (in_array('tbitskolabquotaused', $attributes) && in_array('mailhost', $attributes) && in_array('mail', $attributes)) {
-+            $result[$user_dn]['tbitskolabquotaused'] = $this->collect_quota($result[$user_dn]);
++            $result[$user_dn]['tbitskolabquotaused'] = $this->collect_quota($result[$user_dn], $force_reload);
 +        }
 +
 +        return $result;
@@ -121,6 +130,20 @@ index 1321960..e4a919e 100644
      }
  
      public function user_find_by_attribute($attribute)
+diff --git a/lib/api/kolab_api_service_user.php b/lib/api/kolab_api_service_user.php
+index 1c5388e..8375b23 100644
+--- a/lib/api/kolab_api_service_user.php
++++ b/lib/api/kolab_api_service_user.php
+@@ -233,6 +233,9 @@ class kolab_api_service_user extends kolab_api_service
+ 
+         $auth   = Auth::get_instance();
+         $attrs  = $this->object_attributes('user');
++
++        $attrs[] = 'force_reload';
++
+         $result = $auth->user_info($getdata['id'], $attrs);
+ 
+         // normalize result
 diff --git a/lib/client/kolab_client_task_settings.php b/lib/client/kolab_client_task_settings.php
 index 3cb1a6f..ebec8ba 100644
 --- a/lib/client/kolab_client_task_settings.php
@@ -146,7 +169,7 @@ index df5aebe..0faf286 100644
              /* POSIX Attributes first */
              'uid'                       => 'system',
 diff --git a/lib/kolab_client_output.php b/lib/kolab_client_output.php
-index f7bb471..820776d 100644
+index 34c8289..f5d8032 100644
 --- a/lib/kolab_client_output.php
 +++ b/lib/kolab_client_output.php
 @@ -127,7 +127,20 @@ class kolab_client_output
@@ -172,7 +195,7 @@ index f7bb471..820776d 100644
  
      /**
 diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
-index 137b8c0..d8ffc6b 100644
+index 52fbed6..5ce2612 100644
 --- a/lib/kolab_client_task.php
 +++ b/lib/kolab_client_task.php
 @@ -914,6 +914,14 @@ class kolab_client_task
@@ -215,7 +238,7 @@ index dc8b515..f1da879 100644
              $attribs['type'] = 'text';
              $content = kolab_html::inputunixtimestamp($attribs);
 diff --git a/lib/kolab_html.php b/lib/kolab_html.php
-index 911a239..f71839a 100644
+index 911a239..b160f1c 100644
 --- a/lib/kolab_html.php
 +++ b/lib/kolab_html.php
 @@ -209,6 +209,64 @@ class kolab_html
