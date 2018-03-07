@@ -136,9 +136,11 @@ class KolabWAPTestHelpers(unittest.TestCase):
           print( alert.text)
           #alert.accept()
           raise e
-        while (self.driver.page_source.find('div id="loading"') != -1 and self.driver.page_source.find('id="message"') == -1) or (self.driver.page_source.find('id="message">Loading...') != -1) or (self.driver.page_source.find('id="message"><div class="loading">Loading...') != -1):
+        source=self.driver.page_source
+        while (source.find('div id="loading"') != -1 and source.find('id="message"') == -1) or (source.find('id="message">Loading...') != -1) or (source.find('id="message"><div class="loading">Loading...') != -1):
             self.log("loading")
             time.sleep(0.5)
+            source=self.driver.page_source
 
     # login any user to the kolab webadmin 
     def login_kolab_wap(self, url, username, password, expected_error = None):
