@@ -14,10 +14,8 @@ function deleteDomains() {
       kolab delete-domain --force $d
       php /usr/share/kolab-webadmin/bin/purge-deleted-domains
     done
-    top -b -n 1
     systemctl restart dirsrv.target
     systemctl restart httpd
-    top -b -n 1
     sleep 5
 }
 
