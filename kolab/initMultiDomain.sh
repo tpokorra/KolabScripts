@@ -30,10 +30,10 @@ sed -i \
     -e 's/^auth_mech/#auth_mech/g' \
     -e 's/^pts_module/#pts_module/g' \
     -e 's/^ldap_/#ldap_/g' \
-    -e 's/auxprop saslauthd/saslauthd/' \
-    -e '/ptloader/d' \
-    /etc/cyrus.conf \
     /etc/imapd.conf
+sed -i \
+    -e 's/ptloader/#ptloader/g' \
+    /etc/cyrus.conf
 fi
 service cyrus-imapd restart
 
