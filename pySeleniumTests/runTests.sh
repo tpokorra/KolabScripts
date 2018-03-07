@@ -52,9 +52,11 @@ if [[ "$tests" == "all" || "$tests" == "multidomain" ]]; then
   # these tests have been run in vanilla, but this time we run all test cases, and with SSL
   ./testCreateUserAndEditSelf.py || hasError=1
   ./testRoundcubeChangePassword.py || hasError=1
+  deleteDomains
   ./testAutoCreateFolders.py || hasError=1
   ./testUIDAcrossDomains.py || hasError=1
 
+  deleteDomains
   ./testEmailCatchAllAcrossDomains.py || hasError=1
 fi
 
@@ -65,6 +67,7 @@ if [[ "$tests" == "all" || "$tests" == "domainadmin" ]]; then
   ./testDomainAdminDefaultQuota.py || hasError=1
   ./testDomainAdminMaxAccounts.py || hasError=1
   ./testDomainAdminOverallQuota.py || hasError=1
+  deleteDomains
   ./testLastLogin.py || hasError=1
   ./testListUsersQuota.py || hasError=1
 fi
