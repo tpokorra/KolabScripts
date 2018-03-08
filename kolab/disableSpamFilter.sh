@@ -13,3 +13,4 @@ DeterminePythonPath
 
 echo "disabling amavis and clamd"
 patch -p1 -i `pwd`/patches/disableSpamFilter.patch -d $pythonDistPackages || exit -1
+patch -p1 -i `pwd`/patches/disableSpamFilter2.patch -d / || exit -1
