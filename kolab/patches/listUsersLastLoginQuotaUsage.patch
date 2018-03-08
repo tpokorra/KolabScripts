@@ -15,7 +15,7 @@ index 591dd3a..725c2d4 100644
      {
          return $this->auth_instance($domain)->list_groups($attributes, $search, $params);
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index e4a919e..28e07bf 100644
+index 4953a91..cd09f5a 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
 @@ -24,6 +24,7 @@
@@ -85,11 +85,11 @@ index e4a919e..28e07bf 100644
      public function organizationalunit_add($attrs, $typeid = null)
      {
          $base_dn = $this->entry_base_dn('ou', $typeid, $attrs);
-@@ -1215,6 +1260,91 @@ class LDAP extends Net_LDAP3 {
+@@ -1215,6 +1261,91 @@ class LDAP extends Net_LDAP3 {
          return $quota;
      }
  
-+    private function collect_sieve_rules($result) {
++    private function collect_sieve_rules($result, $force_reload=false) {
 +        $mail = $result['mail'];
 +        if (is_array($mail)) {
 +            $mail = $mail[0];
@@ -98,11 +98,11 @@ index e4a919e..28e07bf 100644
 +        $ckey = "sieve_".$mail;
 +
 +        // use memcache
-+        if ($filter = $this->get_cache_data($ckey)) {
++        if (!$force_reload && $filter = $this->get_cache_data($ckey)) {
 +            return $filter;
 +        }
 +        // use internal cache
-+        else if (isset($this->icache[$ckey])) {
++        else if (!$force_reload && isset($this->icache[$ckey])) {
 +            return $this->icache[$ckey];
 +        }
 +
@@ -166,8 +166,8 @@ index e4a919e..28e07bf 100644
 +            $active_sieve_rules = "empty";
 +        }
 +
-+        // cache for one hour
-+        if (!$this->set_cache_data($ckey, $active_sieve_rules, 1*60*60)) {
++        // cache for one day
++        if (!$this->set_cache_data($ckey, $active_sieve_rules, 24*60*60)) {
 +             $this->icache[$ckey] = $active_sieve_rules;
 +        }
 +
@@ -177,8 +177,8 @@ index e4a919e..28e07bf 100644
      public function user_info($user, $attributes = array('*'))
      {
          $this->_log(LOG_DEBUG, "Auth::LDAP::user_info() for user " . var_export($user, true));
-@@ -1226,6 +1337,12 @@ class LDAP extends Net_LDAP3 {
-             return false;
+@@ -1233,6 +1364,12 @@ class LDAP extends Net_LDAP3 {
+             $force_reload = false;
          }
  
 +        if (in_array('sieve', $attributes)) {
@@ -190,13 +190,13 @@ index e4a919e..28e07bf 100644
          $this->read_prepare($attributes);
  
          $result = $this->_read($user_dn, $attributes);
-@@ -1234,6 +1351,14 @@ class LDAP extends Net_LDAP3 {
-             $result[$user_dn]['tbitskolabquotaused'] = $this->collect_quota($result[$user_dn]);
+@@ -1241,6 +1378,14 @@ class LDAP extends Net_LDAP3 {
+             $result[$user_dn]['tbitskolabquotaused'] = $this->collect_quota($result[$user_dn], $force_reload);
          }
  
 +        // check for sieve rules that are active: vacation and forwarding
 +        if (in_array('sieve', $attributes) && in_array('mailrecipient', $result[$user_dn]['objectclass']) && empty($result[$user_dn]['mailforwardingaddress'])) {
-+             $result[$user_dn]['sieve'] = $this->collect_sieve_rules($result[$user_dn]);
++             $result[$user_dn]['sieve'] = $this->collect_sieve_rules($result[$user_dn], $force_reload);
 +             if ($result[$user_dn]['sieve'] == 'empty') {
 +                 $result[$user_dn]['sieve'] = '';
 +             }
@@ -206,7 +206,7 @@ index e4a919e..28e07bf 100644
  
      }
 diff --git a/lib/api/kolab_api_service_user.php b/lib/api/kolab_api_service_user.php
-index 7b230d8..4c3394c 100644
+index 071c339..806c97c 100644
 --- a/lib/api/kolab_api_service_user.php
 +++ b/lib/api/kolab_api_service_user.php
 @@ -64,6 +64,11 @@ class kolab_api_service_user extends kolab_api_service
@@ -221,11 +221,19 @@ index 7b230d8..4c3394c 100644
          $rights['effective_rights'] = "r";
  
          return $rights;
+@@ -234,6 +239,7 @@ class kolab_api_service_user extends kolab_api_service
+         $auth   = Auth::get_instance();
+         $attrs  = $this->object_attributes('user');
+ 
++        $attrs[] = 'sieve';
+         $attrs[] = 'force_reload';
+ 
+         $result = $auth->user_info($getdata['id'], $attrs);
 diff --git a/lib/api/kolab_api_service_users.php b/lib/api/kolab_api_service_users.php
-index 73f3890..1a59a10 100644
+index 73f3890..585a688 100644
 --- a/lib/api/kolab_api_service_users.php
 +++ b/lib/api/kolab_api_service_users.php
-@@ -35,12 +35,20 @@ class kolab_api_service_users extends kolab_api_service
+@@ -35,12 +35,21 @@ class kolab_api_service_users extends kolab_api_service
              'sn',
              'givenname',
              'mail',
@@ -243,10 +251,11 @@ index 73f3890..1a59a10 100644
 +            'tbitskolabmaxaccounts',
 +            'mailForwardingAddress',
 +            'sieve',
++            'force_reload',
          );
  
      /**
-@@ -73,11 +81,26 @@ class kolab_api_service_users extends kolab_api_service
+@@ -73,11 +82,30 @@ class kolab_api_service_users extends kolab_api_service
          $params = $this->parse_list_params($post);
          $search = $this->parse_list_search($post);
  
@@ -266,7 +275,11 @@ index 73f3890..1a59a10 100644
 +        if (in_array('tbitskolabquotaused', $attributes) || in_array('sieve', $attributes)) {
 +            // need to query user_info for each user
 +            foreach ($users['list'] as $uid_dn => $data) {
-+                $detaildata = $auth->user_info($uid_dn, array('uid', 'tbitskolabquotaused', 'mailhost', 'mail', 'sieve'));
++                $info_attributes = array('uid', 'tbitskolabquotaused', 'mailhost', 'mail', 'sieve');
++                if (in_array('force_reload', $attributes)) {
++                    $info_attributes[] = 'force_reload';
++                }
++                $detaildata = $auth->user_info($uid_dn, $info_attributes);
 +                $users['list'][$uid_dn]['tbitskolabquotaused'] = $detaildata[$uid_dn]['tbitskolabquotaused'];
 +                $users['list'][$uid_dn]['sieve'] = $detaildata[$uid_dn]['sieve'];
 +            }
@@ -276,7 +289,7 @@ index 73f3890..1a59a10 100644
      }
  
 diff --git a/lib/client/kolab_client_task_user.php b/lib/client/kolab_client_task_user.php
-index 0faf286..02a713f 100644
+index 0faf286..7490d03 100644
 --- a/lib/client/kolab_client_task_user.php
 +++ b/lib/client/kolab_client_task_user.php
 @@ -28,6 +28,8 @@ class kolab_client_task_user extends kolab_client_task
@@ -430,7 +443,7 @@ index 0faf286..02a713f 100644
      {
          if (empty($attribs['id'])) {
 diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
-index 5458494..7a8b33c 100644
+index 5458494..3e5479d 100644
 --- a/lib/locale/de_DE.php
 +++ b/lib/locale/de_DE.php
 @@ -434,6 +434,18 @@ $LANG['user.postalcode'] = 'Postleitzahl';
@@ -453,7 +466,7 @@ index 5458494..7a8b33c 100644
  $LANG['user.sn'] = 'Nachname';
  $LANG['user.street'] = 'Straße';
 diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
-index 8a459f3..4cf87df 100644
+index 8a459f3..0442acc 100644
 --- a/lib/locale/en_US.php
 +++ b/lib/locale/en_US.php
 @@ -435,6 +435,18 @@ $LANG['user.postalcode'] = 'Postal Code';
