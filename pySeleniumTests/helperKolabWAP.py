@@ -190,7 +190,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem = driver.find_element_by_id("rcmloginpwd")
         elem.send_keys(password)
         driver.find_element_by_class_name("mainaction").click()
-        self.wait_loading()
+        self.wait_loading(1)
 
         # verify success of login
         if len(driver.find_elements_by_xpath("//div[@id=\"message\"]")) > 0:
