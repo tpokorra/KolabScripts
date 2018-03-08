@@ -1,5 +1,5 @@
---- a/usr/share/templates/master.cf.tpl	2017-06-30 17:26:24.826606148 +0200
-+++ b/usr/share/templates/master.cf.tpl	2017-06-30 17:26:57.024321974 +0200
+--- a/share/templates/master.cf.tpl	2017-06-30 17:26:24.826606148 +0200
++++ b/share/templates/master.cf.tpl	2017-06-30 17:26:57.024321974 +0200
 @@ -62,26 +62,26 @@
  scache              unix        -       -       n       -       1       scache
  
