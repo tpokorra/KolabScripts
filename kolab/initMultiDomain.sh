@@ -23,7 +23,7 @@ ldap_domain_name_attribute: associatedDomain
 ldap_domain_scope: sub
 ldap_domain_result_attribute: inetdomainbasedn" >> /etc/imapd.conf
 
-if [ 1 -eq 1 ]
+if [ 1 -eq 0 ]
 then
 # remove canonification
 sed -i \
@@ -154,7 +154,8 @@ then
   echo Downloading patch validateAliasDomainPostfixVirtualFileBug2658.patch
   wget $patchesurl/validateAliasDomainPostfixVirtualFileBug2658.patch -O patches/validateAliasDomainPostfixVirtualFileBug2658.patch
   wget $patchesurl/canonification_via_uid_wap.patch -O patches/canonification_via_uid_wap.patch
-  wget $patchesurl/canonification_via_uid_pykolab -O patches/canonification_via_uid_pykolab.patch
+  wget $patchesurl/canonification_via_uid_roundcube.patch -O patches/canonification_via_uid_roundcube.patch
+  wget $patchesurl/canonification_via_uid_pykolab.patch -O patches/canonification_via_uid_pykolab.patch
 fi
 
 if [ -z $APPLYPATCHES ]
@@ -166,6 +167,7 @@ if [ $APPLYPATCHES -eq 1 ]
 then
   patch -p1 --fuzz=0 -i `pwd`/patches/validateAliasDomainPostfixVirtualFileBug2658.patch -d /usr/share/kolab-webadmin || exit -1
   patch -p1 --fuzz=0 -i `pwd`/patches/canonification_via_uid_wap.patch -d /usr/share/kolab-webadmin || exit -1
+  patch -p1 --fuzz=0 -i `pwd`/patches/canonification_via_uid_roundcube.patch -d /usr/share/roundcubemail || exit -1
   patch -p1 --fuzz=0 -i `pwd`/patches/canonification_via_uid_pykolab.patch -d $pythonDistPackages || exit -1
 fi
 
