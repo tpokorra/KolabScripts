@@ -1,0 +1,74 @@
+diff --git a/plugins/kolab_auth/kolab_auth_ldap.php b/plugins/kolab_auth/kolab_auth_ldap.php
+index 30c82bf..05a5435 100644
+--- a/plugins/kolab_auth/kolab_auth_ldap.php
++++ b/plugins/kolab_auth/kolab_auth_ldap.php
+@@ -37,6 +37,9 @@ class kolab_auth_ldap extends rcube_ldap_generic
+ 
+         $this->conf = $p;
+         $this->conf['kolab_auth_user_displayname'] = $rcmail->config->get('kolab_auth_user_displayname', '{name}');
++        $this->conf['kolab_domain_name_attribute'] = $rcmail->config->get('kolab_domain_name_attribute', 'associateddomain');
++        $this->conf['kolab_domain_base_dn'] = $rcmail->config->get('kolab_domain_base_dn', 'cn=kolab,cn=config');
++        $this->conf['debug_level'] = $rcmail->config->get('debug_level', 0);
+ 
+         $this->fieldmap = $p['fieldmap'];
+         $this->fieldmap['uid'] = 'uid';
+@@ -103,6 +106,48 @@ class kolab_auth_ldap extends rcube_ldap_generic
+     }
+ 
+     /**
++     * Get the mail address of the user uniquely identified with the UID, checking all domains available
++     */
++    function get_mail_of_user_across_domains($user, $filter)
++    {
++        $count = 0;
++        $mail = '';
++
++        if ($result = parent::search($this->conf['kolab_domain_base_dn'], '', '', array($this->conf['kolab_domain_name_attribute']))) {
++            if ($result->count() > 0) {
++                foreach ($result->entries(true) as $dn => $attrs) {
++                    $domain = $attrs[$this->conf['kolab_domain_name_attribute']];
++                    if (is_array($domain)) {
++                        $dc = $this->domain_root_dn($domain[0]);
++                    } else {
++                        $dc = $this->domain_root_dn($domain);
++                    }
++
++                    // check if the user lives in this domain
++                    if ($result2 = parent::search('ou=people,'.$dc, $filter, '', array('mail'))) {
++                        $count += $result2->count();
++                        if ($result2->count() == 1) {
++                            $entries = $result2->entries(true);
++                            $entry = array_pop($entries);
++                            $mail = $entry['mail'];
++                        }
++                    }
++                }
++            }
++        }
++
++        if ($count == 1) {
++            if ($this->conf['debug_level'] > 0) {
++	            rcube::console("Authentication: use mail address $mail for user with UID $user");
++            }
++            return $mail;
++        } else if ($count > 0) {
++            rcube::write_log('errors', "Authentication: found multiple users with UID $user, therefore cancelling login");
++        }
++        return False;
++    }
++
++    /**
+      * Fetches user data from LDAP addressbook
+      */
+     function get_user_record($user, $host)
+@@ -124,6 +169,10 @@ class kolab_auth_ldap extends rcube_ldap_generic
+                 $entry   = $this->field_mapping($dn, $entry);
+ 
+                 return $entry;
++            } else {
++               if ($mail = $this->get_mail_of_user_across_domains($user, $filter)) {
++                    return $this->get_user_record($mail, $host);
++               }
+             }
+         }
+     }
