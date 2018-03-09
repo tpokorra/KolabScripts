@@ -34,7 +34,7 @@ class KolabWAPListQuotaReport(unittest.TestCase):
 
         # check if report is available
         driver.find_element_by_link_text("Users").click()
-        kolabWAPhelper.wait_loading()
+        kolabWAPhelper.wait_loading(1)
         self.assertEquals(-1, driver.page_source.find('href="#userreport"'), "should not display link to User Report")
         self.assertEquals(-1, driver.page_source.find('href="#adminreport"'), "should not display link to Admin Report")
 
@@ -65,7 +65,7 @@ class KolabWAPListQuotaReport(unittest.TestCase):
 
         # check if report is available
         driver.find_element_by_link_text("Users").click()
-        kolabWAPhelper.wait_loading()
+        kolabWAPhelper.wait_loading(1)
         self.assertNotEquals(-1, driver.page_source.find('href="#userreport"'), "should display link to User Report")
         self.assertNotEquals(-1, driver.page_source.find('href="#adminreport"'), "should display link to Admin Report")
 
@@ -93,7 +93,7 @@ class KolabWAPListQuotaReport(unittest.TestCase):
 
         # check if report is available
         driver.find_element_by_link_text("Users").click()
-        kolabWAPhelper.wait_loading()
+        kolabWAPhelper.wait_loading(1)
         self.assertNotEquals(-1, driver.page_source.find('href="#userreport"'), "should display link to User Report")
         self.assertNotEquals(-1, driver.page_source.find('href="#adminreport"'), "should display link to Admin Report")
 
@@ -114,7 +114,7 @@ class KolabWAPListQuotaReport(unittest.TestCase):
 
         # check if report is available
         driver.find_element_by_link_text("Users").click()
-        kolabWAPhelper.wait_loading()
+        kolabWAPhelper.wait_loading(1)
         self.assertNotEquals(-1, driver.page_source.find('href="#userreport"'), "should display link to User Report")
         self.assertNotEquals(-1, driver.page_source.find('href="#adminreport"'), "should display link to Admin Report")
 
