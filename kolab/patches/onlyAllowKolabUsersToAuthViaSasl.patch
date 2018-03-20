@@ -1,0 +1,17 @@
+--- a/pykolab/auth/ldap/__init__.py	2018-03-20 17:11:02.057172236 +0100
++++ b/pykolab/auth/ldap/__init__.py	2018-03-20 17:08:50.159173449 +0100
+@@ -198,12 +198,12 @@
+                 pass
+ 
+         try:
+-            user_filter = self.config_get_raw('user_filter') % (
++            user_filter = self.config_get_raw('kolab_user_filter') % (
+                     {'base_dn': base_dn}
+                 )
+ 
+         except TypeError, errmsg:
+-            user_filter = self.config_get_raw('user_filter')
++            user_filter = self.config_get_raw('kolab_user_filter')
+ 
+         _filter = '(&(|'
+ 
