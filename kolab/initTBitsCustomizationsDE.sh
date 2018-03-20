@@ -1,5 +1,12 @@
 #!/bin/bash
 
+SCRIPTSPATH=`dirname ${BASH_SOURCE[0]}`
+source $SCRIPTSPATH/lib.sh
+
+DetermineOS
+InstallWgetAndPatch
+DeterminePythonPath
+
 #####################################################################################
 # adjust some settings, that might be specific to TBits
 #####################################################################################
@@ -108,6 +115,17 @@ sed -r -i -e "s#config\['password_confirm_current'\].*#config['password_confirm_
 sed -r -i -e "s#config\['password_minimum_length'\].*#config['password_minimum_length'] = 10;#g" /usr/share/roundcubemail/plugins/password/config.inc.php
 sed -r -i -e "s#config\['password_require_nonalpha'\].*#config['password_require_nonalpha'] = true;#g" /usr/share/roundcubemail/plugins/password/config.inc.php
 
+if [ -z $APPLYPATCHES ] 
+then
+  APPLYPATCHES=1
+fi
+
+if [ $APPLYPATCHES -eq 1 ]
+then
+  patch -p1 --fuzz=0 -i `pwd`/patches/onlyAllowKolabUsersToAuthViaSasl.patch -d $pythonDistPackages || exit -1  
+fi
+
 service kolabd start
 service kolab-saslauthd start
+
 
