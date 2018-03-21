@@ -215,19 +215,10 @@ then
 
     service httpd restart
 
-    # make sure that kolab list-domains works for Fedora 22 with a self signed certificate
+    # make sure that kolab list-domains works for Fedora 22 and higher and CentOS 7.4 and higher with a self signed certificate
     # error: ssl.SSLError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:581)
     # see also https://www.python.org/dev/peps/pep-0476/
-    # only fix this in Fedora 22 and higher
-    if [[ $OS == Fedora* && $RELEASE -ge 22 ]]
-    then
-      patch -p1 -i `pwd`/patches/fixSelfSignedCertPykolab.patch -d $pythonDistPackages || exit -1
-    fi
-    # starting with CentOS 7.4, we have the same issue to fix
-    if [[ $OS == CentOS* && $RELEASE -ge 7 ]]
-    then
-      patch -p1 -i `pwd`/patches/fixSelfSignedCertPykolab.patch -d $pythonDistPackages || exit -1
-    fi
+    patch -p1 -i `pwd`/patches/pykolab_wap_client_unverified_context_localhost.patch -d $pythonDistPackages || exit -1
 # for Debian and Ubuntu
 elif [[ $OS == Ubuntu* || $OS == Debian* ]]
 then
@@ -269,11 +260,11 @@ SSLCACertificateFile $key_directory/certs/$server_name.ca-chain.pem\n"
     # only fix this in Debian Jessie, in Debian Wheezy there is no such method: AttributeError: 'module' object has no attribute '_create_unverified_context'
     if [[ $OS == Debian* && $RELEASE -ge 8 ]]
     then
-      patch -p1 -i `pwd`/patches/fixSelfSignedCertPykolab.patch -d $pythonDistPackages || exit -1
+      patch -p1 -i `pwd`/patches/pykolab_wap_client_unverified_context_localhost.patch -d $pythonDistPackages || exit -1
     fi
     if [[ $OS == Ubuntu* ]]
     then
-      patch -p1 -i `pwd`/patches/fixSelfSignedCertPykolab.patch -d $pythonDistPackages || exit -1
+      patch -p1 -i `pwd`/patches/pykolab_wap_client_unverified_context_localhost.patch -d $pythonDistPackages || exit -1
     fi
 fi
 

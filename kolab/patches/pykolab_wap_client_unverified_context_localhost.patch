@@ -8,12 +8,15 @@
  from urlparse import urlparse
  
  import pykolab
-@@ -95,7 +96,7 @@
+@@ -95,7 +96,10 @@
  
      if conn == None:
          if API_SSL:
 -            conn = httplib.HTTPSConnection(API_HOSTNAME, API_PORT)
-+            conn = httplib.HTTPSConnection(API_HOSTNAME, API_PORT, context=ssl._create_unverified_context())
++            if API_HOSTNAME == "localhost":
++                conn = httplib.HTTPSConnection(API_HOSTNAME, API_PORT, context=ssl._create_unverified_context())
++            else:
++                conn = httplib.HTTPSConnection(API_HOSTNAME, API_PORT)
          else:
              conn = httplib.HTTPConnection(API_HOSTNAME, API_PORT)
          conn.connect()
