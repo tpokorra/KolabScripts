@@ -19,4 +19,4 @@
 +                conn = httplib.HTTPSConnection(API_HOSTNAME, API_PORT)
          else:
              conn = httplib.HTTPConnection(API_HOSTNAME, API_PORT)
-         conn.connect()
+ 
