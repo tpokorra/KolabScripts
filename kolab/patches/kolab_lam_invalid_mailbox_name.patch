@@ -1,0 +1,27 @@
+diff --git a/usr/lib/python2.7/site-packages/cyruslib.py.orig b/usr/lib/python2.7/site-packages/cyruslib.py
+index 9e42f39..79f954c 100644
+--- a/cyruslib.py
++++ b/cyruslib.py
+@@ -29,7 +29,7 @@ and defines new CYRUS class for cyrus imapd commands
+ 
+ """
+ 
+-from sys import exit, stdout
++from sys import exit, stdout, stderr
+ 
+ try:
+     import imaplib
+@@ -567,7 +567,12 @@ class CYRUS:
+     def lam(self, mailbox):
+         """List ACLs"""
+         self.__prepare('GETACL', mailbox)
+-        res, acl = self.__docommand("getacl", self.decode(mailbox))
++        try:
++          res, acl = self.__docommand("getacl", self.decode(mailbox))
++        except Exception, info:
++          # show error but continue
++          stderr.write("Error: %s\n" % (info));
++          return {}
+         acls = {}
+         aclList = splitquote(acl.pop().strip())
+         del aclList[0] # mailbox

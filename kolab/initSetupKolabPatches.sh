@@ -37,6 +37,9 @@ sed -i 's#"UTC"===a)#"UTC"===a)\&\&a.indexOf("Etc")<0#' /usr/share/roundcubemail
 echo "do not rename existing mailboxes"
 patch -p1 --fuzz=0 -i `pwd`/patches/pykolab_do_not_rename_existing_mailbox_T3315.patch -d $pythonDistPackages || exit -1
 
+echo "kolab lam should cope with invalid mailbox names more gracefully"
+patch -p1 --fuzz=0 -i `pwd`/patches/kolab_lam_invalid_mailbox_name.patch -d $pythonDistPackages || exit -1
+
 fi
 
 if [[ $OS == Debian* ]]
