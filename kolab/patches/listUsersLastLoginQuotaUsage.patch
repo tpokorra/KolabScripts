@@ -15,18 +15,19 @@ index 591dd3a..725c2d4 100644
      {
          return $this->auth_instance($domain)->list_groups($attributes, $search, $params);
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index 4953a91..cd09f5a 100644
+index 34e6161..93d93bc 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -24,6 +24,7 @@
+@@ -23,6 +23,8 @@
+  +--------------------------------------------------------------------------+
  */
  
- require_once "Net/LDAP3.php";
 +require_once "/usr/share/roundcubemail/plugins/managesieve/lib/Roundcube/rcube_sieve_script.php";
- 
++
  /**
   * Kolab LDAP handling abstraction class.
-@@ -651,6 +652,16 @@ class LDAP extends Net_LDAP3 {
+  */
+@@ -648,6 +650,16 @@ class LDAP extends Net_LDAP3 {
              $result = $this->legacy_rights($subject);
          }
  
@@ -43,7 +44,7 @@ index 4953a91..cd09f5a 100644
          if (!$this->set_cache_data($ckey, $result)) {
               $this->icache[$ckey] = $result;
          }
-@@ -861,6 +872,41 @@ class LDAP extends Net_LDAP3 {
+@@ -858,6 +870,41 @@ class LDAP extends Net_LDAP3 {
          return $this->_list($base_dn, $filter, 'sub', $attributes, $search, $params);
      }
  
@@ -85,7 +86,7 @@ index 4953a91..cd09f5a 100644
      public function organizationalunit_add($attrs, $typeid = null)
      {
          $base_dn = $this->entry_base_dn('ou', $typeid, $attrs);
-@@ -1215,6 +1261,91 @@ class LDAP extends Net_LDAP3 {
+@@ -1212,6 +1259,91 @@ class LDAP extends Net_LDAP3 {
          return $quota;
      }
  
@@ -177,7 +178,7 @@ index 4953a91..cd09f5a 100644
      public function user_info($user, $attributes = array('*'))
      {
          $this->_log(LOG_DEBUG, "Auth::LDAP::user_info() for user " . var_export($user, true));
-@@ -1233,6 +1364,12 @@ class LDAP extends Net_LDAP3 {
+@@ -1230,6 +1362,12 @@ class LDAP extends Net_LDAP3 {
              $force_reload = false;
          }
  
@@ -190,7 +191,7 @@ index 4953a91..cd09f5a 100644
          $this->read_prepare($attributes);
  
          $result = $this->_read($user_dn, $attributes);
-@@ -1241,6 +1378,14 @@ class LDAP extends Net_LDAP3 {
+@@ -1238,6 +1376,14 @@ class LDAP extends Net_LDAP3 {
              $result[$user_dn]['tbitskolabquotaused'] = $this->collect_quota($result[$user_dn], $force_reload);
          }
  
@@ -466,10 +467,10 @@ index 5458494..3e5479d 100644
  $LANG['user.sn'] = 'Nachname';
  $LANG['user.street'] = 'Straße';
 diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
-index 8a459f3..0442acc 100644
+index c6935e3..4939ff0 100644
 --- a/lib/locale/en_US.php
 +++ b/lib/locale/en_US.php
-@@ -435,6 +435,18 @@ $LANG['user.postalcode'] = 'Postal Code';
+@@ -436,6 +436,18 @@ $LANG['user.postalcode'] = 'Postal Code';
  $LANG['user.postbox'] = 'Postal box';
  $LANG['user.postcode'] = 'Postal code';
  $LANG['user.preferredlanguage'] = 'Native tongue';
