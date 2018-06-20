@@ -129,7 +129,8 @@ then
   done
 fi
 
-rpm --import "https://ssl.kolabsys.com/community.asc"
+#rpm --import "https://ssl.kolabsys.com/community.asc"
+rpm --import "http://obs.kolabsys.com/repositories/Kolab:/Winterfell/CentOS_7/repodata/repomd.xml.key"
 
 # add priority = 1 to kolab repo files
 for f in /etc/yum.repos.d/Kolab*.repo /etc/yum.repos.d/tpokorra-Kolab*.repo
