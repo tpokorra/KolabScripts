@@ -107,7 +107,7 @@ then
   #dnf config-manager --add-repo https://copr.fedorainfracloud.org/coprs/tpokorra/Kolab_16/repo/fedora-$RELEASE/tpokorra-Kolab_16-fedora-$RELEASE.repo
 fi
 
-#rpm --import "https://ssl.kolabsys.com/community.asc"
+rpm --import "https://ssl.kolabsys.com/community.asc"
 rpm --import "http://obs.kolabsys.com/repositories/Kolab:/16/CentOS_7/repodata/repomd.xml.key"
 
 # add priority = 1 to kolab repo files
