@@ -227,7 +227,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         driver.get(url + "?_task=logout")
         self.wait_loading()
         elem = driver.find_element_by_class_name("notice")
-        self.assertEquals("You have successfully terminated the session. Good bye!", elem.text, "should have logged out, but was: " + elem.text)
+        self.assertEquals("You have successfully terminated the session. Goodbye!", elem.text, "should have logged out, but was: " + elem.text)
         #driver.delete_all_cookies()
         self.log("User has logged out from Roundcube")
 
