@@ -139,7 +139,7 @@ index 0c03be0..6ad01c3 100644
 +
 +    private function ChangeDomainReadCapability($user, $domain, $action='add')
 +    {
-+        if (($tmpconn = ldap_connect($this->_ldap_server)) === false) {
++        if (($tmpconn = ldap_connect($this->_current_host)) === false) {
 +            return false;
 +        }
 +
