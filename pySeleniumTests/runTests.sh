@@ -70,7 +70,6 @@ if [[ "$tests" == "all" || "$tests" == "domainadmin" ]]; then
   ./testDomainAdminOverallQuota.py || hasError=1
   deleteDomains
   ./testLastLogin.py || hasError=1
-  deleteDomains
   ./testListUsersQuota.py || hasError=1
 fi
 
