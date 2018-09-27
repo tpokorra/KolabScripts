@@ -101,6 +101,9 @@ do
   fi
 done
 
+# need to delete the memcache for effectiveRights
+echo 'flush_all' | nc localhost 11211
+
 #####################################################################################
 #add tbitsKolabUser objectclass to Kolab user, for last login time and the DomainAdmin attributes
 #####################################################################################
