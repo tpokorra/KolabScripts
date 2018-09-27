@@ -218,7 +218,7 @@ then
     # make sure that kolab list-domains works for Fedora 22 and higher and CentOS 7.4 and higher with a self signed certificate
     # error: ssl.SSLError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:581)
     # see also https://www.python.org/dev/peps/pep-0476/
-    patch -p1 -i `pwd`/patches/pykolab_wap_client_unverified_context_localhost.patch -d $pythonDistPackages || exit -1
+    patch -p1 -i `pwd`/patches/pykolab_wap_client_unverified_context_localhost.patch -d $pythonDistPackages 
 # for Debian and Ubuntu
 elif [[ $OS == Ubuntu* || $OS == Debian* ]]
 then
