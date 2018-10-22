@@ -5,13 +5,13 @@
  
          try:
 -            user_filter = self.config_get_raw('user_filter') % (
-+            user_filter = self.config_get_raw('kolab_user_filter' if login[0] == 'cyrus-admin' else 'user_filter') % (
++            user_filter = self.config_get_raw('user_filter' if login[0] == 'cyrus-admin' else 'kolab_user_filter') % (
                      {'base_dn': base_dn}
                  )
  
          except TypeError, errmsg:
 -            user_filter = self.config_get_raw('user_filter')
-+            user_filter = self.config_get_raw('kolab_user_filter' if login[0] == 'cyrus-admin' else 'user_filter')
++            user_filter = self.config_get_raw('user_filter' if login[0] == 'cyrus-admin' else 'kolab_user_filter')
  
          _filter = '(&(|'
  
