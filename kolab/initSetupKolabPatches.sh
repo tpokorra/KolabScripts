@@ -68,9 +68,11 @@ then
   # -- Unit amavisd.service has begun starting up.
   # systemd[3849]: Failed at step NAMESPACE spawning /usr/sbin/amavisd: Invalid argument
   # -- Subject: Process /usr/sbin/amavisd could not be executed
-  sed -i 's/PrivateDevices=true/#PrivateDevices=true/g' /usr/lib/systemd/system/amavisd.service
-  systemctl daemon-reload
-  systemctl restart amavisd.service
+  if [ -f /usr/lib/systemd/system/amavisd.service ]; then
+    sed -i 's/PrivateDevices=true/#PrivateDevices=true/g' /usr/lib/systemd/system/amavisd.service
+    systemctl daemon-reload
+    systemctl restart amavisd.service
+  fi
 else
   if [[ "`dpkg -l | grep guam`" != "" ]]
   then
