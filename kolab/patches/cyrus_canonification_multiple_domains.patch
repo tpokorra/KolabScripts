@@ -5,7 +5,7 @@
              return rc;
  
 -	if (ptsm->domain_base_dn && (strrchr(canon_id, '@') != NULL)) {
-+	if (ptsm->domain_base_dn && (strrchr(canon_id, '@') == NULL)) {
++	if (ptsm->domain_base_dn && (strrchr(canon_id, '@') == NULL) && (strcmp(canon_id, "cyrus-admin") != 0)) {
 +            syslog(LOG_DEBUG, "collecting all domains from %s", ptsm->domain_base_dn);
 +
 +            snprintf(domain_filter, sizeof(domain_filter), ptsm->domain_filter, "*");
