@@ -1,5 +1,5 @@
 function login(u, p) {
-	cy.visit("/")
+	cy.visit("/kolab-webadmin")
 	cy.get('#login_name').clear().type(u)
 	cy.get('#login_pass').clear().type(p)
 	cy.get('#login_submit').click()
