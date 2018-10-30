@@ -3,3 +3,8 @@ pySeleniumTests/ghostdriver.log
 pySeleniumTests/geckodriver.log
 kolab/key
 kolab/keys
+cypress/screenshots
+cypress/fixtures
+cypress/plugins
+cypress/support
+node_modules
