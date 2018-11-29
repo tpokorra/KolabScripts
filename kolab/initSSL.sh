@@ -15,6 +15,11 @@ DetermineOS
 InstallWgetAndPatch
 DeterminePythonPath
 
+if [ -z $APPLYPATCHES ]
+then
+  APPLYPATCHES=1
+fi
+
 #####################################################################################
 # see also https://gist.github.com/dhoffend/7008915 with title: Simple SSL Configuration for Kolab 3.1
 #####################################################################################
@@ -218,7 +223,10 @@ then
     # make sure that kolab list-domains works for Fedora 22 and higher and CentOS 7.4 and higher with a self signed certificate
     # error: ssl.SSLError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:581)
     # see also https://www.python.org/dev/peps/pep-0476/
-    patch -p1 -i `pwd`/patches/pykolab_wap_client_unverified_context_localhost.patch -d $pythonDistPackages || exit -1
+    if [ $APPLYPATCHES -eq 1 ]
+    then
+      patch -p1 -i `pwd`/patches/pykolab_wap_client_unverified_context_localhost.patch -d $pythonDistPackages || exit -1
+    fi
 # for Debian and Ubuntu
 elif [[ $OS == Ubuntu* || $OS == Debian* ]]
 then
@@ -260,11 +268,17 @@ SSLCACertificateFile $key_directory/certs/$server_name.ca-chain.pem\n"
     # only fix this in Debian Jessie, in Debian Wheezy there is no such method: AttributeError: 'module' object has no attribute '_create_unverified_context'
     if [[ $OS == Debian* && $RELEASE -ge 8 ]]
     then
-      patch -p1 -i `pwd`/patches/pykolab_wap_client_unverified_context_localhost.patch -d $pythonDistPackages || exit -1
+      if [ $APPLYPATCHES -eq 1 ]
+      then
+        patch -p1 -i `pwd`/patches/pykolab_wap_client_unverified_context_localhost.patch -d $pythonDistPackages || exit -1
+      fi
     fi
     if [[ $OS == Ubuntu* ]]
     then
-      patch -p1 -i `pwd`/patches/pykolab_wap_client_unverified_context_localhost.patch -d $pythonDistPackages || exit -1
+      if [ $APPLYPATCHES -eq 1 ]
+      then
+        patch -p1 -i `pwd`/patches/pykolab_wap_client_unverified_context_localhost.patch -d $pythonDistPackages || exit -1
+      fi
     fi
 fi
 
