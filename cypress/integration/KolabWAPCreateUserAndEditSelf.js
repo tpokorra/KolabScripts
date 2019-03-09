@@ -1,33 +1,38 @@
-function login(u, p) {
-	cy.visit("/kolab-webadmin")
-	cy.get('#login_name').clear().type(u)
-	cy.get('#login_pass').clear().type(p)
-	cy.get('#login_submit').click()
+import '../support/helpers.js'
+
+function log(message) {
+//      cy.writeFile('/tmp/debug.log', message, { flag: 'a+' })
+        throw "log: " + message
 }
 
-describe('create testerino', function() {
-	it('login and out', function() {
-		login("cn=Directory Manager", "test")
-		cy.get('#topmenu .logout').should("be.visible").click()
-	})
-	it('create user', function() {
-		login("cn=Directory Manager", "test")
-		cy.wait(500)
-		cy.get("#main .user").click()
-		cy.wait(500)
-		cy.get("#user-form .form [name=givenname]").clear().type("Max")
-		cy.get("#user-form .form [name=sn]").clear().type("Musterman")
-		cy.get("#user-form .form [name=initials]").clear().type("MM")
-		cy.get("#user-form .form [name=o]").clear().type("Max Musterman's Farb Tapeten Königreich")
-		cy.get("#user-form .form [name=title]").clear().type("Tapetenmeister")
-		
-		cy.get("#user-form #tab2 a").click()
-		cy.wait(500)
-		cy.get("#user-form [name=userpassword]").clear().type("testtest")
-		cy.get("#user-form [name=userpassword2]").clear().type("testtest")
-		cy.get("#user-form input.submit").click()
+function generateUserName({ prefix = "user"}) {
+        let now = new Date();
+        return prefix + now.getFullYear()+("0" + (now.getMonth() + 1)).slice(-2)+("0" + now.getDate()).slice(-2)+now.getHours()+now.getMinutes()+now.getSeconds()
+}
 
+function helper_user_edits_himself() {
+	cy.get("div[class='settings']").click()
+	cy.get("#user-form [name=initials]").clear().type("T")
+	cy.get("#user-form input.submit").click()
+	cy.get("#message").should('have.text', 'User updated successfully.')
+}
+
+let DirManPwd="test"
+let UserPwd="Test1234!."
+
+describe('test edit user himself', function() {
+	it('test edit user himself', function() {
+		cy.login_wap("cn=Directory Manager", DirManPwd)
+		cy.wait(500)
+		let emailLogin = generateUserName({prefix: "user"})
+
+		cy.create_user({prefix: "user", username: emailLogin, password: UserPwd})
+		cy.logout_wap()
+		cy.login_wap(emailLogin, UserPwd)
+		helper_user_edits_himself()
+		cy.logout_wap()
 	})
+/*
 	it('login as user and change stuff', function() {
 		login("musterman", "testtest")
 		cy.wait(500)
@@ -76,4 +81,5 @@ describe('create testerino', function() {
 		cy.wait(2500)
 		cy.get("#user-form .formbuttons input[onclick*=delete]").click()
 	})
+*/
 })
