@@ -25,7 +25,9 @@ Tests with Cypress
 
 prepare installation:
 
-    npm install
+    curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -
+    yum -y install nodejs libXScrnSaver GConf2 Xvfb
+    npm install cypress
 
 Test with a GUI:
 
