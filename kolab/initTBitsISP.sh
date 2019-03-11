@@ -85,12 +85,8 @@ done
 
 if [ -f /bin/systemctl ]
 then
-   if [[ $OS == Ubuntu* || $OS == Debian* ]]; then
-    # wait a few seconds, on Debian we need to wait for dirsrv to restart
-    systemctl stop dirsrv.target && sleep 10 && systemctl start dirsrv.target && sleep 10
-  else
-    systemctl restart dirsrv.target && sleep 10
-  fi
+  # wait a few seconds, on Debian we need to wait for dirsrv to restart
+  systemctl stop dirsrv.target && sleep 10 && systemctl start dirsrv.target && sleep 10
 else
   # wait a few seconds, on Debian we need to wait for dirsrv to restart
   service dirsrv stop && sleep 10 && service dirsrv start && sleep 10
