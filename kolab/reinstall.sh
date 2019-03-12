@@ -56,6 +56,7 @@ echo "   ./initHttpTunnel.sh"
 echo "   ./initSSL.sh "${h:`expr index $h .`}
 #echo "   ./initRoundcubePlugins.sh"
 echo "   ./initMultiDomain.sh"
+echo "   ./disableCanonification.sh # for unpatched and old Cyrus 2.5"
 echo "   ./initMailForward.sh"
 echo "   ./initMailCatchall.sh"
 echo "   ./initTBitsISP.sh"
