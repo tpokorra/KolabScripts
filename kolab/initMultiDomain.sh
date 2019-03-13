@@ -8,9 +8,7 @@ InstallWgetAndPatch
 DeterminePythonPath
 
 #####################################################################################
-#Removing Canonification from Cyrus IMAP
-# TODO: could preserve canonification: http://lists.kolab.org/pipermail/users/2012-August/013711.html
-# but that would mean that we need separate files for each domain...
+# Prepare Canonification for Cyrus IMAP
 #####################################################################################
 cp -f /etc/imapd.conf /etc/imapd.conf.beforeMultiDomain
 sed -i -e "s#ldap_base: .*#ldap_base: dc=%2,dc=%1#g" /etc/imapd.conf
@@ -23,18 +21,6 @@ ldap_domain_name_attribute: associatedDomain
 ldap_domain_scope: sub
 ldap_domain_result_attribute: inetdomainbasedn" >> /etc/imapd.conf
 
-if [ 1 -eq 0 ]
-then
-# remove canonification
-sed -i \
-    -e 's/^auth_mech/#auth_mech/g' \
-    -e 's/^pts_module/#pts_module/g' \
-    -e 's/^ldap_/#ldap_/g' \
-    /etc/imapd.conf
-sed -i \
-    -e 's/ptloader/#ptloader/g' \
-    /etc/cyrus.conf
-fi
 service cyrus-imapd restart
 
 #enable unique ids across domains, to allow login with uid
