@@ -100,6 +100,7 @@ do
     rm -f $d/tmp/*Net_LDAP2_Schema.cache
   fi
 done
+rm -f /tmp/ldap\:localhost\:389-Net_LDAP2_Schema.cache
 
 # need to delete the memcache for effectiveRights
 echo 'flush_all' | nc localhost 11211 || exit -1
