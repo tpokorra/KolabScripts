@@ -90,4 +90,11 @@ if ($result === false) {
 }
 
 echo "added new user type domainadmin\n";
+
+# for debugging:
+$auth = Auth::get_instance();
+$user_types = new kolab_api_service_user_types(null);
+$list = $user_types->user_types_list(null, null);
+print_r($list);
+
 ?>

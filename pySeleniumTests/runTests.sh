@@ -65,6 +65,8 @@ if [[ "$tests" == "all" || "$tests" == "domainadmin" ]]; then
   ./testDomainAdminOverallQuota.py || hasError=1
   deleteDomains
   ./testLastLogin.py || hasError=1
+  # for debugging
+  ldapsearch -D "cn=Directory Manager" -w "test" -b dc=lbs,dc=solidcharity,dc=com
   ./testListUsersQuota.py || hasError=1
 fi
 
