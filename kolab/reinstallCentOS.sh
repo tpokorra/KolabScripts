@@ -129,10 +129,10 @@ then
   done
 fi
 
-rpm --import "https://ssl.kolabsys.com/community.asc"
-rpm --import "http://obs.kolabsys.com/repositories/Kolab:/Winterfell/CentOS_7/repodata/repomd.xml.key"
+rpm --import "https://ssl.kolabsys.com/community.asc" || exit -1
+rpm --import "http://obs.kolabsys.com/repositories/Kolab:/Winterfell/CentOS_7/repodata/repomd.xml.key" || exit -1
 # https://keyserver.ubuntu.com/pks/lookup?search=devel%40lists.kolab.org&op=vindex
-rpm --import "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x830C2BCF446D5A45"
+rpm --import "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x830C2BCF446D5A45" || rpm --import ~/.ssh/devel-lists.kolab.org.key || exit -1
 
 # add priority = 1 to kolab repo files
 for f in /etc/yum.repos.d/Kolab*.repo /etc/yum.repos.d/tpokorra-Kolab*.repo
