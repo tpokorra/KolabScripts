@@ -25,7 +25,8 @@ index c0c3297..0bfcac7 100644
 +
              except ldap.NO_SUCH_OBJECT, errmsg:
                  log.debug(
-                         _("Error occured, there is no such object: %r") % (diff --git a/pykolab/auth/ldap/auth_cache.py b/pykolab/auth/ldap/auth_cache.py
+                         _("Error occured, there is no such object: %r") % (
+diff --git a/pykolab/auth/ldap/auth_cache.py b/pykolab/auth/ldap/auth_cache.py
 index 831e444..d1c6057 100644
 --- a/pykolab/auth/ldap/auth_cache.py
 +++ b/pykolab/auth/ldap/auth_cache.py
