@@ -382,7 +382,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         driver.find_element_by_xpath("//td[@class='buttons']/input[@value='Edit...']").click()
         self.wait_loading(1.0)
         driver.find_element_by_xpath("//select[@id='acl-type']/option[@value='all']").click()
-        driver.find_element_by_xpath("//div[@class='modal_btn_buttonok']").click()
+        driver.find_element_by_xpath("//button[@class='btn btn-primary']").click()
         
         self.wait_loading(1.0)
         elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]")
