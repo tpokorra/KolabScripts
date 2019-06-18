@@ -1,8 +1,8 @@
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index 1321960..4953a91 100644
+index 6e7b3d8..0bc611c 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -271,7 +271,7 @@ class LDAP extends Net_LDAP3 {
+@@ -268,7 +268,7 @@ class LDAP extends Net_LDAP3 {
          $admin_readonly_attrs = array("tbitsKolabMaxAccounts", "tbitsKolabOverallQuota");
  
          if (in_array('tbitsKolabUser', $this->classes_allowed())) {
@@ -11,7 +11,7 @@ index 1321960..4953a91 100644
          }
  
          $_domain = str_replace('.', '_', $domain);
-@@ -1102,6 +1102,8 @@ class LDAP extends Net_LDAP3 {
+@@ -1099,6 +1099,8 @@ class LDAP extends Net_LDAP3 {
  
          $user_dn = key($user);
  
@@ -20,7 +20,7 @@ index 1321960..4953a91 100644
  #        if (empty($attributes['tbitskolabisdomainadmin'])) {
  #            $attributes['tbitskolabisdomainadmin'] = $user[$user_dn]['tbitskolabisdomainadmin'];
  #        }
-@@ -1109,6 +1111,24 @@ class LDAP extends Net_LDAP3 {
+@@ -1106,6 +1108,24 @@ class LDAP extends Net_LDAP3 {
          // We should start throwing stuff over the fence here.
          $result = $this->modify_entry($user_dn, $user[$user_dn], $attributes);
  
@@ -45,7 +45,7 @@ index 1321960..4953a91 100644
          // Handle modification of current user data
          if (!empty($result) && $user_dn == $_SESSION['user']->user_bind_dn) {
              // update session password
-@@ -1142,6 +1162,59 @@ class LDAP extends Net_LDAP3 {
+@@ -1139,6 +1159,59 @@ class LDAP extends Net_LDAP3 {
          return $this->entry_delete($user);
      }
  
@@ -105,7 +105,7 @@ index 1321960..4953a91 100644
      public function user_info($user, $attributes = array('*'))
      {
          $this->_log(LOG_DEBUG, "Auth::LDAP::user_info() for user " . var_export($user, true));
-@@ -1153,9 +1226,23 @@ class LDAP extends Net_LDAP3 {
+@@ -1150,9 +1223,23 @@ class LDAP extends Net_LDAP3 {
              return false;
          }
  
@@ -145,7 +145,7 @@ index 7b230d8..071c339 100644
  
          // normalize result
 diff --git a/lib/client/kolab_client_task_settings.php b/lib/client/kolab_client_task_settings.php
-index 3cb1a6f..ebec8ba 100644
+index 4e4480a..30803c2 100644
 --- a/lib/client/kolab_client_task_settings.php
 +++ b/lib/client/kolab_client_task_settings.php
 @@ -34,6 +34,7 @@ class kolab_client_task_settings extends kolab_client_task
@@ -157,7 +157,7 @@ index 3cb1a6f..ebec8ba 100644
          'list', 'list-autocomplete', 'checkbox', 'password', 'ldap_url',
          'aci', 'imap_acl',
 diff --git a/lib/client/kolab_client_task_user.php b/lib/client/kolab_client_task_user.php
-index df5aebe..0faf286 100644
+index 0cf2002..c46a50a 100644
 --- a/lib/client/kolab_client_task_user.php
 +++ b/lib/client/kolab_client_task_user.php
 @@ -130,6 +130,7 @@ class kolab_client_task_user extends kolab_client_task
@@ -169,7 +169,7 @@ index df5aebe..0faf286 100644
              /* POSIX Attributes first */
              'uid'                       => 'system',
 diff --git a/lib/kolab_client_output.php b/lib/kolab_client_output.php
-index f7bb471..820776d 100644
+index 34c8289..f5d8032 100644
 --- a/lib/kolab_client_output.php
 +++ b/lib/kolab_client_output.php
 @@ -127,7 +127,20 @@ class kolab_client_output
@@ -195,10 +195,10 @@ index f7bb471..820776d 100644
  
      /**
 diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
-index 137b8c0..d8ffc6b 100644
+index e0214b4..e909ab4 100644
 --- a/lib/kolab_client_task.php
 +++ b/lib/kolab_client_task.php
-@@ -914,6 +914,14 @@ class kolab_client_task
+@@ -930,6 +930,14 @@ class kolab_client_task
              $result['default'] = $field['default'];
              break;
  
@@ -214,7 +214,7 @@ index 137b8c0..d8ffc6b 100644
              $result['type']      = kolab_form::INPUT_TEXTAREA;
              $result['data-type'] = 'aci';
 diff --git a/lib/kolab_form.php b/lib/kolab_form.php
-index dc8b515..f1da879 100644
+index 408dceb..089b5d5 100644
 --- a/lib/kolab_form.php
 +++ b/lib/kolab_form.php
 @@ -39,6 +39,7 @@ class kolab_form
@@ -225,7 +225,7 @@ index dc8b515..f1da879 100644
      const INPUT_TEXTUNIXTIMESTAMP = 40;
  
      private $attribs  = array();
-@@ -295,6 +296,11 @@ class kolab_form
+@@ -298,6 +299,11 @@ class kolab_form
              $content = kolab_html::inputquota($attribs);
              break;
  
@@ -238,11 +238,11 @@ index dc8b515..f1da879 100644
              $attribs['type'] = 'text';
              $content = kolab_html::inputunixtimestamp($attribs);
 diff --git a/lib/kolab_html.php b/lib/kolab_html.php
-index 911a239..b160f1c 100644
+index 1255870..7998d8b 100644
 --- a/lib/kolab_html.php
 +++ b/lib/kolab_html.php
-@@ -209,6 +209,64 @@ class kolab_html
-         return self::input($attribs) . self::select($select);
+@@ -227,6 +227,64 @@ class kolab_html
+         ));
      }
  
 +    public static function quota_to_read($valueInKB, $precise=false)
@@ -307,10 +307,10 @@ index 911a239..b160f1c 100644
       * Readonly control that will display the time encoded as a unix timestamp. Used for displaying tbitsKolabLastLogin
       *
 diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
-index e42ec2c..5458494 100644
+index 604e141..6d23676 100644
 --- a/lib/locale/de_DE.php
 +++ b/lib/locale/de_DE.php
-@@ -459,4 +459,7 @@ $LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
+@@ -458,4 +458,7 @@ $LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
  $LANG['user.tbitskolabdefaultquota'] = 'Voreinstellung Quota für Benutzerkonten';
  $LANG['user.statistics'] = 'Info';
  $LANG['user.tbitskolablastlogin'] = 'Letzte erfolgreiche Anmeldung';
@@ -319,7 +319,7 @@ index e42ec2c..5458494 100644
 +$LANG['quota.nomailbox'] = "Noch kein Postfach vorhanden";
  
 diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
-index b8a9502..8a459f3 100644
+index ef2d1a1..16ae1ff 100644
 --- a/lib/locale/en_US.php
 +++ b/lib/locale/en_US.php
 @@ -446,6 +446,9 @@ $LANG['user.tbitskolabmaxaccounts'] = 'Maximum number of accounts';
