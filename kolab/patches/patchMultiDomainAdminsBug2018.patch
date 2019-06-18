@@ -390,7 +390,7 @@ index 487faeb..31c4d4c 100644
                  'optional' => true,
              ),
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
-index a17595e..c352752 100644
+index 532010f..dcb525e 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
 @@ -1153,6 +1153,78 @@ class kolab_api_service_form_value extends kolab_api_service
@@ -507,7 +507,7 @@ index a17595e..c352752 100644
      private function validate_mailalternateaddress($value, $postdata = array(), $validation_type = null)
      {
          $conf = Conf::get_instance();
-@@ -1702,6 +1788,21 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1704,6 +1790,21 @@ class kolab_api_service_form_value extends kolab_api_service
          if (in_array($email_domain, $this->_get_valid_domains($my_primary_domain))) {
              $valid = true;
          }
@@ -566,7 +566,7 @@ index 22cce3d..54fe81b 100644
          $form = $this->form_create('domain', $attribs, $sections, $fields, $fields_map, $data, $add_mode, $title);
  
 diff --git a/lib/client/kolab_client_task_user.php b/lib/client/kolab_client_task_user.php
-index 357d7c6..691d256 100644
+index 9171c7f..39d8557 100644
 --- a/lib/client/kolab_client_task_user.php
 +++ b/lib/client/kolab_client_task_user.php
 @@ -88,6 +88,7 @@ class kolab_client_task_user extends kolab_client_task
@@ -589,7 +589,7 @@ index 357d7c6..691d256 100644
              'kolabfreebusyfuture'       => 'config',
              'kolabinvitationpolicy'     => 'config',
 diff --git a/lib/kolab_api_service.php b/lib/kolab_api_service.php
-index 980932b..05d58f0 100644
+index b552342..1e72748 100644
 --- a/lib/kolab_api_service.php
 +++ b/lib/kolab_api_service.php
 @@ -111,6 +111,10 @@ abstract class kolab_api_service
@@ -619,10 +619,10 @@ index 980932b..05d58f0 100644
              // than defined in object type
              if ($keys_count && $elem_keys_score < $keys_count) {
 diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
-index e80e593..af3507e 100644
+index 944ac2d..d764a26 100644
 --- a/lib/kolab_client_task.php
 +++ b/lib/kolab_client_task.php
-@@ -1184,7 +1184,8 @@ class kolab_client_task
+@@ -1200,7 +1200,8 @@ class kolab_client_task
                  }
              }
              else {
@@ -633,7 +633,7 @@ index e80e593..af3507e 100644
                          $fields[$idx]['readonly'] = false;
                      }
 diff --git a/lib/kolab_form.php b/lib/kolab_form.php
-index 9ebf900..bd7b84d 100644
+index 9b5b010..5d8b99a 100644
 --- a/lib/kolab_form.php
 +++ b/lib/kolab_form.php
 @@ -126,6 +126,8 @@ class kolab_form
@@ -663,20 +663,20 @@ index 9ebf900..bd7b84d 100644
                      if ($element['type'] == self::INPUT_HIDDEN) {
                          $hidden[] = self::get_element($element);
                          continue;
-@@ -236,7 +249,7 @@ class kolab_form
-                     'body'  => $element['label'],
-                 ),
-                 1 => array(
--                    'class' => 'value',
-+                    'class' => 'value style'.$element['name'],
-                     'body'  => self::get_element($element),
-                 ),
-             );
+@@ -242,7 +255,7 @@ class kolab_form
+                 'content' => $element['label'],
+                 ), true)
+                 . kolab_html::div(array(
+-                    'class'   => $class,
++                    'class'   => $class.' style'.$element['name'],
+                     'content' => $content,
+                 ));
+         }
 diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
-index 2e7d595..fe6d3e8 100644
+index d614795..4f91398 100644
 --- a/lib/locale/de_DE.php
 +++ b/lib/locale/de_DE.php
-@@ -449,3 +449,12 @@ $LANG['user.uidnumber'] = 'Benutzer ID Nummer';
+@@ -448,3 +448,12 @@ $LANG['user.uidnumber'] = 'Benutzer ID Nummer';
  $LANG['welcome'] = 'Willkommen bei der Kolab Groupware Server-Wartung';
  
  $LANG['yes'] = 'ja';
@@ -690,10 +690,10 @@ index 2e7d595..fe6d3e8 100644
 +$LANG['user.tbitskolabdefaultquota'] = 'Voreinstellung Quota für Benutzerkonten';
 +
 diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
-index 71fca97..5726b19 100644
+index bb59ce2..42f97a5 100644
 --- a/lib/locale/en_US.php
 +++ b/lib/locale/en_US.php
-@@ -128,10 +128,12 @@ $LANG['deleting'] = 'Deleting data...';
+@@ -129,10 +129,12 @@ $LANG['deleting'] = 'Deleting data...';
  
  $LANG['domain.add'] = 'Add Domain';
  $LANG['domain.add.success'] = 'Domain created successfully.';
@@ -726,19 +726,19 @@ index 71fca97..5726b19 100644
  $LANG['user.type_id'] = 'Account type';
  $LANG['user.uid'] = 'Unique identity (UID)';
 diff --git a/public_html/js/kolab_admin.js b/public_html/js/kolab_admin.js
-index 249da95..e37a46c 100644
+index 0454ce4..fcc962c 100644
 --- a/public_html/js/kolab_admin.js
 +++ b/public_html/js/kolab_admin.js
-@@ -656,6 +656,8 @@ function kolab_admin()
+@@ -657,6 +657,8 @@ function kolab_admin()
      ul.innerHTML = '';
      // move the results pane right under the input box
-     this.ac_pane.css({left: (pos.left - 1)+'px', top: (pos.top + this.ac_input.offsetHeight - 1)+'px', display: 'none'});
+     this.ac_pane.css({left: pos.left + 'px', top: (pos.top + this.ac_input.offsetHeight - 1)+'px', display: 'none'});
 +    // same width as input box
 +    this.ac_pane.css({width: ($(this.ac_input).width() - 18) + 'px'});
  
      // add each result line to the list
      for (i in result) {
-@@ -734,6 +736,19 @@ function kolab_admin()
+@@ -735,6 +737,19 @@ function kolab_admin()
    /*********            Forms widgets              *********/
    /*********************************************************/
  
@@ -758,7 +758,7 @@ index 249da95..e37a46c 100644
    // Form initialization
    this.form_init = function(id)
    {
-@@ -760,6 +775,12 @@ function kolab_admin()
+@@ -761,6 +776,12 @@ function kolab_admin()
      aci_fields.each(function() { kadm.form_aci_element_wrapper(this); });
      if (aci_fields.length)
        this.form_aci_init();
@@ -772,39 +772,25 @@ index 249da95..e37a46c 100644
  
    // Form serialization
 diff --git a/public_html/skins/default/style.css b/public_html/skins/default/style.css
-index 5a8c598..5c5533b 100644
+index 0cb9af5..9aa5438 100644
 --- a/public_html/skins/default/style.css
 +++ b/public_html/skins/default/style.css
-@@ -630,6 +630,10 @@ span.listarea {
-   color: black;
- }
+@@ -923,4 +923,16 @@ body.signup #footer {
  
+ body.signup #message {
+   top: 55px;
+-}
+\ No newline at end of file
++}
++
 +td.styledomainadmin span.listarea {
 +  width: 500px;
 +}
 +
- span.listelement {
-   display: block;
-   padding: 0;
-@@ -654,6 +658,10 @@ span.listelement input {
-   line-height: 17px;
- }
- 
 +td.styledomainadmin span.listelement input {
 +  width: 500px;
 +}
 +
- span.listarea.disabled span.listelement input,
- span.listarea.readonly span.listelement input {
-   width: 370px;
-@@ -727,6 +735,10 @@ span.listarea.autocomplete span.listelement input.autocomplete {
-   border-radius: 0;
- }
- 
 +td.styledomainadmin .autocomplete > span.listelement input {
 +  width: 500px;
 +}
-+
- .autocomplete > span.listelement span.actions {
-   width: 18px;
- }
