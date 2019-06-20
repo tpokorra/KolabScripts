@@ -668,7 +668,7 @@ index 9b5b010..78565e5 100644
                  ), true)
                  . kolab_html::div(array(
 -                    'class'   => $class,
-+                    'class'   => $class.' style'.$element['name']',
++                    'class'   => $class.' style'.$element['name'],
                      'content' => $content,
                  ));
          }
