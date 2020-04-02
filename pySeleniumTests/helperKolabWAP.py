@@ -700,15 +700,15 @@ class KolabWAPTestHelpers(unittest.TestCase):
         emailSubjectLine = "subject" + datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
         self.wait_loading(2)
-        driver.find_element_by_xpath("//div[@id=\"messagetoolbar\"]/a[contains(@class,'button') and contains(@class,'compose')]").click()
+        driver.find_element_by_xpath("//ul[@id='toolbar-menu']/li/a[contains(@class,'compose')]").click()
         self.wait_loading(2)
-        elem = driver.find_element_by_name("_to")
+        elem = driver.find_element_by_xpath("//ul[contains(@class,'recipient-input')]/li/input")
         elem.send_keys(recipientEmailAddress)
         elem = driver.find_element_by_name("_subject")
         elem.send_keys(emailSubjectLine)
         elem = driver.find_element_by_name("_message")
         elem.send_keys("Hello World")
-        driver.find_element_by_xpath("//div[@id=\"messagetoolbar\"]/a[@class=\"button send\"]").click()
+        driver.find_element_by_xpath("//div[contains(@class,'formbuttons')]/button[contains(@class,'send')]").click()
         self.wait_loading(1)
         if 'ui-dialog-title' in self.driver.page_source:
           elem = driver.find_element_by_class_name("ui-dialog-title")
@@ -771,7 +771,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
              except NoSuchElementException:
                print("no such element")
                pass
-             self.assertTrue(False, "the first email does not have the subject " + emailSubjectLine + instead) 
+             if not emailSubjectLine in elem.text:
+               self.assertTrue(False, "the first email does not have the subject " + emailSubjectLine + instead) 
            if not emailSubjectLine in elem.text:
              self.assertTrue(False, "the first email does not have the subject " + emailSubjectLine + " but instead " + elem.text())
         if emailSubjectLineDoesNotContain is not None:
