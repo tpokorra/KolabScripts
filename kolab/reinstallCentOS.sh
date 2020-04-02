@@ -129,7 +129,8 @@ then
   tryagain=0
   yum -y install kolab kolab-freebusy patch unzip php-imap nmap-ncat || tryagain=1
   if [ $tryagain -eq 1 ]; then
-    yum clean metadata
+    # yum clean metadata
+    sleep 30
     yum -y install kolab kolab-freebusy patch unzip php-imap nmap-ncat || exit -1
   fi
   if [ -z $WITHOUTSPAMFILTER ]
