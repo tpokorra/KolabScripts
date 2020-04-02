@@ -1,11 +1,16 @@
---- a/plugins/libkolab/lib/kolab_storage_cache.php    2015-03-19 17:34:26.055006845 +0100
-+++ b/plugins/libkolab/lib/kolab_storage_cache.php    2015-03-19 17:34:55.222006449 +0100
-@@ -855,7 +855,7 @@
+--- a/plugins/libkolab/lib/kolab_storage_cache.php	2020-04-02 10:37:32.846215608 +0200
++++ b/plugins/libkolab/lib/kolab_storage_cache.php	2020-04-02 10:43:26.215236135 +0200
+@@ -953,9 +953,11 @@
+         if ($object) {
              $sql_data = $this->_serialize($object);
-
-             // Skip multifolder insert for Oracle, we can't put long data inline
--            if ($this->db->db_provider == 'oracle') {
-+            if (($this->db->db_provider == 'oracle') || ($this->db->db_provider == 'mysql')) {
-                 $extra_cols = '';
-                 if ($this->extra_cols) {
-                     $extra_cols = array_map(function($n) { return "`{$n}`"; }, $this->extra_cols);
+ 
+-            // Skip multi-folder insert for all databases but MySQL
++            // Skip multi-folder insert for all databases
+             // In Oracle we can't put long data inline, others we don't support yet
+-            if (strpos($this->db->db_provider, 'mysql') !== 0) {
++            // For TBits.net, we had an issue with too long statements, even in MySQL.
++            // see https://lists.kolabsys.com/pipermail/bugzilla/2015-March/023498.html
++            if (true) {
+                 $extra_args = array();
+                 $params = array($this->folder_id, $msguid, $object['uid'], $sql_data['changed'],
+                     $sql_data['data'], $sql_data['tags'], $sql_data['words']);
