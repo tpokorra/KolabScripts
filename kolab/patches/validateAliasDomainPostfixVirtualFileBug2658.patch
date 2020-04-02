@@ -1,7 +1,7 @@
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
-@@ -1120,6 +1120,9 @@
+@@ -1213,6 +1213,9 @@
                  if (!$this->_validate_email_address_in_any_of_my_domains($mail_address)) {
                      throw new Exception("Email address '$mail_address' not in local domain", 693);
                  }
@@ -11,7 +11,7 @@ diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_servic
              }
          }
  
-@@ -1514,4 +1514,56 @@
+@@ -1688,4 +1691,56 @@
          return $valid;
      }
  

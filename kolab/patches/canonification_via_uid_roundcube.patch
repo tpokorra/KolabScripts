@@ -1,8 +1,8 @@
-diff --git a/plugins/kolab_auth/kolab_auth_ldap.php b/plugins/kolab_auth/kolab_auth_ldap.php
-index 30c82bf..05a5435 100644
---- a/plugins/kolab_auth/kolab_auth_ldap.php
-+++ b/plugins/kolab_auth/kolab_auth_ldap.php
-@@ -37,6 +37,9 @@ class kolab_auth_ldap extends rcube_ldap_generic
+diff --git a/plugins/libkolab/lib/kolab_ldap.php b/plugins/libkolab/lib/kolab_ldap.php
+index 29984b0..62b3f6b 100644
+--- a/plugins/libkolab/lib/kolab_ldap.php
++++ b/plugins/libkolab/lib/kolab_ldap.php
+@@ -37,6 +37,9 @@ class kolab_ldap extends rcube_ldap_generic
  
          $this->conf = $p;
          $this->conf['kolab_auth_user_displayname'] = $rcmail->config->get('kolab_auth_user_displayname', '{name}');
@@ -12,7 +12,7 @@ index 30c82bf..05a5435 100644
  
          $this->fieldmap = $p['fieldmap'];
          $this->fieldmap['uid'] = 'uid';
-@@ -103,6 +106,48 @@ class kolab_auth_ldap extends rcube_ldap_generic
+@@ -234,6 +237,48 @@ class kolab_ldap extends rcube_ldap_generic
      }
  
      /**
@@ -61,7 +61,7 @@ index 30c82bf..05a5435 100644
       * Fetches user data from LDAP addressbook
       */
      function get_user_record($user, $host)
-@@ -124,6 +169,10 @@ class kolab_auth_ldap extends rcube_ldap_generic
+@@ -255,6 +300,10 @@ class kolab_ldap extends rcube_ldap_generic
                  $entry   = $this->field_mapping($dn, $entry);
  
                  return $entry;
