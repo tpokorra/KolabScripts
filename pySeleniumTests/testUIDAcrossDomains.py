@@ -39,7 +39,7 @@ class KolabUniqueIDAcrossDomains(unittest.TestCase):
         elem.click()
         elem = driver.find_element_by_xpath("//tr[@id='attr_table_row_uid']/td[@class='actions']/a[@href='#edit']").click()
         self.kolabWAPhelper.wait_loading(0.5)
-        driver.find_element_by_xpath("//tr[@id='attr_form_row_value']/td[@class='value']/select/option[@value='auto']").click()
+        driver.find_element_by_xpath("//tr[@id='type_attr_form']//select[@name='attr_value']/option[@value='auto']").click()
         driver.find_element_by_xpath("//input[@value='Save']").click()
         
         elem = driver.find_element_by_xpath("//input[@value=\"Submit\"]").click()
