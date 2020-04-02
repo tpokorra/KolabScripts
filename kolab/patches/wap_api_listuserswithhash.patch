@@ -1,5 +1,7 @@
---- a/lib/api/kolab_api_service_users.php	2017-01-20 10:02:32.796156908 +0100
-+++ b/lib/api/kolab_api_service_users.php	2017-01-20 10:02:50.381156889 +0100
+diff --git a/lib/api/kolab_api_service_users.php b/lib/api/kolab_api_service_users.php
+index 585a688..4e8e586 100644
+--- a/lib/api/kolab_api_service_users.php
++++ b/lib/api/kolab_api_service_users.php
 @@ -36,6 +36,7 @@ class kolab_api_service_users extends kolab_api_service
              'givenname',
              'mail',
@@ -8,19 +10,7 @@
              'objectclass',
              'uidnumber',
              'gidnumber',
---- a/lib/kolab_api_controller.php	2016-06-27 11:57:13.000000000 +0200
-+++ b/lib/kolab_api_controller.php	2017-08-31 09:26:53.802753277 +0200
-@@ -204,6 +204,7 @@
-         $get     = array('proxy' => 1); // Prevent from infinite redirect
- 
-         $request->setMethod($method == 'GET' ? HTTP_Request2::METHOD_GET : HTTP_Request2::METHOD_POST);
-+        $request->setHeader('X-Forwarded-For', $_SERVER['REMOTE_ADDR']);
-         $request->setHeader('X-Session-Token', kolab_utils::get_request_header('X-Session-Token'));
- 
-         kolab_client_api::configure($request);
---- a/lib/api/kolab_api_service_users.php	2017-08-30 16:01:26.879336915 +0200
-+++ b/lib/api/kolab_api_service_users.php	2017-08-30 16:57:55.838333280 +0200
-@@ -81,6 +82,21 @@ class kolab_api_service_users extends kolab_api_service
+@@ -82,6 +83,21 @@ class kolab_api_service_users extends kolab_api_service
          $params = $this->parse_list_params($post);
          $search = $this->parse_list_search($post);
  
@@ -42,3 +32,15 @@
          if (in_array('tbitskolaboverallquota', $attributes)) {
              // only get the domain admins
              $users = $auth->list_admins(null, $attributes);
+diff --git a/lib/kolab_api_controller.php b/lib/kolab_api_controller.php
+index 0326419..fd63c93 100644
+--- a/lib/kolab_api_controller.php
++++ b/lib/kolab_api_controller.php
+@@ -204,6 +204,7 @@ class kolab_api_controller
+         $get     = array('proxy' => 1); // Prevent from infinite redirect
+ 
+         $request->setMethod($method == 'GET' ? HTTP_Request2::METHOD_GET : HTTP_Request2::METHOD_POST);
++        $request->setHeader('X-Forwarded-For', $_SERVER['REMOTE_ADDR']);
+         $request->setHeader('X-Session-Token', kolab_utils::get_request_header('X-Session-Token'));
+ 
+         kolab_client_api::configure($request);

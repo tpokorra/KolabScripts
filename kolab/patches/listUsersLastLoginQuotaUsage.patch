@@ -15,7 +15,7 @@ index 591dd3a..725c2d4 100644
      {
          return $this->auth_instance($domain)->list_groups($attributes, $search, $params);
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index 34e6161..93d93bc 100644
+index 1294ab7..d6a84b8 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
 @@ -23,6 +23,8 @@
@@ -207,10 +207,10 @@ index 34e6161..93d93bc 100644
  
      }
 diff --git a/lib/api/kolab_api_service_user.php b/lib/api/kolab_api_service_user.php
-index 071c339..806c97c 100644
+index f95c19e..01f79cc 100644
 --- a/lib/api/kolab_api_service_user.php
 +++ b/lib/api/kolab_api_service_user.php
-@@ -64,6 +64,11 @@ class kolab_api_service_user extends kolab_api_service
+@@ -61,6 +61,11 @@ class kolab_api_service_user extends kolab_api_service
              $rights['find'] = "r";
          }
  
@@ -222,7 +222,7 @@ index 071c339..806c97c 100644
          $rights['effective_rights'] = "r";
  
          return $rights;
-@@ -234,6 +239,7 @@ class kolab_api_service_user extends kolab_api_service
+@@ -270,6 +275,7 @@ class kolab_api_service_user extends kolab_api_service
          $auth   = Auth::get_instance();
          $attrs  = $this->object_attributes('user');
  
@@ -290,7 +290,7 @@ index 73f3890..585a688 100644
      }
  
 diff --git a/lib/client/kolab_client_task_user.php b/lib/client/kolab_client_task_user.php
-index 0faf286..7490d03 100644
+index c46a50a..63be019 100644
 --- a/lib/client/kolab_client_task_user.php
 +++ b/lib/client/kolab_client_task_user.php
 @@ -28,6 +28,8 @@ class kolab_client_task_user extends kolab_client_task
@@ -444,10 +444,10 @@ index 0faf286..7490d03 100644
      {
          if (empty($attribs['id'])) {
 diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
-index 5458494..3e5479d 100644
+index 48cb647..644d750 100644
 --- a/lib/locale/de_DE.php
 +++ b/lib/locale/de_DE.php
-@@ -434,6 +434,18 @@ $LANG['user.postalcode'] = 'Postleitzahl';
+@@ -433,6 +433,18 @@ $LANG['user.postalcode'] = 'Postleitzahl';
  $LANG['user.postbox'] = 'Postfach';
  $LANG['user.postcode'] = 'Postleitzahl';
  $LANG['user.preferredlanguage'] = 'Muttersprache';
@@ -467,10 +467,10 @@ index 5458494..3e5479d 100644
  $LANG['user.sn'] = 'Nachname';
  $LANG['user.street'] = 'Straße';
 diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
-index c6935e3..4939ff0 100644
+index c68515d..2a51005 100644
 --- a/lib/locale/en_US.php
 +++ b/lib/locale/en_US.php
-@@ -436,6 +436,18 @@ $LANG['user.postalcode'] = 'Postal Code';
+@@ -435,6 +435,18 @@ $LANG['user.postalcode'] = 'Postal Code';
  $LANG['user.postbox'] = 'Postal box';
  $LANG['user.postcode'] = 'Postal code';
  $LANG['user.preferredlanguage'] = 'Native tongue';

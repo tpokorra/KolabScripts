@@ -1,8 +1,8 @@
 diff --git a/lib/Auth.php b/lib/Auth.php
-index 53c1d8d..d464fdf 100644
+index b42b40c..591dd3a 100644
 --- a/lib/Auth.php
 +++ b/lib/Auth.php
-@@ -196,6 +196,11 @@ class Auth {
+@@ -198,6 +198,11 @@ class Auth {
          return $this->auth_instance()->domain_add($domain, $domain_attrs);
      }
  
@@ -15,10 +15,10 @@ index 53c1d8d..d464fdf 100644
      {
          return $this->auth_instance()->domain_edit($domain, $attributes, $typeid);
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index 5f3f406..aafe618 100644
+index 2897399..32cba82 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -417,6 +417,25 @@ class LDAP extends Net_LDAP3 {
+@@ -436,6 +436,25 @@ class LDAP extends Net_LDAP3 {
          return $quota;
      }
  
@@ -45,10 +45,10 @@ index 5f3f406..aafe618 100644
      {
          $domain = $this->domain_info($domain, array_keys($attributes));
 diff --git a/lib/api/kolab_api_service_user.php b/lib/api/kolab_api_service_user.php
-index 79dcb59..1cbce61 100644
+index 3559722..fc1dd54 100644
 --- a/lib/api/kolab_api_service_user.php
 +++ b/lib/api/kolab_api_service_user.php
-@@ -70,6 +70,34 @@
+@@ -67,6 +67,34 @@ class kolab_api_service_user extends kolab_api_service
      }
  
      /**
@@ -83,7 +83,7 @@ index 79dcb59..1cbce61 100644
       * Create user.
       *
       * @param array $get   GET parameters
-@@ -81,6 +123,9 @@
+@@ -78,6 +106,9 @@ class kolab_api_service_user extends kolab_api_service
      {
          Log::trace("user_add()", $postdata);
  
@@ -93,4 +93,3 @@ index 79dcb59..1cbce61 100644
          $attributes = $this->parse_input_attributes('user', $postdata);
  
          password_policy::validate_password($attributes['userpassword']);
-

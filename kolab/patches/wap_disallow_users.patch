@@ -1,6 +1,8 @@
---- a/lib/kolab_api_controller.php	2017-07-27 17:01:09.406020391 +0200
-+++ b/lib/kolab_api_controller.php	2017-07-27 17:30:24.469974574 +0200
-@@ -356,6 +344,19 @@
+diff --git a/lib/kolab_api_controller.php b/lib/kolab_api_controller.php
+index fd63c93..9b3b20f 100644
+--- a/lib/kolab_api_controller.php
++++ b/lib/kolab_api_controller.php
+@@ -345,6 +345,19 @@ class kolab_api_controller
                  $result['info'] = $service->parse_result_attributes('user', $attributes);
              }
  
@@ -19,3 +21,4 @@
 +
              return $result;
          }
+ 

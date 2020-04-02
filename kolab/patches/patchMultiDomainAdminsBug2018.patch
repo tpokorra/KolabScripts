@@ -20,7 +20,7 @@ index de98433..1146b8d 100644
      {
          return $this->auth_instance()->find_recipient($address);
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index 59432ef..6cbd2ca 100644
+index 4bf2a8f..96d7481 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
 @@ -146,6 +146,22 @@ class LDAP extends Net_LDAP3 {
@@ -344,12 +344,12 @@ index 59432ef..6cbd2ca 100644
 +    }
  }
 diff --git a/lib/api/kolab_api_service_domain.php b/lib/api/kolab_api_service_domain.php
-index f9910df..2b7a923 100644
+index 9781eeb..3738338 100644
 --- a/lib/api/kolab_api_service_domain.php
 +++ b/lib/api/kolab_api_service_domain.php
-@@ -266,4 +266,25 @@ class kolab_api_service_domain extends kolab_api_service
+@@ -419,4 +419,25 @@ class kolab_api_service_domain extends kolab_api_service
  
-         return false;
+         $role_service->role_add(null, $role);
      }
 +
 +    /**
@@ -374,7 +374,7 @@ index f9910df..2b7a923 100644
 +    }
  }
 diff --git a/lib/api/kolab_api_service_domain_types.php b/lib/api/kolab_api_service_domain_types.php
-index 487faeb..6041cc0 100644
+index 7ea999e..7786349 100644
 --- a/lib/api/kolab_api_service_domain_types.php
 +++ b/lib/api/kolab_api_service_domain_types.php
 @@ -34,6 +34,11 @@ class kolab_api_service_domain_types extends kolab_api_service
@@ -390,7 +390,7 @@ index 487faeb..6041cc0 100644
                  'optional' => true,
              ),
 diff --git a/lib/api/kolab_api_service_form_value.php b/lib/api/kolab_api_service_form_value.php
-index 532010f..dcb525e 100644
+index 79f5fbd..48e017d 100644
 --- a/lib/api/kolab_api_service_form_value.php
 +++ b/lib/api/kolab_api_service_form_value.php
 @@ -1153,6 +1153,78 @@ class kolab_api_service_form_value extends kolab_api_service
@@ -507,7 +507,7 @@ index 532010f..dcb525e 100644
      private function validate_mailalternateaddress($value, $postdata = array(), $validation_type = null)
      {
          $conf = Conf::get_instance();
-@@ -1704,6 +1790,21 @@ class kolab_api_service_form_value extends kolab_api_service
+@@ -1710,6 +1796,21 @@ class kolab_api_service_form_value extends kolab_api_service
          if (in_array($email_domain, $this->_get_valid_domains($my_primary_domain))) {
              $valid = true;
          }
@@ -589,7 +589,7 @@ index 9171c7f..39d8557 100644
              'kolabfreebusyfuture'       => 'config',
              'kolabinvitationpolicy'     => 'config',
 diff --git a/lib/kolab_api_service.php b/lib/kolab_api_service.php
-index b552342..1e72748 100644
+index c098de1..582c996 100644
 --- a/lib/kolab_api_service.php
 +++ b/lib/kolab_api_service.php
 @@ -111,6 +111,10 @@ abstract class kolab_api_service
@@ -619,7 +619,7 @@ index b552342..1e72748 100644
              // than defined in object type
              if ($keys_count && $elem_keys_score < $keys_count) {
 diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
-index 944ac2d..d764a26 100644
+index c35df42..e4d4727 100644
 --- a/lib/kolab_client_task.php
 +++ b/lib/kolab_client_task.php
 @@ -1200,7 +1200,8 @@ class kolab_client_task
@@ -633,7 +633,7 @@ index 944ac2d..d764a26 100644
                          $fields[$idx]['readonly'] = false;
                      }
 diff --git a/lib/kolab_form.php b/lib/kolab_form.php
-index 9b5b010..78565e5 100644
+index 9b5b010..5d8b99a 100644
 --- a/lib/kolab_form.php
 +++ b/lib/kolab_form.php
 @@ -126,6 +126,8 @@ class kolab_form
@@ -673,7 +673,7 @@ index 9b5b010..78565e5 100644
                  ));
          }
 diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
-index d614795..4f91398 100644
+index 9880b0a..623a84d 100644
 --- a/lib/locale/de_DE.php
 +++ b/lib/locale/de_DE.php
 @@ -448,3 +448,12 @@ $LANG['user.uidnumber'] = 'Benutzer ID Nummer';
@@ -690,7 +690,7 @@ index d614795..4f91398 100644
 +$LANG['user.tbitskolabdefaultquota'] = 'Voreinstellung Quota für Benutzerkonten';
 +
 diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
-index bb59ce2..42f97a5 100644
+index 01a9660..f9c204c 100644
 --- a/lib/locale/en_US.php
 +++ b/lib/locale/en_US.php
 @@ -129,10 +129,12 @@ $LANG['deleting'] = 'Deleting data...';
@@ -772,10 +772,10 @@ index 0454ce4..fcc962c 100644
  
    // Form serialization
 diff --git a/public_html/skins/default/style.css b/public_html/skins/default/style.css
-index 0cb9af5..d533ac7 100644
+index 129dae7..5b75db2 100644
 --- a/public_html/skins/default/style.css
 +++ b/public_html/skins/default/style.css
-@@ -923,4 +923,17 @@ body.signup #footer {
+@@ -921,4 +921,17 @@ body.signup #footer {
  
  body.signup #message {
    top: 55px;

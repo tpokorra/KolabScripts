@@ -1,6 +1,8 @@
---- a/pykolab/auth/ldap/__init__.py	2016-06-23 11:17:58.454985341 +0200
-+++ b/pykolab/auth/ldap/__init__.py	2016-07-13 17:52:51.062743087 +0200
-@@ -149,6 +149,10 @@
+diff --git a/pykolab/auth/ldap/__init__.py b/pykolab/auth/ldap/__init__.py
+index 0cdd2a3..e9dff51 100644
+--- a/pykolab/auth/ldap/__init__.py
++++ b/pykolab/auth/ldap/__init__.py
+@@ -108,6 +108,10 @@ class LDAP(Base):
              and used as the realm
          """
  
@@ -11,18 +13,18 @@
          if conf.get('kolab', 'unique_uid_across_domains') == "true":
              if ((not "@" in login[0])
                      and (login[0] != 'cyrus-admin')
-@@ -226,7 +230,10 @@
- 
+@@ -184,7 +188,10 @@ class LDAP(Base):
          retval = False
+         timeout = float(self.config_get('ldap', 'timeout', default=10))
  
 +        in_auth_cache = True
 +
          if entry_dn is None:
 +            in_auth_cache = False
              _search = self.ldap.search_ext(
-                     base_dn,
-                     ldap.SCOPE_SUBTREE,
-@@ -429,6 +436,13 @@
+                 base_dn,
+                 ldap.SCOPE_SUBTREE,
+@@ -416,6 +423,13 @@ class LDAP(Base):
  
          self._disconnect()
  
@@ -36,4 +38,3 @@
          return retval
  
      def connect(self, priv=None, immediate=False):
-

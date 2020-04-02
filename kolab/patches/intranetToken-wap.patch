@@ -1,8 +1,8 @@
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index f6c3d7a..7d25719 100644
+index d6a84b8..752064d 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
-@@ -272,7 +272,7 @@ class LDAP extends Net_LDAP3 {
+@@ -270,7 +270,7 @@ class LDAP extends Net_LDAP3 {
          $admin_readonly_attrs = array("tbitsKolabMaxAccounts", "tbitsKolabOverallQuota");
  
          if (in_array('tbitsKolabUser', $this->classes_allowed())) {
@@ -12,10 +12,10 @@ index f6c3d7a..7d25719 100644
  
          $_domain = str_replace('.', '_', $domain);
 diff --git a/lib/client/kolab_client_task_user.php b/lib/client/kolab_client_task_user.php
-index 8b53880..214050c 100644
+index 63be019..20b5c07 100644
 --- a/lib/client/kolab_client_task_user.php
 +++ b/lib/client/kolab_client_task_user.php
-@@ -265,6 +265,7 @@ class kolab_client_task_user extends kolab_client_task
+@@ -272,6 +272,7 @@ class kolab_client_task_user extends kolab_client_task
              'uid'                       => 'system',
              'userpassword'              => 'system',
              'userpassword2'             => 'system',
@@ -23,7 +23,7 @@ index 8b53880..214050c 100644
              'uidnumber'                 => 'system',
              'gidnumber'                 => 'system',
              'homedirectory'             => 'system',
-@@ -314,6 +315,14 @@ class kolab_client_task_user extends kolab_client_task
+@@ -321,6 +322,14 @@ class kolab_client_task_user extends kolab_client_task
          $form = $this->form_prepare('user', $data, array('userpassword2'), null, $fields_map['type_id']);
          list($fields, $types, $type, $add_mode) = $form;
  
@@ -39,7 +39,7 @@ index 8b53880..214050c 100644
          if (isset($fields['userpassword'])) {
              $fields['userpassword2'] = $fields['userpassword'];
 diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
-index 7a8b33c..3aa8cc7 100644
+index 644d750..18d1755 100644
 --- a/lib/locale/de_DE.php
 +++ b/lib/locale/de_DE.php
 @@ -470,6 +470,7 @@ $LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
@@ -51,10 +51,10 @@ index 7a8b33c..3aa8cc7 100644
  $LANG['quota.unlimited'] = "Unbegrenzt";
  $LANG['quota.nomailbox'] = "Noch kein Postfach vorhanden";
 diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
-index 4cf87df..2bb7201 100644
+index 2a51005..a620987 100644
 --- a/lib/locale/en_US.php
 +++ b/lib/locale/en_US.php
-@@ -457,6 +457,7 @@ $LANG['user.tbitskolabmaxaccounts'] = 'Maximum number of accounts';
+@@ -458,6 +458,7 @@ $LANG['user.tbitskolabmaxaccounts'] = 'Maximum number of accounts';
  $LANG['user.tbitskolaboverallquota'] = 'Overall Quota assigned';
  $LANG['user.tbitskolabdefaultquota'] = 'Default Quota for user accounts';
  $LANG['user.tbitskolablastlogin'] = 'Latest successful login';

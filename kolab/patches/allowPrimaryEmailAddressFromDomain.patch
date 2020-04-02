@@ -1,18 +1,17 @@
 diff --git a/pykolab/auth/ldap/__init__.py b/pykolab/auth/ldap/__init__.py
-index 06fb00d..1bf56fc 100644
+index 7ba3504..0cdd2a3 100644
 --- a/pykolab/auth/ldap/__init__.py
 +++ b/pykolab/auth/ldap/__init__.py
-@@ -671,7 +671,10 @@ class LDAP(pykolab.base.Base):
+@@ -969,8 +969,10 @@ class LDAP(Base):
+         if 'preferredlanguage' not in entry:
              entry['preferredlanguage'] = conf.get('kolab', 'default_locale')
-
-         # Primary mail address
--        if not primary_mail == None:
+ 
+-        # Primary mail address
+-        if primary_mail is not None:
 +        # Patch by tbits: only apply primary mail address policy if the mail address does not end with the proper domain name
 +        if not primary_mail == None and (entry.has_key(primary_mail_attribute) and entry[primary_mail_attribute].endswith(self.domain)):
 +            primary_mail_address = entry[primary_mail_attribute]
 +        elif not primary_mail == None:
              primary_mail_address = conf.plugins.exec_hook(
-                     "set_primary_mail",
-                     kw={
-
-
+                 "set_primary_mail",
+                 kw={

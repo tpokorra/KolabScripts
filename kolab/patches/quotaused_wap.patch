@@ -1,5 +1,5 @@
 diff --git a/lib/Auth/LDAP.php b/lib/Auth/LDAP.php
-index 6e7b3d8..0bc611c 100644
+index 17e8f3c..1294ab7 100644
 --- a/lib/Auth/LDAP.php
 +++ b/lib/Auth/LDAP.php
 @@ -268,7 +268,7 @@ class LDAP extends Net_LDAP3 {
@@ -131,10 +131,10 @@ index 6e7b3d8..0bc611c 100644
  
      public function user_find_by_attribute($attribute)
 diff --git a/lib/api/kolab_api_service_user.php b/lib/api/kolab_api_service_user.php
-index 7b230d8..071c339 100644
+index fc1dd54..f95c19e 100644
 --- a/lib/api/kolab_api_service_user.php
 +++ b/lib/api/kolab_api_service_user.php
-@@ -233,6 +233,9 @@ class kolab_api_service_user extends kolab_api_service
+@@ -269,6 +269,9 @@ class kolab_api_service_user extends kolab_api_service
  
          $auth   = Auth::get_instance();
          $attrs  = $this->object_attributes('user');
@@ -145,7 +145,7 @@ index 7b230d8..071c339 100644
  
          // normalize result
 diff --git a/lib/client/kolab_client_task_settings.php b/lib/client/kolab_client_task_settings.php
-index 4e4480a..30803c2 100644
+index f0c5a38..fb143a3 100644
 --- a/lib/client/kolab_client_task_settings.php
 +++ b/lib/client/kolab_client_task_settings.php
 @@ -34,6 +34,7 @@ class kolab_client_task_settings extends kolab_client_task
@@ -195,7 +195,7 @@ index 34c8289..f5d8032 100644
  
      /**
 diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
-index e0214b4..e909ab4 100644
+index 48389eb..4f5d29c 100644
 --- a/lib/kolab_client_task.php
 +++ b/lib/kolab_client_task.php
 @@ -930,6 +930,14 @@ class kolab_client_task
@@ -214,7 +214,7 @@ index e0214b4..e909ab4 100644
              $result['type']      = kolab_form::INPUT_TEXTAREA;
              $result['data-type'] = 'aci';
 diff --git a/lib/kolab_form.php b/lib/kolab_form.php
-index 408dceb..089b5d5 100644
+index 2bd6ec2..7b2c04a 100644
 --- a/lib/kolab_form.php
 +++ b/lib/kolab_form.php
 @@ -39,6 +39,7 @@ class kolab_form
@@ -307,7 +307,7 @@ index 1255870..7998d8b 100644
       * Readonly control that will display the time encoded as a unix timestamp. Used for displaying tbitsKolabLastLogin
       *
 diff --git a/lib/locale/de_DE.php b/lib/locale/de_DE.php
-index 604e141..6d23676 100644
+index a1e77fa..48cb647 100644
 --- a/lib/locale/de_DE.php
 +++ b/lib/locale/de_DE.php
 @@ -458,4 +458,7 @@ $LANG['user.tbitskolaboverallquota'] = 'Gesamtquota verfügbar';
@@ -319,7 +319,7 @@ index 604e141..6d23676 100644
 +$LANG['quota.nomailbox'] = "Noch kein Postfach vorhanden";
  
 diff --git a/lib/locale/en_US.php b/lib/locale/en_US.php
-index ef2d1a1..16ae1ff 100644
+index 9baa7cf..c68515d 100644
 --- a/lib/locale/en_US.php
 +++ b/lib/locale/en_US.php
 @@ -446,6 +446,9 @@ $LANG['user.tbitskolabmaxaccounts'] = 'Maximum number of accounts';

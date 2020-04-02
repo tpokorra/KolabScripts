@@ -1,6 +1,8 @@
---- a/lib/kolab_client_task.php.orig	2014-12-01 19:00:36.913301999 +0100
-+++ b/lib/kolab_client_task.php	2014-12-01 19:09:22.249301999 +0100
-@@ -1042,6 +1046,18 @@
+diff --git a/lib/kolab_client_task.php b/lib/kolab_client_task.php
+index e4d4727..009e1c8 100644
+--- a/lib/kolab_client_task.php
++++ b/lib/kolab_client_task.php
+@@ -1094,6 +1094,18 @@ class kolab_client_task
              reset($types);
  
              $data['type_id'] = $type = ($default !== null ? $default : key($types));

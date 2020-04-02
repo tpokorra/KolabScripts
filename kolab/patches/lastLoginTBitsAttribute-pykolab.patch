@@ -1,8 +1,8 @@
 diff --git a/pykolab/auth/ldap/__init__.py b/pykolab/auth/ldap/__init__.py
-index c0c3297..0bfcac7 100644
+index 4b5f876..7ba3504 100644
 --- a/pykolab/auth/ldap/__init__.py
 +++ b/pykolab/auth/ldap/__init__.py
-@@ -335,6 +335,11 @@
+@@ -325,6 +325,11 @@ class LDAP(Base):
                      self._disconnect()
                      return False
  
@@ -13,8 +13,8 @@ index c0c3297..0bfcac7 100644
 +
                  try:
                      auth_cache.set_entry(_filter, entry_dn)
-                 except Exception, errmsg:
-@@ -379,6 +384,11 @@
+                 except Exception as errmsg:
+@@ -369,6 +374,11 @@ class LDAP(Base):
                      self._disconnect()
                      return False
  
@@ -23,41 +23,6 @@ index c0c3297..0bfcac7 100644
 +                if self.config_get('setlastlogin') == "True" and not "uid=cyrus-admin" in entry_dn:
 +                    self.set_entry_attribute(entry_dn, "tbitsKolabLastLogin", str(int(time.time())))
 +
-             except ldap.NO_SUCH_OBJECT, errmsg:
+             except ldap.NO_SUCH_OBJECT as errmsg:
                  log.debug(
-                         _("Error occured, there is no such object: %r") % (
-diff --git a/pykolab/auth/ldap/auth_cache.py b/pykolab/auth/ldap/auth_cache.py
-index 831e444..d1c6057 100644
---- a/pykolab/auth/ldap/auth_cache.py
-+++ b/pykolab/auth/ldap/auth_cache.py
-@@ -53,6 +53,7 @@ log = pykolab.getLogger('pykolab.auth_cache')
- metadata = MetaData()
- 
- db = None
-+last_purge = None
- 
- ##
- ## Classes
-@@ -150,7 +151,9 @@ def set_entry(key, value):
-         db.commit()
- 
- def purge_entries(db):
--    db.query(Entry).filter(Entry.last_change <= (datetime.datetime.now() - datetime.timedelta(1))).delete()
-+    global last_purge
-+    last_purge = datetime.datetime.now()
-+    db.query(Entry).filter(Entry.last_change <= (datetime.datetime.now() - datetime.timedelta(hours=1))).delete()
-     db.commit()
- 
- def init_db(reinit=False):
-@@ -158,8 +161,11 @@ def init_db(reinit=False):
-         Returns a SQLAlchemy Session() instance.
-     """
-     global db
-+    global last_purge
- 
-     if not db == None and not reinit:
-+        if last_purge <= (datetime.datetime.now() - datetime.timedelta(hours=1)):
-+            purge_entries(db)
-         return db
- 
-     db_uri = conf.get('ldap', 'auth_cache_uri')
+                     _l("Error occured, there is no such object: %r") % (
