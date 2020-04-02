@@ -1,15 +1,17 @@
---- a/pykolab/auth/ldap/__init__.py	2018-03-20 17:11:02.057172236 +0100
-+++ b/pykolab/auth/ldap/__init__.py	2018-03-20 17:08:50.159173449 +0100
-@@ -198,12 +198,12 @@
-                 pass
+diff --git a/pykolab/auth/ldap/__init__.py b/pykolab/auth/ldap/__init__.py
+index e9dff51..7ad4b76 100644
+--- a/pykolab/auth/ldap/__init__.py
++++ b/pykolab/auth/ldap/__init__.py
+@@ -160,12 +160,12 @@ class LDAP(Base):
+                 log.error(_l("Authentication cache failed: %r") % (errmsg))
  
          try:
 -            user_filter = self.config_get_raw('user_filter') % (
 +            user_filter = self.config_get_raw('user_filter' if login[0] == 'cyrus-admin' else 'kolab_user_filter') % (
-                     {'base_dn': base_dn}
-                 )
+                 {'base_dn': base_dn}
+             )
  
-         except TypeError, errmsg:
+         except TypeError:
 -            user_filter = self.config_get_raw('user_filter')
 +            user_filter = self.config_get_raw('user_filter' if login[0] == 'cyrus-admin' else 'kolab_user_filter')
  
