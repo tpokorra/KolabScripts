@@ -516,8 +516,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
           elem = driver.find_element_by_link_text("Contact Information")
 
         if alias is not None:
-            driver.find_element_by_xpath("//textarea[@name=\"alias\"]/following-sibling::*[1]/span[@class=\"listelement\"]/span[@class=\"actions\"]/span[@class=\"add\"]").click()
-            elem = driver.find_element_by_xpath("//textarea[@name=\"alias\"]/following-sibling::*[1]/span[2]/input");
+            driver.find_element_by_xpath("//textarea[@name='alias']/following-sibling::span/span[contains(@class,'listelement')]/span[contains(@class,'listactions')]/a[contains(@class,'add')]").click()
+            elem = driver.find_element_by_xpath("//textarea[@name=\"alias\"]/following-sibling::span/span[2]/input");
             elem.send_keys(alias)
             self.wait_loading(1.0)
 
