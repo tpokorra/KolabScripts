@@ -274,8 +274,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
 
         if withAliasDomain == True:
             aliasdomainname = string.replace(domainname, "domain", "alias")
-            driver.find_element_by_xpath("//textarea[@name=\"associateddomain\"]/following-sibling::*[1]/span[@class=\"listelement\"]/span[@class=\"actions\"]/span[@class=\"add\"]").click()
-            elem = driver.find_element_by_xpath("//textarea[@name=\"associateddomain\"]/following-sibling::*[1]/span[2]/input");
+            driver.find_element_by_xpath("//textarea[@name='associateddomain']/following-sibling::span/span[contains(@class,'listelement')]/span[contains(@class,'listactions')]/a[contains(@class,'add')]").click()
+            elem = driver.find_element_by_xpath("//textarea[@name='associateddomain']/following-sibling::*[1]/span[2]/input");
             elem.send_keys(aliasdomainname)
 
         if domainadmin is not None:
