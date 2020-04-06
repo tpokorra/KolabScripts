@@ -30,7 +30,7 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         kolabWAPhelper.load_user(username)
 
         # check if the user type is actually a normal kolab user
-        elem = self.driver.find_element_by_xpath("//form[@id='user-form']/fieldset/table/tbody/tr/td[contains(@class, 'value')]")
+        elem = self.driver.find_element_by_xpath("//form[@id='user-form']/fieldset/div/div[contains(@class, 'styletype_id_name')]")
         self.assertEquals("Kolab User", elem.text, "user type should be Kolab User, but was " + elem.text)
 
         kolabWAPhelper.logout_kolab_wap()
@@ -73,7 +73,7 @@ class KolabWAPDomainAdmin(unittest.TestCase):
         kolabWAPhelper.wait_loading(initialwait = 1)
 
         # check if the user type is a Kolab Domain Administrator
-        elem = self.driver.find_element_by_xpath("//form[@id='user-form']/fieldset/table/tbody/tr/td[contains(@class,'value')]")
+        elem = self.driver.find_element_by_xpath("//form[@id='user-form']/fieldset/div/div[contains(@class,'styletype_id_name')]")
         self.assertEquals("Domain Administrator", elem.text, "user type should be Domain Administrator, but was " + elem.text)
 
         kolabWAPhelper.logout_kolab_wap()
