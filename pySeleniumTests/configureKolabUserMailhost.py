@@ -38,8 +38,8 @@ class KolabUserMailhostLocalhost(unittest.TestCase):
         elem.click()
         elem = driver.find_element_by_xpath("//tr[@id='attr_table_row_mailhost']/td[@class='actions']/a[@href='#edit']").click()
         self.kolabWAPhelper.wait_loading(0.5)
-        driver.find_element_by_xpath("//tr[@id='attr_form_row_value']/td[@class='value']/select/option[@value='normal']").click()
-        elem = driver.find_element_by_xpath("//tr[@id='attr_form_row_default']/td[@class='value']/input")
+        driver.find_element_by_xpath("//select[@name='attr_value']/option[@value='normal']").click()
+        elem = driver.find_element_by_xpath("//input[@name='attr_default']")
         elem.send_keys("localhost")
         driver.find_element_by_xpath("//input[@value='Save']").click()
         
