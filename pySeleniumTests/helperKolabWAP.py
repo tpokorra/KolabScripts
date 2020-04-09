@@ -335,7 +335,8 @@ class KolabWAPTestHelpers(unittest.TestCase):
         driver.get(url + "?domain=" + domainname)
         selecteddomain = self.get_selected_domain()
         self.assertEquals(domainname, selecteddomain, "selected domain: expected " + domainname + " but was " + selecteddomain)
-        if not ">Users<" in driver.page_source:
+        elem = driver.find_element_by_xpath("//div[@id='navigation']/ul/li[contains(@class,'user')]/a")
+        if not elem:
             self.fail("selecting the domain did not work, no users menu item is available")
 
         self.log("Domain " + domainname + " has been selected")
