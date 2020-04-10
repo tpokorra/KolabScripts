@@ -65,7 +65,11 @@ then
   # we need a fully qualified hostname for amavisd to restart successfully, and later for setting up the ldap as well.
   # on LXD, the container name is not allowed a dot in the name. therefore we need to set the hostname here
   hostname=`hostname -f`
-  hostnamectl set-hostname ${hostname//-/.}
+  hostname=${hostname//-/.}
+  # but only use maximum two subdomains for the host, so that the email address will be @subdomain.domain.tld
+  DOTS=${hostname//[^.]};
+  while [[ ${#DOTS} -gt 3 ]]; do hostname="${hostname#*.}"; DOTS=${hostname//[^.]}; done
+  hostnamectl set-hostname $hostname
 
   # there is an issue with lxc 2.0.8 and CentOS, with PrivateDevices
   # https://github.com/lxc/lxc/issues/1623
