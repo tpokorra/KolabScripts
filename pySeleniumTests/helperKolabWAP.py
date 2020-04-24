@@ -213,6 +213,13 @@ class KolabWAPTestHelpers(unittest.TestCase):
           numberofattempts = numberofattempts - 1
 
         self.log( "User is logged in to Roundcube: " + elem.text)
+
+        with open('/etc/roundcubemail/config.inc.php') as f:
+          if "config['skin'] = 'chameleon'" in f.read():
+            self.rcskin='chameleon'
+          else:
+            self.rcskin='elastic'
+
         return True
 
     # logout the current user
@@ -700,15 +707,24 @@ class KolabWAPTestHelpers(unittest.TestCase):
         emailSubjectLine = "subject" + datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
         self.wait_loading(2)
-        driver.find_element_by_xpath("//ul[@id='toolbar-menu']/li/a[contains(@class,'compose')]").click()
-        self.wait_loading(2)
-        elem = driver.find_element_by_xpath("//ul[contains(@class,'recipient-input')]/li/input")
+        if self.rcskin == 'elastic':
+          driver.find_element_by_xpath("//ul[@id='toolbar-menu']/li/a[contains(@class,'compose')]").click()
+          self.wait_loading(2)
+          elem = driver.find_element_by_xpath("//ul[contains(@class,'recipient-input')]/li/input")
+        else
+          driver.find_element_by_xpath("//div[@id=\"messagetoolbar\"]/a[contains(@class,'button') and contains(@class,'compose')]").click()
+          self.wait_loading(2)
+          elem = driver.find_element_by_name("_to")
+        
         elem.send_keys(recipientEmailAddress)
         elem = driver.find_element_by_name("_subject")
         elem.send_keys(emailSubjectLine)
         elem = driver.find_element_by_name("_message")
         elem.send_keys("Hello World")
-        driver.find_element_by_xpath("//div[contains(@class,'formbuttons')]/button[contains(@class,'send')]").click()
+        if self.rcskin == 'elastic':
+          driver.find_element_by_xpath("//div[contains(@class,'formbuttons')]/button[contains(@class,'send')]").click()
+        else
+          driver.find_element_by_xpath("//div[@id=\"messagetoolbar\"]/a[@class=\"button send\"]").click()
         self.wait_loading(1)
         if 'ui-dialog-title' in self.driver.page_source:
           elem = driver.find_element_by_class_name("ui-dialog-title")
