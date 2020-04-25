@@ -711,7 +711,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
           driver.find_element_by_xpath("//ul[@id='toolbar-menu']/li/a[contains(@class,'compose')]").click()
           self.wait_loading(2)
           elem = driver.find_element_by_xpath("//ul[contains(@class,'recipient-input')]/li/input")
-        else
+        else:
           driver.find_element_by_xpath("//div[@id=\"messagetoolbar\"]/a[contains(@class,'button') and contains(@class,'compose')]").click()
           self.wait_loading(2)
           elem = driver.find_element_by_name("_to")
@@ -723,7 +723,7 @@ class KolabWAPTestHelpers(unittest.TestCase):
         elem.send_keys("Hello World")
         if self.rcskin == 'elastic':
           driver.find_element_by_xpath("//div[contains(@class,'formbuttons')]/button[contains(@class,'send')]").click()
-        else
+        else:
           driver.find_element_by_xpath("//div[@id=\"messagetoolbar\"]/a[@class=\"button send\"]").click()
         self.wait_loading(1)
         if 'ui-dialog-title' in self.driver.page_source:
